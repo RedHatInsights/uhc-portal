@@ -16,6 +16,7 @@ import {
 
 import { trackEvents } from '~/common/analytics';
 import { queryClient } from '~/components/App/queryClient';
+import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import useAnalytics from '~/hooks/useAnalytics';
@@ -71,7 +72,6 @@ export const FirewallRulesSelect = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
   const track = useAnalytics();
-  const canCreateFirewallRules = !!network;
 
   const {
     data: firewallRules,
@@ -84,6 +84,12 @@ export const FirewallRulesSelect = ({
     projectId,
     network,
   });
+
+  const createDisableReason = !network
+    ? 'Select a VPC name before creating firewall rules'
+    : firewallRules?.length
+      ? 'Firewall rules already exist for the selected WIF config and VPC'
+      : undefined;
 
   // Derive the displayed selection from fetched data.
   const matchedFirewallRule = firewallRules?.find((rule) => rule.id === selectedFirewallRules?.id);
@@ -187,13 +193,13 @@ export const FirewallRulesSelect = ({
                 </ClipboardCopy>
               </StackItem>
               <StackItem>
-                <Button
+                <ButtonWithTooltip
                   variant="secondary"
                   onClick={() => setIsCreateModalOpen(true)}
-                  isDisabled={!canCreateFirewallRules}
+                  disableReason={createDisableReason}
                 >
                   Create with UI
-                </Button>
+                </ButtonWithTooltip>
               </StackItem>
             </Stack>
           </ExpandableSection>
