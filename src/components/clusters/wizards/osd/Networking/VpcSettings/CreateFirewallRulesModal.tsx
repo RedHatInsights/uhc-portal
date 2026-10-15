@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 
 import {
   Alert,
@@ -18,8 +17,7 @@ import {
 
 import validators from '~/common/validators';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
-import { formatOcmApiErrorMessage } from '~/queries/helpers';
-import clusterService from '~/services/clusterService';
+import { useCreateGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useCreateGcpFirewallRule';
 import { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
 const DEFAULT_MACHINE_CIDR = '10.0.0.0/16';
@@ -33,21 +31,6 @@ type CreateFirewallRulesModalProps = {
   wifConfigId?: string;
   profile: string;
   createFirewallRulesCommand: string;
-};
-
-const getCreateErrorMessage = (err: unknown): string => {
-  if (axios.isAxiosError(err)) {
-    const { code, reason } = err.response?.data ?? {};
-    const formatted = formatOcmApiErrorMessage(code, reason, err.response?.status);
-    if (formatted) {
-      return formatted;
-    }
-    return err.message || 'Failed to create firewall rules';
-  }
-  if (err instanceof Error && err.message) {
-    return err.message;
-  }
-  return 'Failed to create firewall rules';
 };
 
 export const CreateFirewallRulesModal = ({
@@ -64,8 +47,8 @@ export const CreateFirewallRulesModal = ({
   const [machineCidr, setMachineCidr] = React.useState(DEFAULT_MACHINE_CIDR);
   const [nameError, setNameError] = React.useState<string | undefined>();
   const [cidrError, setCidrError] = React.useState<string | undefined>();
-  const [submitError, setSubmitError] = React.useState<string | undefined>();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const { mutate, isPending, isError, error, reset } = useCreateGcpFirewallRule();
 
   React.useEffect(() => {
     if (isOpen) {
@@ -73,10 +56,9 @@ export const CreateFirewallRulesModal = ({
       setMachineCidr(DEFAULT_MACHINE_CIDR);
       setNameError(undefined);
       setCidrError(undefined);
-      setSubmitError(undefined);
-      setIsSubmitting(false);
+      reset();
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   const validate = (): boolean => {
     const nextNameError = validators.required(name);
@@ -86,43 +68,50 @@ export const CreateFirewallRulesModal = ({
     return !nextNameError && !nextCidrError;
   };
 
-  const handleSubmit = async () => {
-    setSubmitError(undefined);
+  const handleClose = () => {
+    if (isPending) {
+      return;
+    }
+    reset();
+    onClose();
+  };
+
+  const handleSubmit = () => {
     if (!validate()) {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const payload: GcpFirewallRule = {
-        name: name.trim(),
-        profile,
-        wif_config: { id: wifConfigId },
-        gcp_network: {
-          project_id: projectId,
-          vpc_name: network,
-          machine_cidr: machineCidr.trim(),
-        },
-        template: {
-          version: 'v1',
-          href: `/api/clusters_mgmt/v1/gcp/firewall_rule_templates/v1/profiles/${profile}`,
-        },
-      };
-      await clusterService.createGcpFirewallRule(payload);
-      await onSuccess();
-      onClose();
-    } catch (err) {
-      setSubmitError(getCreateErrorMessage(err));
-    } finally {
-      setIsSubmitting(false);
-    }
+    const payload: GcpFirewallRule = {
+      name: name.trim(),
+      profile,
+      wif_config: { id: wifConfigId },
+      gcp_network: {
+        project_id: projectId,
+        vpc_name: network,
+        machine_cidr: machineCidr.trim(),
+      },
+      template: {
+        version: 'v1',
+        href: `/api/clusters_mgmt/v1/gcp/firewall_rule_templates/v1/profiles/${profile}`,
+      },
+    };
+
+    mutate(payload, {
+      onSuccess: async () => {
+        await onSuccess();
+        onClose();
+      },
+    });
   };
+
+  const submitErrorMessage =
+    error?.errorMessage || error?.reason || error?.message || 'Failed to create firewall rules';
 
   return (
     <Modal
       variant={ModalVariant.small}
       isOpen={isOpen}
-      onClose={isSubmitting ? undefined : onClose}
+      onClose={isPending ? undefined : handleClose}
       aria-labelledby="create-firewall-rules-modal-title"
       aria-describedby="create-firewall-rules-modal-body"
     >
@@ -132,14 +121,14 @@ export const CreateFirewallRulesModal = ({
       />
       <ModalBody id="create-firewall-rules-modal-body">
         <Form>
-          {submitError ? (
+          {isError ? (
             <Alert
               variant="danger"
               isInline
               title="Unable to create firewall rules"
               className="pf-v6-u-mb-md"
             >
-              {submitError}
+              {submitErrorMessage}
             </Alert>
           ) : null}
           <FormGroup label="Firewall rule name" isRequired fieldId="firewall-rule-name">
@@ -150,7 +139,7 @@ export const CreateFirewallRulesModal = ({
                 setName(value);
                 setNameError(undefined);
               }}
-              isDisabled={isSubmitting}
+              isDisabled={isPending}
               validated={nameError ? 'error' : 'default'}
             />
             <FormGroupHelperText touched error={nameError} validateOnSubmit />
@@ -163,7 +152,7 @@ export const CreateFirewallRulesModal = ({
                 setMachineCidr(value);
                 setCidrError(undefined);
               }}
-              isDisabled={isSubmitting}
+              isDisabled={isPending}
               validated={cidrError ? 'error' : 'default'}
             />
             <FormGroupHelperText touched error={cidrError} validateOnSubmit />
@@ -187,12 +176,12 @@ export const CreateFirewallRulesModal = ({
           key="create"
           variant="primary"
           onClick={handleSubmit}
-          isLoading={isSubmitting}
-          isDisabled={isSubmitting}
+          isLoading={isPending}
+          isDisabled={isPending}
         >
           Create
         </Button>
-        <Button key="cancel" variant="link" onClick={onClose} isDisabled={isSubmitting}>
+        <Button key="cancel" variant="link" onClick={handleClose} isDisabled={isPending}>
           Cancel
         </Button>
       </ModalFooter>
