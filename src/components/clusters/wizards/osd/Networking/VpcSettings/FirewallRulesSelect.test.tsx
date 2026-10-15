@@ -180,6 +180,34 @@ describe('<FirewallRulesSelect />', () => {
     expect(screen.getByDisplayValue(props.createFirewallRulesCommand)).toBeInTheDocument();
   });
 
+  it('disables Create with UI until a VPC name is selected', async () => {
+    useFetchGcpFirewallRulesMock.mockReturnValue({
+      isFetching: false,
+      data: firewallRules,
+      isSuccess: true,
+    });
+
+    const { user } = render(<FirewallRulesSelect {...createDefaultProps({ network: '' })} />);
+
+    await user.click(screen.getByText('Create firewall rules'));
+
+    expect(screen.getByRole('button', { name: 'Create with UI' })).toBeDisabled();
+  });
+
+  it('enables Create with UI when a VPC name is present', async () => {
+    useFetchGcpFirewallRulesMock.mockReturnValue({
+      isFetching: false,
+      data: firewallRules,
+      isSuccess: true,
+    });
+
+    const { user } = render(<FirewallRulesSelect {...createDefaultProps()} />);
+
+    await user.click(screen.getByText('Create firewall rules'));
+
+    expect(screen.getByRole('button', { name: 'Create with UI' })).toBeEnabled();
+  });
+
   it('calls onChange and tracks analytics when a firewall rule is selected', async () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,

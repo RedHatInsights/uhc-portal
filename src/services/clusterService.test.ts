@@ -360,5 +360,26 @@ describe('clusterService', () => {
         '/api/clusters_mgmt/v1/gcp/firewall_rules/fw-rules-1',
       );
     });
+
+    it('posts a new firewall rule', async () => {
+      const payload = {
+        name: 'za-fw-1',
+        profile: 'public',
+        wif_config: { id: 'wif-1' },
+        gcp_network: {
+          project_id: 'project-1',
+          vpc_name: 'vpc-1',
+          machine_cidr: '10.0.0.0/16',
+        },
+        template: { version: 'v1' },
+      };
+
+      await clusterService.createGcpFirewallRule(payload);
+
+      expect(apiRequestMock.post).toHaveBeenCalledWith(
+        '/api/clusters_mgmt/v1/gcp/firewall_rules',
+        payload,
+      );
+    });
   });
 });

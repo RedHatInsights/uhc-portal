@@ -26,6 +26,8 @@ import {
 } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules';
 import { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
+import { CreateFirewallRulesModal } from './CreateFirewallRulesModal';
+
 interface FirewallRulesSelectProps {
   selectedFirewallRules?: GcpFirewallRule;
   wifConfigId?: string;
@@ -66,8 +68,10 @@ export const FirewallRulesSelect = ({
 }: FirewallRulesSelectProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
   const track = useAnalytics();
+  const canCreateFirewallRules = !!network;
 
   const {
     data: firewallRules,
@@ -159,9 +163,9 @@ export const FirewallRulesSelect = ({
       <Stack hasGutter>
         <StackItem>
           <Content component={ContentVariants.p} className="pf-v6-u-mt-md">
-            To deploy with a smaller permission set, pre-create firewall rules using the CLI and
-            select them below. If you skip this step, firewall rules will be created automatically
-            during deployment.
+            To deploy with a smaller permission set, pre-create firewall rules using the CLI or the
+            create button below, then select them. If you skip this step, firewall rules will be
+            created automatically during deployment.
           </Content>
         </StackItem>
         <StackItem>
@@ -170,16 +174,40 @@ export const FirewallRulesSelect = ({
             isExpanded={isExpanded}
             onToggle={() => setIsExpanded(!isExpanded)}
           >
-            <ClipboardCopy
-              textAriaLabel="Copyable create firewall rules command"
-              variant={ClipboardCopyVariant.inline}
-              isReadOnly
-              hoverTip="Copy"
-              clickTip="Copied"
-            >
-              {createFirewallRulesCommand}
-            </ClipboardCopy>
+            <Stack hasGutter>
+              <StackItem>
+                <ClipboardCopy
+                  textAriaLabel="Copyable create firewall rules command"
+                  variant={ClipboardCopyVariant.inline}
+                  isReadOnly
+                  hoverTip="Copy"
+                  clickTip="Copied"
+                >
+                  {createFirewallRulesCommand}
+                </ClipboardCopy>
+              </StackItem>
+              <StackItem>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  isDisabled={!canCreateFirewallRules}
+                >
+                  Create with UI
+                </Button>
+              </StackItem>
+            </Stack>
           </ExpandableSection>
+          {network ? (
+            <CreateFirewallRulesModal
+              isOpen={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onSuccess={refreshGcpFirewallRules}
+              network={network}
+              projectId={projectId}
+              wifConfigId={wifConfigId}
+              profile={profile}
+            />
+          ) : null}
         </StackItem>
         <StackItem>
           <FormGroup label="Firewall rules">
