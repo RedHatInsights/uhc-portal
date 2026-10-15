@@ -6,9 +6,7 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Icon,
 } from '@patternfly/react-core';
-import { AngleDoubleRightIcon } from '@patternfly/react-icons/dist/esm/icons/angle-double-right-icon';
 
 import { isCompatibleFeature, SupportedFeature } from '~/common/featureCompatibility';
 import clusterStates from '~/components/clusters/common/clusterStates';
@@ -16,14 +14,9 @@ import EditButton from '~/components/common/EditButton';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchClusterDetails } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import {
-  ALLOW_EUS_CHANNEL,
-  AUTO_CLUSTER_TRANSFER_OWNERSHIP,
-} from '~/queries/featureGates/featureConstants';
+import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
-
-import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 
 export function Owner() {
   const dispatch = useDispatch();
@@ -33,7 +26,6 @@ export function Owner() {
   const { cluster } = useFetchClusterDetails(params.id || '');
 
   const hasFeatureGate = useFeatureGate(AUTO_CLUSTER_TRANSFER_OWNERSHIP);
-  const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const showOwnershipTransfer =
@@ -46,7 +38,7 @@ export function Owner() {
     !cluster?.canEdit && 'You do not have permission to transfer ownership.';
   const owner =
     cluster?.subscription?.creator?.name || cluster?.subscription?.creator?.username || 'N/A';
-  const OwnerTransferButton = useEusChannel ? (
+  const OwnerTransferButton = (
     <EditButton
       data-testid="ownerTranswerOverviewLink"
       disableReason={disableChangeReason}
@@ -61,27 +53,6 @@ export function Owner() {
     >
       {owner}
     </EditButton>
-  ) : (
-    <ButtonWithTooltip
-      data-testid="ownerTranswerOverviewLink"
-      isDisabled={!cluster?.canEdit}
-      variant="link"
-      isInline
-      onClick={() =>
-        dispatch(
-          openModal(modals.TRANSFER_CLUSTER_OWNERSHIP_AUTO, {
-            subscription: cluster?.subscription,
-          }),
-        )
-      }
-      disableReason={disableChangeReason}
-      isAriaDisabled={!!disableChangeReason}
-    >
-      <span className="pf-v6-u-font-size-xs">Transfer ownership</span>{' '}
-      <Icon size="sm">
-        <AngleDoubleRightIcon />
-      </Icon>
-    </ButtonWithTooltip>
   );
   return (
     <DescriptionListGroup>

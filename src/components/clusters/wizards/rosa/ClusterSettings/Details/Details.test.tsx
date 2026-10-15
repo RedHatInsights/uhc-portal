@@ -16,7 +16,6 @@ import {
 } from '~/components/clusters/wizards/rosa/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
 import {
-  ALLOW_EUS_CHANNEL,
   FIPS_FOR_HYPERSHIFT,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
@@ -180,23 +179,7 @@ describe('<Details />', () => {
       (getOCPLifeCycleStatus as jest.Mock).mockResolvedValue(ocpLifeCycleStatuses);
     });
 
-    it('is not displayed when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
-
-      withState({ cloudProviders: fulfilledProviders }).render(
-        <Formik initialValues={defaultValues} onSubmit={() => {}}>
-          <Details />
-        </Formik>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
-      });
-    });
-
-    it('is not displayed when ALLOW_EUS_CHANNEL feature gate is disabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, false]]);
-
+    it('is not displayed', async () => {
       withState({ cloudProviders: fulfilledProviders }).render(
         <Formik initialValues={defaultValues} onSubmit={() => {}}>
           <Details />
