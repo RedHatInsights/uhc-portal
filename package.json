@@ -37,7 +37,7 @@
     "dayjs": "^1.11.10",
     "file-saver": "^2.0.5",
     "filesize": "^10.0.0",
-    "formik": "^2.2.9",
+    "formik": "^2.4.9",
     "fuse.js": "^7.0.0",
     "history": "^5.0.0",
     "humanize-duration": "^3.30.0",
@@ -46,7 +46,7 @@
     "ip-cidr": "3.1.0",
     "is-promise": "^4.0.0",
     "js-yaml": "^5.4.2",
-    "jsonschema": "^1.2.10",
+    "jsonschema": "^1.5.0",
     "jszip": "^3.9.0",
     "keycloak-js": "^26.1.0",
     "lodash": "^4.17.19",
@@ -95,7 +95,7 @@
     "victory-tooltip": "^37.3.6 ",
     "victory-voronoi-container": "^37.3.6 ",
     "victory-zoom-container": "^37.3.6 ",
-    "yup": "^1.4.0"
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.9",

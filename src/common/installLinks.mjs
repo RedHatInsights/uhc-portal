@@ -188,6 +188,11 @@ const links = {
   ROSA_OPP_AWS_MARKETPLACE_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
   ROSA_OPP_AWS_MARKETPLACE_NON_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-dm5otbp2o25zk',
 
+  ARO_OPP_AZURE_MARKETPLACE_EMEA:
+    'https://marketplace.microsoft.com/en-us/product/redhat-limited.rh-opp-bundle',
+  ARO_OPP_AZURE_MARKETPLACE_NON_EMEA:
+    'https://marketplace.microsoft.com/en-us/product/redhat.rh-opp-bundle',
+
   KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
   TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
   CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
