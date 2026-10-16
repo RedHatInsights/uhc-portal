@@ -39,7 +39,7 @@ describe('<SubscriptionCompliancy />', () => {
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Warning alert:')).toBeInTheDocument();
-    expect(screen.getByText('OpenShift evaluation expiration date')).toBeInTheDocument();
+    expect(screen.getByText('OpenShift cluster support status')).toBeInTheDocument();
     expect(
       screen.queryByText(
         'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
@@ -63,7 +63,7 @@ describe('<SubscriptionCompliancy />', () => {
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Warning alert:')).toBeInTheDocument();
-    expect(screen.getByText('OpenShift evaluation expiration date')).toBeInTheDocument();
+    expect(screen.getByText('OpenShift cluster support status')).toBeInTheDocument();
     expect(
       screen.getByText(
         'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
@@ -80,7 +80,7 @@ describe('<SubscriptionCompliancy />', () => {
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Danger alert:')).toBeInTheDocument();
-    expect(screen.getByText('Your 60-day OpenShift evaluation has expired')).toBeInTheDocument();
+    expect(screen.getByText('Your OpenShift cluster is not supported')).toBeInTheDocument();
     expect(
       screen.queryByText(
         'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
@@ -97,7 +97,7 @@ describe('<SubscriptionCompliancy />', () => {
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Danger alert:')).toBeInTheDocument();
-    expect(screen.getByText('Your 60-day OpenShift evaluation has expired')).toBeInTheDocument();
+    expect(screen.getByText('Your OpenShift cluster is not supported')).toBeInTheDocument();
     expect(
       screen.getByText(
         'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
