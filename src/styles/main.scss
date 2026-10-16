@@ -1,3 +1,6 @@
+@use './app';
+@use './log-window';
+
 /**
   Third Party / Dependency imports here
 */
@@ -25,6 +28,3 @@ body {
 .tsqd-open-btn-container{
   margin-right: 4% !important;
 }
-
-@import './app';
-@import './log-window';
