@@ -1,0 +1,8 @@
+{
+  "alerts": [
+    {
+      "severity": "none",
+      "name": "Watchdog"
+    }
+  ]
+}

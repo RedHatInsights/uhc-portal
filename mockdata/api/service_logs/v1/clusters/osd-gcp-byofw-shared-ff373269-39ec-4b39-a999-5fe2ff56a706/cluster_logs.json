@@ -1,0 +1,60 @@
+{
+  "kind": "ClusterLogList",
+  "page": 1,
+  "size": 4,
+  "total": 4,
+  "items": [
+    {
+      "id": "1naI1zc4YvGkbT27sfXVL6ljder",
+      "kind": "ClusterLog",
+      "href": "/api/service_logs/v1/cluster_logs/1naI1zc4YvGkbT27sfXVL6ljder",
+      "timestamp": "2021-01-26T00:39:23.124954Z",
+      "severity": "Warning",
+      "service_name": "ClusterService",
+      "cluster_uuid": "16ff188e-6dcb-4d1e-bb5d-8717e127ebde",
+      "summary": "Maintenance started",
+      "description": "This cluster's configuration will be read only during OCM maintenance. May take up to 3 hours.",
+      "event_stream_id": "1naI22O0qlLSIpRjuFhqxL0D7ox",
+      "created_at": "2021-07-13T11:23:45.169439Z"
+    },
+    {
+      "id": "1naHyllf5nGGDtzDBJGRdsACL1E",
+      "kind": "ClusterLog",
+      "href": "/api/service_logs/v1/cluster_logs/1naHyllf5nGGDtzDBJGRdsACL1E",
+      "timestamp": "2021-01-26T00:38:57.455665Z",
+      "severity": "Info",
+      "service_name": "ClusterService",
+      "cluster_uuid": "16ff188e-6dcb-4d1e-bb5d-8717e127ebde",
+      "summary": "Group user added",
+      "description": "Group user 'cuser2' has been added to group 'cluster-admins'",
+      "event_stream_id": "1naHykV1ZYqknGBZpu8NWVc0hjy",
+      "created_at": "2021-01-26T00:38:57.501486Z"
+    },
+    {
+      "id": "1naHyMSWGzOfPlu34NUTb8wEpvu",
+      "kind": "ClusterLog",
+      "href": "/api/service_logs/v1/cluster_logs/1naHyMSWGzOfPlu34NUTb8wEpvu",
+      "timestamp": "2021-01-26T00:38:54.691461Z",
+      "severity": "Info",
+      "service_name": "ClusterService",
+      "cluster_uuid": "16ff188e-6dcb-4d1e-bb5d-8717e127ebde",
+      "summary": "Group user added",
+      "description": "Group user 'cuser1' has been added to group 'cluster-admins'",
+      "event_stream_id": "1naHyQAVxcA2W4ylss606grgqGJ",
+      "created_at": "2021-01-26T00:38:54.729657Z"
+    },
+    {
+      "id": "1naFHMIdkMlXNi71F1UR0slyesm",
+      "kind": "ClusterLog",
+      "href": "/api/service_logs/v1/cluster_logs/1naFHMIdkMlXNi71F1UR0slyesm",
+      "timestamp": "2021-01-26T00:16:45.44137Z",
+      "severity": "Info",
+      "service_name": "AccountManager",
+      "cluster_uuid": "16ff188e-6dcb-4d1e-bb5d-8717e127ebde",
+      "summary": "Cluster registered successfully",
+      "description": "Cluster installation completed and the cluster registered successfully.",
+      "event_stream_id": "1naFHPPd59dRKANLSRXp70sBww2",
+      "created_at": "2021-01-26T00:16:45.48796Z"
+    }
+  ]
+}
