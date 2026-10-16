@@ -1,5 +1,8 @@
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
+import { modalActions } from '~/components/common/Modal/ModalActions';
+import modals from '~/components/common/Modal/modals';
 import { useFetchGcpDnsZone } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone';
 import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule';
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
@@ -8,6 +11,11 @@ import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 import type { AugmentedCluster } from '~/types/types';
 
 import VPCDetailsCard from './VPCDetailsCard';
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useDispatch: jest.fn(),
+}));
 
 jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone', () => ({
   useFetchGcpDnsZone: jest.fn(),
@@ -18,6 +26,8 @@ jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule
 
 const useFetchGcpDnsZoneMock = useFetchGcpDnsZone as jest.Mock;
 const useFetchGcpFirewallRuleMock = useFetchGcpFirewallRule as jest.Mock;
+const useDispatchMock = useDispatch as jest.Mock;
+const dispatchMock = jest.fn();
 
 const dnsZone = {
   Kind: 'DnsDomain',
@@ -50,6 +60,7 @@ describe('<VPCDetailsCard />', () => {
   };
 
   beforeEach(() => {
+    useDispatchMock.mockReturnValue(dispatchMock);
     useFetchGcpDnsZoneMock.mockReturnValue({ data: undefined });
     useFetchGcpFirewallRuleMock.mockReturnValue({ data: undefined });
     mockUseFeatureGate([
@@ -66,6 +77,48 @@ describe('<VPCDetailsCard />', () => {
     it('renders footer', () => {
       render(<VPCDetailsCard {...defaultProps} />);
       expect(screen.queryByText('Edit cluster-wide proxy')).toBeInTheDocument();
+    });
+
+    it('opens the edit cluster-wide proxy modal when the edit button is clicked', async () => {
+      const { user } = render(
+        <VPCDetailsCard
+          cluster={
+            {
+              ...defaultProps.cluster,
+              canUpdateClusterResource: true,
+              status: { configuration_mode: 'full' },
+            } as AugmentedCluster
+          }
+        />,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Edit cluster-wide proxy' }));
+
+      expect(dispatchMock).toHaveBeenCalledWith(
+        modalActions.openModal(modals.EDIT_CLUSTER_WIDE_PROXY),
+      );
+    });
+
+    it('renders No Proxy domains as labels when configured', () => {
+      render(
+        <VPCDetailsCard
+          cluster={
+            {
+              ...defaultProps.cluster,
+              proxy: { no_proxy: '.example.com,.internal' },
+            } as AugmentedCluster
+          }
+        />,
+      );
+
+      expect(screen.getByText('.example.com')).toBeInTheDocument();
+      expect(screen.getByText('.internal')).toBeInTheDocument();
+    });
+
+    it('returns null when the cluster is not using a BYO VPC', () => {
+      const { container } = render(<VPCDetailsCard cluster={{} as AugmentedCluster} />);
+
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
