@@ -54,11 +54,19 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --project)
+      if [[ $# -lt 2 || "$2" == -* ]]; then
+        echo "ERROR: --project requires a value" >&2
+        usage
+      fi
       PROJECT="$2"
       PROJECT_EXPLICIT=true
       shift 2
       ;;
     --region)
+      if [[ $# -lt 2 || "$2" == -* ]]; then
+        echo "ERROR: --region requires a value" >&2
+        usage
+      fi
       REGION="$2"
       shift 2
       ;;
