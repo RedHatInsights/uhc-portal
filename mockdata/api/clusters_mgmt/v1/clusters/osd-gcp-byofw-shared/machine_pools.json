@@ -1,0 +1,32 @@
+{
+  "kind": "MachinePoolList",
+  "href": "/api/clusters_mgmt/v1/clusters/osd-gcp-byofw-shared/machine_pools",
+  "page": 1,
+  "size": 1,
+  "total": 1,
+  "items": [
+    {
+      "kind": "MachinePool",
+      "href": "/api/clusters_mgmt/v1/clusters/1l773qhkl0v4kk8mppfbb93p18gpr08t/machine_pools/pool2",
+      "id": "pool2",
+      "autoscaling": {
+        "min_replicas": 1,
+        "max_replicas": 2
+      },
+      "instance_type": "custom-4-16384",
+      "availability_zones": [
+        "us-east1-b"
+      ],
+      "taints": [
+        {
+          "key": "tkey",
+          "value": "tval",
+          "effect": "PreferNoSchedule"
+        }
+      ],
+      "labels": {
+        "quux": "baz"
+      }
+    }
+  ]
+}

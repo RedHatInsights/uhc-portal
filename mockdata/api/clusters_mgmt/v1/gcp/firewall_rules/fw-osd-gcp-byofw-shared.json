@@ -1,0 +1,12 @@
+{
+  "kind": "GcpFirewallRule",
+  "id": "fw-osd-gcp-byofw-shared",
+  "href": "/api/clusters_mgmt/v1/gcp/firewall_rules/fw-osd-gcp-byofw-shared",
+  "name": "osd-gcp-byofw-shared-firewall",
+  "profile": "public",
+  "gcp_network": {
+    "project_id": "osd-gcp-byofw-host-project",
+    "vpc_name": "osd-gcp-byofw-shared-vpc",
+    "machine_cidr": "10.0.0.0/16"
+  }
+}

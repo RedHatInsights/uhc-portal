@@ -1,0 +1,14 @@
+{
+  "kind": "GroupList",
+  "href": "/api/clusters_mgmt/v1/clusters/osd-gcp-byofw-shared/groups",
+  "page": 1,
+  "size": 1,
+  "total": 1,
+  "items": [
+    {
+      "kind": "Group",
+      "href": "/api/clusters_mgmt/v1/clusters/osd-gcp-byofw-shared/groups/dedicated-admins",
+      "id": "dedicated-admins"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "kind": "IngressList",
+  "href": "/api/clusters_mgmt/v1/clusters/osd-gcp-byofw/ingresses",
+  "id": "osd-gcp-byofw",
+  "page": 1,
+  "size": 0,
+  "total": 0
+}
