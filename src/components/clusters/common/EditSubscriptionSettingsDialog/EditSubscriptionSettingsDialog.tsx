@@ -11,9 +11,10 @@ import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionPatchRequest } from '~/types/accounts_mgmt.v1';
 
 import {
-  hasCapability,
-  subscriptionCapabilities,
-} from '../../../../common/subscriptionCapabilities';
+  clusterCapabilities,
+  hasCapabilityValue,
+  hasSubscribedOcpMarketplaceCapability,
+} from '../../../../common/capabilities';
 import { closeModal } from '../../../common/Modal/ModalActions';
 import modals from '../../../common/Modal/modals';
 
@@ -101,14 +102,11 @@ const EditSubscriptionSettingsDialog = ({ onClose }: EditSubscriptionSettingsDia
         <EditSubscriptionSettingsFields
           initialSettings={subscription}
           onSettingsChange={setSettings}
-          canSubscribeStandardOCP={hasCapability(
-            subscription,
-            subscriptionCapabilities.SUBSCRIBED_OCP,
+          canSubscribeStandardOCP={hasCapabilityValue(
+            subscription?.capabilities,
+            clusterCapabilities.SUBSCRIBED_OCP,
           )}
-          canSubscribeMarketplaceOCP={hasCapability(
-            subscription,
-            subscriptionCapabilities.SUBSCRIBED_OCP_MARKETPLACE,
-          )}
+          canSubscribeMarketplaceOCP={hasSubscribedOcpMarketplaceCapability(subscription)}
         />
       </Form>
     </Modal>
