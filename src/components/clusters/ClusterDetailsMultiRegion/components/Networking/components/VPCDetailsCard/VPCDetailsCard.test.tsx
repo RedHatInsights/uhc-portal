@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import * as reactRedux from 'react-redux';
 
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -13,8 +13,8 @@ import type { AugmentedCluster } from '~/types/types';
 import VPCDetailsCard from './VPCDetailsCard';
 
 jest.mock('react-redux', () => ({
+  __esModule: true,
   ...jest.requireActual('react-redux'),
-  useDispatch: jest.fn(),
 }));
 
 jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone', () => ({
@@ -26,7 +26,7 @@ jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule
 
 const useFetchGcpDnsZoneMock = useFetchGcpDnsZone as jest.Mock;
 const useFetchGcpFirewallRuleMock = useFetchGcpFirewallRule as jest.Mock;
-const useDispatchMock = useDispatch as jest.Mock;
+const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
 const dispatchMock = jest.fn();
 
 const dnsZone = {
