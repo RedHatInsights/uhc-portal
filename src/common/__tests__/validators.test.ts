@@ -1873,4 +1873,13 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
       }),
     ).toContain("TLS secret name 'Invalid_Secret' isn't valid");
   });
+
+  it('does not show a TLS secret error on Hostname when the secret name is invalid', () => {
+    expect(
+      validateTlsHostname('downloads.example.com', {
+        clusterRoutesTlsSecretRef: 'Invalid_Secret',
+        clusterRoutesHostname: 'downloads.example.com',
+      }),
+    ).toBeUndefined();
+  });
 });
