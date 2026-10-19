@@ -1850,11 +1850,19 @@ const validateTlsPair = (tlsSecret?: string, tlsHostname?: string) => {
   if (!tlsSecret || !tlsHostname) {
     return 'You cannot provide only one of TLS secret name and Hostname';
   }
-  return checkObjectName(tlsSecret, 'TLS secret', MAX_OBJECT_NAME_LENGTH);
+  return undefined;
 };
 
-const validateTlsSecretName = (value: string, allValues: Tls) =>
-  validateTlsPair(value, allValues.clusterRoutesHostname);
+const validateTlsSecretName = (value: string, allValues: Tls) => {
+  const pairError = validateTlsPair(value, allValues.clusterRoutesHostname);
+  if (pairError) {
+    return pairError;
+  }
+  if (!value) {
+    return undefined;
+  }
+  return checkObjectName(value, 'TLS secret', MAX_OBJECT_NAME_LENGTH);
+};
 
 const validateTlsHostname = (value: string, allValues: Tls) =>
   validateTlsPair(allValues.clusterRoutesTlsSecretRef, value);
