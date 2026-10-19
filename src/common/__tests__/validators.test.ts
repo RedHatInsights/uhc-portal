@@ -45,6 +45,8 @@ import validators, {
   validateRoleARN,
   validateSecureURL,
   validateServiceAccountObject,
+  validateTlsHostname,
+  validateTlsSecretName,
   validateUniqueAZ,
   validateUserOrGroupARN,
 } from '../validators';
@@ -1824,5 +1826,51 @@ describe('validateExcludeNamespaceSelectorValue', () => {
     ).toBe(
       'Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations.',
     );
+  });
+});
+
+describe('validateTlsHostname and validateTlsSecretName', () => {
+  const pairError = 'You cannot provide only one of TLS secret name and Hostname';
+
+  it('accepts a valid hostname with dots when a valid TLS secret name is also provided', () => {
+    expect(
+      validateTlsHostname('downloads.example.com', {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: 'downloads.example.com',
+      }),
+    ).toBeUndefined();
+  });
+
+  it('accepts a valid TLS secret name when a hostname is also provided', () => {
+    expect(
+      validateTlsSecretName('my-tls-secret', {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: 'downloads.example.com',
+      }),
+    ).toBeUndefined();
+  });
+
+  it('returns undefined when both TLS secret name and hostname are empty', () => {
+    expect(validateTlsHostname('', { clusterRoutesTlsSecretRef: '' })).toBeUndefined();
+    expect(validateTlsSecretName('', { clusterRoutesHostname: '' })).toBeUndefined();
+  });
+
+  it('returns an error when only hostname is provided', () => {
+    expect(validateTlsHostname('downloads.example.com', { clusterRoutesTlsSecretRef: '' })).toBe(
+      pairError,
+    );
+  });
+
+  it('returns an error when only TLS secret name is provided', () => {
+    expect(validateTlsSecretName('my-tls-secret', { clusterRoutesHostname: '' })).toBe(pairError);
+  });
+
+  it('returns an error when TLS secret name is not a valid object name', () => {
+    expect(
+      validateTlsSecretName('Invalid_Secret', {
+        clusterRoutesTlsSecretRef: 'Invalid_Secret',
+        clusterRoutesHostname: 'downloads.example.com',
+      }),
+    ).toContain("TLS secret name 'Invalid_Secret' isn't valid");
   });
 });
