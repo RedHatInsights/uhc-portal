@@ -1857,7 +1857,7 @@ const validateTlsSecretName = (value: string, allValues: Tls) =>
   validateTlsPair(value, allValues.clusterRoutesHostname);
 
 const validateTlsHostname = (value: string, allValues: Tls) =>
-  validateTlsPair(value, allValues.clusterRoutesTlsSecretRef);
+  validateTlsPair(allValues.clusterRoutesTlsSecretRef, value);
 
 const validateWorkerVolumeSize = (
   size: number,
