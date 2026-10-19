@@ -3,10 +3,17 @@ import { Formik, FormikValues } from 'formik';
 
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import useAnalytics from '~/hooks/useAnalytics';
-import { render, screen, waitFor } from '~/testUtils';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { GCPAuthType } from '../ClusterSettings/CloudProvider/types';
 import { FieldId, initialValues } from '../constants';
+import {
+  OCP5_EXISTING_VPC_ALERT_BODY,
+  OCP5_EXISTING_VPC_ALERT_TITLE,
+  PRIVATE_AND_OCP5_EXISTING_VPC_ALERT,
+  PRIVATE_WIF_EXISTING_VPC_ALERT,
+} from '../requiresExistingVpcForOcp5';
 
 import { Configuration } from './Configuration';
 import { ClusterPrivacyType } from './constants';
@@ -17,6 +24,9 @@ jest.mock('~/hooks/useAnalytics');
 
 const mockUseIsOSDFromGoogleCloud = useIsOSDFromGoogleCloud as jest.Mock;
 const mockUseAnalytics = useAnalytics as jest.Mock;
+
+const installIntoExistingVpc = () =>
+  screen.getByRole('checkbox', { name: 'Install into an existing VPC' });
 
 const prepareComponent = (customValues?: FormikValues) => (
   <Formik
@@ -344,5 +354,140 @@ describe('when useIsOSDFromGoogleCloud returns true', () => {
       expect(installToVpcCheckbox).toBeChecked();
     });
     expect(installToVpcCheckbox).toBeDisabled();
+  });
+});
+
+describe('<Configuration /> OpenShift 5 GCP WIF existing VPC', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseIsOSDFromGoogleCloud.mockReturnValue(false);
+    mockUseAnalytics.mockReturnValue(jest.fn());
+    mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('checks and disables Install into an existing VPC and shows the OpenShift 5 warning when only OpenShift 5 requires an existing VPC', async () => {
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '5.1.0' },
+        [FieldId.InstallToVpc]: false,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+    expect(screen.getByText(OCP5_EXISTING_VPC_ALERT_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(OCP5_EXISTING_VPC_ALERT_BODY)).toBeInTheDocument();
+  });
+
+  it('shows the combined warning and keeps Install into an existing VPC checked and disabled for a private OpenShift 5 cluster', async () => {
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '5.0.1' },
+        [FieldId.InstallToVpc]: true,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+    expect(screen.getByText(PRIVATE_AND_OCP5_EXISTING_VPC_ALERT)).toBeInTheDocument();
+  });
+
+  it('leaves Install into an existing VPC unchecked and enabled for an OpenShift 4 version', () => {
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+        [FieldId.InstallToVpc]: false,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeEnabled();
+    expect(checkbox).not.toBeChecked();
+    expect(screen.queryByText(OCP5_EXISTING_VPC_ALERT_TITLE)).not.toBeInTheDocument();
+  });
+
+  it('keeps the private WIF warning and a checked, disabled checkbox for a private OpenShift 4 cluster', async () => {
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+        [FieldId.InstallToVpc]: true,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+    expect(screen.getByText(PRIVATE_WIF_EXISTING_VPC_ALERT)).toBeInTheDocument();
+  });
+
+  it('switches the warning between OpenShift 5 and the combined private text while Install into an existing VPC stays checked and disabled', async () => {
+    const { user } = render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '5.0.1' },
+        [FieldId.InstallToVpc]: true,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+    expect(screen.getByText(OCP5_EXISTING_VPC_ALERT_TITLE)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('radio', { name: /Private/i }));
+
+    expect(await screen.findByText(PRIVATE_AND_OCP5_EXISTING_VPC_ALERT)).toBeInTheDocument();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+
+    await user.click(screen.getByRole('radio', { name: /Public/i }));
+
+    expect(await screen.findByText(OCP5_EXISTING_VPC_ALERT_TITLE)).toBeInTheDocument();
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).toBeChecked();
+  });
+
+  it('leaves Install into an existing VPC optional when ocmui-ocp5-support is disabled', () => {
+    mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+
+    render(
+      prepareComponent({
+        [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+        [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        [FieldId.Byoc]: 'true',
+        [FieldId.CloudProvider]: 'gcp',
+        [FieldId.ClusterVersion]: { raw_id: '5.0.1' },
+        [FieldId.InstallToVpc]: false,
+      }),
+    );
+
+    const checkbox = installIntoExistingVpc();
+    expect(checkbox).toBeEnabled();
+    expect(checkbox).not.toBeChecked();
   });
 });

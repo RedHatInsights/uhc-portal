@@ -16,9 +16,10 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { render, screen, withState } from '~/testUtils';
+import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
 
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -344,6 +345,112 @@ describe('<Details />', () => {
           }),
         }),
       );
+    });
+
+    describe('OpenShift 5 existing VPC', () => {
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it('selects Install into an existing VPC when OpenShift 5 is chosen for GCP WIF and ocmui-ocp5-support is enabled', async () => {
+        mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+        const formValues = {
+          ...initialValues,
+        };
+        const handleSubmit = jest.fn();
+        const { user } = withState(loadedState).render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            {({ values }) => (
+              <div>
+                <Details />
+                <button type="button" onClick={() => handleSubmit(values)}>
+                  submit
+                </button>
+              </div>
+            )}
+          </Formik>,
+        );
+
+        expect(await screen.findByText('Version')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('5.0.1'));
+        await user.click(screen.getByRole('button', { name: 'submit' }));
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [FieldId.InstallToVpc]: true,
+          }),
+        );
+      });
+
+      it('clears Install into an existing VPC when OpenShift 4 is chosen after OpenShift 5', async () => {
+        mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+        const formValues = {
+          ...initialValues,
+          [FieldId.InstallToVpc]: true,
+        };
+        const handleSubmit = jest.fn();
+        const { user } = withState(loadedState).render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            {({ values }) => (
+              <div>
+                <Details />
+                <button type="button" onClick={() => handleSubmit(values)}>
+                  submit
+                </button>
+              </div>
+            )}
+          </Formik>,
+        );
+
+        expect(await screen.findByText('Version')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('5.0.1'));
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('4.18.1'));
+        await user.click(screen.getByRole('button', { name: 'submit' }));
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [FieldId.InstallToVpc]: false,
+          }),
+        );
+      });
+
+      it('keeps Install into an existing VPC selected when leaving OpenShift 5 while a cluster-wide proxy is configured', async () => {
+        mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+        const formValues = {
+          ...initialValues,
+          [FieldId.InstallToVpc]: true,
+          [FieldId.ConfigureProxy]: true,
+        };
+        const handleSubmit = jest.fn();
+        const { user } = withState(loadedState).render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            {({ values }) => (
+              <div>
+                <Details />
+                <button type="button" onClick={() => handleSubmit(values)}>
+                  submit
+                </button>
+              </div>
+            )}
+          </Formik>,
+        );
+
+        expect(await screen.findByText('Version')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('5.0.1'));
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('4.18.1'));
+        await user.click(screen.getByRole('button', { name: 'submit' }));
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [FieldId.InstallToVpc]: true,
+          }),
+        );
+      });
     });
 
     it('initializes the version dropdown with the selected version', async () => {
