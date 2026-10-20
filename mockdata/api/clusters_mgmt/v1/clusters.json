@@ -1877,7 +1877,7 @@
         "id": "gcp",
         "href": "/api/clusters_mgmt/v1/cloud_providers/gcp"
       },
-      "openshift_version": "4.6.8",
+      "openshift_version": "4.22.18",
       "subscription": {
         "kind": "SubscriptionLink",
         "id": "gcp-ready-1nEp0repdarm8",
@@ -1959,8 +1959,8 @@
       },
       "version": {
         "kind": "Version",
-        "id": "openshift-v4.6.8",
-        "href": "/api/clusters_mgmt/v1/versions/openshift-v4.6.8",
+        "id": "openshift-v4.22.18",
+        "href": "/api/clusters_mgmt/v1/versions/openshift-v4.22.18",
         "channel_group": "stable"
       },
       "storage_quota": {
