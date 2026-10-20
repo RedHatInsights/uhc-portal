@@ -7,14 +7,11 @@ import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
-const GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING =
-  'OpenShift 5 is not supported with a GCP service account. To install OpenShift 5 on GCP, select Workload Identity Federation as the authentication type.';
-
-const GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING =
-  'To use OpenShift 5, go back and select Customer Cloud Subscription, then choose Workload Identity Federation as the authentication type.';
-
-const GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING =
-  'To use OpenShift 5 on GCP, create a cluster with Workload Identity Federation.';
+import {
+  GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING,
+  GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING,
+  GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING,
+} from './gcpOcp5UnsupportedWarnings';
 
 const GCP_OCP5_UNSUPPORTED_WARNING = {
   serviceAccountCreation: GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING,
