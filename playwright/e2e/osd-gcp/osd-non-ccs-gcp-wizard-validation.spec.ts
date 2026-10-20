@@ -1,4 +1,5 @@
-import { test, expect } from '../../fixtures/pages';
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
+import { expect, test } from '../../fixtures/pages';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd/osd-non-ccs-wizard-validation.spec.json');
@@ -12,9 +13,12 @@ test.describe.serial(
   `OSD Wizard non CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
   { tag: ['@smoke', '@wizard-validation', '@osd'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
+    let isOcp5SupportEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
+      const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
     });
     test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
       await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -36,6 +40,16 @@ test.describe.serial(
 
     test(`Cluster details field validations`, async ({ page, createOSDWizardPage }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
+
+      const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning();
+      if (isOcp5SupportEnabled) {
+        await expect(ocp5Warning).toBeVisible();
+        await expect(ocp5Warning).toContainText(
+          ClustersValidation.ClusterSettings.Details.GCP.Ocp5RedHatAccountWarning,
+        );
+      } else {
+        await expect(ocp5Warning).toBeHidden();
+      }
 
       const clusterNameInput = page.locator(createOSDWizardPage.clusterNameInput);
       await clusterNameInput.scrollIntoViewIfNeeded();
@@ -116,8 +130,8 @@ test.describe.serial(
       await createOSDWizardPage.isMachinePoolScreen();
       await createOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
 
-      var minNodes = '4';
-      var maxNodes = '249';
+      let minNodes = '4';
+      let maxNodes = '249';
       await expect(createOSDWizardPage.computeNodeCountInput()).toHaveValue(minNodes);
       await expect(createOSDWizardPage.computeNodeCountDecrementButton()).not.toBeEnabled();
       await createOSDWizardPage.computeNodeCountInput().fill((parseInt(minNodes) - 1).toString());

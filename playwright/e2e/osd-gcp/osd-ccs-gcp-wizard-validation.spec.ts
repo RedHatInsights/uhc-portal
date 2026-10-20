@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
 // Test data - importing as modules since JSON imports need special config
@@ -18,9 +19,12 @@ Clusters.forEach((clusterProperties) => {
     `OSD Wizard CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
     { tag: ['@smoke', '@wizard-validation', '@osd'] },
     () => {
-      test.beforeAll(async ({ navigateTo }) => {
-        // Navigate to create
+      let isOcp5SupportEnabled = false;
+
+      test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
+        const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
         await navigateTo('create');
+        isOcp5SupportEnabled = await gatePromise;
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -45,8 +49,19 @@ Clusters.forEach((clusterProperties) => {
         );
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
+          const serviceAccountWarning = createOSDWizardPage.gcpOcp5ServiceAccountCreationWarning();
+          await expect(serviceAccountWarning).toBeHidden();
+
           if (clusterProperties.AuthenticationType?.includes('Service Account')) {
             await createOSDWizardPage.serviceAccountButton().click();
+            if (isOcp5SupportEnabled) {
+              await expect(serviceAccountWarning).toBeVisible();
+              await expect(serviceAccountWarning).toContainText(
+                ClustersValidation.ClusterSettings.CloudProvider.GCP.Ocp5ServiceAccountWarning,
+              );
+            } else {
+              await expect(serviceAccountWarning).toBeHidden();
+            }
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.EmptyGCPServiceJSONFieldError,
@@ -75,6 +90,7 @@ Clusters.forEach((clusterProperties) => {
             }
           } else {
             await createOSDWizardPage.workloadIdentityFederationButton().click();
+            await expect(serviceAccountWarning).toBeHidden();
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.NoWIFConfigSelectionError,

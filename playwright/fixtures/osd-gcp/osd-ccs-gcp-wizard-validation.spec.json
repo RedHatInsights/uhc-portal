@@ -34,6 +34,7 @@
           "InvalidGCPServiceJSONValues": "{\"testing\":\"samples\"}",
           "InvalidGCPServiceJSONFieldError": "The provided JSON does not meet the requirements: requires property \"type\"",
           "EmptyGCPServiceJSONFieldError": "Field is required",
+          "Ocp5ServiceAccountWarning": "OpenShift 5 is not supported with a GCP service account. To install OpenShift 5 on GCP, select Workload Identity Federation as the authentication type.",
           "NoWIFConfigSelectionError": "Wif configuration is required",
           "NoMatchingWIFConfigValue": "nomatchingwif",
           "NoMatchingWIFConfigError": "No results found",
