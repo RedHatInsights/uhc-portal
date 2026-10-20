@@ -39,7 +39,7 @@ import CostBreakdownCard from './CostBreakdownCard';
 import DetailsLeft from './DetailsLeft';
 import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
-import { MissingOCMRoleAlert } from './MissingOCMRoleAlert';
+import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
 import SubscriptionSettings from './SubscriptionSettings';
 
 import './Overview.scss';
