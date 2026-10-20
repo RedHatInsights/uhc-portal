@@ -13,6 +13,7 @@ import {
   FormGroup,
   Switch,
   TextInput,
+  Title,
 } from '@patternfly/react-core';
 
 import { isHibernating, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
@@ -136,8 +137,15 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
   };
 
   return (
-    <Card className="ocm-c-networking-application-ingress__card">
-      <CardTitle>Application ingress</CardTitle>
+    <Card
+      className="ocm-c-networking-application-ingress__card"
+      data-testid="application-ingress-card"
+    >
+      <CardTitle>
+        <Title headingLevel="h2" className="card-title">
+          Application ingress
+        </Title>
+      </CardTitle>
       <CardBody>
         <Form isHorizontal>
           <FormGroup fieldId="default_router_address" label="Default application router" isStack>
