@@ -1,0 +1,12 @@
+{
+  "kind": "GcpFirewallRule",
+  "id": "fw-gcp-ready",
+  "href": "/api/clusters_mgmt/v1/gcp/firewall_rules/fw-gcp-ready",
+  "name": "cben-osd-gcp-firewall",
+  "profile": "public",
+  "gcp_network": {
+    "project_id": "ocm-ui-dev",
+    "vpc_name": "cben-osd-gcp-vpc",
+    "machine_cidr": "10.0.0.0/16"
+  }
+}

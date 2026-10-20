@@ -87,9 +87,9 @@
   },
   "multi_az": false,
   "managed": true,
-  "byoc": false,
+  "byoc": true,
   "ccs": {
-    "enabled": false,
+    "enabled": true,
     "disable_scp_checks": false
   },
   "version": {
@@ -205,12 +205,18 @@
     "dns_ready": true,
     "provision_error_message": "",
     "provision_error_code": "",
-    "configuration_mode": "read_only"
+    "configuration_mode": "full"
   },
   "node_drain_grace_period": {
     "value": 60,
     "unit": "minutes"
   },
   "etcd_encryption": false,
-  "upgrade_channel_group": "stable"
+  "upgrade_channel_group": "stable",
+  "gcp_network": {
+    "vpc_name": "cben-osd-gcp-vpc",
+    "control_plane_subnet": "cben-osd-gcp-control-plane",
+    "compute_subnet": "cben-osd-gcp-compute",
+    "firewall_rules_id": "fw-gcp-ready"
+  }
 }
