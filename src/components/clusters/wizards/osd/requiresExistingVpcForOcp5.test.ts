@@ -6,6 +6,7 @@ import {
   PRIVATE_AND_OCP5_EXISTING_VPC_ALERT,
   PRIVATE_WIF_EXISTING_VPC_ALERT,
   requiresExistingVpcForOcp5,
+  shouldClearOcp5ForcedInstallToVpc,
 } from './requiresExistingVpcForOcp5';
 
 const enabledGcpWif = {
@@ -140,5 +141,54 @@ describe('getExistingVpcWarningAlert', () => {
 
   it('returns no warning for a public cluster that does not require an existing VPC for OpenShift 5', () => {
     expect(getExistingVpcWarningAlert(hidden)).toBeUndefined();
+  });
+});
+
+describe('shouldClearOcp5ForcedInstallToVpc', () => {
+  const kept = {
+    nextRequiresExistingVpc: false,
+    previousRequiresExistingVpc: false,
+    isInstallToVpcForced: false,
+    installToVpcChosenByUser: false,
+    installToVpcForcedByOcp5: false,
+  };
+
+  it('clears the checkbox when the previous version was cleared before OpenShift 4 is applied', () => {
+    expect(
+      shouldClearOcp5ForcedInstallToVpc({
+        ...kept,
+        installToVpcForcedByOcp5: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('clears the checkbox when leaving OpenShift 5 and the user did not select the checkbox', () => {
+    expect(
+      shouldClearOcp5ForcedInstallToVpc({
+        ...kept,
+        previousRequiresExistingVpc: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps the checkbox when the user selected it', () => {
+    expect(
+      shouldClearOcp5ForcedInstallToVpc({
+        ...kept,
+        previousRequiresExistingVpc: true,
+        installToVpcForcedByOcp5: true,
+        installToVpcChosenByUser: true,
+      }),
+    ).toBe(false);
+  });
+
+  it('keeps the checkbox when another setting still requires an existing VPC', () => {
+    expect(
+      shouldClearOcp5ForcedInstallToVpc({
+        ...kept,
+        previousRequiresExistingVpc: true,
+        isInstallToVpcForced: true,
+      }),
+    ).toBe(false);
   });
 });

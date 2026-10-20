@@ -79,6 +79,27 @@ export const requiresExistingVpcForOcp5 = ({
   return major === 5;
 };
 
+export const INSTALL_TO_VPC_CHOSEN_BY_USER = 'install_to_vpc_chosen_by_user';
+export const INSTALL_TO_VPC_FORCED_BY_OCP5 = 'install_to_vpc_forced_by_ocp5';
+
+export const shouldClearOcp5ForcedInstallToVpc = ({
+  nextRequiresExistingVpc,
+  previousRequiresExistingVpc,
+  isInstallToVpcForced,
+  installToVpcChosenByUser,
+  installToVpcForcedByOcp5,
+}: {
+  nextRequiresExistingVpc: boolean;
+  previousRequiresExistingVpc: boolean;
+  isInstallToVpcForced: boolean;
+  installToVpcChosenByUser: boolean;
+  installToVpcForcedByOcp5: boolean;
+}): boolean =>
+  !nextRequiresExistingVpc &&
+  !isInstallToVpcForced &&
+  !installToVpcChosenByUser &&
+  (previousRequiresExistingVpc || installToVpcForcedByOcp5);
+
 /** Reasons the existing-VPC checkbox is already forced, independent of the OpenShift 5 rule. */
 export const isInstallToVpcForcedByOtherSetting = ({
   usePrivateLink,

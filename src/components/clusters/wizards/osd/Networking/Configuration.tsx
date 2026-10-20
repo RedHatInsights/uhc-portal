@@ -35,6 +35,8 @@ import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { FormSubnet } from '../../common/FormSubnet';
 import {
   getExistingVpcWarningAlert,
+  INSTALL_TO_VPC_CHOSEN_BY_USER,
+  INSTALL_TO_VPC_FORCED_BY_OCP5,
   isInstallToVpcForcedByOtherSetting,
   requiresExistingVpcForOcp5,
 } from '../requiresExistingVpcForOcp5';
@@ -120,6 +122,7 @@ export const Configuration = () => {
   React.useEffect(() => {
     if (ocp5RequiresExistingVpc && !installToVpc) {
       setFieldValue(FieldId.InstallToVpc, true);
+      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, true);
     }
   }, [ocp5RequiresExistingVpc, installToVpc, setFieldValue]);
 
@@ -199,6 +202,10 @@ export const Configuration = () => {
 
   const onInstallIntoVPCchange = (_event: React.FormEvent<HTMLInputElement>, checked: boolean) => {
     setFieldValue(FieldId.InstallToVpc, checked);
+    setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, checked);
+    if (!checked) {
+      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
+    }
     clearSecurityGroups();
     trackCheckedState(trackEvents.InstallIntoVPC, checked);
     if (showPrivateServiceConnect && isPrivateCluster) {
@@ -302,7 +309,7 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              {!isOSDFromGoogleCloud && showExistingVpcInstallText ? (
+              {!isOSDFromGoogleCloud && showExistingVpcInstallText && !ocp5RequiresExistingVpc ? (
                 <Content component="p" className="pf-v6-u-mt-sm">
                   By default, a new VPC will be created for your cluster. Alternatively, you may opt
                   to install to an existing VPC below.

@@ -386,6 +386,9 @@ describe('<Configuration /> OpenShift 5 GCP WIF existing VPC', () => {
     expect(checkbox).toBeChecked();
     expect(screen.getByText(OCP5_EXISTING_VPC_ALERT_TITLE)).toBeInTheDocument();
     expect(screen.getByText(OCP5_EXISTING_VPC_ALERT_BODY)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/By default, a new VPC will be created for your cluster/i),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the combined warning and keeps Install into an existing VPC checked and disabled for a private OpenShift 5 cluster', async () => {
@@ -422,6 +425,9 @@ describe('<Configuration /> OpenShift 5 GCP WIF existing VPC', () => {
     expect(checkbox).toBeEnabled();
     expect(checkbox).not.toBeChecked();
     expect(screen.queryByText(OCP5_EXISTING_VPC_ALERT_TITLE)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/By default, a new VPC will be created for your cluster/i),
+    ).toBeInTheDocument();
   });
 
   it('keeps the private WIF warning and a checked, disabled checkbox for a private OpenShift 4 cluster', async () => {

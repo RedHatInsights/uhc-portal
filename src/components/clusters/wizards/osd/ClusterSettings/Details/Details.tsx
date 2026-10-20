@@ -64,8 +64,11 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { CustomerManagedEncryption } from '~/components/clusters/wizards/osd/ClusterSettings/Details/CustomerManagedEncryption';
 import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/osd/constants';
 import {
+  INSTALL_TO_VPC_CHOSEN_BY_USER,
+  INSTALL_TO_VPC_FORCED_BY_OCP5,
   isInstallToVpcForcedByOtherSetting,
   requiresExistingVpcForOcp5,
+  shouldClearOcp5ForcedInstallToVpc,
 } from '~/components/clusters/wizards/osd/requiresExistingVpcForOcp5';
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -101,6 +104,9 @@ function Details() {
       [FieldId.CustomerManagedKey]: hasCustomerManagedKey,
       [FieldId.KmsKeyArn]: kmsKeyArn,
       [FieldId.ClusterVersion]: selectedVersion,
+      [FieldId.InstallToVpc]: installToVpc,
+      [INSTALL_TO_VPC_CHOSEN_BY_USER]: installToVpcChosenByUser,
+      [INSTALL_TO_VPC_FORCED_BY_OCP5]: installToVpcForcedByOcp5,
       [FieldId.SecureBoot]: secureBoot,
       [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
@@ -286,9 +292,23 @@ function Details() {
     });
 
     if (nextRequiresExistingVpc) {
+      if (!installToVpc && !installToVpcChosenByUser) {
+        setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, true);
+      }
       setFieldValue(FieldId.InstallToVpc, true);
-    } else if (previousRequiresExistingVpc && !isInstallToVpcForced) {
-      setFieldValue(FieldId.InstallToVpc, false);
+    } else if (previousRequiresExistingVpc || installToVpcForcedByOcp5) {
+      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
+      if (
+        shouldClearOcp5ForcedInstallToVpc({
+          nextRequiresExistingVpc,
+          previousRequiresExistingVpc,
+          isInstallToVpcForced,
+          installToVpcChosenByUser: Boolean(installToVpcChosenByUser),
+          installToVpcForcedByOcp5: Boolean(installToVpcForcedByOcp5),
+        })
+      ) {
+        setFieldValue(FieldId.InstallToVpc, false);
+      }
     }
 
     resetMaxNodesTotal({ clusterVersion });
