@@ -24,8 +24,8 @@ import {
 
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
-import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
+import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { getMaxNodeCount, getNodeCount } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
