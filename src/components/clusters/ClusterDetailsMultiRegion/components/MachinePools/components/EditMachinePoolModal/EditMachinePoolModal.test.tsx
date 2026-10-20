@@ -3,13 +3,13 @@ import * as React from 'react';
 import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
 import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
+import { useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import {
   AWS_TAGS_NEW_MP,
   HCP_SPOT_INSTANCES,
   IMDS_SELECTION,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
-import { useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import { mockUseChrome, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
