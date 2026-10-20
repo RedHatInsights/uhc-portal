@@ -254,6 +254,18 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button', { name: 'Service Account' });
   }
 
+  gcpOcp5ServiceAccountCreationWarning(): Locator {
+    return this.page.getByText(
+      'OpenShift 5 is not supported with a GCP service account. To install OpenShift 5 on GCP, select Workload Identity Federation as the authentication type.',
+    );
+  }
+
+  gcpOcp5RedHatAccountCreationWarning(): Locator {
+    return this.page.getByText(
+      'To use OpenShift 5, go back and select Customer Cloud Subscription, then choose Workload Identity Federation as the authentication type.',
+    );
+  }
+
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {
     await this.page.locator('textarea[aria-label="File upload"]').clear();
     await this.page.locator('textarea[aria-label="File upload"]').fill(jsonContent);

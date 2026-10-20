@@ -33,9 +33,13 @@ import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
 import { isHypershiftCluster } from '../../clusterStates';
+import { GcpOcp5UnsupportedWarning } from '../../GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep';
 import { UpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5Warning';
-import { shouldShowUpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
+import {
+  shouldShowGcpOcp5UnsupportedUpgradeWarning,
+  shouldShowUpgradeToV5Warning,
+} from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
@@ -73,6 +77,11 @@ const UpgradeWizard = () => {
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization);
   const showUpgradeToV5Warning = shouldShowUpgradeToV5Warning({
+    cluster,
+    isOcp5SupportEnabled,
+    organizationCapabilities: organization?.details?.capabilities,
+  });
+  const showGcpOcp5UnsupportedWarning = shouldShowGcpOcp5UnsupportedUpgradeWarning({
     cluster,
     isOcp5SupportEnabled,
     organizationCapabilities: organization?.details?.capabilities,
@@ -242,6 +251,11 @@ const UpgradeWizard = () => {
                 {showUpgradeToV5Warning && (
                   <div className="wizard-step-title">
                     <UpgradeToV5Warning />
+                  </div>
+                )}
+                {showGcpOcp5UnsupportedWarning && (
+                  <div className="wizard-step-title">
+                    <GcpOcp5UnsupportedWarning variant="upgrade" />
                   </div>
                 )}
                 <VersionSelectionGrid

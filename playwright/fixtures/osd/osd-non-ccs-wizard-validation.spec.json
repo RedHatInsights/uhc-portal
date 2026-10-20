@@ -65,6 +65,9 @@
             "WrongFormatWithWhitespace": "wrong format with whitespace",
             "WrongFormatWithWhitespaceError": "Value must not contain whitespaces"
           }
+        },
+        "GCP": {
+          "Ocp5RedHatAccountWarning": "To use OpenShift 5, go back and select Customer Cloud Subscription, then choose Workload Identity Federation as the authentication type."
         }
       },
       "Machinepool": {
