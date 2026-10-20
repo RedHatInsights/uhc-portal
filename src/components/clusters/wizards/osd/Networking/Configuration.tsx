@@ -6,6 +6,7 @@ import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
 import docLinks from '~/common/docLinks.mjs';
 import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
+import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
 import { isExactMajorMinor } from '~/common/versionHelpers';
@@ -31,6 +32,7 @@ import {
   OCP5_SUPPORT,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
 import { FormSubnet } from '../../common/FormSubnet';
 import {
@@ -81,6 +83,8 @@ export const Configuration = () => {
 
   const showExistingVpcInstallText = !(isGCP && isPrivateCluster && isWifAuth);
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
+  const organizationDetails = useGlobalState((state) => state.userProfile.organization.details);
+  const organizationAllowsOcp5 = hasAllowOcp5Capability(organizationDetails?.capabilities);
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const ocp5RequiresExistingVpc = requiresExistingVpcForOcp5({
@@ -89,6 +93,7 @@ export const Configuration = () => {
     isGcp: isGCP,
     isWif: isWifAuth,
     clusterVersionRawId,
+    organizationAllowsOcp5,
   });
   const isInstallToVpcForced = isInstallToVpcForcedByOtherSetting({
     usePrivateLink,

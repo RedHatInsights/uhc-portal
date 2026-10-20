@@ -18,6 +18,7 @@ import {
 import docLinks from '~/common/docLinks.mjs';
 import { SupportedFeature } from '~/common/featureCompatibility';
 import { noQuotaTooltip } from '~/common/helpers';
+import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
 import {
   asyncValidateClusterName,
   asyncValidateDomainPrefix,
@@ -129,8 +130,9 @@ function Details() {
   const isPrivateCluster = clusterPrivacy === ClusterPrivacyType.Internal;
 
   const {
-    organization: { quotaList },
+    organization: { quotaList, details: organizationDetails },
   } = useGlobalState((state) => state.userProfile);
+  const organizationAllowsOcp5 = hasAllowOcp5Capability(organizationDetails?.capabilities);
 
   const { gcpKeyRings } = useGlobalState((state) => state.ccsInquiries);
 
@@ -274,6 +276,7 @@ function Details() {
       isByoc,
       isGcp: isGCP,
       isWif: isWifAuth,
+      organizationAllowsOcp5,
     };
     const nextRequiresExistingVpc = requiresExistingVpcForOcp5({
       ...versionRequirements,

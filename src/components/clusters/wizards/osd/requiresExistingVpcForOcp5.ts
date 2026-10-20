@@ -64,14 +64,23 @@ export const requiresExistingVpcForOcp5 = ({
   isGcp,
   isWif,
   clusterVersionRawId,
+  organizationAllowsOcp5,
 }: {
   isOcp5SupportEnabled: boolean;
   isByoc: boolean;
   isGcp: boolean;
   isWif: boolean;
   clusterVersionRawId?: string;
+  organizationAllowsOcp5: boolean;
 }): boolean => {
-  if (!isOcp5SupportEnabled || !isByoc || !isGcp || !isWif || !clusterVersionRawId) {
+  if (
+    organizationAllowsOcp5 ||
+    !isOcp5SupportEnabled ||
+    !isByoc ||
+    !isGcp ||
+    !isWif ||
+    !clusterVersionRawId
+  ) {
     return false;
   }
 

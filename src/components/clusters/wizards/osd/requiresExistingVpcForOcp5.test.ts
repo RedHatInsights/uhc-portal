@@ -14,6 +14,7 @@ const enabledGcpWif = {
   isByoc: true,
   isGcp: true,
   isWif: true,
+  organizationAllowsOcp5: false,
 };
 
 describe('requiresExistingVpcForOcp5', () => {
@@ -46,6 +47,24 @@ describe('requiresExistingVpcForOcp5', () => {
       requiresExistingVpcForOcp5({
         ...enabledGcpWif,
         isOcp5SupportEnabled: false,
+        clusterVersionRawId: '5.0.1',
+      }),
+    ).toBe(false);
+  });
+
+  it('is false when the organization is allowed to use OpenShift 5', () => {
+    expect(
+      requiresExistingVpcForOcp5({
+        ...enabledGcpWif,
+        organizationAllowsOcp5: true,
+        clusterVersionRawId: '5.0.1',
+      }),
+    ).toBe(false);
+    expect(
+      requiresExistingVpcForOcp5({
+        ...enabledGcpWif,
+        isWif: false,
+        organizationAllowsOcp5: true,
         clusterVersionRawId: '5.0.1',
       }),
     ).toBe(false);
