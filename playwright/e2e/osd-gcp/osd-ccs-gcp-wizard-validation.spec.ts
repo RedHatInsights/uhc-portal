@@ -1,3 +1,4 @@
+import { GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING } from '../../../src/components/clusters/common/GcpOcp5UnsupportedWarning/gcpOcp5UnsupportedWarnings';
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
@@ -60,7 +61,7 @@ Clusters.forEach((clusterProperties) => {
             if (shouldShowOcp5Warning) {
               await expect(serviceAccountWarning).toBeVisible();
               await expect(serviceAccountWarning).toContainText(
-                ClustersValidation.ClusterSettings.CloudProvider.GCP.Ocp5ServiceAccountWarning,
+                GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING,
               );
             } else {
               await expect(serviceAccountWarning).toBeHidden();

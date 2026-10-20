@@ -1,5 +1,10 @@
 import { expect, Locator, Page } from '@playwright/test';
 
+import {
+  GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING,
+  GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING,
+} from '../../src/components/clusters/common/GcpOcp5UnsupportedWarning/gcpOcp5UnsupportedWarnings';
+
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -255,15 +260,11 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   gcpOcp5ServiceAccountCreationWarning(): Locator {
-    return this.page.getByText(
-      'OpenShift 5 is not supported with a GCP service account. To install OpenShift 5 on GCP, select Workload Identity Federation as the authentication type.',
-    );
+    return this.page.getByText(GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING);
   }
 
   gcpOcp5RedHatAccountCreationWarning(): Locator {
-    return this.page.getByText(
-      'To use OpenShift 5, go back and select Customer Cloud Subscription, then choose Workload Identity Federation as the authentication type.',
-    );
+    return this.page.getByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING);
   }
 
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {

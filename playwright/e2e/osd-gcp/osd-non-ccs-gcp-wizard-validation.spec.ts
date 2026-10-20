@@ -1,3 +1,4 @@
+import { GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING } from '../../../src/components/clusters/common/GcpOcp5UnsupportedWarning/gcpOcp5UnsupportedWarnings';
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
 
@@ -47,9 +48,7 @@ test.describe.serial(
       const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning();
       if (shouldShowOcp5Warning) {
         await expect(ocp5Warning).toBeVisible();
-        await expect(ocp5Warning).toContainText(
-          ClustersValidation.ClusterSettings.Details.GCP.Ocp5RedHatAccountWarning,
-        );
+        await expect(ocp5Warning).toContainText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING);
       } else {
         await expect(ocp5Warning).toBeHidden();
       }
