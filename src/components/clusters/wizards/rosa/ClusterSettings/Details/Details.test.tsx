@@ -369,6 +369,36 @@ describe('<Details />', () => {
     });
   });
 
+  describe('RosaGovCloudFipsWarning', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('does not show the GovCloud FIPS warning outside restricted env', () => {
+      mockRestrictedEnv(false);
+
+      render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      expect(screen.queryByTestId('rosa-govcloud-fips-warning')).not.toBeInTheDocument();
+    });
+
+    it('shows the GovCloud FIPS warning above version select in restricted env', () => {
+      mockRestrictedEnv(true);
+
+      render(
+        <Formik initialValues={defaultValues} onSubmit={() => {}}>
+          <Details />
+        </Formik>,
+      );
+
+      expect(screen.getByTestId('rosa-govcloud-fips-warning')).toBeInTheDocument();
+    });
+  });
+
   describe('Advanced Encryption', () => {
     it('shows FIPS cryptography field by default', async () => {
       const { user } = render(
