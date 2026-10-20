@@ -17,6 +17,7 @@ import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import AIDetailCard from '~/components/AIComponents/AIDetailCard';
+import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
 import useAnalytics from '~/hooks/useAnalytics';
 import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
@@ -40,7 +41,6 @@ import CostBreakdownCard from './CostBreakdownCard';
 import DetailsLeft from './DetailsLeft';
 import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
-import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
 import SubscriptionSettings from './SubscriptionSettings';
 
 import './Overview.scss';
