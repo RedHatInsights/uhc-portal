@@ -19,12 +19,15 @@ Clusters.forEach((clusterProperties) => {
     `OSD Wizard CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
     { tag: ['@smoke', '@wizard-validation', '@osd'] },
     () => {
-      let isOcp5SupportEnabled = false;
+      let shouldShowOcp5Warning = false;
 
       test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
         const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
+        const allowOcp5Promise = createOSDWizardPage.hasOrganizationAllowOcp5Capability();
         await navigateTo('create');
-        isOcp5SupportEnabled = await gatePromise;
+        const isOcp5SupportEnabled = await gatePromise;
+        const organizationAllowsOcp5 = await allowOcp5Promise;
+        shouldShowOcp5Warning = isOcp5SupportEnabled && !organizationAllowsOcp5;
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -54,7 +57,7 @@ Clusters.forEach((clusterProperties) => {
 
           if (clusterProperties.AuthenticationType?.includes('Service Account')) {
             await createOSDWizardPage.serviceAccountButton().click();
-            if (isOcp5SupportEnabled) {
+            if (shouldShowOcp5Warning) {
               await expect(serviceAccountWarning).toBeVisible();
               await expect(serviceAccountWarning).toContainText(
                 ClustersValidation.ClusterSettings.CloudProvider.GCP.Ocp5ServiceAccountWarning,

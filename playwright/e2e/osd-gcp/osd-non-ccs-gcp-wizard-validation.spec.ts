@@ -13,12 +13,15 @@ test.describe.serial(
   `OSD Wizard non CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
   { tag: ['@smoke', '@wizard-validation', '@osd'] },
   () => {
-    let isOcp5SupportEnabled = false;
+    let shouldShowOcp5Warning = false;
 
     test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
       const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
+      const allowOcp5Promise = createOSDWizardPage.hasOrganizationAllowOcp5Capability();
       await navigateTo('create');
-      isOcp5SupportEnabled = await gatePromise;
+      const isOcp5SupportEnabled = await gatePromise;
+      const organizationAllowsOcp5 = await allowOcp5Promise;
+      shouldShowOcp5Warning = isOcp5SupportEnabled && !organizationAllowsOcp5;
     });
     test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
       await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -42,7 +45,7 @@ test.describe.serial(
       await createOSDWizardPage.isClusterDetailsScreen();
 
       const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning();
-      if (isOcp5SupportEnabled) {
+      if (shouldShowOcp5Warning) {
         await expect(ocp5Warning).toBeVisible();
         await expect(ocp5Warning).toContainText(
           ClustersValidation.ClusterSettings.Details.GCP.Ocp5RedHatAccountWarning,
