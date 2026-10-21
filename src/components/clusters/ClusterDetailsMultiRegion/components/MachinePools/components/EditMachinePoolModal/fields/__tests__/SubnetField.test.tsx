@@ -96,4 +96,27 @@ describe('<SubnetField />', () => {
       screen.getByRole('heading', { name: /failed to load machine pool vpc\./i }),
     ).toBeInTheDocument();
   });
+
+  it('does not show a stale error reason after a successful retry that returns no VPC', () => {
+    // Arrange — simulates: first fetch fails (errorReason set), retry succeeds but
+    // returns no VPC (hasError cleared, errorReason cleared by the fix in
+    // useAWSVPCFromCluster). Without the fix, errorReason would persist and be
+    // displayed even though the last call did not error.
+    useAWSVPCFromClusterMock.mockReturnValueOnce({
+      isLoading: false,
+      hasError: false,
+      clusterVpc: undefined,
+      errorReason: undefined,
+      refreshVPC: jest.fn(),
+    });
+
+    // Act
+    renderSubnetField();
+
+    // Assert — alert still shows (no VPC) but the stale reason is absent
+    expect(
+      screen.getByRole('heading', { name: /failed to load machine pool vpc\./i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/please try refreshing the cluster's vpc\./i)).toBeInTheDocument();
+  });
 });
