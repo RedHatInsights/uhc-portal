@@ -1,10 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
 
-import {
-  GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING,
-  GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING,
-} from '../../src/components/clusters/common/GcpOcp5UnsupportedWarning/gcpOcp5UnsupportedWarnings';
-
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -259,12 +254,12 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button', { name: 'Service Account' });
   }
 
-  gcpOcp5ServiceAccountCreationWarning(): Locator {
-    return this.page.getByText(GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING);
+  gcpOcp5ServiceAccountCreationWarning(warningText: string): Locator {
+    return this.page.getByText(warningText, { exact: true });
   }
 
-  gcpOcp5RedHatAccountCreationWarning(): Locator {
-    return this.page.getByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING);
+  gcpOcp5RedHatAccountCreationWarning(warningText: string): Locator {
+    return this.page.getByText(warningText, { exact: true });
   }
 
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {

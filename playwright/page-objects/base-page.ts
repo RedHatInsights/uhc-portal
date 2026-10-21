@@ -3,9 +3,7 @@ import * as path from 'path';
 
 import { expect, Locator, Page } from '@playwright/test';
 
-import { hasAllowOcp5Capability } from '../../src/common/subscriptionCapabilities';
 import Features from '../../src/queries/featureGates/featureConstants';
-import type { Capability } from '../../src/types/accounts_mgmt.v1';
 
 type FeatureGate = (typeof Features)[keyof typeof Features];
 
@@ -104,26 +102,6 @@ export class BasePage {
     }
     const body = (await response.json()) as { enabled?: boolean };
     return Boolean(body?.enabled);
-  }
-
-  /**
-   * Reads organization capabilities from the app's own organization request.
-   * Start this before the first OCM navigation so the waiter catches the fetch.
-   * Returns true only when capability.organization.rosa_osd_allow_ocp_5 is "true".
-   */
-  async hasOrganizationAllowOcp5Capability(): Promise<boolean> {
-    const response = await this.page.waitForResponse(
-      (res) =>
-        res.request().method() === 'GET' &&
-        res.url().includes('/api/accounts_mgmt/v1/organizations/') &&
-        res.url().includes('fetchCapabilities=true'),
-      { timeout: 30000 },
-    );
-    if (!response.ok()) {
-      return false;
-    }
-    const body = (await response.json()) as { capabilities?: Capability[] };
-    return hasAllowOcp5Capability(body.capabilities);
   }
 
   async waitForLoadState(
