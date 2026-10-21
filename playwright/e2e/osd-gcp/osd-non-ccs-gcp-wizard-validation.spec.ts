@@ -1,6 +1,6 @@
-import { GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING } from '../../../src/components/clusters/common/GcpOcp5UnsupportedWarning/gcpOcp5UnsupportedWarnings';
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
+import { waitForOrganizationCapabilities } from '../../support/capability-helper';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd/osd-non-ccs-wizard-validation.spec.json');
@@ -16,12 +16,17 @@ test.describe.serial(
   () => {
     let shouldShowOcp5Warning = false;
 
-    test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
+    test.beforeAll(async ({ navigateTo, createOSDWizardPage, authenticatedPage }) => {
       const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
-      const allowOcp5Promise = createOSDWizardPage.hasOrganizationAllowOcp5Capability();
+      const capabilitiesPromise = waitForOrganizationCapabilities(authenticatedPage);
       await navigateTo('create');
       const isOcp5SupportEnabled = await gatePromise;
-      const organizationAllowsOcp5 = await allowOcp5Promise;
+      const capabilities = await capabilitiesPromise;
+      const organizationAllowsOcp5 = capabilities.some(
+        (capability) =>
+          capability.name === 'capability.organization.rosa_osd_allow_ocp_5' &&
+          capability.value === 'true',
+      );
       shouldShowOcp5Warning = isOcp5SupportEnabled && !organizationAllowsOcp5;
     });
     test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
@@ -45,10 +50,12 @@ test.describe.serial(
     test(`Cluster details field validations`, async ({ page, createOSDWizardPage }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
 
-      const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning();
+      const ocp5WarningText =
+        ClustersValidation.ClusterSettings.Details.GCP.Ocp5RedHatAccountWarning;
+      const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning(ocp5WarningText);
       if (shouldShowOcp5Warning) {
         await expect(ocp5Warning).toBeVisible();
-        await expect(ocp5Warning).toContainText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING);
+        await expect(ocp5Warning).toContainText(ocp5WarningText, { exact: true });
       } else {
         await expect(ocp5Warning).toBeHidden();
       }
