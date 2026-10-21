@@ -148,4 +148,38 @@ describe('useAWSVPCFromCluster', () => {
       'myRegion',
     );
   });
+
+  it('sets hasError and errorReason when the VPC fetch throws', async () => {
+    const apiError = { response: { data: { reason: 'Organization is not authorized' } } };
+    mockedfetchVpcByStsCredentials.mockRejectedValue(apiError);
+    const hcpCluster = { ...cluster, hypershift: { enabled: true } };
+
+    const { result } = renderHook(() => useAWSVPCFromCluster(hcpCluster, 'myRegion'));
+    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+
+    expect(result.current.hasError).toBe(true);
+    expect(result.current.errorReason).toBe('Organization is not authorized');
+    expect(result.current.clusterVpc).toBeUndefined();
+  });
+
+  it('clears errorReason on a subsequent successful fetch that returns no VPC', async () => {
+    const apiError = { response: { data: { reason: 'Organization is not authorized' } } };
+    mockedfetchVpcByStsCredentials.mockRejectedValueOnce(apiError).mockResolvedValueOnce(undefined);
+    const hcpCluster = { ...cluster, hypershift: { enabled: true } };
+
+    const { result } = renderHook(() => useAWSVPCFromCluster(hcpCluster, 'myRegion'));
+    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+
+    // First fetch failed — errorReason is set
+    expect(result.current.errorReason).toBe('Organization is not authorized');
+
+    // Trigger a retry via refreshVPC
+    result.current.refreshVPC();
+    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+
+    // Retry succeeded but returned no VPC — errorReason must be cleared
+    expect(result.current.hasError).toBe(false);
+    expect(result.current.clusterVpc).toBeUndefined();
+    expect(result.current.errorReason).toBeUndefined();
+  });
 });
