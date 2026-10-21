@@ -132,8 +132,8 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
           date={subscription.eval_expiration_date}
           dateFormat={TimestampFormat.medium}
           locale="eng-GB"
-        />{' '}
-        {cluster.canEdit ? textForUsersCanEdit : textForUsersCanNotEdit}
+        />
+        . {cluster.canEdit ? textForUsersCanEdit : textForUsersCanNotEdit}
       </p>
     </Alert>
   );
