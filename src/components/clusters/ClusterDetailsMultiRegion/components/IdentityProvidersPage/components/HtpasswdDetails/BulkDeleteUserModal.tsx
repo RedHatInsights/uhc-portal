@@ -9,9 +9,10 @@ import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useBulkDeleteHtpasswdUser } from '~/queries/ClusterDetailsQueries/AccessControlTab/UserQueries/useBulkDeleteHtpasswdUser';
-import { BulkDeleteHtpasswdUserError } from '~/queries/types';
 import { useGlobalState } from '~/redux/hooks';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
+
+import { groupBulkDeleteHtpasswdUserErrors } from './htpasswdUtilities';
 
 const BulkDeleteUserModal = ({
   onSuccess,
@@ -37,6 +38,7 @@ const BulkDeleteUserModal = ({
     region,
   );
   const hasFailedDeletions = failedDeletions?.length > 0;
+  const groupedFailedDeletions = groupBulkDeleteHtpasswdUserErrors(failedDeletions ?? []);
 
   const dispatch = useDispatch();
   const addNotification = useAddNotification();
@@ -78,12 +80,18 @@ const BulkDeleteUserModal = ({
     >
       <>
         {hasFailedDeletions
-          ? failedDeletions.map((err: BulkDeleteHtpasswdUserError) => (
-              <ErrorBox
-                message={`A problem occurred while deleting htpasswd user "${err.username}"`}
-                response={err.error}
-              />
-            ))
+          ? groupedFailedDeletions.map((err) => {
+              const userLabel = err.usernames.length === 1 ? 'user' : 'users';
+              const usernameList = err.usernames.join(', ');
+
+              return (
+                <ErrorBox
+                  key={`${userLabel}-${usernameList}`}
+                  message={`A problem occurred while deleting htpasswd ${userLabel} "${usernameList}"`}
+                  response={err.error}
+                />
+              );
+            })
           : null}
         {isPending ? (
           <Spinner size="xl" aria-label="Deleting users" />
