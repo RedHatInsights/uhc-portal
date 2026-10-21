@@ -172,4 +172,70 @@ describe('<BulkDeleteUserModal />', () => {
     // the modal text is still showing
     expect(screen.getByText('These users will lose access to this cluster.')).toBeInTheDocument();
   });
+
+  it('shows one error box with comma-separated usernames when failures share the same root cause', () => {
+    mockedBulkDeleteUsers.mockReturnValue({
+      ...defaultReturnBulkDeleteUser,
+      failedDeletions: [
+        {
+          username: 'user1',
+          error: {
+            errorMessage:
+              "Failed to delete HTPasswd user 'id1' from cluster 'cluster1': IAM role missing",
+          },
+        },
+        {
+          username: 'user2',
+          error: {
+            errorMessage:
+              "Failed to delete HTPasswd user 'id2' from cluster 'cluster1': IAM role missing",
+          },
+        },
+        {
+          username: 'user3',
+          error: {
+            errorMessage:
+              "Failed to delete HTPasswd user 'id3' from cluster 'cluster1': IAM role missing",
+          },
+        },
+      ],
+    });
+
+    withState(initialState, true).render(
+      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
+    );
+
+    expect(
+      screen.getByText('A problem occurred while deleting htpasswd users "user1, user2, user3"'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('shows separate error boxes when failures have different error messages', () => {
+    mockedBulkDeleteUsers.mockReturnValue({
+      ...defaultReturnBulkDeleteUser,
+      failedDeletions: [
+        {
+          username: 'user1',
+          error: { errorMessage: 'Permission denied' },
+        },
+        {
+          username: 'user2',
+          error: { errorMessage: 'User not found' },
+        },
+      ],
+    });
+
+    withState(initialState, true).render(
+      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
+    );
+
+    expect(
+      screen.getByText('A problem occurred while deleting htpasswd user "user1"'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('A problem occurred while deleting htpasswd user "user2"'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(2);
+  });
 });
