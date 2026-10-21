@@ -823,6 +823,141 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('switch', { name: /^(Allowed|Disallowed)$/ });
   }
 
+  async ensureExcludeNamespaceSelectorsSectionVisible(): Promise<void> {
+    await this.page.getByText('Application ingress settings').scrollIntoViewIfNeeded();
+    await expect(this.excludeNamespaceSelectorsSection()).toBeVisible();
+  }
+
+  async expectApplicationIngressRouteFieldsEmpty(): Promise<void> {
+    await expect(this.applicationIngressRouterSelectorsInput()).toHaveValue('');
+    await expect(this.applicationIngressExcludedNamespacesInput()).toHaveValue('');
+  }
+
+  namespaceOwnershipPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Strict' });
+  }
+
+  wildcardPolicySwitch(): Locator {
+    return this.page.getByRole('switch', { name: 'Disallowed' });
+  }
+
+  excludeNamespaceSelectorsSection(): Locator {
+    return this.page.getByTestId('default-ingress-exclude-namespace-selectors');
+  }
+
+  excludeNamespaceSelectorKeyInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector key' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorValuesInput(rowIndex = 0): Locator {
+    return this.excludeNamespaceSelectorsSection()
+      .getByRole('textbox', { name: 'Exclude namespace selector values' })
+      .nth(rowIndex);
+  }
+
+  excludeNamespaceSelectorsAddRowButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', { name: 'Add selector' });
+  }
+
+  excludeNamespaceSelectorsMoreInfoButton(): Locator {
+    return this.excludeNamespaceSelectorsSection().getByRole('button', {
+      name: 'More information',
+    });
+  }
+
+  /** Spec-facing aliases for existing review-value locators. */
+  routeSelectorsReviewValue(): Locator {
+    return this.routeSelectorsValue();
+  }
+
+  excludedNamespacesReviewValue(): Locator {
+    return this.excludedNamespacesValue();
+  }
+
+  excludeNamespaceSelectorsReviewValue(): Locator {
+    return this.excludeNamespaceSelectorsValue();
+  }
+
+  namespaceOwnershipPolicyReviewValue(): Locator {
+    return this.namespaceOwnershipValue();
+  }
+
+  wildcardPolicyReviewValue(): Locator {
+    return this.wildcardPolicyValue();
+  }
+
+  /**
+   * PatternFly LabelGroup shows at most 3 labels inline; additional labels are behind an "N more"
+   * overflow control. Expands when needed, then asserts each label text is visible on the page.
+   */
+  async expectReviewLabelGroupDisplays(
+    reviewValue: Locator,
+    reviewDisplays: string[],
+  ): Promise<void> {
+    await expect(reviewValue).toBeVisible();
+
+    const overflowButton = reviewValue.getByRole('button', { name: /\d+ more/ });
+    if (await overflowButton.isVisible().catch(() => false)) {
+      await overflowButton.click();
+    }
+
+    for (const reviewDisplay of reviewDisplays) {
+      // eslint-disable-next-line no-await-in-loop
+      await expect(this.page.getByText(reviewDisplay, { exact: true })).toBeVisible();
+    }
+  }
+
+  async fillExcludeNamespaceSelector(rowIndex: number, key: string, values: string): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).fill(key);
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).fill(values);
+  }
+
+  async addExcludeNamespaceSelectorRow(): Promise<void> {
+    await this.excludeNamespaceSelectorsAddRowButton().click();
+  }
+
+  /** Fills one row per selector, adding extra rows as needed starting from row 0. */
+  async fillAllExcludeNamespaceSelectors(
+    selectors: { Key: string; Values: string }[],
+  ): Promise<void> {
+    for (let i = 0; i < selectors.length; i++) {
+      if (i > 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await this.addExcludeNamespaceSelectorRow();
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await this.fillExcludeNamespaceSelector(i, selectors[i].Key, selectors[i].Values);
+    }
+  }
+
+  async clearExcludeNamespaceSelectorRow(rowIndex = 0): Promise<void> {
+    await this.excludeNamespaceSelectorKeyInput(rowIndex).clear();
+    await this.excludeNamespaceSelectorValuesInput(rowIndex).clear();
+  }
+
+  async expectExcludeNamespaceSelectorError(errorText: string, present = true): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText);
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
+  }
+
+  async expectExcludeNamespaceSelectorErrorContaining(
+    errorText: string,
+    present = true,
+  ): Promise<void> {
+    const locator = this.excludeNamespaceSelectorsSection().getByText(errorText, { exact: false });
+    if (present) {
+      await expect(locator.first()).toBeVisible();
+    } else {
+      await expect(locator).toHaveCount(0);
+    }
+  }
+
   // Validation helper methods
   async selectAutoScaling(autoScale: string): Promise<void> {
     if (autoScale.toLowerCase() === 'disabled') {

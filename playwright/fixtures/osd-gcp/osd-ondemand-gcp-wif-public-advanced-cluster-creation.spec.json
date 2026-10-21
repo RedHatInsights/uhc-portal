@@ -27,10 +27,33 @@
   "ExcludedNamespaces": {
     "Values": "ocmui-tests,playwright,default"
   },
-  "ExcludeNamespaceSelectors": {
-    "Key": "ocmplaywright-exclude",
-    "Values": "ns1,ns2"
-  },
+  "ExcludeNamespaceSelectors": [
+    {
+      "Key": "ocmplaywright-exclude",
+      "Values": "ns1,ns2",
+      "ReviewDisplay": "ocmplaywright-exclude = ns1, ns2"
+    },
+    {
+      "Key": "longerstringslongerstringslongerstringslongerstringslongerstri",
+      "Values": "longerstringslongerstringslongerstringslongerstringslongerstri",
+      "ReviewDisplay": "longerstringslongerstringslongerstringslongerstringslongerstri = longerstringslongerstringslongerstringslongerstringslongerstri"
+    },
+    {
+      "Key": "example.co.in/app.com",
+      "Values": "examples.co.in",
+      "ReviewDisplay": "example.co.in/app.com = examples.co.in"
+    },
+    {
+      "Key": "app.kubernetes.io/version",
+      "Values": "v1.2",
+      "ReviewDisplay": "app.kubernetes.io/version = v1.2"
+    },
+    {
+      "Key": "v22-22_t23",
+      "Values": "v22-22_t23.2,ddd",
+      "ReviewDisplay": "v22-22_t23 = v22-22_t23.2, ddd"
+    }
+  ],
   "WildcardPolicy": "Disallowed",
   "NamespaceOwnershipPolicy": "Strict namespace ownership",
   "UpdateStrategy": "Individual updates",
