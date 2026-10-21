@@ -32,8 +32,6 @@ export const useBulkDeleteHtpasswdUser = (clusterID: string, idpId: string, regi
                 operationID,
               },
             });
-
-            return;
           }
         }
       }
