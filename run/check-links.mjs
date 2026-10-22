@@ -1202,7 +1202,11 @@ function getSlackDraftCandidates(categories, testedRedirects) {
       const isBroken =
         item.error || (item.finalStatus && item.finalStatus >= 400 && item.finalStatus < 500);
       // Skip false positives on redirect URL
-      return isBroken && !getKnownFalsePositiveNote(item.originalUrl) && !getKnownFalsePositiveNote(item.redirectUrl);
+      return (
+        isBroken &&
+        !getKnownFalsePositiveNote(item.originalUrl) &&
+        !getKnownFalsePositiveNote(item.redirectUrl)
+      );
     })
     .map((item) => ({
       url: item.originalUrl,
