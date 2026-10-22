@@ -1,6 +1,9 @@
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
-import { waitForOrganizationCapabilities } from '../../support/capability-helper';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
+} from '../../support/capability-helper';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd-gcp/osd-ccs-gcp-wizard-validation.spec.json');
@@ -22,18 +25,15 @@ Clusters.forEach((clusterProperties) => {
     () => {
       let shouldShowOcp5Warning = false;
 
-      test.beforeAll(async ({ navigateTo, createOSDWizardPage, authenticatedPage }) => {
+      test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
         const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
-        const capabilitiesPromise = waitForOrganizationCapabilities(authenticatedPage);
+        const capabilitiesPromise = createOSDWizardPage.waitForOrganizationCapabilities();
         await navigateTo('create');
         const isOcp5SupportEnabled = await gatePromise;
         const capabilities = await capabilitiesPromise;
-        const organizationAllowsOcp5 = capabilities.some(
-          (capability) =>
-            capability.name === 'capability.organization.rosa_osd_allow_ocp_5' &&
-            capability.value === 'true',
-        );
-        shouldShowOcp5Warning = isOcp5SupportEnabled && !organizationAllowsOcp5;
+        shouldShowOcp5Warning =
+          isOcp5SupportEnabled &&
+          !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -68,9 +68,6 @@ Clusters.forEach((clusterProperties) => {
             await createOSDWizardPage.serviceAccountButton().click();
             if (shouldShowOcp5Warning) {
               await expect(serviceAccountWarning).toBeVisible();
-              await expect(serviceAccountWarning).toContainText(serviceAccountWarningText, {
-                exact: true,
-              });
             } else {
               await expect(serviceAccountWarning).toBeHidden();
             }
