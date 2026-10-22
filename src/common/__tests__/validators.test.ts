@@ -1882,4 +1882,22 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
       }),
     ).toBeUndefined();
   });
+
+  it('returns an error when hostname is not a valid domain', () => {
+    expect(
+      validateTlsHostname('not a hostname', {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: 'not a hostname',
+      }),
+    ).toContain("Hostname 'not a hostname' isn't valid");
+  });
+
+  it('returns an error when hostname is a single label without dots', () => {
+    expect(
+      validateTlsHostname('localhost', {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: 'localhost',
+      }),
+    ).toContain("Hostname 'localhost' isn't valid");
+  });
 });
