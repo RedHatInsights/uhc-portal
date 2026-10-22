@@ -43,15 +43,24 @@ const findContactByKey = (key, contacts = getDownloadContacts()) =>
 
 /**
  * Overwrites slackChannels for the given key and writes downloadContacts.json.
+ * Skips writing if the channels are already the same.
  * @param {string} key
  * @param {Array<string>} slackChannels
- * @returns {Object|null} Updated raw entry, or null if the key is unknown
+ * @returns {Object|null} Entry with optional `noChange: true`, or null if key unknown
  */
 const updateSlackChannels = (key, slackChannels) => {
   const entries = readDownloadContacts();
   const index = entries.findIndex((entry) => entry.key === key);
   if (index === -1) {
     return null;
+  }
+
+  const current = entries[index].slackChannels;
+  const isSame =
+    current.length === slackChannels.length && current.every((ch, i) => ch === slackChannels[i]);
+
+  if (isSame) {
+    return { ...entries[index], noChange: true };
   }
 
   entries[index] = { ...entries[index], slackChannels };

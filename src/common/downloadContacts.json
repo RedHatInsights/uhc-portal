@@ -48,14 +48,20 @@
     "key": "helm3",
     "displayName": "Helm 3 CLI (helm3)",
     "urlPattern": "\\/pub\\/cgw\\/helm\\/latest",
-    "slackChannels": ["#forum-helm", "#helm-eng"],
+    "slackChannels": [
+      "#forum-helm",
+      "#helm-eng"
+    ],
     "owners": "https://github.com/helm/helm"
   },
   {
     "key": "helm",
     "displayName": "Helm CLI (helm)",
     "urlPattern": "\\/pub\\/cgw\\/helm\\/4\\.3\\.0",
-    "slackChannels": ["#forum-helm", "#helm-eng"],
+    "slackChannels": [
+      "#forum-helm",
+      "#helm-eng"
+    ],
     "owners": "https://github.com/helm/helm"
   },
   {

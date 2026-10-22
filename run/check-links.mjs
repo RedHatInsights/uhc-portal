@@ -264,6 +264,13 @@ function applyChannelUpdate() {
 
   const updated = updateSlackChannels(key, slackChannels);
 
+  if (updated.noChange) {
+    console.log(
+      `${key} slackChannels already set to ${JSON.stringify(updated.slackChannels)}; no file changes.`,
+    );
+    return true;
+  }
+
   console.log(`Updated ${key} slackChannels to ${JSON.stringify(updated.slackChannels)}`);
   console.log('');
   console.log('This command does not commit, push, or open a PR.');
@@ -1180,12 +1187,30 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
 }
 
 /**
- * 4xx errors that are not known false positives — the only URLs --slack drafts for.
+ * 4xx errors + failed redirects that are not known false positives
  * @param {Object} categories - Categorized results
- * @returns {Array<{url: string, status: number}>}
+ * @param {Array} testedRedirects - Results of testRedirectUrls
+ * @returns {Array<{url: string, status: number|string}>}
  */
-function getSlackDraftCandidates(categories) {
-  return categories.clientErrors.filter(({ url }) => !getKnownFalsePositiveNote(url));
+function getSlackDraftCandidates(categories, testedRedirects) {
+  // Direct 4xx errors
+  const directErrors = categories.clientErrors.filter(({ url }) => !getKnownFalsePositiveNote(url));
+
+  // Failed redirects
+  const failedRedirects = testedRedirects
+    .filter((item) => {
+      const isBroken =
+        item.error || (item.finalStatus && item.finalStatus >= 400 && item.finalStatus < 500);
+      // Skip false positives on redirect URL
+      return isBroken && !getKnownFalsePositiveNote(item.redirectUrl);
+    })
+    .map((item) => ({
+      url: item.originalUrl,
+      redirectUrl: item.redirectUrl,
+      status: item.error ? `redirect error` : `${item.status} -> ${item.finalStatus}`,
+    }));
+
+  return [...directErrors, ...failedRedirects];
 }
 
 /**
@@ -1245,6 +1270,9 @@ function printSlackDraft(displayNumber, item, contact) {
   console.log('download link served by OCM UI (console.redhat.com/openshift).');
   console.log(`Broken URL (${item.status}):`);
   console.log(item.url);
+  if (item.redirectUrl) {
+    console.log(`  ↳ redirects to: ${item.redirectUrl}`);
+  }
   console.log(divider);
   console.log(
     `Wrong channel? Execute: node check-links.mjs --update-channel ${contact.key} "#new-channel"`,
@@ -1254,9 +1282,10 @@ function printSlackDraft(displayNumber, item, contact) {
 /**
  * --slack flow: numbered 4xx list → user selection → Slack drafts (never posts).
  * @param {Object} categories
+ * @param {Array} testedRedirects
  */
-async function runSlackDraftFlow(categories) {
-  const broken = getSlackDraftCandidates(categories);
+async function runSlackDraftFlow(categories, testedRedirects = []) {
+  const broken = getSlackDraftCandidates(categories, testedRedirects);
 
   console.log('\nBroken links (4xx, false positives excluded):');
   if (broken.length === 0) {
@@ -1336,13 +1365,13 @@ async function main() {
     }),
   );
 
-  if (slackMode) {
-    await runSlackDraftFlow(categorizeResults(statusByUrl));
-    return;
-  }
-
   // Gather redirect URLs for testing
   const redirectItems = await testRedirectUrls(statusByUrl);
+
+  if (slackMode) {
+    await runSlackDraftFlow(categorizeResults(statusByUrl), redirectItems);
+    return;
+  }
 
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);
