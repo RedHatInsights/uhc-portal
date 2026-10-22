@@ -1207,7 +1207,7 @@ function getSlackDraftCandidates(categories, testedRedirects) {
     .map((item) => ({
       url: item.originalUrl,
       redirectUrl: item.redirectUrl,
-      status: item.error ? `redirect error` : `${item.status} -> ${item.finalStatus}`,
+      status: item.error ? `redirect error` : `${item.status} → ${item.finalStatus}`,
     }));
 
   return [...directErrors, ...failedRedirects];
