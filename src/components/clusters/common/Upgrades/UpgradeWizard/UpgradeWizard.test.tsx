@@ -1,6 +1,8 @@
 import React from 'react';
 import * as reactRedux from 'react-redux';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING } from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
@@ -10,6 +12,7 @@ import {
   waitFor,
   withState,
 } from '~/testUtils';
+import { Organization } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
 import { useFetchClusterDetails } from '../../../../../queries/ClusterDetailsQueries/useFetchClusterDetails';
@@ -175,6 +178,104 @@ describe('<UpgradeWizard />', () => {
 
       expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
       expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
+    });
+  });
+
+  describe('GcpOcp5UnsupportedWarning', () => {
+    const gcpSubscription = {
+      ...fixtures.clusterDetails.cluster.subscription,
+      id: 'mySubscriptionId',
+      cloud_provider_id: 'gcp',
+      plan: { type: 'OSD' },
+    };
+
+    const gcpServiceAccountCluster = {
+      ...fixtures.clusterDetails.cluster,
+      cloud_provider: { id: 'gcp' },
+      product: { id: 'OSD' },
+      ccs: { enabled: true },
+      gcp: {},
+      subscription: gcpSubscription,
+    };
+
+    const gcpRedHatAccountCluster = {
+      ...fixtures.clusterDetails.cluster,
+      cloud_provider: { id: 'gcp' },
+      product: { id: 'OSD' },
+      ccs: { enabled: false },
+      subscription: gcpSubscription,
+    };
+
+    const gcpWifCluster = {
+      ...fixtures.clusterDetails.cluster,
+      cloud_provider: { id: 'gcp' },
+      product: { id: 'OSD' },
+      ccs: { enabled: true },
+      gcp: { authentication: { kind: 'WifConfig', id: 'wif-config-id' } },
+      subscription: gcpSubscription,
+    };
+
+    const renderWizard = (
+      cluster:
+        | typeof gcpServiceAccountCluster
+        | typeof gcpRedHatAccountCluster
+        | typeof gcpWifCluster,
+      organization?: Organization,
+    ) => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster,
+      });
+
+      return withState({
+        ...initialState,
+        userProfile: {
+          organization: {
+            details: organization,
+          },
+        },
+      }).render(<UpgradeWizard />);
+    };
+
+    it('renders in the Select version step for a GCP service account cluster when ocmui-ocp5-support is on', () => {
+      renderWizard(gcpServiceAccountCluster);
+
+      expect(screen.getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).toBeInTheDocument();
+    });
+
+    it('renders in the Select version step for a GCP Red Hat cloud account cluster when ocmui-ocp5-support is on', () => {
+      renderWizard(gcpRedHatAccountCluster);
+
+      expect(screen.getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).toBeInTheDocument();
+    });
+
+    it('does not render for a GCP Workload Identity Federation cluster', () => {
+      renderWizard(gcpWifCluster);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render when ocmui-ocp5-support is off', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: gcpServiceAccountCluster,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render when the organization has rosa_osd_allow_ocp_5 set to "true"', () => {
+      renderWizard(gcpServiceAccountCluster, {
+        capabilities: [
+          { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'true', inherited: false },
+        ],
+      } as Organization);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
     });
   });
 });
