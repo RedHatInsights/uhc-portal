@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, has } from 'lodash';
+import { get } from 'lodash';
 
 import { urls as URLS } from '~/common/installLinks.mjs';
 
@@ -9,7 +9,7 @@ import ArchitectureDropdown from './DownloadsPage/components/ArchitectureDropdow
 import OperatingSystemDropdown from './DownloadsPage/components/OperatingSystemDropdown';
 import {
   allOperatingSystemsForTool,
-  architecturesForToolOS,
+  defaultArchitectureForOS,
   detectOS,
   initialSelection,
 } from './downloadUtils';
@@ -38,12 +38,8 @@ const downloadChoice = (
     selections[tool] || initialSelection(urls, tool, channel, detectOS());
   // Callbacks for dropdowns:
   const onChangeOS = (event: React.FormEvent<HTMLSelectElement>, newOS: string | null) => {
-    let newArchitecture = architecture;
-    // Invalidate arch selection if not compatible
-    if (!has(urls, [tool, channel, architecture, newOS ?? ''])) {
-      const optionsForOS = architecturesForToolOS(urls, tool, channel, newOS);
-      newArchitecture = optionsForOS.length > 1 ? 'select' : optionsForOS[0].value;
-    }
+    // Apply the same defaults as initialSelection (mac → arm when available, else first arch).
+    const newArchitecture = defaultArchitectureForOS(urls, tool, channel, newOS) ?? architecture;
     setSelections({ ...selections, [tool]: { OS: newOS, architecture: newArchitecture } });
   };
 

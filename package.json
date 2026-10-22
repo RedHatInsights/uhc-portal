@@ -167,8 +167,8 @@
     "prettier": "3.3.2",
     "progress": "^2.0.3",
     "redux-mock-store": "^1.5.4",
-    "sass": "^1.77.2",
-    "sass-loader": "^14.2.1",
+    "sass": "^1.105.1",
+    "sass-loader": "^17.0.1",
     "sprintf-js": "^1.1.2",
     "storybook": "10.6.0",
     "style-loader": "4.0.0",
@@ -180,7 +180,7 @@
     "typescript-eslint": "^8.59.4",
     "wait-on": "^9.0.5",
     "webpack": "^5.111.1",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "webpack-bundle-analyzer": "^5.4.0"
   },
   "overrides": {
     "@redhat-cloud-services/frontend-components-config": {

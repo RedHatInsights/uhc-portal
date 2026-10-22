@@ -59,6 +59,16 @@ describe('initialSelection', () => {
     expect(initial).toEqual({ OS: windows, architecture: architectures.x86 });
   });
 
+  it('on macOS, prefers arm when available', () => {
+    const initial = initialSelection(urls, tools.ROSA, channels.STABLE, mac);
+    expect(initial).toEqual({ OS: mac, architecture: arm });
+  });
+
+  it('on macOS, falls back to x86 when arm is unavailable', () => {
+    const initial = initialSelection(urls, tools.OCM, channels.STABLE, mac);
+    expect(initial).toEqual({ OS: mac, architecture: x86 });
+  });
+
   it('when not available for detected OS, chooses first option Linux x86', () => {
     // The concrete use case is Windows user, installer is only available for Linux & Mac.
     // Plausible behaviors in that case:
