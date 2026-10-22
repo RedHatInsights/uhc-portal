@@ -1,13 +1,12 @@
 import {
   getExistingVpcWarningAlert,
+  installToVpcStateAfterVersionChange,
   isInstallToVpcForcedByOtherSetting,
   OCP5_EXISTING_VPC_ALERT_BODY,
   OCP5_EXISTING_VPC_ALERT_TITLE,
-  PRIVATE_AND_OCP5_EXISTING_VPC_ALERT,
   PRIVATE_WIF_EXISTING_VPC_ALERT,
   requiresExistingVpcForOcp5,
-  shouldClearOcp5ForcedInstallToVpc,
-} from './requiresExistingVpcForOcp5';
+} from './installToExistingVpcHelpers';
 
 const enabledGcpWif = {
   isOcp5SupportEnabled: true,
@@ -60,6 +59,9 @@ describe('requiresExistingVpcForOcp5', () => {
         clusterVersionRawId: '5.0.1',
       }),
     ).toBe(false);
+  });
+
+  it('is false for a service account when the organization is allowed to use OpenShift 5', () => {
     expect(
       requiresExistingVpcForOcp5({
         ...enabledGcpWif,
@@ -70,13 +72,19 @@ describe('requiresExistingVpcForOcp5', () => {
     ).toBe(false);
   });
 
-  it('is false when the cluster is not customer-cloud GCP WIF', () => {
+  it('is false when the cluster is not a customer cloud subscription', () => {
     expect(
       requiresExistingVpcForOcp5({ ...enabledGcpWif, isByoc: false, clusterVersionRawId: '5.0.1' }),
     ).toBe(false);
+  });
+
+  it('is false when the cloud provider is not GCP', () => {
     expect(
       requiresExistingVpcForOcp5({ ...enabledGcpWif, isGcp: false, clusterVersionRawId: '5.0.1' }),
     ).toBe(false);
+  });
+
+  it('is false when the authentication type is not Workload Identity Federation', () => {
     expect(
       requiresExistingVpcForOcp5({ ...enabledGcpWif, isWif: false, clusterVersionRawId: '5.0.1' }),
     ).toBe(false);
@@ -90,21 +98,37 @@ describe('isInstallToVpcForcedByOtherSetting', () => {
     isPrivateCluster: false,
     isWif: false,
     isOSDFromGoogleCloud: false,
+    usePrivateServiceConnect: false,
   };
 
   it('is false when none of the other install-to-VPC constraints apply', () => {
     expect(isInstallToVpcForcedByOtherSetting(optional)).toBe(false);
   });
 
-  it('is true when private link, cluster-wide proxy, private WIF, or OSD from Google Cloud applies', () => {
+  it('is true when private link requires an existing VPC', () => {
     expect(isInstallToVpcForcedByOtherSetting({ ...optional, usePrivateLink: true })).toBe(true);
+  });
+
+  it('is true when a cluster-wide proxy requires an existing VPC', () => {
     expect(isInstallToVpcForcedByOtherSetting({ ...optional, configureProxy: true })).toBe(true);
+  });
+
+  it('is true when a private Workload Identity Federation cluster requires an existing VPC', () => {
     expect(
       isInstallToVpcForcedByOtherSetting({ ...optional, isPrivateCluster: true, isWif: true }),
     ).toBe(true);
+  });
+
+  it('is true when the cluster is created from Google Cloud', () => {
     expect(isInstallToVpcForcedByOtherSetting({ ...optional, isOSDFromGoogleCloud: true })).toBe(
       true,
     );
+  });
+
+  it('is true when Private Service Connect requires an existing VPC', () => {
+    expect(
+      isInstallToVpcForcedByOtherSetting({ ...optional, usePrivateServiceConnect: true }),
+    ).toBe(true);
   });
 
   it('is false for a private cluster that does not use WIF', () => {
@@ -126,14 +150,14 @@ describe('getExistingVpcWarningAlert', () => {
     });
   });
 
-  it('uses the combined warning when OpenShift 5 and a private cluster both require an existing VPC', () => {
+  it('keeps the private Workload Identity Federation warning when OpenShift 5 also requires an existing VPC', () => {
     expect(
       getExistingVpcWarningAlert({
         isPrivateCluster: true,
         isGcpPrivateWif: true,
         requiresOcp5ExistingVpc: true,
       }),
-    ).toEqual({ title: PRIVATE_AND_OCP5_EXISTING_VPC_ALERT });
+    ).toEqual({ title: PRIVATE_WIF_EXISTING_VPC_ALERT });
   });
 
   it('keeps the private Workload Identity Federation warning when the cluster is not OpenShift 5', () => {
@@ -163,51 +187,114 @@ describe('getExistingVpcWarningAlert', () => {
   });
 });
 
-describe('shouldClearOcp5ForcedInstallToVpc', () => {
-  const kept = {
+describe('installToVpcStateAfterVersionChange', () => {
+  const unchanged = {
+    installToVpc: false,
+    installToVpcChosenByUser: false,
+    installToVpcForcedByOcp5: false,
     nextRequiresExistingVpc: false,
     previousRequiresExistingVpc: false,
     isInstallToVpcForced: false,
-    installToVpcChosenByUser: false,
-    installToVpcForcedByOcp5: false,
   };
 
-  it('clears the checkbox when the previous version was cleared before OpenShift 4 is applied', () => {
+  it('drops a stale user choice and records an OpenShift 5 force when the checkbox is already clear', () => {
     expect(
-      shouldClearOcp5ForcedInstallToVpc({
-        ...kept,
-        installToVpcForcedByOcp5: true,
-      }),
-    ).toBe(true);
-  });
-
-  it('clears the checkbox when leaving OpenShift 5 and the user did not select the checkbox', () => {
-    expect(
-      shouldClearOcp5ForcedInstallToVpc({
-        ...kept,
-        previousRequiresExistingVpc: true,
-      }),
-    ).toBe(true);
-  });
-
-  it('keeps the checkbox when the user selected it', () => {
-    expect(
-      shouldClearOcp5ForcedInstallToVpc({
-        ...kept,
-        previousRequiresExistingVpc: true,
-        installToVpcForcedByOcp5: true,
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
         installToVpcChosenByUser: true,
+        nextRequiresExistingVpc: true,
       }),
-    ).toBe(false);
+    ).toEqual({
+      installToVpc: true,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: true,
+    });
+  });
+
+  it('clears the checkbox when the OpenShift 5 force flag is set and the next version does not require an existing VPC', () => {
+    expect(
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        installToVpc: true,
+        installToVpcForcedByOcp5: true,
+      }),
+    ).toEqual({
+      installToVpc: false,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: false,
+    });
+  });
+
+  it('clears the checkbox when the previous version required an existing VPC and the user did not select it', () => {
+    expect(
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        installToVpc: true,
+        previousRequiresExistingVpc: true,
+      }),
+    ).toEqual({
+      installToVpc: false,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: false,
+    });
+  });
+
+  it('leaves the checkbox unchecked when another setting forces it but it is not selected', () => {
+    expect(
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        isInstallToVpcForced: true,
+      }),
+    ).toEqual({
+      installToVpc: false,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: false,
+    });
   });
 
   it('keeps the checkbox when another setting still requires an existing VPC', () => {
     expect(
-      shouldClearOcp5ForcedInstallToVpc({
-        ...kept,
-        previousRequiresExistingVpc: true,
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        installToVpc: true,
+        installToVpcForcedByOcp5: true,
         isInstallToVpcForced: true,
       }),
-    ).toBe(false);
+    ).toEqual({
+      installToVpc: true,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: false,
+    });
+  });
+
+  it('records an OpenShift 5 force when another setting had already checked the box', () => {
+    expect(
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        installToVpc: true,
+        nextRequiresExistingVpc: true,
+        isInstallToVpcForced: true,
+      }),
+    ).toEqual({
+      installToVpc: true,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: true,
+    });
+  });
+
+  it('keeps a checkbox the user still has selected', () => {
+    expect(
+      installToVpcStateAfterVersionChange({
+        ...unchanged,
+        installToVpc: true,
+        installToVpcChosenByUser: true,
+        installToVpcForcedByOcp5: true,
+        previousRequiresExistingVpc: true,
+      }),
+    ).toEqual({
+      installToVpc: true,
+      installToVpcChosenByUser: true,
+      installToVpcForcedByOcp5: false,
+    });
   });
 });

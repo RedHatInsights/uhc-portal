@@ -10,8 +10,6 @@ const PRIVATE_NETWORK_CONNECTIVITY_WARNING =
 
 export const PRIVATE_WIF_EXISTING_VPC_ALERT = `Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC. ${PRIVATE_NETWORK_CONNECTIVITY_WARNING}`;
 
-export const PRIVATE_AND_OCP5_EXISTING_VPC_ALERT = `Private clusters using Workload Identity Federation and clusters running OpenShift 5 on GCP both require an existing VPC. ${PRIVATE_NETWORK_CONNECTIVITY_WARNING}`;
-
 export type ExistingVpcWarningAlert = {
   title: string;
   body?: string;
@@ -29,8 +27,14 @@ export const getExistingVpcWarningAlert = ({
   isGcpPrivateWif: boolean;
   requiresOcp5ExistingVpc: boolean;
 }): ExistingVpcWarningAlert | undefined => {
-  if (requiresOcp5ExistingVpc && isPrivateCluster) {
-    return { title: PRIVATE_AND_OCP5_EXISTING_VPC_ALERT };
+  if (isPrivateCluster) {
+    if (isGcpPrivateWif) {
+      return { title: PRIVATE_WIF_EXISTING_VPC_ALERT };
+    }
+
+    return {
+      title: ` ${PRIVATE_NETWORK_CONNECTIVITY_WARNING}`,
+    };
   }
 
   if (requiresOcp5ExistingVpc) {
@@ -40,17 +44,7 @@ export const getExistingVpcWarningAlert = ({
     };
   }
 
-  if (!isPrivateCluster) {
-    return undefined;
-  }
-
-  if (isGcpPrivateWif) {
-    return { title: PRIVATE_WIF_EXISTING_VPC_ALERT };
-  }
-
-  return {
-    title: ` ${PRIVATE_NETWORK_CONNECTIVITY_WARNING}`,
-  };
+  return undefined;
 };
 
 /**
@@ -91,23 +85,60 @@ export const requiresExistingVpcForOcp5 = ({
 export const INSTALL_TO_VPC_CHOSEN_BY_USER = 'install_to_vpc_chosen_by_user';
 export const INSTALL_TO_VPC_FORCED_BY_OCP5 = 'install_to_vpc_forced_by_ocp5';
 
-export const shouldClearOcp5ForcedInstallToVpc = ({
+export type InstallToVpcSelectionState = {
+  installToVpc: boolean;
+  installToVpcChosenByUser: boolean;
+  installToVpcForcedByOcp5: boolean;
+};
+
+/**
+ * Decides the existing-VPC checkbox after a version change.
+ * A checked box counts as the user's choice only while it is still checked.
+ */
+export const installToVpcStateAfterVersionChange = ({
+  installToVpc,
+  installToVpcChosenByUser,
+  installToVpcForcedByOcp5,
   nextRequiresExistingVpc,
   previousRequiresExistingVpc,
   isInstallToVpcForced,
-  installToVpcChosenByUser,
-  installToVpcForcedByOcp5,
 }: {
+  installToVpc: boolean;
+  installToVpcChosenByUser: boolean;
+  installToVpcForcedByOcp5: boolean;
   nextRequiresExistingVpc: boolean;
   previousRequiresExistingVpc: boolean;
   isInstallToVpcForced: boolean;
-  installToVpcChosenByUser: boolean;
-  installToVpcForcedByOcp5: boolean;
-}): boolean =>
-  !nextRequiresExistingVpc &&
-  !isInstallToVpcForced &&
-  !installToVpcChosenByUser &&
-  (previousRequiresExistingVpc || installToVpcForcedByOcp5);
+}): InstallToVpcSelectionState => {
+  const userChoseInstallToVpc = installToVpcChosenByUser && installToVpc;
+
+  if (nextRequiresExistingVpc) {
+    return {
+      installToVpc: true,
+      installToVpcChosenByUser: userChoseInstallToVpc,
+      installToVpcForcedByOcp5: !userChoseInstallToVpc,
+    };
+  }
+
+  const clearOcp5ForcedInstallToVpc =
+    !isInstallToVpcForced &&
+    !userChoseInstallToVpc &&
+    (previousRequiresExistingVpc || installToVpcForcedByOcp5);
+
+  if (clearOcp5ForcedInstallToVpc) {
+    return {
+      installToVpc: false,
+      installToVpcChosenByUser: false,
+      installToVpcForcedByOcp5: false,
+    };
+  }
+
+  return {
+    installToVpc,
+    installToVpcChosenByUser: userChoseInstallToVpc,
+    installToVpcForcedByOcp5: false,
+  };
+};
 
 /** Reasons the existing-VPC checkbox is already forced, independent of the OpenShift 5 rule. */
 export const isInstallToVpcForcedByOtherSetting = ({
@@ -116,11 +147,17 @@ export const isInstallToVpcForcedByOtherSetting = ({
   isPrivateCluster,
   isWif,
   isOSDFromGoogleCloud,
+  usePrivateServiceConnect,
 }: {
   usePrivateLink: boolean;
   configureProxy: boolean;
   isPrivateCluster: boolean;
   isWif: boolean;
   isOSDFromGoogleCloud: boolean;
+  usePrivateServiceConnect: boolean;
 }): boolean =>
-  usePrivateLink || configureProxy || (isPrivateCluster && isWif) || isOSDFromGoogleCloud;
+  usePrivateLink ||
+  configureProxy ||
+  (isPrivateCluster && isWif) ||
+  isOSDFromGoogleCloud ||
+  usePrivateServiceConnect;

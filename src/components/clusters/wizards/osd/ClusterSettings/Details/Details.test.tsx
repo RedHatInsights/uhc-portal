@@ -14,7 +14,12 @@ import {
   lifecycleResponseData,
   versionsData,
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
+import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
+import {
+  INSTALL_TO_VPC_CHOSEN_BY_USER,
+  INSTALL_TO_VPC_FORCED_BY_OCP5,
+} from '~/components/clusters/wizards/osd/installToExistingVpcHelpers';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
@@ -448,6 +453,106 @@ describe('<Details />', () => {
         expect(handleSubmit).toHaveBeenCalledWith(
           expect.objectContaining({
             [FieldId.InstallToVpc]: true,
+          }),
+        );
+      });
+
+      it('clears Install into an existing VPC when a service account version change drops the OpenShift 5 force', async () => {
+        mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+        const serviceAccountState = {
+          clusters: {
+            clusterVersions: {
+              ...loaded,
+              meta: {
+                ...loaded.meta,
+                isWIF: false,
+              },
+            },
+          },
+        };
+        const formValues = {
+          ...initialValues,
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.External,
+          [FieldId.ClusterVersion]: versionsData.find((versionItem) => versionItem.id === '5.0.1'),
+          [FieldId.InstallToVpc]: true,
+          [FieldId.PrivateServiceConnect]: false,
+          [INSTALL_TO_VPC_CHOSEN_BY_USER]: false,
+          [INSTALL_TO_VPC_FORCED_BY_OCP5]: true,
+        };
+        const handleSubmit = jest.fn();
+        const { user } = withState(serviceAccountState).render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            {({ values }) => (
+              <div>
+                <Details />
+                <button type="button" onClick={() => handleSubmit(values)}>
+                  submit
+                </button>
+              </div>
+            )}
+          </Formik>,
+        );
+
+        expect(await screen.findByText('Version')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('4.18.1'));
+        await user.click(screen.getByRole('button', { name: 'submit' }));
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [FieldId.InstallToVpc]: false,
+            [INSTALL_TO_VPC_FORCED_BY_OCP5]: false,
+          }),
+        );
+      });
+
+      it('keeps Install into an existing VPC and Private Service Connect when a service account version leaves OpenShift 5', async () => {
+        mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+        const serviceAccountState = {
+          clusters: {
+            clusterVersions: {
+              ...loaded,
+              meta: {
+                ...loaded.meta,
+                isWIF: false,
+              },
+            },
+          },
+        };
+        const formValues = {
+          ...initialValues,
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+          [FieldId.ClusterPrivacy]: ClusterPrivacyType.Internal,
+          [FieldId.ClusterVersion]: versionsData.find((versionItem) => versionItem.id === '5.0.1'),
+          [FieldId.InstallToVpc]: true,
+          [FieldId.PrivateServiceConnect]: true,
+          [INSTALL_TO_VPC_CHOSEN_BY_USER]: false,
+          [INSTALL_TO_VPC_FORCED_BY_OCP5]: true,
+        };
+        const handleSubmit = jest.fn();
+        const { user } = withState(serviceAccountState).render(
+          <Formik initialValues={formValues} onSubmit={() => {}}>
+            {({ values }) => (
+              <div>
+                <Details />
+                <button type="button" onClick={() => handleSubmit(values)}>
+                  submit
+                </button>
+              </div>
+            )}
+          </Formik>,
+        );
+
+        expect(await screen.findByText('Version')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Options menu' }));
+        await user.click(screen.getByText('4.18.1'));
+        await user.click(screen.getByRole('button', { name: 'submit' }));
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [FieldId.InstallToVpc]: true,
+            [FieldId.PrivateServiceConnect]: true,
           }),
         );
       });

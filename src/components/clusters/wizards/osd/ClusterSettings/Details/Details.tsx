@@ -67,10 +67,10 @@ import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/
 import {
   INSTALL_TO_VPC_CHOSEN_BY_USER,
   INSTALL_TO_VPC_FORCED_BY_OCP5,
+  installToVpcStateAfterVersionChange,
   isInstallToVpcForcedByOtherSetting,
   requiresExistingVpcForOcp5,
-  shouldClearOcp5ForcedInstallToVpc,
-} from '~/components/clusters/wizards/osd/requiresExistingVpcForOcp5';
+} from '~/components/clusters/wizards/osd/installToExistingVpcHelpers';
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
@@ -262,13 +262,14 @@ function Details() {
         worker: [],
       });
     }
+    const versionSupportsPrivateServiceConnect = canConfigureDayOnePrivateServiceConnect(
+      clusterVersion?.raw_id || '',
+    );
+    const nextPrivateServiceConnect =
+      clusterPrivacy === ClusterPrivacyType.Internal && versionSupportsPrivateServiceConnect;
+
     if (clusterPrivacy === ClusterPrivacyType.Internal) {
-      if (!canConfigureDayOnePrivateServiceConnect(clusterVersion?.raw_id || '')) {
-        setFieldValue(FieldId.PrivateServiceConnect, false);
-      } else {
-        setFieldValue(FieldId.PrivateServiceConnect, true);
-        setFieldValue(FieldId.InstallToVpc, true);
-      }
+      setFieldValue(FieldId.PrivateServiceConnect, nextPrivateServiceConnect);
     }
 
     const versionRequirements = {
@@ -286,33 +287,25 @@ function Details() {
       ...versionRequirements,
       clusterVersionRawId: selectedVersion?.raw_id,
     });
-    const isInstallToVpcForced = isInstallToVpcForcedByOtherSetting({
-      usePrivateLink,
-      configureProxy,
-      isPrivateCluster,
-      isWif: isWifAuth,
-      isOSDFromGoogleCloud,
+    const installToVpcState = installToVpcStateAfterVersionChange({
+      installToVpc: Boolean(installToVpc) || nextPrivateServiceConnect,
+      installToVpcChosenByUser: Boolean(installToVpcChosenByUser),
+      installToVpcForcedByOcp5: Boolean(installToVpcForcedByOcp5),
+      nextRequiresExistingVpc,
+      previousRequiresExistingVpc,
+      isInstallToVpcForced: isInstallToVpcForcedByOtherSetting({
+        usePrivateLink,
+        configureProxy,
+        isPrivateCluster,
+        isWif: isWifAuth,
+        isOSDFromGoogleCloud,
+        usePrivateServiceConnect: nextPrivateServiceConnect,
+      }),
     });
 
-    if (nextRequiresExistingVpc) {
-      if (!installToVpc && !installToVpcChosenByUser) {
-        setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, true);
-      }
-      setFieldValue(FieldId.InstallToVpc, true);
-    } else if (previousRequiresExistingVpc || installToVpcForcedByOcp5) {
-      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
-      if (
-        shouldClearOcp5ForcedInstallToVpc({
-          nextRequiresExistingVpc,
-          previousRequiresExistingVpc,
-          isInstallToVpcForced,
-          installToVpcChosenByUser: Boolean(installToVpcChosenByUser),
-          installToVpcForcedByOcp5: Boolean(installToVpcForcedByOcp5),
-        })
-      ) {
-        setFieldValue(FieldId.InstallToVpc, false);
-      }
-    }
+    setFieldValue(FieldId.InstallToVpc, installToVpcState.installToVpc);
+    setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, installToVpcState.installToVpcChosenByUser);
+    setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, installToVpcState.installToVpcForcedByOcp5);
 
     resetMaxNodesTotal({ clusterVersion });
 

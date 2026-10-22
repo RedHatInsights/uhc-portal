@@ -41,7 +41,7 @@ import {
   INSTALL_TO_VPC_FORCED_BY_OCP5,
   isInstallToVpcForcedByOtherSetting,
   requiresExistingVpcForOcp5,
-} from '../requiresExistingVpcForOcp5';
+} from '../installToExistingVpcHelpers';
 
 import { ApplicationIngressType, ClusterPrivacyType } from './constants';
 import { DefaultIngressFields } from './DefaultIngressFields';
@@ -57,6 +57,7 @@ export const Configuration = () => {
       [FieldId.ClusterPrivacy]: clusterPrivacy,
       [FieldId.ConfigureProxy]: configureProxy,
       [FieldId.InstallToVpc]: installToVpc,
+      [FieldId.PrivateServiceConnect]: privateServiceConnect,
       [FieldId.UsePrivateLink]: usePrivateLink,
       [FieldId.ApplicationIngress]: applicationIngress,
       [FieldId.MachinePoolsSubnets]: machinePoolSubnets,
@@ -101,12 +102,13 @@ export const Configuration = () => {
     isPrivateCluster,
     isWif: isWifAuth,
     isOSDFromGoogleCloud,
+    usePrivateServiceConnect: privateServiceConnect,
   });
   const isInstallToVpcDisabled = isInstallToVpcForced || ocp5RequiresExistingVpc;
   const existingVpcWarningAlert = getExistingVpcWarningAlert({
     isPrivateCluster,
     isGcpPrivateWif: isGCP && isPrivateCluster && isWifAuth,
-    requiresOcp5ExistingVpc: ocp5RequiresExistingVpc,
+    requiresOcp5ExistingVpc: ocp5RequiresExistingVpc && !isOSDFromGoogleCloud,
   });
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
@@ -128,6 +130,7 @@ export const Configuration = () => {
     if (ocp5RequiresExistingVpc && !installToVpc) {
       setFieldValue(FieldId.InstallToVpc, true);
       setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, true);
+      setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, false);
     }
   }, [ocp5RequiresExistingVpc, installToVpc, setFieldValue]);
 
@@ -155,14 +158,15 @@ export const Configuration = () => {
       );
 
       if (!hasFilledMachinePoolsSubnets) {
-        if (!isOSDFromGoogleCloud && !ocp5RequiresExistingVpc) {
-          setFieldValue(FieldId.InstallToVpc, false);
-        }
         clearSecurityGroups();
 
-        // Also unset "Configure a cluster-wide proxy" if enabled
-        if (configureProxy) {
-          setFieldValue(FieldId.ConfigureProxy, false);
+        if (!isOSDFromGoogleCloud && !ocp5RequiresExistingVpc) {
+          setFieldValue(FieldId.InstallToVpc, false);
+          setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, false);
+          setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
+          if (configureProxy) {
+            setFieldValue(FieldId.ConfigureProxy, false);
+          }
         }
       }
       trackCheckedState(trackEvents.PrivateServiceConnect, false);
