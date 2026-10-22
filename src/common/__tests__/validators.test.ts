@@ -1900,4 +1900,55 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
       }),
     ).toContain("Hostname 'localhost' isn't valid");
   });
+
+  it('accepts a hostname with a label that starts with a digit', () => {
+    expect(
+      validateTlsHostname('3scale.example.com', {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: '3scale.example.com',
+      }),
+    ).toBeUndefined();
+  });
+
+  it('accepts a hostname with a 63-character label', () => {
+    const hostname = `${'a'.repeat(63)}.example.com`;
+    expect(
+      validateTlsHostname(hostname, {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: hostname,
+      }),
+    ).toBeUndefined();
+  });
+
+  it('returns an error when a hostname label exceeds 63 characters', () => {
+    const hostname = `${'a'.repeat(64)}.example.com`;
+    expect(
+      validateTlsHostname(hostname, {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: hostname,
+      }),
+    ).toBe('Hostname labels may not exceed 63 characters.');
+  });
+
+  it('accepts a hostname of 253 characters', () => {
+    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(61)}`;
+    expect(hostname).toHaveLength(253);
+    expect(
+      validateTlsHostname(hostname, {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: hostname,
+      }),
+    ).toBeUndefined();
+  });
+
+  it('returns an error when a hostname exceeds 253 characters', () => {
+    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(62)}`;
+    expect(hostname).toHaveLength(254);
+    expect(
+      validateTlsHostname(hostname, {
+        clusterRoutesTlsSecretRef: 'my-tls-secret',
+        clusterRoutesHostname: hostname,
+      }),
+    ).toBe('Hostname may not exceed 253 characters.');
+  });
 });

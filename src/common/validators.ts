@@ -26,6 +26,12 @@ const MULTIPLE_FORWARD_SLASH_REGEX = /^.*[/]+.*[/]+.*$/i;
 // Regular expression used to check base DNS domains, based on RFC-1035
 const BASE_DOMAIN_REGEXP = /^([a-z]([-a-z0-9]*[a-z0-9])?\.)+[a-z]([-a-z0-9]*[a-z0-9])?$/;
 
+// Hostnames for TLS / ingress routes (RFC-1123: labels may start with a digit)
+const HOSTNAME_DOMAIN_REGEXP = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)+[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+// OpenShift route host limits (DNS label max 63, FQDN max 253)
+const MAX_HOSTNAME_LABEL_LENGTH = 63;
+const MAX_HOSTNAME_LENGTH = 253;
+
 // Regular expression used to check general subdomain structure, based on RFC-1035
 const DNS_SUBDOMAIN_REGEXP = /^([a-z]([-a-z0-9]*[a-z0-9])?)+(\.[a-z]([-a-z0-9]*[a-z0-9])?)*$/;
 
@@ -1872,8 +1878,14 @@ const validateTlsHostname = (value: string, allValues: Tls) => {
   if (!value) {
     return undefined;
   }
-  if (!BASE_DOMAIN_REGEXP.test(value)) {
+  if (!HOSTNAME_DOMAIN_REGEXP.test(value)) {
     return `Hostname '${value}' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'.`;
+  }
+  if (value.length > MAX_HOSTNAME_LENGTH) {
+    return `Hostname may not exceed ${MAX_HOSTNAME_LENGTH} characters.`;
+  }
+  if (value.split('.').some((label) => label.length > MAX_HOSTNAME_LABEL_LENGTH)) {
+    return `Hostname labels may not exceed ${MAX_HOSTNAME_LABEL_LENGTH} characters.`;
   }
   return undefined;
 };
