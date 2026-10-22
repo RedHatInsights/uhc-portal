@@ -255,11 +255,11 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   gcpOcp5ServiceAccountCreationWarning(warningText: string): Locator {
-    return this.page.getByText(warningText, { exact: true });
+    return this.page.getByText(warningText);
   }
 
   gcpOcp5RedHatAccountCreationWarning(warningText: string): Locator {
-    return this.page.getByText(warningText, { exact: true });
+    return this.page.getByText(warningText);
   }
 
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {

@@ -1,9 +1,11 @@
 import { Page } from '@playwright/test';
 
-type OrganizationCapability = {
+export type OrganizationCapability = {
   name?: string;
   value?: string;
 };
+
+export const ROSA_OSD_ALLOW_OCP_5_CAPABILITY = 'capability.organization.rosa_osd_allow_ocp_5';
 
 export async function waitForOrganizationCapabilities(
   page: Page,
@@ -20,4 +22,13 @@ export async function waitForOrganizationCapabilities(
   }
   const body = (await response.json()) as { capabilities?: OrganizationCapability[] };
   return body.capabilities ?? [];
+}
+
+export function hasOrganizationCapability(
+  capabilities: OrganizationCapability[],
+  capabilityName: string,
+): boolean {
+  return capabilities.some(
+    (capability) => capability.name === capabilityName && capability.value === 'true',
+  );
 }
