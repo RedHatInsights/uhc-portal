@@ -1864,8 +1864,19 @@ const validateTlsSecretName = (value: string, allValues: Tls) => {
   return checkObjectName(value, 'TLS secret', MAX_OBJECT_NAME_LENGTH);
 };
 
-const validateTlsHostname = (value: string, allValues: Tls) =>
-  validateTlsPair(allValues.clusterRoutesTlsSecretRef, value);
+const validateTlsHostname = (value: string, allValues: Tls) => {
+  const pairError = validateTlsPair(allValues.clusterRoutesTlsSecretRef, value);
+  if (pairError) {
+    return pairError;
+  }
+  if (!value) {
+    return undefined;
+  }
+  if (!BASE_DOMAIN_REGEXP.test(value)) {
+    return `Hostname '${value}' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'.`;
+  }
+  return undefined;
+};
 
 const validateWorkerVolumeSize = (
   size: number,
