@@ -217,7 +217,8 @@ export const FirewallRulesSelect = ({
             </Flex>
 
             <FormGroupHelperText touched={touched} error={error}>
-              Dropdown filtered to rules matching the selected WIF config from Step 2.
+              Dropdown filtered to rules matching the selected WIF config, google cloud project, VPC
+              name, and public/private network profile.
             </FormGroupHelperText>
           </FormGroup>
         </StackItem>
