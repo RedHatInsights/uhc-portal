@@ -52,12 +52,13 @@ spec:
       NODE_OPTIONS='--max-old-space-size=4096' npm run lint
       npm run prettier
       npm run test -- --run-in-band --no-cache
-  - name: run-app-script
-    value: |
-      #!/bin/sh
-      set -e
-      echo "Starting application with Caddy using ConfigMap Caddyfile..."
-      exec caddy run --config /etc/caddy/Caddyfile
+  - name: run-app-command
+    value: caddy
+  - name: run-app-args
+    value:
+      - run
+      - --config
+      - /etc/caddy/Caddyfile
   - name: e2e-tests-script
     value: |
       #!/bin/bash
