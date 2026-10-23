@@ -1,0 +1,194 @@
+# Lightweight Playwright E2E image for OpenShift CI / local runs.
+# Supports ROSA, OSD-GCP, and general OCM UI smoke / wizard-validation / @ci tests.
+# Base: UBI9 Node.js 24 + manual Chromium install (not mcr.microsoft.com/playwright).
+# Architectures: linux/amd64, linux/arm64.
+# Keep browser install in sync with @playwright/test in package.json (currently 1.60.0).
+FROM registry.access.redhat.com/ubi9/nodejs-24:latest
+
+USER root
+WORKDIR /app
+
+ARG TARGETARCH
+
+# ---------------------------------------------------------------------------
+# 1. System libraries for Chromium on RHEL/UBI + Python 3.11 for gcloud.
+#    playwright install-deps is apt-only; we install the minimal Chromium set.
+#    Firefox/WebKit libs (flite, libicu74, gstreamer) are intentionally excluded.
+# ---------------------------------------------------------------------------
+RUN dnf install -y --setopt=install_weak_deps=False --nodocs \
+      alsa-lib \
+      atk \
+      at-spi2-atk \
+      at-spi2-core \
+      cairo \
+      cups-libs \
+      dbus-libs \
+      expat \
+      findutils \
+      gdk-pixbuf2 \
+      git \
+      gtk3 \
+      harfbuzz-icu \
+      jq \
+      libX11 \
+      libX11-xcb \
+      libXcomposite \
+      libXcursor \
+      libXdamage \
+      libXext \
+      libXfixes \
+      libXi \
+      libXrandr \
+      libXtst \
+      libatomic \
+      libdrm \
+      libwayland-client \
+      libxcb \
+      libxkbcommon \
+      libxshmfence \
+      mesa-libgbm \
+      nspr \
+      nss \
+      nss-util \
+      pango \
+      python3.11 \
+      tar \
+      unzip \
+      which \
+      zlib \
+      ca-certificates \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf /var/log/dnf* /var/log/yum.*
+
+# ---------------------------------------------------------------------------
+# 2. Cloud CLIs — OCM, ROSA, AWS, Google Cloud.
+# ---------------------------------------------------------------------------
+RUN set -eux; \
+    arch="${TARGETARCH:-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')}"; \
+    echo "Installing CLIs for ${arch}"; \
+    # --- OCM CLI ----------------------------------------------------------- \
+    echo "Installing OCM CLI"; \
+    curl -fsSL -o /usr/local/bin/ocm \
+      "https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-${arch}" \
+    && chmod +x /usr/local/bin/ocm \
+    || { echo "WARNING: OCM CLI not available for ${arch}"; rm -f /usr/local/bin/ocm; }; \
+    # --- ROSA CLI ---------------------------------------------------------- \
+    echo "Installing ROSA CLI"; \
+    ROSA_URL="$(curl -fsSL https://api.github.com/repos/openshift/rosa/releases/latest \
+      | jq -r --arg a "${arch}" \
+        '.assets[] | select(.name | test("(?i)linux.*" + $a)) | .browser_download_url' \
+      | head -n1)"; \
+    if [ -n "${ROSA_URL}" ] && [ "${ROSA_URL}" != "null" ]; then \
+      curl -fsSL -o /tmp/rosa.archive "${ROSA_URL}"; \
+      mkdir -p /tmp/rosa-cli; \
+      case "${ROSA_URL}" in *.zip) unzip -q /tmp/rosa.archive -d /tmp/rosa-cli;; *) tar -xzf /tmp/rosa.archive -C /tmp/rosa-cli;; esac; \
+      install -m 0755 "$(find /tmp/rosa-cli -type f -name rosa | head -n1)" /usr/local/bin/rosa; \
+      rm -rf /tmp/rosa.archive /tmp/rosa-cli; \
+    fi; \
+    # --- AWS CLI ----------------------------------------------------------- \
+    echo "Installing AWS CLI"; \
+    case "${arch}" in amd64) AWS_ARCH=x86_64;; arm64) AWS_ARCH=aarch64;; esac; \
+    curl -fsSL -o /tmp/awscliv2.zip \
+      "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip"; \
+    unzip -q /tmp/awscliv2.zip -d /tmp; \
+    /tmp/aws/install; \
+    rm -rf /tmp/awscliv2.zip /tmp/aws; \
+    # --- Google Cloud CLI -------------------------------------------------- \
+    echo "Installing Google Cloud CLI"; \
+    case "${arch}" in amd64) GCLOUD_ARCH=x86_64;; arm64) GCLOUD_ARCH=arm;; esac; \
+    curl -fsSL -o /tmp/gcloud.tar.gz \
+      "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz"; \
+    tar -xzf /tmp/gcloud.tar.gz -C /opt; \
+    ln -sf /opt/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud; \
+    ln -sf /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil; \
+    # Slim: remove bundled Python, anthoscli, platform extras, __pycache__ \
+    rm -rf /tmp/gcloud.tar.gz \
+           /opt/google-cloud-sdk/platform \
+           /opt/google-cloud-sdk/deb \
+           /opt/google-cloud-sdk/rpm \
+           /opt/google-cloud-sdk/install* \
+           /opt/google-cloud-sdk/.install \
+           /opt/google-cloud-sdk/lib/third_party/dulwich \
+           /opt/google-cloud-sdk/lib/third_party/dns \
+           /opt/google-cloud-sdk/bin/anthoscli*; \
+    find /opt/google-cloud-sdk -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true; \
+    # --- Verify ------------------------------------------------------------ \
+    command -v ocm    && ocm version    || echo "ocm    not installed"; \
+    command -v rosa   && rosa version   || echo "rosa   not installed"; \
+    command -v aws    && aws --version  || echo "aws    not installed"; \
+    CLOUDSDK_PYTHON=/usr/bin/python3.11 gcloud --version | head -1 || echo "gcloud not installed"
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false \
+    CLOUDSDK_PYTHON=/usr/bin/python3.11
+
+# ---------------------------------------------------------------------------
+# 3. npm dependencies — install then strip packages unused at test-runtime.
+# ---------------------------------------------------------------------------
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts \
+    && npm rebuild \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /root/.npm /opt/app-root/src/.npm \
+    # Remove large dev-only packages not needed for Playwright test execution.
+    && rm -rf node_modules/@storybook \
+              node_modules/storybook \
+              node_modules/monaco-editor \
+              node_modules/@babel \
+              node_modules/@jest \
+              node_modules/jest* \
+              node_modules/@swc \
+              node_modules/@types/jest \
+              node_modules/webpack \
+              node_modules/webpack-* \
+              node_modules/css-loader \
+              node_modules/style-loader \
+              node_modules/html-webpack-plugin \
+              node_modules/mini-css-extract-plugin \
+              node_modules/@pmmmwh \
+              node_modules/sass
+
+# ---------------------------------------------------------------------------
+# 4. Playwright — install Chromium only (CI uses BROWSER=chromium).
+#    Skipping Firefox/WebKit saves ~700 MB.
+# ---------------------------------------------------------------------------
+RUN mkdir -p "${PLAYWRIGHT_BROWSERS_PATH}" \
+    && npx playwright install chromium \
+    && rm -rf /tmp/*
+
+# ---------------------------------------------------------------------------
+# 5. Application sources for Playwright + cloud executors.
+# ---------------------------------------------------------------------------
+COPY playwright.config.ts tsconfig.json ./
+COPY playwright ./playwright
+COPY src ./src
+COPY run ./run
+COPY qe-helper-scripts ./qe-helper-scripts
+
+RUN chmod +x \
+      playwright/scripts/playwright-qe-executor.sh \
+      playwright/scripts/run-e2e-in-container.sh \
+      qe-helper-scripts/create-aws-infrastructure.sh \
+      qe-helper-scripts/create-gcp-infrastructure.sh \
+    && find playwright/scripts -name '*.sh' -exec chmod +x {} + \
+    && chown -R 1001:0 /app "${PLAYWRIGHT_BROWSERS_PATH}" \
+    && chmod -R g+rwX /app "${PLAYWRIGHT_BROWSERS_PATH}"
+
+# ---------------------------------------------------------------------------
+# 6. Runtime config.
+# ---------------------------------------------------------------------------
+USER 1001
+
+ENV CI=true \
+    BROWSER=chromium \
+    PLAYWRIGHT_HTML_REPORT=/app/playwright-artifacts/reports \
+    HOME=/app
+
+# Env file is supplied at runtime (Vault mount or local playwright.env.json). Do not COPY secrets.
+# SETUP_CLOUD, SETUP_GCP_CLOUD, SETUP_ROSA_ROLES, TEST_ARGS, GREP_TAGS, etc. are set at runtime
+# by the CI job config or the caller — the executor script (playwright-qe-executor.sh) has
+# sensible defaults.
+# Default entry runs the executor (cloud setup → Playwright → cleanup).
+# Override entrypoint to `npx` for Playwright-only runs without cloud setup.
+ENTRYPOINT ["/app/playwright/scripts/playwright-qe-executor.sh"]
