@@ -15,12 +15,10 @@ import {
 } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
-import { queryClient } from '~/components/App/queryClient';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { FuzzySelect, FuzzySelectProps } from '~/components/common/FuzzySelect/FuzzySelect';
 import useAnalytics from '~/hooks/useAnalytics';
 import {
-  filterFirewallRules,
   refetchGcpFirewallRules,
   useFetchGcpFirewallRules,
 } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules';
@@ -44,12 +42,6 @@ interface FirewallRulesSelectProps {
     error: string;
   };
 }
-
-type FirewallRulesQueryData = {
-  data?: {
-    items?: GcpFirewallRule[];
-  };
-};
 
 const formatFirewallRuleLabel = (rule: GcpFirewallRule) =>
   `${rule.name} (${rule.gcp_network?.project_id} / ${rule.gcp_network?.vpc_name})`;
@@ -84,15 +76,19 @@ export const FirewallRulesSelect = ({
   // Derive the displayed selection from fetched data.
   const matchedFirewallRule = firewallRules?.find((rule) => rule.id === selectedFirewallRules?.id);
 
-  // Clear Formik when a successful fetch no longer contains the selected ID so a stale
-  // value cannot reach the review step or submitOSDRequest.
+  // Clear Formik when the selection cannot be validated against the latest fetch:
+  // missing from a successful list, or the request failed (including Refresh).
+  // Otherwise a stale id can reach Review / submitOSDRequest.
   React.useEffect(() => {
     const selectedId = selectedFirewallRules?.id;
-    if (isSuccess && selectedId && !matchedFirewallRule) {
+    if (!selectedId) {
+      return;
+    }
+    if (isError || (isSuccess && !matchedFirewallRule)) {
       inputProps.onChange({ id: '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when fetch result or selection id changes
-  }, [isSuccess, matchedFirewallRule, selectedFirewallRules?.id]);
+  }, [isSuccess, isError, matchedFirewallRule, selectedFirewallRules?.id]);
 
   const onSelect: FuzzySelectProps['onSelect'] = (_event, value) => {
     if (value === '') {
@@ -123,19 +119,6 @@ export const FirewallRulesSelect = ({
     });
 
     await refetchGcpFirewallRules();
-
-    const cached = queryClient.getQueryData<FirewallRulesQueryData>(['gcpFirewallRules', profile]);
-    const refreshedRules = filterFirewallRules(
-      cached?.data?.items,
-      profile,
-      wifConfigId,
-      projectId,
-      network,
-    );
-    const selectedId = selectedFirewallRules?.id;
-    if (selectedId && !refreshedRules.some((rule) => rule.id === selectedId)) {
-      inputProps.onChange({ id: '' });
-    }
   };
 
   let placeholder = 'Select firewall rules';
