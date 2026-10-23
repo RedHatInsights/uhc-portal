@@ -6,6 +6,7 @@ import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
 import docLinks from '~/common/docLinks.mjs';
 import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
+import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
 import { isExactMajorMinor } from '~/common/versionHelpers';
@@ -26,10 +27,21 @@ import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
 import ExternalLink from '~/components/common/ExternalLink';
 import useAnalytics from '~/hooks/useAnalytics';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  OCP5_SUPPORT,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { useGlobalState } from '~/redux/hooks/useGlobalState';
 
 import { FormSubnet } from '../../common/FormSubnet';
+import {
+  getExistingVpcWarningAlert,
+  INSTALL_TO_VPC_CHOSEN_BY_USER,
+  INSTALL_TO_VPC_FORCED_BY_OCP5,
+  isInstallToVpcForcedByOtherSetting,
+  requiresExistingVpcForOcp5,
+} from '../installToExistingVpcHelpers';
 
 import { ApplicationIngressType, ClusterPrivacyType } from './constants';
 import { DefaultIngressFields } from './DefaultIngressFields';
@@ -45,6 +57,7 @@ export const Configuration = () => {
       [FieldId.ClusterPrivacy]: clusterPrivacy,
       [FieldId.ConfigureProxy]: configureProxy,
       [FieldId.InstallToVpc]: installToVpc,
+      [FieldId.PrivateServiceConnect]: privateServiceConnect,
       [FieldId.UsePrivateLink]: usePrivateLink,
       [FieldId.ApplicationIngress]: applicationIngress,
       [FieldId.MachinePoolsSubnets]: machinePoolSubnets,
@@ -70,12 +83,33 @@ export const Configuration = () => {
   const isWifAuth = authTypeFormValue === GCPAuthType.WorkloadIdentityFederation;
 
   const showExistingVpcInstallText = !(isGCP && isPrivateCluster && isWifAuth);
-  const PSCPrivateWifWarning =
-    isGCP && isPrivateCluster && isWifAuth
-      ? 'Private clusters deployed using Workload Identity Federation must be deployed into an existing VPC.'
-      : '';
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
+  const organizationDetails = useGlobalState((state) => state.userProfile.organization.details);
+  const organizationAllowsOcp5 = hasAllowOcp5Capability(organizationDetails?.capabilities);
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
+  const ocp5RequiresExistingVpc = requiresExistingVpcForOcp5({
+    isOcp5SupportEnabled,
+    isByoc,
+    isGcp: isGCP,
+    isWif: isWifAuth,
+    clusterVersionRawId,
+    organizationAllowsOcp5,
+  });
+  const isInstallToVpcForced = isInstallToVpcForcedByOtherSetting({
+    usePrivateLink,
+    configureProxy,
+    isPrivateCluster,
+    isWif: isWifAuth,
+    isOSDFromGoogleCloud,
+    usePrivateServiceConnect: privateServiceConnect,
+  });
+  const isInstallToVpcDisabled = isInstallToVpcForced || ocp5RequiresExistingVpc;
+  const existingVpcWarningAlert = getExistingVpcWarningAlert({
+    isPrivateCluster,
+    isGcpPrivateWif: isGCP && isPrivateCluster && isWifAuth,
+    requiresOcp5ExistingVpc: ocp5RequiresExistingVpc && !isOSDFromGoogleCloud,
+  });
   const trackOcmResourceType =
     product === normalizedProducts.ROSA ? ocmResourceType.MOA : ocmResourceType.OSD;
 
@@ -90,6 +124,15 @@ export const Configuration = () => {
       setFieldValue(FieldId.PrivateServiceConnect, true);
     }
   }, [isWifAuth, showPrivateServiceConnect, isPrivateCluster, setFieldValue]);
+
+  // Form state has to be written here so the VPC settings step stays visible after version changes.
+  React.useEffect(() => {
+    if (ocp5RequiresExistingVpc && !installToVpc) {
+      setFieldValue(FieldId.InstallToVpc, true);
+      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, true);
+      setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, false);
+    }
+  }, [ocp5RequiresExistingVpc, installToVpc, setFieldValue]);
 
   const trackCheckedState = (trackEvent: TrackEvent, checked: boolean) =>
     track(trackEvent, {
@@ -115,14 +158,15 @@ export const Configuration = () => {
       );
 
       if (!hasFilledMachinePoolsSubnets) {
-        if (!isOSDFromGoogleCloud) {
-          setFieldValue(FieldId.InstallToVpc, false);
-        }
         clearSecurityGroups();
 
-        // Also unset "Configure a cluster-wide proxy" if enabled
-        if (configureProxy) {
-          setFieldValue(FieldId.ConfigureProxy, false);
+        if (!isOSDFromGoogleCloud && !ocp5RequiresExistingVpc) {
+          setFieldValue(FieldId.InstallToVpc, false);
+          setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, false);
+          setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
+          if (configureProxy) {
+            setFieldValue(FieldId.ConfigureProxy, false);
+          }
         }
       }
       trackCheckedState(trackEvents.PrivateServiceConnect, false);
@@ -167,6 +211,10 @@ export const Configuration = () => {
 
   const onInstallIntoVPCchange = (_event: React.FormEvent<HTMLInputElement>, checked: boolean) => {
     setFieldValue(FieldId.InstallToVpc, checked);
+    setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, checked);
+    if (!checked) {
+      setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, false);
+    }
     clearSecurityGroups();
     trackCheckedState(trackEvents.InstallIntoVPC, checked);
     if (showPrivateServiceConnect && isPrivateCluster) {
@@ -249,13 +297,10 @@ export const Configuration = () => {
               />
             </GridItem>
 
-            {isPrivateCluster && (
+            {existingVpcWarningAlert && (
               <GridItem>
-                <Alert
-                  isInline
-                  variant="warning"
-                  title={`${PSCPrivateWifWarning} You will not be able to access your cluster until you properly configure private network connectivity to your cloud provider.`}
-                >
+                <Alert isInline variant="warning" title={existingVpcWarningAlert.title}>
+                  {existingVpcWarningAlert.body}
                   {cloudProvider === CloudProviderType.Aws && (
                     <ExternalLink href={docLinks.OSD_AWS_PRIVATE_CONNECTIONS}>
                       Learn more about configuring network settings
@@ -273,7 +318,7 @@ export const Configuration = () => {
               <Title headingLevel="h4" size="xl" className="privacy-heading">
                 Virtual Private Cloud (VPC)
               </Title>
-              {!isOSDFromGoogleCloud && showExistingVpcInstallText ? (
+              {!isOSDFromGoogleCloud && showExistingVpcInstallText && !ocp5RequiresExistingVpc ? (
                 <Content component="p" className="pf-v6-u-mt-sm">
                   By default, a new VPC will be created for your cluster. Alternatively, you may opt
                   to install to an existing VPC below.
@@ -287,12 +332,7 @@ export const Configuration = () => {
                   name={FieldId.InstallToVpc}
                   label="Install into an existing VPC"
                   input={{ onChange: onInstallIntoVPCchange }}
-                  isDisabled={
-                    usePrivateLink ||
-                    configureProxy ||
-                    (isPrivateCluster && isWifAuth) ||
-                    isOSDFromGoogleCloud
-                  }
+                  isDisabled={isInstallToVpcDisabled}
                 />
 
                 <div className="pf-v6-u-ml-lg pf-v6-u-mt-md">
