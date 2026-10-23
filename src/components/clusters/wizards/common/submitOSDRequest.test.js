@@ -377,6 +377,29 @@ describe('createClusterRequest', () => {
         expect(request.ccs.enabled).toBeTruthy();
       });
 
+      it('includes firewall_rules_id when firewall rules are selected', () => {
+        const data = {
+          ...baseFormData,
+          billing_model: 'standard',
+          product: normalizedProducts.OSD,
+          cloud_provider: 'gcp',
+          byoc: 'true',
+          ...gcpVPCData,
+          gcp_auth_type: GCPAuthType.WorkloadIdentityFederation,
+          gcp_wif_config: { id: '324ed23f2d12342d23d' },
+          firewall_rules: { id: 'fw-rules-1', name: 'prod-byo-firewall' },
+        };
+
+        const request = createClusterRequest({ isWizard: true }, data);
+
+        expect(request.gcp_network).toEqual({
+          compute_subnet: 'nsimha-test-1-sd8x8-worker-subnet',
+          control_plane_subnet: 'nsimha-test-1-sd8x8-master-subnet',
+          vpc_name: 'nsimha-test-1-sd8x8-network',
+          firewall_rules_id: 'fw-rules-1',
+        });
+      });
+
       it('does not send DNS zone data when configured domain prefix does not exist', () => {
         const data = {
           ...baseFormData,
