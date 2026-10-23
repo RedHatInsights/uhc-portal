@@ -52,6 +52,12 @@ export const useFetchGcpFirewallRules = ({
       return response;
     },
     enabled: hasRequiredContext,
+    // App QueryClient defaults to refetchOnMount: 'always' + 1s staleTime, which
+    // refetches on every wizard step remount. Cache until Refresh (invalidate) or
+    // profile key change; VPC/project/WIF are filtered client-side.
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   if (!hasRequiredContext) {
