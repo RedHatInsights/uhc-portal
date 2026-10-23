@@ -57,6 +57,8 @@ jobs:
         os: [ubuntu-latest]
         node-version: [24.x]
     runs-on: ${{ matrix.os }}
+    env:
+      RUN_GCP_INFRA: ${{ contains(inputs.grep_tags || '@smoke', '@smoke') || contains(inputs.grep_tags || '@smoke', '@osd') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -140,6 +142,22 @@ jobs:
             echo "ROSA CLI already installed"
           fi
           rosa version
+
+      - name: Install Google Cloud CLI
+        if: env.RUN_GCP_INFRA == 'true'
+        run: |
+          if ! command -v gcloud &> /dev/null; then
+            echo "Installing Google Cloud CLI..."
+            sudo apt-get update
+            sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+            curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/cloud.google.gpg
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
+            sudo apt-get update
+            sudo apt-get install -y google-cloud-cli
+          else
+            echo "Google Cloud CLI already installed"
+          fi
+          gcloud --version
 
       - name: Install Playwright Browsers
         timeout-minutes: 15
@@ -229,6 +247,59 @@ jobs:
           else
             echo "AWS VPC infrastructure setup completed with warnings"
           fi
+
+      - name: Configure gcloud and setup GCP resources
+        if: env.RUN_GCP_INFRA == 'true'
+        env:
+          CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
+        run: |
+          echo "=== gcloud configuration ==="
+          echo "gcloud version: $(gcloud --version | head -n 1)"
+
+          SA_KEY=$(mktemp)
+          chmod 600 "$SA_KEY"
+          trap 'rm -f "$SA_KEY"' EXIT
+
+          if ! jq -e '.QE_GCP_OSDCCSADMIN_JSON != null' playwright.env.json >/dev/null; then
+            echo "QE_GCP_OSDCCSADMIN_JSON is missing from playwright.env.json"
+            exit 1
+          fi
+
+          jq -r '
+            .QE_GCP_OSDCCSADMIN_JSON
+            | if type == "string" then fromjson else . end
+          ' playwright.env.json > "$SA_KEY"
+
+          PROJECT_ID=$(jq -r '.project_id // empty' "$SA_KEY")
+          CLIENT_EMAIL=$(jq -r '.client_email // empty' "$SA_KEY")
+          if [ -z "$PROJECT_ID" ] || [ -z "$CLIENT_EMAIL" ]; then
+            echo "QE_GCP_OSDCCSADMIN_JSON is missing project_id or client_email"
+            exit 1
+          fi
+
+          echo "Using GCP project: $PROJECT_ID"
+          gcloud auth activate-service-account "$CLIENT_EMAIL" --key-file="$SA_KEY" --project="$PROJECT_ID"
+          gcloud config set project "$PROJECT_ID"
+
+          if gcloud projects describe "$PROJECT_ID" >/dev/null; then
+            echo "GCP authentication successful"
+          else
+            echo "GCP authentication failed"
+            exit 1
+          fi
+
+          echo "Setting up GCP VPC and KMS resources..."
+          chmod +x ./qe-helper-scripts/create-gcp-infrastructure.sh
+          VPC_NAME="ocmui-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "Using GCP VPC name: $VPC_NAME"
+          # KMS names stay fixed. Cleanup does not delete keys, so a per-build
+          # VPC name must not create a new key ring, key, and service account.
+          ./qe-helper-scripts/create-gcp-infrastructure.sh \
+            --project "$PROJECT_ID" \
+            --vpc-name "$VPC_NAME" \
+            --key-ring-name playwright-osd-keyring \
+            --key-name playwright-osd-key \
+            --kms-sa-id playwright-osd-sa
 
       - name: Configure ROSA CLI and setup roles
         run: |
@@ -529,3 +600,50 @@ jobs:
           else
             echo "Cleanup completed with some warnings/errors, but continuing..."
           fi
+
+      - name: Cleanup GCP cloud resources
+        if: always() && env.RUN_GCP_INFRA == 'true'
+        continue-on-error: true
+        env:
+          CLOUDSDK_CORE_DISABLE_PROMPTS: '1'
+        run: |
+          echo "Cleaning up GCP cloud resources..."
+          if ! command -v gcloud &> /dev/null; then
+            echo "gcloud is not installed; skipping GCP cleanup"
+            exit 0
+          fi
+          if [ ! -f playwright.env.json ]; then
+            echo "playwright.env.json is missing; skipping GCP cleanup"
+            exit 0
+          fi
+
+          SA_KEY=$(mktemp)
+          chmod 600 "$SA_KEY"
+          trap 'rm -f "$SA_KEY"' EXIT
+
+          if ! jq -e '.QE_GCP_OSDCCSADMIN_JSON != null' playwright.env.json >/dev/null; then
+            echo "QE_GCP_OSDCCSADMIN_JSON is missing; skipping GCP cleanup"
+            exit 0
+          fi
+
+          jq -r '
+            .QE_GCP_OSDCCSADMIN_JSON
+            | if type == "string" then fromjson else . end
+          ' playwright.env.json > "$SA_KEY"
+
+          PROJECT_ID=$(jq -r '.project_id // empty' "$SA_KEY")
+          CLIENT_EMAIL=$(jq -r '.client_email // empty' "$SA_KEY")
+          if [ -z "$PROJECT_ID" ] || [ -z "$CLIENT_EMAIL" ]; then
+            echo "QE_GCP_OSDCCSADMIN_JSON is missing project_id or client_email; skipping GCP cleanup"
+            exit 0
+          fi
+
+          gcloud auth activate-service-account "$CLIENT_EMAIL" --key-file="$SA_KEY" --project="$PROJECT_ID"
+          gcloud config set project "$PROJECT_ID"
+          chmod +x ./qe-helper-scripts/create-gcp-infrastructure.sh
+          VPC_NAME="ocmui-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "Cleaning up GCP VPC name: $VPC_NAME"
+          ./qe-helper-scripts/create-gcp-infrastructure.sh \
+            --project "$PROJECT_ID" \
+            --vpc-name "$VPC_NAME" \
+            --cleanup
