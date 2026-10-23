@@ -26,6 +26,18 @@ const MULTIPLE_FORWARD_SLASH_REGEX = /^.*[/]+.*[/]+.*$/i;
 // Regular expression used to check base DNS domains, based on RFC-1035
 const BASE_DOMAIN_REGEXP = /^([a-z]([-a-z0-9]*[a-z0-9])?\.)+[a-z]([-a-z0-9]*[a-z0-9])?$/;
 
+// Hostnames for TLS / ingress routes (RFC-1123: labels may start with a digit)
+const HOSTNAME_DOMAIN_REGEXP = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)+[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+// OpenShift route host limits (DNS label max 63, FQDN max 253)
+const MAX_HOSTNAME_LABEL_LENGTH = 63;
+const MAX_HOSTNAME_LENGTH = 253;
+
+// Kubernetes Secret names are DNS-1123 subdomains (dots allowed; max 253, labels max 63)
+const K8S_DNS_SUBDOMAIN_REGEXP =
+  /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+const MAX_K8S_DNS_SUBDOMAIN_LENGTH = 253;
+const MAX_K8S_DNS_LABEL_LENGTH = 63;
+
 // Regular expression used to check general subdomain structure, based on RFC-1035
 const DNS_SUBDOMAIN_REGEXP = /^([a-z]([-a-z0-9]*[a-z0-9])?)+(\.[a-z]([-a-z0-9]*[a-z0-9])?)*$/;
 
@@ -1850,14 +1862,48 @@ const validateTlsPair = (tlsSecret?: string, tlsHostname?: string) => {
   if (!tlsSecret || !tlsHostname) {
     return 'You cannot provide only one of TLS secret name and Hostname';
   }
-  return checkObjectName(tlsSecret, 'TLS secret', MAX_OBJECT_NAME_LENGTH);
+  return undefined;
 };
 
-const validateTlsSecretName = (value: string, allValues: Tls) =>
-  validateTlsPair(value, allValues.clusterRoutesHostname);
+const validateTlsSecretName = (value: string, allValues: Tls) => {
+  const pairError = validateTlsPair(value, allValues.clusterRoutesHostname);
+  if (pairError) {
+    return pairError;
+  }
+  if (!value) {
+    return undefined;
+  }
+  if (!K8S_DNS_SUBDOMAIN_REGEXP.test(value)) {
+    return `TLS secret name '${value}' isn't valid, must consist of lower-case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character. For example, 'my-tls-secret', or 'console.tls'.`;
+  }
+  if (value.length > MAX_K8S_DNS_SUBDOMAIN_LENGTH) {
+    return `TLS secret name may not exceed ${MAX_K8S_DNS_SUBDOMAIN_LENGTH} characters.`;
+  }
+  if (value.split('.').some((label) => label.length > MAX_K8S_DNS_LABEL_LENGTH)) {
+    return `TLS secret name labels may not exceed ${MAX_K8S_DNS_LABEL_LENGTH} characters.`;
+  }
+  return undefined;
+};
 
-const validateTlsHostname = (value: string, allValues: Tls) =>
-  validateTlsPair(value, allValues.clusterRoutesTlsSecretRef);
+const validateTlsHostname = (value: string, allValues: Tls) => {
+  const pairError = validateTlsPair(allValues.clusterRoutesTlsSecretRef, value);
+  if (pairError) {
+    return pairError;
+  }
+  if (!value) {
+    return undefined;
+  }
+  if (!HOSTNAME_DOMAIN_REGEXP.test(value)) {
+    return `Hostname '${value}' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'.`;
+  }
+  if (value.length > MAX_HOSTNAME_LENGTH) {
+    return `Hostname may not exceed ${MAX_HOSTNAME_LENGTH} characters.`;
+  }
+  if (value.split('.').some((label) => label.length > MAX_HOSTNAME_LABEL_LENGTH)) {
+    return `Hostname labels may not exceed ${MAX_HOSTNAME_LABEL_LENGTH} characters.`;
+  }
+  return undefined;
+};
 
 const validateWorkerVolumeSize = (
   size: number,
