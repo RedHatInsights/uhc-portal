@@ -1830,7 +1830,7 @@
           },
           "state": "ready",
           "state_description": "",
-          "openshift_version": "4.6.8",
+          "openshift_version": "4.22.18",
           "cloud_provider": "gcp",
           "region": "us-east1",
           "console_url": "https://console-openshift-console.apps.cben-osd-gcp.uaxk.p2.openshiftapps.com",

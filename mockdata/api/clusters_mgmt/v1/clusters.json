@@ -1877,7 +1877,7 @@
         "id": "gcp",
         "href": "/api/clusters_mgmt/v1/cloud_providers/gcp"
       },
-      "openshift_version": "4.6.8",
+      "openshift_version": "4.22.18",
       "subscription": {
         "kind": "SubscriptionLink",
         "id": "gcp-ready-1nEp0repdarm8",
@@ -1952,15 +1952,15 @@
       },
       "multi_az": false,
       "managed": true,
-      "byoc": false,
+      "byoc": true,
       "ccs": {
-        "enabled": false,
+        "enabled": true,
         "disable_scp_checks": false
       },
       "version": {
         "kind": "Version",
-        "id": "openshift-v4.6.8",
-        "href": "/api/clusters_mgmt/v1/versions/openshift-v4.6.8",
+        "id": "openshift-v4.22.18",
+        "href": "/api/clusters_mgmt/v1/versions/openshift-v4.22.18",
         "channel_group": "stable"
       },
       "storage_quota": {
@@ -2070,14 +2070,20 @@
         "dns_ready": true,
         "provision_error_message": "",
         "provision_error_code": "",
-        "configuration_mode": "read_only"
+        "configuration_mode": "full"
       },
       "node_drain_grace_period": {
         "value": 60,
         "unit": "minutes"
       },
       "etcd_encryption": false,
-      "upgrade_channel_group": "stable"
+      "upgrade_channel_group": "stable",
+      "gcp_network": {
+        "vpc_name": "cben-osd-gcp-vpc",
+        "control_plane_subnet": "cben-osd-gcp-control-plane",
+        "compute_subnet": "cben-osd-gcp-compute",
+        "firewall_rules_id": "fw-gcp-ready"
+      }
     },
     {
       "kind": "Cluster",
