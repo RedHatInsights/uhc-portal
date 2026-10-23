@@ -1865,13 +1865,22 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
     expect(validateTlsSecretName('my-tls-secret', { clusterRoutesHostname: '' })).toBe(pairError);
   });
 
-  it('returns an error when TLS secret name is not a valid object name', () => {
+  it('returns an error when TLS secret name is not a valid DNS subdomain', () => {
     expect(
       validateTlsSecretName('Invalid_Secret', {
         clusterRoutesTlsSecretRef: 'Invalid_Secret',
         clusterRoutesHostname: 'downloads.example.com',
       }),
     ).toContain("TLS secret name 'Invalid_Secret' isn't valid");
+  });
+
+  it('accepts a TLS secret name with dots', () => {
+    expect(
+      validateTlsSecretName('console.tls', {
+        clusterRoutesTlsSecretRef: 'console.tls',
+        clusterRoutesHostname: 'downloads.example.com',
+      }),
+    ).toBeUndefined();
   });
 
   it('does not show a TLS secret error on Hostname when the secret name is invalid', () => {

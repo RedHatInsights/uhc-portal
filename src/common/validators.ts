@@ -32,6 +32,12 @@ const HOSTNAME_DOMAIN_REGEXP = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)+[a-z0-9]([-a-
 const MAX_HOSTNAME_LABEL_LENGTH = 63;
 const MAX_HOSTNAME_LENGTH = 253;
 
+// Kubernetes Secret names are DNS-1123 subdomains (dots allowed; max 253, labels max 63)
+const K8S_DNS_SUBDOMAIN_REGEXP =
+  /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+const MAX_K8S_DNS_SUBDOMAIN_LENGTH = 253;
+const MAX_K8S_DNS_LABEL_LENGTH = 63;
+
 // Regular expression used to check general subdomain structure, based on RFC-1035
 const DNS_SUBDOMAIN_REGEXP = /^([a-z]([-a-z0-9]*[a-z0-9])?)+(\.[a-z]([-a-z0-9]*[a-z0-9])?)*$/;
 
@@ -1867,7 +1873,16 @@ const validateTlsSecretName = (value: string, allValues: Tls) => {
   if (!value) {
     return undefined;
   }
-  return checkObjectName(value, 'TLS secret', MAX_OBJECT_NAME_LENGTH);
+  if (!K8S_DNS_SUBDOMAIN_REGEXP.test(value)) {
+    return `TLS secret name '${value}' isn't valid, must consist of lower-case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character. For example, 'my-tls-secret', or 'console.tls'.`;
+  }
+  if (value.length > MAX_K8S_DNS_SUBDOMAIN_LENGTH) {
+    return `TLS secret name may not exceed ${MAX_K8S_DNS_SUBDOMAIN_LENGTH} characters.`;
+  }
+  if (value.split('.').some((label) => label.length > MAX_K8S_DNS_LABEL_LENGTH)) {
+    return `TLS secret name labels may not exceed ${MAX_K8S_DNS_LABEL_LENGTH} characters.`;
+  }
+  return undefined;
 };
 
 const validateTlsHostname = (value: string, allValues: Tls) => {
