@@ -35,14 +35,12 @@ const getOptions = (
       ];
       if (value === SubscriptionCommonFieldsSupportLevel.Eval || !subscription.id) {
         options.push({
-          label: 'Self-Support 60-day evaluation',
+          label: 'Self-Support (unsupported)',
           value: SubscriptionCommonFieldsSupportLevel.Eval,
         });
       } else if (value === SubscriptionCommonFieldsSupportLevel.None) {
         options.push({
-          label: (
-            <span className="subscription-settings expired-eval-option">Expired evaluation</span>
-          ),
+          label: <span className="subscription-settings expired-eval-option">Not supported</span>,
           value: SubscriptionCommonFieldsSupportLevel.None,
         });
       }

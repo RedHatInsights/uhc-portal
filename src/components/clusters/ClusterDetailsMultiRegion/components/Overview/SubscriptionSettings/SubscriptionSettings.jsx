@@ -61,12 +61,12 @@ function SubscriptionSettings({
   let supportLevelStr = supportLevel;
   let titleIcon = null;
   if (supportLevel === SubscriptionCommonFieldsSupportLevel.Eval) {
-    supportLevelStr = 'Self-Support 60-day evaluation';
+    supportLevelStr = 'Self-Support (unsupported)';
     if (isEditViewable) {
       titleIcon = <ExclamationTriangleIcon className="subscription-settings warning-title-icon" />;
     }
   } else if (supportLevel === SubscriptionCommonFieldsSupportLevel.None) {
-    supportLevelStr = 'Evaluation expired';
+    supportLevelStr = 'Not supported';
     if (isEditViewable) {
       titleIcon = <ExclamationCircleIcon className="subscription-settings danger-title-icon" />;
     }

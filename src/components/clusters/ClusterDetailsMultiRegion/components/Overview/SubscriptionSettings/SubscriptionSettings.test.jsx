@@ -56,4 +56,26 @@ describe('<SubscriptionSettings />', () => {
       screen.queryByRole('button', { name: 'Edit subscription settings' }),
     ).not.toBeInTheDocument();
   });
+
+  it('should display Self-Support (unsupported) for Eval support level', () => {
+    const newProps = { ...fixtures };
+    newProps.subscription.plan.id = normalizedProducts.OCP;
+    newProps.subscription.plan.type = normalizedProducts.OCP;
+    newProps.subscription.support_level = 'Eval';
+    render(<SubscriptionSettings {...newProps} />);
+
+    expect(screen.getByTestId('service-level-agreement')).toHaveTextContent(
+      'Self-Support (unsupported)',
+    );
+  });
+
+  it('should display Not supported for None support level', () => {
+    const newProps = { ...fixtures };
+    newProps.subscription.plan.id = normalizedProducts.OCP;
+    newProps.subscription.plan.type = normalizedProducts.OCP;
+    newProps.subscription.support_level = 'None';
+    render(<SubscriptionSettings {...newProps} />);
+
+    expect(screen.getByTestId('service-level-agreement')).toHaveTextContent('Not supported');
+  });
 });
