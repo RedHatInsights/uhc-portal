@@ -17,6 +17,7 @@ import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import AIDetailCard from '~/components/AIComponents/AIDetailCard';
+import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
 import useAnalytics from '~/hooks/useAnalytics';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
@@ -39,7 +40,6 @@ import CostBreakdownCard from './CostBreakdownCard';
 import DetailsLeft from './DetailsLeft';
 import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
-import { MissingOCMRoleAlert } from './MissingOCMRoleAlert';
 import SubscriptionSettings from './SubscriptionSettings';
 
 import './Overview.scss';

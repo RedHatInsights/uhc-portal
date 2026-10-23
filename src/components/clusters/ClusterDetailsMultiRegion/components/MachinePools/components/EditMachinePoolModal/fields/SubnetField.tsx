@@ -27,7 +27,10 @@ const SubnetField = ({
   machinePools?: MachinePool[];
 }) => {
   const [inputField, metaField, { setValue }] = useField<string | undefined>(fieldId);
-  const { clusterVpc, isLoading, hasError, refreshVPC } = useAWSVPCFromCluster(cluster, region);
+  const { clusterVpc, isLoading, hasError, errorReason, refreshVPC } = useAWSVPCFromCluster(
+    cluster,
+    region,
+  );
 
   const usedSubnetIds = React.useMemo(
     () =>
@@ -57,7 +60,13 @@ const SubnetField = ({
   }
 
   if (!clusterVpc || hasError) {
-    return <RefreshClusterVPCAlert isLoading={isLoading} refreshVPC={refreshVPC} />;
+    return (
+      <RefreshClusterVPCAlert
+        isLoading={isLoading}
+        refreshVPC={refreshVPC}
+        errorReason={errorReason}
+      />
+    );
   }
 
   return (

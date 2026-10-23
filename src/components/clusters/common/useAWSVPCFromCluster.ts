@@ -98,6 +98,7 @@ export const useAWSVPCFromCluster = (cluster: ClusterFromSubscription, region?: 
 
   const manageVpcFetch = React.useCallback(async (vpcPromise: Promise<CloudVpc | undefined>) => {
     setHasError(false);
+    setErrorReason(undefined);
     setIsLoading(true);
     try {
       const vpc = await vpcPromise;
