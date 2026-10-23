@@ -42,7 +42,7 @@ describe('<SubscriptionCompliancy />', () => {
     expect(screen.getByText('OpenShift cluster support status')).toBeInTheDocument();
     expect(
       screen.queryByText(
-        'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
+        'The cluster owner or an Organization Administrator can edit subscription settings to enable support.',
         { exact: false },
       ),
     ).not.toBeInTheDocument();
@@ -66,10 +66,50 @@ describe('<SubscriptionCompliancy />', () => {
     expect(screen.getByText('OpenShift cluster support status')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
+        'The cluster owner or an Organization Administrator can edit subscription settings to enable support.',
         { exact: false },
       ),
     ).toBeInTheDocument();
+    await checkAccessibility(container);
+  });
+
+  it('should show the support deadline when eval_expiration_date is present', async () => {
+    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
+    cluster.subscription.eval_expiration_date = '2020-08-15T12:00:00Z';
+    cluster.subscription.capabilities = [
+      {
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
+        value: 'true',
+        inherited: true,
+      },
+    ];
+    const newProps = { ...props, cluster };
+    const { container } = render(<SubscriptionCompliancy {...newProps} />);
+
+    expect(screen.getByText('Warning alert:')).toBeInTheDocument();
+    expect(screen.getByText(/Please enable support by/i)).toBeInTheDocument();
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
+    await checkAccessibility(container);
+  });
+
+  it('should not show Invalid Date when eval_expiration_date is missing', async () => {
+    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
+    cluster.subscription.eval_expiration_date = undefined;
+    cluster.subscription.capabilities = [
+      {
+        name: subscriptionCapabilities.SUBSCRIBED_OCP,
+        value: 'true',
+        inherited: true,
+      },
+    ];
+    const newProps = { ...props, cluster };
+    const { container } = render(<SubscriptionCompliancy {...newProps} />);
+
+    expect(screen.getByText('Warning alert:')).toBeInTheDocument();
+    expect(screen.queryByText(/Please enable support by/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
     await checkAccessibility(container);
   });
 
@@ -83,7 +123,7 @@ describe('<SubscriptionCompliancy />', () => {
     expect(screen.getByText('Your OpenShift cluster is not supported')).toBeInTheDocument();
     expect(
       screen.queryByText(
-        'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
+        'The cluster owner or an Organization Administrator can edit subscription settings to enable support.',
         { exact: false },
       ),
     ).not.toBeInTheDocument();
@@ -100,7 +140,7 @@ describe('<SubscriptionCompliancy />', () => {
     expect(screen.getByText('Your OpenShift cluster is not supported')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'The cluster owner or an Organization Administrator can edit subscription settings for non-evaluation use.',
+        'The cluster owner or an Organization Administrator can edit subscription settings to enable support.',
         { exact: false },
       ),
     ).toBeInTheDocument();

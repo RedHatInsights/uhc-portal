@@ -66,7 +66,7 @@ function SubscriptionSettings({
       titleIcon = <ExclamationTriangleIcon className="subscription-settings warning-title-icon" />;
     }
   } else if (supportLevel === SubscriptionCommonFieldsSupportLevel.None) {
-    supportLevelStr = 'Evaluation expired';
+    supportLevelStr = 'Not supported';
     if (isEditViewable) {
       titleIcon = <ExclamationCircleIcon className="subscription-settings danger-title-icon" />;
     }

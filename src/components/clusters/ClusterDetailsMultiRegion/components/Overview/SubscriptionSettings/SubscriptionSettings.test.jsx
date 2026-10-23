@@ -68,4 +68,14 @@ describe('<SubscriptionSettings />', () => {
       'Self-Support (unsupported)',
     );
   });
+
+  it('should display Not supported for None support level', () => {
+    const newProps = { ...fixtures };
+    newProps.subscription.plan.id = normalizedProducts.OCP;
+    newProps.subscription.plan.type = normalizedProducts.OCP;
+    newProps.subscription.support_level = 'None';
+    render(<SubscriptionSettings {...newProps} />);
+
+    expect(screen.getByTestId('service-level-agreement')).toHaveTextContent('Not supported');
+  });
 });

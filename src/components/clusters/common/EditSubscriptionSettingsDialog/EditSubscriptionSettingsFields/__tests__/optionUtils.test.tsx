@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { subscriptionSettings } from '~/common/subscriptionTypes';
 import { defaultSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import {
@@ -68,6 +70,29 @@ describe('getOptions', () => {
           isChecked: true,
           label: 'Self-Support (unsupported)',
           value: SubscriptionCommonFieldsSupportLevel.Eval,
+        },
+      ]);
+    });
+
+    it('should return correct options for NONE support_level field value', () => {
+      const subscription: Subscription = {
+        ...defaultSubscription,
+        id: '123',
+        support_level: SubscriptionCommonFieldsSupportLevel.None,
+      };
+      const options = getOptions(subscription, subscriptionSettings.SUPPORT_LEVEL);
+
+      expect(options).toEqual([
+        {
+          label: 'Premium',
+          value: SubscriptionCommonFieldsSupportLevel.Premium,
+        },
+        { label: 'Standard', value: SubscriptionCommonFieldsSupportLevel.Standard },
+        { label: 'Self-Support', value: SubscriptionCommonFieldsSupportLevel.Self_Support },
+        {
+          isChecked: true,
+          label: <span className="subscription-settings expired-eval-option">Not supported</span>,
+          value: SubscriptionCommonFieldsSupportLevel.None,
         },
       ]);
     });

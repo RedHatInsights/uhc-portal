@@ -40,9 +40,7 @@ const getOptions = (
         });
       } else if (value === SubscriptionCommonFieldsSupportLevel.None) {
         options.push({
-          label: (
-            <span className="subscription-settings expired-eval-option">Expired evaluation</span>
-          ),
+          label: <span className="subscription-settings expired-eval-option">Not supported</span>,
           value: SubscriptionCommonFieldsSupportLevel.None,
         });
       }
