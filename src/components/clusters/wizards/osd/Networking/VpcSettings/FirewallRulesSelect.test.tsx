@@ -313,7 +313,9 @@ describe('<FirewallRulesSelect />', () => {
       />,
     );
 
-    expect(screen.getByDisplayValue(`${props.createFirewallRulesCommand} --edited`)).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(`${props.createFirewallRulesCommand} --edited`),
+    ).toBeInTheDocument();
   });
 
   it('refreshes firewall rules and tracks analytics on Refresh click', async () => {
