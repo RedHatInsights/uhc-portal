@@ -302,6 +302,31 @@ describe('<FirewallRulesSelect />', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('keeps the create-firewall-rules section expanded when project or VPC props change', async () => {
+    useFetchGcpFirewallRulesMock.mockReturnValue({
+      isFetching: false,
+      data: firewallRules,
+      isSuccess: true,
+    });
+
+    const props = createDefaultProps();
+    const { user, rerender } = render(<FirewallRulesSelect {...props} />);
+
+    await user.click(screen.getByText('Create firewall rules'));
+    expect(screen.getByDisplayValue(props.createFirewallRulesCommand)).toBeInTheDocument();
+
+    rerender(
+      <FirewallRulesSelect
+        {...props}
+        projectId="edited-project"
+        network="edited-vpc"
+        createFirewallRulesCommand={`${props.createFirewallRulesCommand} --edited`}
+      />,
+    );
+
+    expect(screen.getByDisplayValue(`${props.createFirewallRulesCommand} --edited`)).toBeInTheDocument();
+  });
+
   it('refreshes firewall rules and tracks analytics on Refresh click', async () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,

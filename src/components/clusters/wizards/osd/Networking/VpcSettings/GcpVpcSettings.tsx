@@ -142,7 +142,6 @@ export const GcpVpcSettings = () => {
 
   const firewallProjectId = installToSharedVpc ? sharedHostProjectId : wifConfig?.gcp?.project_id;
   const firewallProfile = showPSCSubnet ? 'private' : 'public';
-  const firewallContextKey = `${wifConfig?.id ?? ''}-${firewallProjectId ?? ''}-${vpcName ?? ''}-${firewallProfile}`;
   const createFirewallRulesCommand = [
     'ocm gcp create firewall-rules',
     '--name=<name>',
@@ -353,7 +352,6 @@ export const GcpVpcSettings = () => {
             Firewall Rules
           </Title>
           <Field
-            key={firewallContextKey}
             component={FirewallRulesSelect}
             name={FieldId.FirewallRules}
             className="pf-v6-u-mt-md"
