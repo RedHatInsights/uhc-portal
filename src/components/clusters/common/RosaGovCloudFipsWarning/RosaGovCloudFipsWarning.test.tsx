@@ -10,7 +10,7 @@ describe('<RosaGovCloudFipsWarning />', () => {
   it('renders the CMVP warning with FIPS and KCS links', () => {
     render(<RosaGovCloudFipsWarning />);
 
-    const alert = screen.getByTestId('rosa-govcloud-fips-warning');
+    const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent(
       'Currently, only OpenShift Container Platform version 4.18.x utilizes cryptographic modules with full CMVP approval.',
     );

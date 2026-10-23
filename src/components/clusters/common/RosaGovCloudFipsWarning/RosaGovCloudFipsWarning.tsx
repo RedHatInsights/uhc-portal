@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, Content, ContentVariants } from '@patternfly/react-core';
+import { Alert, Content, ContentVariants, Stack } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import supportLinks from '~/common/supportLinks.mjs';
@@ -11,6 +11,9 @@ interface RosaGovCloudFipsWarningProps {
   className?: string;
 }
 
+const TITLE =
+  'Currently, only OpenShift Container Platform version 4.18.x utilizes cryptographic modules with full CMVP approval.';
+
 export const RosaGovCloudFipsWarning = ({
   'data-testid': dataTestId = 'rosa-govcloud-fips-warning',
   className,
@@ -19,17 +22,19 @@ export const RosaGovCloudFipsWarning = ({
     variant="warning"
     isInline
     isLiveRegion
+    role="alert"
+    aria-label={TITLE}
     className={className}
     data-testid={dataTestId}
-    title="Currently, only OpenShift Container Platform version 4.18.x utilizes cryptographic modules with full CMVP approval."
+    title={TITLE}
   >
-    <Content>
+    <Stack hasGutter>
       <Content component={ContentVariants.p}>
         ROSA in AWS GovCloud additionally supports OpenShift Container Platform versions 4.19, 4.20,
         4.21, 4.22. These OCP versions leverage cryptographic modules that are currently in the
         process of obtaining FIPS 140-3 validation from CMVP.
       </Content>
-      <Content component={ContentVariants.p} className="pf-v6-u-mt-sm">
+      <Content component={ContentVariants.p}>
         All ROSA GovCloud clusters are deployed in{' '}
         <ExternalLink href={docLinks.OCP_INSTALLING_FIPS}>FIPS mode</ExternalLink>. Refer here for
         more information:{' '}
@@ -37,6 +42,6 @@ export const RosaGovCloudFipsWarning = ({
           ROSA GovCloud and FIPS-validated Cryptography
         </ExternalLink>
       </Content>
-    </Content>
+    </Stack>
   </Alert>
 );

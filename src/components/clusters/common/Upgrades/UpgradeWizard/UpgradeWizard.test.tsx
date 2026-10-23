@@ -211,7 +211,7 @@ describe('<UpgradeWizard />', () => {
 
       withState(initialState, true).render(<UpgradeWizard />);
 
-      expect(screen.queryByTestId('rosa-govcloud-fips-warning')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
     });
 
     it('renders in the Select version step in restricted env when cluster is below 4.19', () => {
@@ -223,7 +223,7 @@ describe('<UpgradeWizard />', () => {
 
       withState(initialState, true).render(<UpgradeWizard />);
 
-      expect(screen.getByTestId('rosa-govcloud-fips-warning')).toBeInTheDocument();
+      expect(screen.getByRole('alert', { name: /CMVP/i })).toBeInTheDocument();
     });
 
     it('does not render in restricted env when cluster is already 4.19 or newer', () => {
@@ -235,7 +235,7 @@ describe('<UpgradeWizard />', () => {
 
       withState(initialState, true).render(<UpgradeWizard />);
 
-      expect(screen.queryByTestId('rosa-govcloud-fips-warning')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
     });
 
     it('does not render in restricted env when cluster is on OpenShift 5.x', () => {
@@ -250,7 +250,7 @@ describe('<UpgradeWizard />', () => {
 
       withState(initialState, true).render(<UpgradeWizard />);
 
-      expect(screen.queryByTestId('rosa-govcloud-fips-warning')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
     });
   });
 });

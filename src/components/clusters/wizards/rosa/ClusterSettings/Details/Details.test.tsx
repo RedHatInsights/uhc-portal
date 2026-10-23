@@ -383,7 +383,7 @@ describe('<Details />', () => {
         </Formik>,
       );
 
-      expect(screen.queryByTestId('rosa-govcloud-fips-warning')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
     });
 
     it('shows the GovCloud FIPS warning above version select in restricted env', () => {
@@ -395,7 +395,7 @@ describe('<Details />', () => {
         </Formik>,
       );
 
-      expect(screen.getByTestId('rosa-govcloud-fips-warning')).toBeInTheDocument();
+      expect(screen.getByRole('alert', { name: /CMVP/i })).toBeInTheDocument();
     });
   });
 
