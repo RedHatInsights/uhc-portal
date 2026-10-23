@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { queryClient } from '~/components/App/queryClient';
 import useAnalytics from '~/hooks/useAnalytics';
 import {
   refetchGcpFirewallRules,
@@ -14,20 +13,11 @@ jest.mock('~/hooks/useAnalytics');
 jest.mock('~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules', () => ({
   useFetchGcpFirewallRules: jest.fn(),
   refetchGcpFirewallRules: jest.fn(),
-  filterFirewallRules: jest.requireActual(
-    '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules',
-  ).filterFirewallRules,
-}));
-jest.mock('~/components/App/queryClient', () => ({
-  queryClient: {
-    getQueryData: jest.fn(),
-  },
 }));
 
 const useFetchGcpFirewallRulesMock = useFetchGcpFirewallRules as jest.Mock;
 const refetchGcpFirewallRulesMock = refetchGcpFirewallRules as jest.Mock;
 const useAnalyticsMock = useAnalytics as jest.Mock;
-const getQueryDataMock = queryClient.getQueryData as jest.Mock;
 
 const firewallRules = [
   {
@@ -69,7 +59,6 @@ describe('<FirewallRulesSelect />', () => {
   beforeEach(() => {
     useAnalyticsMock.mockReturnValue(trackMock);
     refetchGcpFirewallRulesMock.mockResolvedValue(undefined);
-    getQueryDataMock.mockReturnValue({ data: { items: firewallRules } });
   });
 
   afterEach(() => {
@@ -350,16 +339,16 @@ describe('<FirewallRulesSelect />', () => {
     );
   });
 
-  it('clears a deleted selection when Refresh finds the rule is gone', async () => {
+  it('clears Formik when the firewall rules request is in an error state', () => {
     useFetchGcpFirewallRulesMock.mockReturnValue({
       isFetching: false,
-      data: firewallRules,
-      isSuccess: true,
+      data: [],
+      isSuccess: false,
+      isError: true,
     });
-    getQueryDataMock.mockReturnValue({ data: { items: [] } });
 
     const onChange = jest.fn();
-    const { user } = render(
+    render(
       <FirewallRulesSelect
         {...createDefaultProps({
           selectedFirewallRules: firewallRules[0],
@@ -368,8 +357,7 @@ describe('<FirewallRulesSelect />', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Refresh' }));
-
+    expect(screen.getByText('Error loading firewall rules')).toBeInTheDocument();
     expect(onChange).toHaveBeenCalledWith({ id: '' });
   });
 
