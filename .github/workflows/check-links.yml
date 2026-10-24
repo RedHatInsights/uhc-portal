@@ -34,7 +34,7 @@ jobs:
 
       - name: Send report to Slack
         if: steps.check-links.outcome == 'success'
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
           webhook-type: webhook-trigger
@@ -44,7 +44,7 @@ jobs:
 
       - name: Send failure notice to Slack
         if: failure()
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_BROKEN_LINKS_WEBHOOK_URL }}
           webhook-type: webhook-trigger
