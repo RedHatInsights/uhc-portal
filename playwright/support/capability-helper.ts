@@ -18,7 +18,10 @@ export async function waitForOrganizationCapabilities(
     { timeout: 30000 },
   );
   if (!response.ok()) {
-    return [];
+    const responseBody = await response.text().catch(() => '');
+    throw new Error(
+      `Organization capabilities request failed: ${response.status()} ${response.statusText()} (${response.url()})${responseBody ? ` — ${responseBody}` : ''}`,
+    );
   }
   const body = (await response.json()) as { capabilities?: OrganizationCapability[] };
   return body.capabilities ?? [];
