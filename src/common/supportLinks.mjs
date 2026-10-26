@@ -5,14 +5,14 @@
  */
 
 import { combineAndSortLinks } from './linkUtils.mjs';
+import { getRosaCpDocsBase, getRosaCpDocsRoot } from './rosaDocsBase.mjs';
 
 const BASE_URL = 'https://access.redhat.com/';
 const SUPPORT_URL = `${BASE_URL}support/`;
 const ARTICLES_URL = `${BASE_URL}articles/`;
 const SOLUTIONS_URL = `${BASE_URL}solutions/`;
 const SECURITY_URL = `${BASE_URL}security/`;
-const DOCUMENTATION_URL = `${BASE_URL}documentation/`;
-const ROSA_CP_DOCS_BASE = `${BASE_URL}documentation/en-us/red_hat_openshift_service_on_aws/4/html`;
+const ROSA_CP_DOCS_BASE = getRosaCpDocsBase();
 
 const supportLinks = {
   // Support Case Management
@@ -35,6 +35,7 @@ const supportLinks = {
   OCM_CLI_DOCS: `${ARTICLES_URL}6114701`,
   ROSA_CREATE_NETWORK: `${ARTICLES_URL}7096266`,
   OCM_ROLE_KB: `${ARTICLES_URL}7137057`,
+  ROSA_GOVCLOUD_FIPS_KB: `${ARTICLES_URL}7148666`,
 
   // Support Policies and Classifications
   OPENSHIFT_SUPPORT_POLICY: `${SUPPORT_URL}policy/updates/openshift`,
@@ -42,7 +43,7 @@ const supportLinks = {
   SECURITY_CLASSIFICATION_CRITICAL: `${SECURITY_URL}updates/classification/#critical`,
 
   // Support/Troubleshooting Documentation
-  ROSA_CP_DOCS: `${DOCUMENTATION_URL}en-us/red_hat_openshift_service_on_aws/4`,
+  ROSA_CP_DOCS: getRosaCpDocsRoot(),
   ACCESS_REQUEST_DOC_LINK: `${ROSA_CP_DOCS_BASE}/support/approved-access#approved-access`,
   ROSA_TROUBLESHOOTING_INSTALLATIONS: `${ROSA_CP_DOCS_BASE}/support/troubleshooting#rosa-troubleshooting-installations`,
   ROSA_DEFINITION_DOC: `${ROSA_CP_DOCS_BASE}/introduction_to_rosa/policies-and-service-definition#rosa-service-definition`,

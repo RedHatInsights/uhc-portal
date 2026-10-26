@@ -32,15 +32,9 @@ type VersionSelectionProps = {
   label: string;
   onChange: (version?: Version) => void;
   channelGroup?: string;
-  isEUSChannelEnabled?: boolean;
 };
 
-function VersionSelection({
-  label,
-  onChange,
-  channelGroup,
-  isEUSChannelEnabled,
-}: VersionSelectionProps) {
+function VersionSelection({ label, onChange, channelGroup }: VersionSelectionProps) {
   const [input, { touched, error }, { setValue }] = useField(FieldId.ClusterVersion);
   const {
     values: {
@@ -181,8 +175,7 @@ function VersionSelection({
 
   useEffect(() => {
     if (versions.length && !selectedClusterVersion?.id) {
-      const targetChannelGroup =
-        isEUSChannelEnabled && channelGroup ? channelGroup : channelGroups.STABLE;
+      const targetChannelGroup = channelGroup || channelGroups.STABLE;
 
       const inTargetChannel = (version: Version) => version.channel_group === targetChannelGroup;
 
@@ -219,7 +212,6 @@ function VersionSelection({
     onChange,
     isHypershiftSelected,
     isValidRosaVersion,
-    isEUSChannelEnabled,
     channelGroup,
   ]);
 
