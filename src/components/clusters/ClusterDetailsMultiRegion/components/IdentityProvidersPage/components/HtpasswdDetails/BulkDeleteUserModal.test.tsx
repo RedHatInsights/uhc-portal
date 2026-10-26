@@ -136,6 +136,51 @@ describe('<BulkDeleteUserModal />', () => {
     expect(mutate).toHaveBeenCalled();
   }, 20000);
 
+  it('closes the modal and shows a success notification when all deletions succeed', async () => {
+    mutate.mockImplementation((_users, { onSuccess: mutationOnSuccess }) => {
+      mutationOnSuccess();
+    });
+    mockedBulkDeleteUsers.mockReturnValue(defaultReturnBulkDeleteUser);
+
+    const { user } = withState(initialState, true).render(
+      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete users' }));
+
+    expect(reset).toHaveBeenCalled();
+    expect(mockedDispatch.mock.calls[0][0].type).toEqual('CLOSE_MODAL');
+    expect(refreshHtpasswdUsers).toHaveBeenCalled();
+    expect(onSuccess).toHaveBeenCalled();
+  });
+
+  it('does not show a success notification when some deletions fail', async () => {
+    mutate.mockImplementation((_users, { onSuccess: mutationOnSuccess }) => {
+      mutationOnSuccess();
+    });
+    mockedBulkDeleteUsers.mockReturnValue({
+      ...defaultReturnBulkDeleteUser,
+      failedDeletions: [
+        {
+          username: 'user1',
+          error: { errorMessage: 'I am an error' },
+        },
+      ],
+    });
+
+    const { user } = withState(initialState, true).render(
+      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete users' }));
+
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(refreshHtpasswdUsers).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('A problem occurred while deleting htpasswd user "user1"'),
+    ).toBeInTheDocument();
+  });
+
   it('shows spinner when bulk delete is pending', () => {
     mockedBulkDeleteUsers.mockReturnValue({ ...defaultReturnBulkDeleteUser, isPending: true });
 
@@ -144,6 +189,20 @@ describe('<BulkDeleteUserModal />', () => {
     );
 
     expect(screen.getByRole('progressbar', { name: 'Loading...' })).toBeInTheDocument();
+  });
+
+  it('handles undefined failedDeletions without showing errors', () => {
+    mockedBulkDeleteUsers.mockReturnValue({
+      ...defaultReturnBulkDeleteUser,
+      failedDeletions: undefined as unknown as [],
+    });
+
+    withState(initialState, true).render(
+      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
+    );
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete users' })).not.toBeDisabled();
   });
 
   it('shows error when bulk delete results in an error', () => {
