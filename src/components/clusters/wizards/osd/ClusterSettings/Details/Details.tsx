@@ -18,6 +18,7 @@ import {
 import docLinks from '~/common/docLinks.mjs';
 import { SupportedFeature } from '~/common/featureCompatibility';
 import { noQuotaTooltip } from '~/common/helpers';
+import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
 import {
   asyncValidateClusterName,
   asyncValidateDomainPrefix,
@@ -60,11 +61,21 @@ import {
   RichInputField,
 } from '~/components/clusters/wizards/form';
 import { useFormState } from '~/components/clusters/wizards/hooks';
+import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { CustomerManagedEncryption } from '~/components/clusters/wizards/osd/ClusterSettings/Details/CustomerManagedEncryption';
 import { FieldId, MIN_SECURE_BOOT_VERSION } from '~/components/clusters/wizards/osd/constants';
+import {
+  INSTALL_TO_VPC_CHOSEN_BY_USER,
+  INSTALL_TO_VPC_FORCED_BY_OCP5,
+  installToVpcStateAfterVersionChange,
+  isInstallToVpcForcedByOtherSetting,
+  requiresExistingVpcForOcp5,
+} from '~/components/clusters/wizards/osd/installToExistingVpcHelpers';
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchSearchClusterName';
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getCloudProviders } from '~/redux/actions/cloudProviderActions';
@@ -73,6 +84,7 @@ import { Version } from '~/types/clusters_mgmt.v1';
 
 import { ShieldedVM } from '../../../common/ShieldedVM';
 import { ClusterPrivacyType } from '../../Networking/constants';
+import { useIsOSDFromGoogleCloud } from '../../useIsOSDFromGoogleCloud';
 
 function Details() {
   const dispatch = useDispatch();
@@ -87,9 +99,15 @@ function Details() {
       [FieldId.Region]: region,
       [FieldId.CloudProvider]: cloudProvider,
       [FieldId.ClusterPrivacy]: clusterPrivacy,
+      [FieldId.ConfigureProxy]: configureProxy,
+      [FieldId.UsePrivateLink]: usePrivateLink,
+      [FieldId.GcpAuthType]: gcpAuthType,
       [FieldId.CustomerManagedKey]: hasCustomerManagedKey,
       [FieldId.KmsKeyArn]: kmsKeyArn,
       [FieldId.ClusterVersion]: selectedVersion,
+      [FieldId.InstallToVpc]: installToVpc,
+      [INSTALL_TO_VPC_CHOSEN_BY_USER]: installToVpcChosenByUser,
+      [INSTALL_TO_VPC_FORCED_BY_OCP5]: installToVpcForcedByOcp5,
       [FieldId.SecureBoot]: secureBoot,
       [FieldId.MachinePoolsSubnets]: machinePoolsSubnets,
       [FieldId.HasDomainPrefix]: hasDomainPrefix,
@@ -106,10 +124,15 @@ function Details() {
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
   const isGCP = cloudProvider === CloudProviderType.Gcp;
+  const isWifAuth = gcpAuthType === GCPAuthType.WorkloadIdentityFederation;
+  const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
+  const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
+  const isPrivateCluster = clusterPrivacy === ClusterPrivacyType.Internal;
 
   const {
-    organization: { quotaList },
+    organization: { quotaList, details: organizationDetails },
   } = useGlobalState((state) => state.userProfile);
+  const organizationAllowsOcp5 = hasAllowOcp5Capability(organizationDetails?.capabilities);
 
   const { gcpKeyRings } = useGlobalState((state) => state.ccsInquiries);
 
@@ -239,14 +262,50 @@ function Details() {
         worker: [],
       });
     }
+    const versionSupportsPrivateServiceConnect = canConfigureDayOnePrivateServiceConnect(
+      clusterVersion?.raw_id || '',
+    );
+    const nextPrivateServiceConnect =
+      clusterPrivacy === ClusterPrivacyType.Internal && versionSupportsPrivateServiceConnect;
+
     if (clusterPrivacy === ClusterPrivacyType.Internal) {
-      if (!canConfigureDayOnePrivateServiceConnect(clusterVersion?.raw_id || '')) {
-        setFieldValue(FieldId.PrivateServiceConnect, false);
-      } else {
-        setFieldValue(FieldId.PrivateServiceConnect, true);
-        setFieldValue(FieldId.InstallToVpc, true);
-      }
+      setFieldValue(FieldId.PrivateServiceConnect, nextPrivateServiceConnect);
     }
+
+    const versionRequirements = {
+      isOcp5SupportEnabled,
+      isByoc,
+      isGcp: isGCP,
+      isWif: isWifAuth,
+      organizationAllowsOcp5,
+    };
+    const nextRequiresExistingVpc = requiresExistingVpcForOcp5({
+      ...versionRequirements,
+      clusterVersionRawId: clusterVersion?.raw_id,
+    });
+    const previousRequiresExistingVpc = requiresExistingVpcForOcp5({
+      ...versionRequirements,
+      clusterVersionRawId: selectedVersion?.raw_id,
+    });
+    const installToVpcState = installToVpcStateAfterVersionChange({
+      installToVpc: Boolean(installToVpc) || nextPrivateServiceConnect,
+      installToVpcChosenByUser: Boolean(installToVpcChosenByUser),
+      installToVpcForcedByOcp5: Boolean(installToVpcForcedByOcp5),
+      nextRequiresExistingVpc,
+      previousRequiresExistingVpc,
+      isInstallToVpcForced: isInstallToVpcForcedByOtherSetting({
+        usePrivateLink,
+        configureProxy,
+        isPrivateCluster,
+        isWif: isWifAuth,
+        isOSDFromGoogleCloud,
+        usePrivateServiceConnect: nextPrivateServiceConnect,
+      }),
+    });
+
+    setFieldValue(FieldId.InstallToVpc, installToVpcState.installToVpc);
+    setFieldValue(INSTALL_TO_VPC_CHOSEN_BY_USER, installToVpcState.installToVpcChosenByUser);
+    setFieldValue(INSTALL_TO_VPC_FORCED_BY_OCP5, installToVpcState.installToVpcForcedByOcp5);
 
     resetMaxNodesTotal({ clusterVersion });
 
