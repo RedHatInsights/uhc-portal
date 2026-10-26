@@ -1,6 +1,8 @@
 import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING } from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useEditSchedule';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
@@ -21,6 +23,7 @@ import {
   screen,
   waitFor,
   within,
+  withState,
 } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
@@ -565,6 +568,83 @@ describe('<UpgradeSettingsTab>', () => {
       renderComponent(osdGcpClassicCluster);
 
       expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
+
+    it('renders the GCP upgrade warning in Update strategy for a service account cluster when ocmui-ocp5-support is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(
+        createMockCluster({
+          product: { id: 'OSD' },
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: {},
+          subscription: {
+            ...createMockCluster().subscription,
+            plan: { type: 'OSD' },
+            cloud_provider_id: 'gcp',
+          },
+        }),
+      );
+
+      const updateStrategyCard = screen.getByText('Update strategy').closest('.pf-v6-c-card');
+      expect(
+        within(updateStrategyCard as HTMLElement).getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING),
+      ).toBeInTheDocument();
+    });
+
+    it('renders the GCP upgrade warning in Update strategy for a Red Hat cloud account cluster when ocmui-ocp5-support is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(osdGcpClassicCluster);
+
+      expect(screen.getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning for a Workload Identity Federation cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(
+        createMockCluster({
+          product: { id: 'OSD' },
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: { authentication: { kind: 'WifConfig', id: 'wif-config-id' } },
+          subscription: {
+            ...createMockCluster().subscription,
+            plan: { type: 'OSD' },
+            cloud_provider_id: 'gcp',
+          },
+        }),
+      );
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning when ocmui-ocp5-support is off', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+
+      renderComponent(osdGcpClassicCluster);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning when the organization has rosa_osd_allow_ocp_5 set to "true"', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      withState({
+        userProfile: {
+          organization: {
+            details: {
+              capabilities: [
+                { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'true' },
+              ],
+            },
+          },
+        },
+      }).render(<UpgradeSettingsTab cluster={osdGcpClassicCluster as AugmentedCluster} />);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
     });
 
     it('does not render for a ROSA HCP cluster', () => {
