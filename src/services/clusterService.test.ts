@@ -328,4 +328,37 @@ describe('clusterService', () => {
       expect(getApiGetParams().size).toBe(-1);
     });
   });
+
+  describe('getGcpFirewallRules', () => {
+    it('requests unused firewall rules when no profile is provided', async () => {
+      await clusterService.getGcpFirewallRules();
+
+      expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
+      expect(apiRequestMock.get.mock.calls[0][0]).toEqual(
+        '/api/clusters_mgmt/v1/gcp/firewall_rules',
+      );
+      expect(getApiGetParams()).toEqual({
+        unused: true,
+        size: -1,
+      });
+    });
+
+    it('includes profile as a query param when provided', async () => {
+      await clusterService.getGcpFirewallRules({ profile: 'private' });
+
+      expect(getApiGetParams()).toEqual({
+        unused: true,
+        profile: 'private',
+        size: -1,
+      });
+    });
+
+    it('retrieves a firewall rule by id', async () => {
+      await clusterService.getGcpFirewallRule('fw-rules-1');
+
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        '/api/clusters_mgmt/v1/gcp/firewall_rules/fw-rules-1',
+      );
+    });
+  });
 });

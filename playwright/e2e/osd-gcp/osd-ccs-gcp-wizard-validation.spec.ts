@@ -1,4 +1,9 @@
-import { test, expect } from '../../fixtures/pages';
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
+import { expect, test } from '../../fixtures/pages';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
+} from '../../support/capability-helper';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd-gcp/osd-ccs-gcp-wizard-validation.spec.json');
@@ -18,9 +23,17 @@ Clusters.forEach((clusterProperties) => {
     `OSD Wizard CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
     { tag: ['@smoke', '@wizard-validation', '@osd'] },
     () => {
-      test.beforeAll(async ({ navigateTo }) => {
-        // Navigate to create
+      let shouldShowOcp5Warning = false;
+
+      test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
+        const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
+        const capabilitiesPromise = createOSDWizardPage.waitForOrganizationCapabilities();
         await navigateTo('create');
+        const isOcp5SupportEnabled = await gatePromise;
+        const capabilities = await capabilitiesPromise;
+        shouldShowOcp5Warning =
+          isOcp5SupportEnabled &&
+          !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -45,8 +58,19 @@ Clusters.forEach((clusterProperties) => {
         );
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
+          const serviceAccountWarningText =
+            ClustersValidation.ClusterSettings.CloudProvider.GCP.Ocp5ServiceAccountWarning;
+          const serviceAccountWarning =
+            createOSDWizardPage.gcpOcp5ServiceAccountCreationWarning(serviceAccountWarningText);
+          await expect(serviceAccountWarning).toBeHidden();
+
           if (clusterProperties.AuthenticationType?.includes('Service Account')) {
             await createOSDWizardPage.serviceAccountButton().click();
+            if (shouldShowOcp5Warning) {
+              await expect(serviceAccountWarning).toBeVisible();
+            } else {
+              await expect(serviceAccountWarning).toBeHidden();
+            }
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.EmptyGCPServiceJSONFieldError,
@@ -75,6 +99,7 @@ Clusters.forEach((clusterProperties) => {
             }
           } else {
             await createOSDWizardPage.workloadIdentityFederationButton().click();
+            await expect(serviceAccountWarning).toBeHidden();
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.NoWIFConfigSelectionError,
@@ -195,8 +220,8 @@ Clusters.forEach((clusterProperties) => {
         await createOSDWizardPage.isMachinePoolScreen();
         await createOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
 
-        var minNodes = '2';
-        var maxNodes = '249';
+        let minNodes = '2';
+        let maxNodes = '249';
         await expect(createOSDWizardPage.computeNodeCountInput()).toHaveValue(minNodes);
         await expect(createOSDWizardPage.computeNodeCountDecrementButton()).not.toBeEnabled();
         await createOSDWizardPage.computeNodeCountInput().fill((parseInt(minNodes) - 1).toString());
@@ -768,7 +793,6 @@ Clusters.forEach((clusterProperties) => {
           ClustersValidation.ClusterSettings.Machinepool.Common.NodeLabel[2].KeyError,
           false,
         );
-
         await createOSDWizardPage.wizardNextButton().click();
       });
 
@@ -781,7 +805,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressRouterSelectorsInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .RouteSelector[0].UpperCharacterLimitValue,
+              .RouteSelector[0].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -794,7 +818,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressRouterSelectorsInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .RouteSelector[1].InvalidValue,
+              .RouteSelector[1].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -807,7 +831,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressRouterSelectorsInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .RouteSelector[2].InvalidValue,
+              .RouteSelector[2].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -820,7 +844,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressRouterSelectorsInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .RouteSelector[3].InvalidValue,
+              .RouteSelector[3].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -844,7 +868,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressExcludedNamespacesInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .ExcludedNamespaces[0].UpperCharacterLimitValue,
+              .ExcludedNamespaces[0].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -857,7 +881,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressExcludedNamespacesInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .ExcludedNamespaces[1].InvalidValue,
+              .ExcludedNamespaces[1].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -870,7 +894,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressExcludedNamespacesInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .ExcludedNamespaces[2].InvalidValue,
+              .ExcludedNamespaces[2].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -883,7 +907,7 @@ Clusters.forEach((clusterProperties) => {
           .applicationIngressExcludedNamespacesInput()
           .fill(
             ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
-              .ExcludedNamespaces[3].InvalidValue,
+              .ExcludedNamespaces[3].Value,
           );
         await page.getByText('Route selector').click();
         await createOSDWizardPage.isTextContainsInPage(
@@ -907,6 +931,179 @@ Clusters.forEach((clusterProperties) => {
         await createOSDWizardPage.isTextContainsInPage(
           ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
             .ExcludedNamespaces[3].Error,
+          false,
+        );
+
+        const excludeNamespaceSelectors =
+          ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+            .ExcludeNamespaceSelectors;
+
+        await expect(createOSDWizardPage.excludeNamespaceSelectorsSection()).toBeVisible();
+        await expect(page.getByText(excludeNamespaceSelectors.HelpText)).toBeVisible();
+
+        await createOSDWizardPage.excludeNamespaceSelectorsMoreInfoButton().click();
+        await expect(
+          page.getByRole('dialog').getByText(excludeNamespaceSelectors.PopoverTitle),
+        ).toBeVisible();
+        await createOSDWizardPage.closePopoverDialogs();
+
+        // Key exceeds 63 characters
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UpperCharacterLimitValue);
+        await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill('prod');
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.KeyUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Each comma-separated value segment exceeds 63 characters
+        await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).fill('env');
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.UpperCharacterLimitValue);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ValueUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.ValueUpperCharacterLimitInList.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.ValueUpperCharacterLimitInList.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ValueUpperCharacterLimitError,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Unsupported characters in key field
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedKeyCharacters.Value);
+        await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill('prod');
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.UnsupportedKeyCharacters.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Missing key — values entered without a key
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.MissingKey.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.MissingKey.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Missing values — key entered without values
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.MissingValues.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.MissingValues.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.MissingValues.Error,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Unsupported characters in value field (invalid comma-separated segment)
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedValueCharacters.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.UnsupportedValueCharacters.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorErrorContaining(
+          excludeNamespaceSelectors.UnsupportedValueCharacters.ErrorContains,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Reserved namespace values in value field
+        for (const reserved of excludeNamespaceSelectors.ReservedNamespaces) {
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).fill(reserved.Key);
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.excludeNamespaceSelectorValuesInput(0).fill(reserved.Value);
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.expectExcludeNamespaceSelectorError(reserved.Error);
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.fillExcludeNamespaceSelector(
+            0,
+            excludeNamespaceSelectors.Valid.Key,
+            excludeNamespaceSelectors.Valid.Value,
+          );
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.expectExcludeNamespaceSelectorError(reserved.Error, false);
+          // eslint-disable-next-line no-await-in-loop
+          await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+        }
+
+        // Duplicate key across selector rows
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(0)
+          .fill(excludeNamespaceSelectors.DuplicateKey.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.DuplicateKey.FirstValue);
+        await createOSDWizardPage.addExcludeNamespaceSelectorRow();
+        await createOSDWizardPage
+          .excludeNamespaceSelectorKeyInput(1)
+          .fill(excludeNamespaceSelectors.DuplicateKey.Key);
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(1)
+          .fill(excludeNamespaceSelectors.DuplicateKey.SecondValue);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.DuplicateKey.Error,
+        );
+
+        await createOSDWizardPage.fillExcludeNamespaceSelector(
+          1,
+          excludeNamespaceSelectors.Valid.Key,
+          excludeNamespaceSelectors.Valid.Value,
+        );
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.DuplicateKey.Error,
+          false,
+        );
+
+        await createOSDWizardPage
+          .excludeNamespaceSelectorsSection()
+          .getByRole('button', { name: 'Remove item' })
+          .nth(1)
+          .click();
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Erasing a previously entered key leaves values and shows missing-key error
+        await createOSDWizardPage.fillExcludeNamespaceSelector(
+          0,
+          excludeNamespaceSelectors.ClearedKey.Key,
+          excludeNamespaceSelectors.ClearedKey.Value,
+        );
+        await createOSDWizardPage.excludeNamespaceSelectorKeyInput(0).clear();
+        await createOSDWizardPage
+          .excludeNamespaceSelectorValuesInput(0)
+          .fill(excludeNamespaceSelectors.ClearedKey.Value);
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ClearedKey.ErrorAfterClear,
+        );
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Valid key and values clear validation errors
+        await createOSDWizardPage.fillExcludeNamespaceSelector(
+          0,
+          excludeNamespaceSelectors.Valid.Key,
+          excludeNamespaceSelectors.Valid.Value,
+        );
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.ReservedNamespaces[0].Error,
+          false,
+        );
+        await createOSDWizardPage.expectExcludeNamespaceSelectorError(
+          excludeNamespaceSelectors.DuplicateKey.Error,
           false,
         );
         if (clusterProperties.AuthenticationType?.includes('Workload Identity Federation')) {
@@ -1023,6 +1220,53 @@ Clusters.forEach((clusterProperties) => {
           await createOSDWizardPage.installIntoExistingVpcCheckBox().uncheck();
         }
         await createOSDWizardPage.wizardNextButton().click();
+      });
+
+      test(`Review screen displays default ingress values`, async ({ createOSDWizardPage }) => {
+        const reviewDefaults =
+          ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+            .ReviewScreenDefaults;
+
+        // Go back to networking screen to clear ingress fields set by previous test
+        await createOSDWizardPage.isCIDRScreen();
+        await createOSDWizardPage.wizardBackButton().click();
+        await createOSDWizardPage.isNetworkingScreen();
+
+        // Clear the ingress fields to test empty/default display
+        await createOSDWizardPage.applicationIngressRouterSelectorsInput().clear();
+        await createOSDWizardPage.applicationIngressExcludedNamespacesInput().clear();
+        await createOSDWizardPage.clearExcludeNamespaceSelectorRow(0);
+
+        // Navigate through screens to reach review
+        await createOSDWizardPage.wizardNextButton().click();
+        await createOSDWizardPage.isCIDRScreen();
+        await createOSDWizardPage.wizardNextButton().click();
+        await createOSDWizardPage.isClusterUpdatesScreen();
+        await createOSDWizardPage.wizardNextButton().click();
+        await createOSDWizardPage.isReviewScreen();
+
+        // Validate review screen shows default/empty values for ingress settings
+        await expect(createOSDWizardPage.routeSelectorsReviewValue()).toHaveText(
+          reviewDefaults.RouteSelectorEmpty,
+        );
+        await expect(createOSDWizardPage.excludedNamespacesReviewValue()).toHaveText(
+          reviewDefaults.ExcludedNamespacesEmpty,
+        );
+        await expect(createOSDWizardPage.excludeNamespaceSelectorsReviewValue()).toHaveText(
+          reviewDefaults.ExcludeNamespaceSelectorsEmpty,
+        );
+        await expect(createOSDWizardPage.namespaceOwnershipPolicyReviewValue()).toHaveText(
+          reviewDefaults.NamespaceOwnershipPolicy,
+        );
+        await expect(createOSDWizardPage.wildcardPolicyReviewValue()).toHaveText(
+          reviewDefaults.WildcardPolicy,
+        );
+
+        // Navigate back through wizard screens
+        await createOSDWizardPage.wizardBackButton().click();
+        await createOSDWizardPage.isClusterUpdatesScreen();
+        await createOSDWizardPage.wizardBackButton().click();
+        await createOSDWizardPage.isCIDRScreen();
       });
 
       test(`CIDR field validations`, async ({ createOSDWizardPage }) => {

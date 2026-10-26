@@ -4,14 +4,20 @@ import { Formik, FormikValues } from 'formik';
 
 import { waitFor } from '@testing-library/react';
 
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING } from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { fakeWifConfigs } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/GcpByocFields.fixtures';
 import {
   GCPAuthType,
   WifConfigList,
 } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { useIsOSDFromGoogleCloud } from '~/components/clusters/wizards/osd/useIsOSDFromGoogleCloud';
-import { checkAccessibility, render, screen } from '~/testUtils';
-import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
+import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen, withState } from '~/testUtils';
+import {
+  Organization,
+  SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel,
+} from '~/types/accounts_mgmt.v1';
 
 import { FieldId, initialValues } from '../../../constants';
 
@@ -57,10 +63,19 @@ const prepareComponent = (
   </Formik>
 );
 
+const serviceAccountOcp5Warning = () =>
+  screen.queryByText(GCP_OCP5_SERVICE_ACCOUNT_CREATION_WARNING);
+
+const orgWithOcp5Capability = (value: 'true' | 'false'): Organization =>
+  ({
+    capabilities: [{ name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value }],
+  }) as Organization;
+
 describe('<GcpByocFields />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseIsOSDFromGoogleCloud.mockReturnValue(false);
+    mockUseFeatureGate([[OCP5_SUPPORT, false]]);
   });
 
   it('is accessible', async () => {
@@ -378,6 +393,95 @@ describe('<GcpByocFields />', () => {
       expect(screen.getByTestId('gcp-auth-type-wif')).toBeInTheDocument();
 
       expect(await screen.findByText('Select a configuration')).toBeInTheDocument();
+    });
+
+    it('does not show the OpenShift 5 warning when authentication is forced to Workload Identity Federation', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+        }),
+      );
+
+      expect(serviceAccountOcp5Warning()).not.toBeInTheDocument();
+    });
+  });
+
+  describe('OpenShift 5 service account warning', () => {
+    const renderWithOrganization = (organization?: Organization) =>
+      withState({
+        userProfile: {
+          organization: {
+            details: organization,
+          },
+        },
+      }).render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+        }),
+      );
+
+    it('shows the warning above authentication type when Service Account is selected and ocmui-ocp5-support is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+        }),
+      );
+
+      expect(serviceAccountOcp5Warning()).toBeInTheDocument();
+    });
+
+    it('does not show the warning when Workload Identity Federation is selected', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.WorkloadIdentityFederation,
+        }),
+      );
+
+      expect(serviceAccountOcp5Warning()).not.toBeInTheDocument();
+    });
+
+    it('shows the warning after the user selects Service Account', async () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const { user } = render(prepareComponent());
+
+      expect(serviceAccountOcp5Warning()).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: serviceAccountLabel }));
+
+      expect(serviceAccountOcp5Warning()).toBeInTheDocument();
+    });
+
+    it('does not show the warning when ocmui-ocp5-support is off', () => {
+      render(
+        prepareComponent({
+          [FieldId.GcpAuthType]: GCPAuthType.ServiceAccounts,
+        }),
+      );
+
+      expect(serviceAccountOcp5Warning()).not.toBeInTheDocument();
+    });
+
+    it('does not show the warning when the organization has rosa_osd_allow_ocp_5 set to "true"', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderWithOrganization(orgWithOcp5Capability('true'));
+
+      expect(serviceAccountOcp5Warning()).not.toBeInTheDocument();
+    });
+
+    it('shows the warning when the organization has rosa_osd_allow_ocp_5 set to "false"', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderWithOrganization(orgWithOcp5Capability('false'));
+
+      expect(serviceAccountOcp5Warning()).toBeInTheDocument();
     });
   });
 });

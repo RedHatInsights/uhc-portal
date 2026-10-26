@@ -2,8 +2,6 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  Grid,
-  GridItem,
   Modal,
   ModalBody,
   ModalVariant,
@@ -33,9 +31,15 @@ import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
 import { isHypershiftCluster } from '../../clusterStates';
+import { GcpOcp5UnsupportedWarning } from '../../GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
+import { RosaGovCloudFipsWarning } from '../../RosaGovCloudFipsWarning/RosaGovCloudFipsWarning';
+import { shouldShowRosaGovCloudFipsWarningOnUpgrade } from '../../RosaGovCloudFipsWarning/RosaGovCloudFipsWarningHelpers';
 import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep';
 import { UpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5Warning';
-import { shouldShowUpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
+import {
+  shouldShowGcpOcp5UnsupportedUpgradeWarning,
+  shouldShowUpgradeToV5Warning,
+} from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
@@ -73,6 +77,13 @@ const UpgradeWizard = () => {
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization);
   const showUpgradeToV5Warning = shouldShowUpgradeToV5Warning({
+    cluster,
+    isOcp5SupportEnabled,
+    organizationCapabilities: organization?.details?.capabilities,
+  });
+  const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
+  const showRosaGovCloudFipsWarning = shouldShowRosaGovCloudFipsWarningOnUpgrade(clusterVersion);
+  const showGcpOcp5UnsupportedWarning = shouldShowGcpOcp5UnsupportedUpgradeWarning({
     cluster,
     isOcp5SupportEnabled,
     organizationCapabilities: organization?.details?.capabilities,
@@ -225,28 +236,34 @@ const UpgradeWizard = () => {
             ) : (
               <>
                 {isUnmetAcknowledgementsError && (
-                  <Grid hasGutter>
-                    <GridItem span={1} />
-                    <GridItem span={10}>
-                      <ErrorBox
-                        response={{
-                          errorMessage: unmetAcknowledgementsError?.reason,
-                          operationID: unmetAcknowledgementsError?.operationID,
-                        }}
-                        message="A problem occurred with that selected version"
-                      />
-                    </GridItem>
-                    <GridItem span={1} />
-                  </Grid>
+                  <div className="wizard-step-title">
+                    <ErrorBox
+                      response={{
+                        errorMessage: unmetAcknowledgementsError?.reason,
+                        operationID: unmetAcknowledgementsError?.operationID,
+                      }}
+                      message="A problem occurred with that selected version"
+                    />
+                  </div>
                 )}
                 {showUpgradeToV5Warning && (
                   <div className="wizard-step-title">
                     <UpgradeToV5Warning />
                   </div>
                 )}
+                {showRosaGovCloudFipsWarning && (
+                  <div className="wizard-step-title">
+                    <RosaGovCloudFipsWarning />
+                  </div>
+                )}
+                {showGcpOcp5UnsupportedWarning && (
+                  <div className="wizard-step-title">
+                    <GcpOcp5UnsupportedWarning variant="upgrade" />
+                  </div>
+                )}
                 <VersionSelectionGrid
                   availableUpgrades={cluster?.version?.available_upgrades}
-                  clusterVersion={cluster?.openshift_version || cluster?.version?.id || ''}
+                  clusterVersion={clusterVersion || cluster?.version?.id || ''}
                   selected={selectedVersion}
                   onSelect={selectVersion}
                   isUnMetClusterAcknowledgements={hasVersionGates}

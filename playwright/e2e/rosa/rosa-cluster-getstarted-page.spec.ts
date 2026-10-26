@@ -104,7 +104,7 @@ test.describe.serial(
 
       // Test ROSA client download options
       const rosaClientOptions = {
-        MacOS: getDownloadUrl('rosa', 'mac'),
+        MacOS: getDownloadUrl('rosa', 'mac', 'arm'),
         Windows: getDownloadUrl('rosa', 'windows'),
         Linux: getDownloadUrl('rosa', 'linux'),
       };

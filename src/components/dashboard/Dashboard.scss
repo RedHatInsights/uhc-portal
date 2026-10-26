@@ -1,4 +1,4 @@
-@import '~@patternfly/patternfly/sass-utilities';
+@use '~@patternfly/patternfly/sass-utilities' as *;
 
 .ocm-c-overview {
   max-width: 1710px;

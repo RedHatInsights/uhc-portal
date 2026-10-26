@@ -41,7 +41,7 @@ spec:
     value: "registry.access.redhat.com/ubi9/nodejs-24:1-1776920161"
     # override playwright image to our needs; this needs to match the version declared in package.json
   - name: e2e-playwright-image
-    value: "mcr.microsoft.com/playwright:v1.60.0-noble"
+    value: "mcr.microsoft.com/playwright:v1.64.1-noble"
   - name: unit-tests-script
     value: |
       #!/bin/bash
@@ -52,12 +52,13 @@ spec:
       NODE_OPTIONS='--max-old-space-size=4096' npm run lint
       npm run prettier
       npm run test -- --run-in-band --no-cache
-  - name: run-app-script
-    value: |
-      #!/bin/sh
-      set -e
-      echo "Starting application with Caddy using ConfigMap Caddyfile..."
-      exec caddy run --config /etc/caddy/Caddyfile
+  - name: run-app-command
+    value: caddy
+  - name: run-app-args
+    value:
+      - run
+      - --config
+      - /etc/caddy/Caddyfile
   - name: e2e-tests-script
     value: |
       #!/bin/bash
