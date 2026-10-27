@@ -32,8 +32,12 @@ const K8S_DNS_SUBDOMAIN_REGEXP =
 const MAX_K8S_DNS_SUBDOMAIN_LENGTH = 253;
 const MAX_K8S_DNS_LABEL_LENGTH = 63;
 
-// OpenShift route FQDN max is 253. cluster_routes_hostname is a base domain; OpenShift
-// prefixes component routes (longest: downloads-openshift-console.), so the base ≤ 225.
+// Hostnames for TLS / ingress routes (RFC-1123: labels may start with a digit)
+const HOSTNAME_DOMAIN_REGEXP = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)+[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+// OpenShift route host limits (DNS label max 63, FQDN max 253).
+// cluster_routes_hostname is a base domain; OpenShift prefixes component routes
+// (longest: downloads-openshift-console.), so the base ≤ 225.
+const MAX_HOSTNAME_LABEL_LENGTH = 63;
 const MAX_OPENSHIFT_ROUTE_HOSTNAME_LENGTH = 253;
 const LONGEST_COMPONENT_ROUTE_PREFIX = 'downloads-openshift-console.';
 const MAX_CLUSTER_ROUTES_HOSTNAME_LENGTH =
@@ -1894,8 +1898,14 @@ const validateTlsHostname = (value: string, allValues: Tls) => {
   if (!value) {
     return undefined;
   }
+  if (!HOSTNAME_DOMAIN_REGEXP.test(value)) {
+    return `Hostname '${value}' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'.`;
+  }
   if (value.length > MAX_CLUSTER_ROUTES_HOSTNAME_LENGTH) {
     return `Hostname may not exceed ${MAX_CLUSTER_ROUTES_HOSTNAME_LENGTH} characters.`;
+  }
+  if (value.split('.').some((label) => label.length > MAX_HOSTNAME_LABEL_LENGTH)) {
+    return `Hostname labels may not exceed ${MAX_HOSTNAME_LABEL_LENGTH} characters.`;
   }
   return undefined;
 };
