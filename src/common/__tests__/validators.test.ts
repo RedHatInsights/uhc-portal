@@ -1939,9 +1939,10 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
     ).toBe('Hostname labels may not exceed 63 characters.');
   });
 
-  it('accepts a hostname of 253 characters', () => {
-    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(61)}`;
-    expect(hostname).toHaveLength(253);
+  it('accepts a hostname of 225 characters (max after component-route prefix)', () => {
+    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(33)}`;
+    expect(hostname).toHaveLength(225);
+    expect(`downloads-openshift-console.${hostname}`).toHaveLength(253);
     expect(
       validateTlsHostname(hostname, {
         clusterRoutesTlsSecretRef: 'my-tls-secret',
@@ -1950,14 +1951,15 @@ describe('validateTlsHostname and validateTlsSecretName', () => {
     ).toBeUndefined();
   });
 
-  it('returns an error when a hostname exceeds 253 characters', () => {
-    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(62)}`;
-    expect(hostname).toHaveLength(254);
+  it('returns an error when a hostname exceeds 225 characters', () => {
+    const hostname = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(34)}`;
+    expect(hostname).toHaveLength(226);
+    expect(`downloads-openshift-console.${hostname}`).toHaveLength(254);
     expect(
       validateTlsHostname(hostname, {
         clusterRoutesTlsSecretRef: 'my-tls-secret',
         clusterRoutesHostname: hostname,
       }),
-    ).toBe('Hostname may not exceed 253 characters.');
+    ).toContain('Hostname may not exceed 225 characters');
   });
 });
