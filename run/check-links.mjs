@@ -220,8 +220,13 @@ if (helpMode) {
  */
 function listDownloadChannels() {
   const contacts = getDownloadContacts();
-  const keyWidth = Math.max(...contacts.map((entry) => entry.key.length));
-  const nameWidth = Math.max(...contacts.map((entry) => entry.displayName.length));
+  const keyWidth = Math.max('KEY'.length, ...contacts.map((entry) => entry.key.length));
+  const nameWidth = Math.max(
+    'DISPLAY NAME'.length,
+    ...contacts.map((entry) => entry.displayName.length),
+  );
+
+  console.log(`${'KEY'.padEnd(keyWidth)}  ${'DISPLAY NAME'.padEnd(nameWidth)}  SLACK CHANNEL(S)`);
 
   contacts.forEach((entry) => {
     const channels = entry.slackChannels.length > 0 ? entry.slackChannels.join(', ') : '(none)';
