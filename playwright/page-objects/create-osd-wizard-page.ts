@@ -254,6 +254,14 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByRole('button', { name: 'Service Account' });
   }
 
+  gcpOcp5ServiceAccountCreationWarning(warningText: string): Locator {
+    return this.page.getByText(warningText);
+  }
+
+  gcpOcp5RedHatAccountCreationWarning(warningText: string): Locator {
+    return this.page.getByText(warningText);
+  }
+
   async uploadGCPServiceAccountJSON(jsonContent: string): Promise<void> {
     await this.page.locator('textarea[aria-label="File upload"]').clear();
     await this.page.locator('textarea[aria-label="File upload"]').fill(jsonContent);
