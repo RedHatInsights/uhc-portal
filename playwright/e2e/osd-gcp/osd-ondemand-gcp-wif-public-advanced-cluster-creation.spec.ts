@@ -8,6 +8,10 @@ const clusterDomainPrefix = `osd${userSuffix}`;
 
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const QE_GCP_KEY_RING_LOCATION = process.env.QE_GCP_KEY_RING_LOCATION || '';
+const QE_GCP_KEY_RING = process.env.QE_GCP_KEY_RING || '';
+const QE_GCP_KEY_NAME = process.env.QE_GCP_KEY_NAME || '';
+const QE_GCP_KMS_SERVICE_ACCOUNT = process.env.QE_GCP_KMS_SERVICE_ACCOUNT || '';
 
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced cluster creation',
@@ -25,6 +29,16 @@ test.describe.serial(
       ) {
         throw new Error(
           'QE_INFRA_GCP must include top-level REGION, VPC_NAME, CONTROLPLANE_SUBNET, and COMPUTE_SUBNET',
+        );
+      }
+      if (
+        !QE_GCP_KEY_RING_LOCATION ||
+        !QE_GCP_KEY_RING ||
+        !QE_GCP_KEY_NAME ||
+        !QE_GCP_KMS_SERVICE_ACCOUNT
+      ) {
+        throw new Error(
+          'QE_GCP_KEY_RING_LOCATION, QE_GCP_KEY_RING, QE_GCP_KEY_NAME, and QE_GCP_KMS_SERVICE_ACCOUNT must be set in playwright.env.json',
         );
       }
       await navigateTo('create');
@@ -73,6 +87,17 @@ test.describe.serial(
       await createOSDWizardPage.selectRegion(QE_INFRA_GCP.REGION);
       await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
+      await createOSDWizardPage.advancedEncryptionLink().click();
+      await createOSDWizardPage.configureCustomGcpKmsKey({
+        keyRingLocation: QE_GCP_KEY_RING_LOCATION,
+        keyRing: QE_GCP_KEY_RING,
+        keyName: QE_GCP_KEY_NAME,
+        kmsServiceAccount: QE_GCP_KMS_SERVICE_ACCOUNT,
+      });
+      await expect(createOSDWizardPage.useCustomKMSKeyRadio()).toBeChecked();
+      await expect(createOSDWizardPage.kmsServiceAccountInput()).toHaveValue(
+        QE_GCP_KMS_SERVICE_ACCOUNT,
+      );
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -224,6 +249,14 @@ test.describe.serial(
       );
       await expect(createOSDWizardPage.encryptVolumesWithCustomerkeysValue()).toContainText(
         clusterProperties.EncryptVolumesWithCustomerKeys,
+      );
+      await expect(createOSDWizardPage.keyRingLocationValue()).toContainText(
+        QE_GCP_KEY_RING_LOCATION,
+      );
+      await expect(createOSDWizardPage.keyRingValue()).toContainText(QE_GCP_KEY_RING);
+      await expect(createOSDWizardPage.keyNameValue()).toContainText(QE_GCP_KEY_NAME);
+      await expect(createOSDWizardPage.kmsServiceAccountValue()).toContainText(
+        QE_GCP_KMS_SERVICE_ACCOUNT,
       );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
