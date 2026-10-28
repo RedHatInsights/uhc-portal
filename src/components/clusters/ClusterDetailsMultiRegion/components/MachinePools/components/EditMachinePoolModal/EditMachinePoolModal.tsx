@@ -347,8 +347,8 @@ const EditMachinePoolModal = ({
               </div>
             ) : null}
 
-            {!isPending && shouldCheckOCMRole && awsAccountId ? (
-              <MissingOCMRoleAlert awsAccountId={awsAccountId} />
+            {!isPending && shouldCheckOCMRole ? (
+              <MissingOCMRoleAlert awsAccountId={awsAccountId!} />
             ) : null}
 
             {!isPending && (machinePoolsError || machineTypesError) ? (

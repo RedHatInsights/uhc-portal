@@ -108,21 +108,6 @@ const testCluster = {
 
 mockUseChrome({ analytics: { track: jest.fn() } });
 
-// Default: OCM role is linked (no banner needed). Tests that exercise the 404 path override this.
-beforeEach(() => {
-  mockUseFetchGetOCMRole.mockReturnValue({
-    data: { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
-    isError: false,
-    error: null,
-    isPending: false,
-    isSuccess: true,
-  });
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 describe('<EditMachinePoolModal />', () => {
   describe('error state', () => {
     it('Shows alert if machine pools failed to load', async () => {
@@ -718,6 +703,21 @@ describe('<EditMachinePoolModal />', () => {
     const AWS_ACCOUNT_ID = '123456789012';
     const ALERT_TITLE = /Missing or unlinked OCM role/;
 
+    beforeEach(() => {
+      // Default: OCM role is linked. Tests that need 404 call mockOCMRoleMissing().
+      mockUseFetchGetOCMRole.mockReturnValue({
+        data: { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
+        isError: false,
+        error: null,
+        isPending: false,
+        isSuccess: true,
+      });
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
     /** Returns a ROSA STS cluster fixture with optional field overrides. */
     const buildCluster = (overrides: object = {}) =>
       ({
@@ -759,6 +759,8 @@ describe('<EditMachinePoolModal />', () => {
     });
 
     it('does not show the OCM role banner for a non-ROSA cluster', async () => {
+      mockOCMRoleMissing();
+
       render(
         <EditMachinePoolModal
           cluster={buildCluster({ product: { id: 'OSD' } })}
@@ -769,6 +771,7 @@ describe('<EditMachinePoolModal />', () => {
 
       await screen.findByRole('button', { name: 'Add machine pool' });
 
+      expect(mockUseFetchGetOCMRole).not.toHaveBeenCalled();
       expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
     });
 
