@@ -1,6 +1,6 @@
 import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import * as clusterService from '~/services/clusterService';
-import { renderHook, waitFor } from '~/testUtils';
+import { act, renderHook, waitFor } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { useAWSVPCFromCluster } from './useAWSVPCFromCluster';
@@ -174,12 +174,16 @@ describe('useAWSVPCFromCluster', () => {
     expect(result.current.errorReason).toBe('Organization is not authorized');
 
     // Trigger a retry via refreshVPC
-    result.current.refreshVPC();
-    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+    await act(async () => {
+      result.current.refreshVPC();
+    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.errorReason).toBeUndefined();
+    });
 
     // Retry succeeded but returned no VPC — errorReason must be cleared
     expect(result.current.hasError).toBe(false);
     expect(result.current.clusterVpc).toBeUndefined();
-    expect(result.current.errorReason).toBeUndefined();
   });
 });

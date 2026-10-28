@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
-import PropTypes from 'prop-types';
 
 import {
   Alert,
@@ -20,8 +19,10 @@ import AIDetailCard from '~/components/AIComponents/AIDetailCard';
 import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
 import useAnalytics from '~/hooks/useAnalytics';
 import { useGlobalState } from '~/redux/hooks';
+import type { State as CloudProvidersState } from '~/redux/reducers/cloudProvidersReducer';
 import { isRestrictedEnv } from '~/restrictedEnv';
-import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
+import { Subscription, SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
+import { AugmentedCluster } from '~/types/types';
 
 import isAssistedInstallSubscription, {
   isAvailableAssistedInstallCluster,
@@ -43,9 +44,41 @@ import DetailsRight from './DetailsRight';
 import { shouldShowLogs } from './InstallationLogView';
 import SubscriptionSettings from './SubscriptionSettings';
 
+// DetailsRight and InsightsAdvisor are JS components with no TS prop declarations;
+// cast to ComponentType<any> to avoid spurious inference errors during migration.
+const DetailsRightAny = DetailsRight as unknown as React.ComponentType<Record<string, unknown>>;
+const InsightsAdvisorAny = InsightsAdvisor as unknown as React.ComponentType<
+  Record<string, unknown>
+>;
+
 import './Overview.scss';
 
-const Overview = (props) => {
+interface WifConfigData {
+  displayName?: string;
+  isLoading?: boolean;
+  isSuccess?: boolean;
+}
+
+interface OverviewProps {
+  // Callers pass a fully-augmented cluster object; AugmentedCluster includes
+  // canEdit, aiCluster, and all permission flags. autoscaler is fetched
+  // separately and attached at the call site, so we extend here.
+  cluster: AugmentedCluster & { autoscaler?: unknown };
+  cloudProviders: CloudProvidersState;
+  refresh?: () => void;
+  // Redux promise-reducer envelope from the insights API call
+  insightsData?: { status?: number; data?: unknown };
+  userAccess: { data?: boolean; pending?: boolean; fulfilled?: boolean };
+  subscription?: Subscription;
+  canSubscribeOCP?: boolean;
+  clusterDetailsLoading?: boolean;
+  isSubscriptionSettingsRequestPending?: boolean;
+  clusterDetailsFetching?: boolean;
+  displayUpgradeSettingsTab?: boolean;
+  wifConfigData?: WifConfigData;
+}
+
+const Overview = (props: OverviewProps) => {
   const {
     cluster,
     cloudProviders,
@@ -62,16 +95,19 @@ const Overview = (props) => {
   } = props;
 
   const [showInstallSuccessAlert, setShowInstallSuccessAlert] = useState(false);
-  const prevProps = useRef();
+  const prevProps = useRef<OverviewProps | undefined>(undefined);
   const track = useAnalytics();
+
+  const clusterState = cluster.state as string;
+  const prevClusterState = prevProps.current?.cluster.state as string | undefined;
 
   useEffect(() => {
     if (
       prevProps.current &&
-      [clusterStates.installing, clusterStates.pending, clusterStates.waiting].includes(
-        prevProps.current.cluster.state,
-      ) &&
-      cluster.state === clusterStates.ready &&
+      (
+        [clusterStates.installing, clusterStates.pending, clusterStates.waiting] as string[]
+      ).includes(prevClusterState ?? '') &&
+      clusterState === clusterStates.ready &&
       cluster.managed &&
       prevProps.current.cluster.id === cluster.id
     ) {
@@ -82,7 +118,7 @@ const Overview = (props) => {
 
     // Update prevProps to the current props after each component update
     prevProps.current = props;
-  }, [cluster.state, cluster.managed, cluster.id, props]);
+  }, [clusterState, prevClusterState, cluster.managed, cluster.id, props]);
 
   const isArchived =
     get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Archived;
@@ -93,34 +129,27 @@ const Overview = (props) => {
   const metricsAvailable =
     hasResourceUsageMetrics(cluster) &&
     (cluster.canEdit ||
-      ![clusterStates.waiting, clusterStates.pending, clusterStates.installing].includes(
-        cluster.state,
-      ));
+      !(
+        [clusterStates.waiting, clusterStates.pending, clusterStates.installing] as string[]
+      ).includes(clusterState));
+  const metricsStatusMessagesByState = metricsStatusMessages as Record<string, string>;
   const metricsStatusMessage = isArchived
     ? metricsStatusMessages.archived
-    : metricsStatusMessages[cluster.state] || metricsStatusMessages.default;
+    : metricsStatusMessagesByState[clusterState] || metricsStatusMessages.default;
 
   // TODO: Part of ClusterStatusMonitor story (installation)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const shouldMonitorStatus =
-    [
-      clusterStates.waiting,
-      clusterStates.pending,
-      clusterStates.installing,
-      clusterStates.error,
-      clusterStates.uninstalling,
-    ].includes(cluster.state) || hasInflightEgressErrors(cluster);
+  // _shouldMonitorStatus: intentionally unused pending ClusterStatusMonitor implementation
 
   const hadInflightErrorKey = `${HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY}_${cluster.id}`;
   const showInflightErrorIsFixed =
     !hasInflightEgressErrors(cluster) &&
-    cluster.state !== clusterStates.error &&
+    clusterState !== clusterStates.error &&
     localStorage.getItem(hadInflightErrorKey) === 'true';
 
   const showInsightsAdvisor =
     !isRestrictedEnv() &&
     insightsData?.status === 200 &&
-    insightsData?.data &&
+    !!insightsData?.data &&
     !isDeprovisioned &&
     !isArchived;
   const showResourceUsage =
@@ -158,14 +187,8 @@ const Overview = (props) => {
         <ResourceUsage
           metricsAvailable={metricsAvailable}
           metricsStatusMessage={metricsStatusMessage}
-          cpu={{
-            used: cluster.metrics.cpu.used,
-            total: cluster.metrics.cpu.total,
-          }}
-          memory={{
-            used: cluster.metrics.memory.used,
-            total: cluster.metrics.memory.total,
-          }}
+          cpu={cluster.metrics.cpu}
+          memory={cluster.metrics.memory}
           type="threshold"
         />
       </CardBody>
@@ -179,7 +202,7 @@ const Overview = (props) => {
           {showInstallSuccessAlert && (
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
-          {shouldCheckOCMRole && <MissingOCMRoleAlert awsAccountId={awsAccountId} />}
+          {shouldCheckOCMRole && <MissingOCMRoleAlert awsAccountId={awsAccountId!} />}
           {showInflightErrorIsFixed && (
             <Alert
               variant="success"
@@ -205,7 +228,7 @@ const Overview = (props) => {
                     });
 
                     localStorage.removeItem(hadInflightErrorKey);
-                    refresh();
+                    refresh?.();
                   }}
                 />
               }
@@ -235,7 +258,7 @@ const Overview = (props) => {
                     />
                   </GridItem>
                   <GridItem sm={6}>
-                    <DetailsRight
+                    <DetailsRightAny
                       clusterDetailsLoading={clusterDetailsLoading}
                       cluster={{ ...cluster }}
                       isDeprovisioned={isDeprovisioned}
@@ -274,7 +297,7 @@ const Overview = (props) => {
                   data-testid="insights-advisor"
                 >
                   <CardBody>
-                    <InsightsAdvisor
+                    <InsightsAdvisorAny
                       insightsData={insightsData}
                       externalId={cluster?.external_id}
                     />
@@ -292,29 +315,6 @@ const Overview = (props) => {
       )}
     </Grid>
   );
-};
-
-Overview.propTypes = {
-  cluster: PropTypes.object,
-  canSubscribeOCP: PropTypes.bool,
-  subscription: PropTypes.object,
-  cloudProviders: PropTypes.object.isRequired,
-  refresh: PropTypes.func,
-  insightsData: PropTypes.object,
-  clusterDetailsLoading: PropTypes.bool,
-  isSubscriptionSettingsRequestPending: PropTypes.bool,
-  userAccess: PropTypes.shape({
-    data: PropTypes.bool,
-    pending: PropTypes.bool,
-    fulfilled: PropTypes.bool,
-  }).isRequired,
-  clusterDetailsFetching: PropTypes.bool,
-  displayUpgradeSettingsTab: PropTypes.bool,
-  wifConfigData: PropTypes.shape({
-    displayName: PropTypes.string,
-    isLoading: PropTypes.bool,
-    isSuccess: PropTypes.bool,
-  }),
 };
 
 export default Overview;
