@@ -21,6 +21,27 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/celery_queue_tasks/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List queued Celery tasks */
+    get: operations['celeryQueueTasks'];
+    put?: never;
+    post?: never;
+    /**
+     * Remove one queued Celery task by ID
+     * @description Removes at most one exact serialized message from the selected queue. Active tasks are not affected.
+     */
+    delete: operations['deleteCeleryQueueTask'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/currency/': {
     parameters: {
       query?: never;
@@ -3612,14 +3633,10 @@ export interface components {
        */
       end_date: string;
       /**
-       * @description Lifecycle of this static rate vs the current UTC month (UI labels). expired: end_date is before the current month. active: the validity window includes the current UTC month. upcoming: start_date is in a future month. Past-month rates remain editable/deletable when the caller has cost-model write access.
+       * @description Lifecycle of this static rate vs the current UTC month (UI labels). expired: end_date is before the current month. active: the validity window includes the current UTC month. upcoming: start_date is in a future month. Past-month rates remain editable/deletable when the caller has cost-model write access. Mutate buttons should use user-access (cost-model write), not per-rate flags.
        * @enum {string}
        */
       status: StaticExchangeRateOutStatus;
-      /** @description Whether PUT would succeed for this caller (cost_model.write * or enhanced org admin). Not a date-window flag; base_currency remains immutable on update. */
-      can_edit: boolean;
-      /** @description Whether DELETE would succeed for this caller (same RBAC rule as can_edit). */
-      can_delete: boolean;
       /** Format: date-time */
       created_timestamp: string;
       /** Format: date-time */
@@ -3628,6 +3645,26 @@ export interface components {
     Status: {
       /** @example OK */
       status: string;
+    };
+    CeleryQueueTasksResponse: {
+      queued_tasks?: {
+        [key: string]: components['schemas']['QueuedCeleryTask'][];
+      };
+    };
+    QueuedCeleryTask: {
+      name?: string;
+      id?: string;
+      args?: string;
+      kwargs?: string;
+    };
+    DeleteCeleryQueueTaskResponse: {
+      queue: string;
+      task_id: string;
+      /** @example true */
+      removed: boolean;
+    };
+    CeleryQueueTaskError: {
+      Error?: string;
     };
     TagsFilter: {
       resolution?: components['schemas']['ReportResolution'];
@@ -4369,6 +4406,11 @@ export type SchemaPutAccountSettingRequestBody =
   components['schemas']['PutAccountSettingRequestBody'];
 export type SchemaStaticExchangeRateOut = components['schemas']['StaticExchangeRateOut'];
 export type SchemaStatus = components['schemas']['Status'];
+export type SchemaCeleryQueueTasksResponse = components['schemas']['CeleryQueueTasksResponse'];
+export type SchemaQueuedCeleryTask = components['schemas']['QueuedCeleryTask'];
+export type SchemaDeleteCeleryQueueTaskResponse =
+  components['schemas']['DeleteCeleryQueueTaskResponse'];
+export type SchemaCeleryQueueTaskError = components['schemas']['CeleryQueueTaskError'];
 export type SchemaTagsFilter = components['schemas']['TagsFilter'];
 export type SchemaTags = components['schemas']['Tags'];
 export type SchemaUser = components['schemas']['User'];
@@ -4453,6 +4495,83 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  celeryQueueTasks: {
+    parameters: {
+      query?: {
+        /** @description A Celery queue to inspect. */
+        queue?: string;
+        /** @description Filter queued messages by Celery task name. */
+        task?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Queued tasks grouped by queue. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CeleryQueueTasksResponse'];
+        };
+      };
+      /** @description Invalid queue. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CeleryQueueTaskError'];
+        };
+      };
+    };
+  };
+  deleteCeleryQueueTask: {
+    parameters: {
+      query: {
+        /** @description The Celery queue containing the task. */
+        queue: string;
+        /** @description The exact Celery task ID in the queued message headers. */
+        task_id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description One matching queued task was removed. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeleteCeleryQueueTaskResponse'];
+        };
+      };
+      /** @description Missing parameters or invalid queue. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CeleryQueueTaskError'];
+        };
+      };
+      /** @description No matching queued task was found, or a worker consumed it before removal. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CeleryQueueTaskError'];
         };
       };
     };

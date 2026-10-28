@@ -7957,6 +7957,86 @@ export interface paths {
     };
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/clusters/{cluster_id}/maintenance': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Maintenance'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          cluster_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': components['schemas']['Maintenance'];
+        };
+      };
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Maintenance'];
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/clusters/{cluster_id}/metric_queries/alerts': {
     parameters: {
       query?: never;
@@ -13424,6 +13504,109 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/clusters_mgmt/v1/scheduled_upgrades': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Retrieves the list of scheduled upgrades. */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Order criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _order by_
+           *     clause of a SQL statement, but using the names of the attributes of the
+           *     scheduled upgrade instead of the names of the columns of a table. For
+           *     example, in order to sort by next run ascending the value should be:
+           *
+           *     ```sql
+           *     next_run asc
+           *     ```
+           *
+           *     If the parameter isn't provided, or if the value is empty, then the service
+           *     default is next_run ascending. */
+          order?: string;
+          /** @description Index of the requested page, where one corresponds to the first page. */
+          page?: number;
+          /** @description Search criteria.
+           *
+           *     The syntax of this parameter is similar to the syntax of the _where_ clause
+           *     of a SQL statement, but using the names of the attributes of the scheduled
+           *     upgrade instead of the names of the columns of a table. For example, in order
+           *     to retrieve all control plane upgrades (including CVE) the value should be:
+           *
+           *     ```sql
+           *     type like 'ControlPlane%'
+           *     ```
+           *
+           *     Searchable fields include: type, version, next_run, schedule_type,
+           *     state.value, cluster.id, cluster.name, cluster.external_id,
+           *     cluster.region.id, cluster.product.id, created_at, updated_at.
+           *
+           *     If the parameter isn't provided, or if the value is empty, then all the
+           *     scheduled upgrades that the user has permission to see will be returned. */
+          search?: string;
+          /** @description Maximum number of items that will be contained in the returned page.
+           *     Default is 100; the service enforces a maximum of 1000. */
+          size?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Success. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @description Retrieved list of scheduled upgrades. */
+              items?: components['schemas']['ScheduledUpgrade'][];
+              /**
+               * Format: int32
+               * @description Index of the requested page, where one corresponds to the first page.
+               */
+              page?: number;
+              /**
+               * Format: int32
+               * @description Maximum number of items that will be contained in the returned page.
+               *     Default is 100; the service enforces a maximum of 1000.
+               */
+              size?: number;
+              /**
+               * Format: int32
+               * @description Total number of items of the collection that match the search criteria,
+               *     regardless of the size of the page.
+               */
+              total?: number;
+            };
+          };
+        };
+        /** @description Error. */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['Error'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/clusters_mgmt/v1/storage_quota_values': {
     parameters: {
       query?: never;
@@ -15222,6 +15405,10 @@ export interface components {
        *     If not specified, Encryption at Host is not enabled.
        *     Immutable. */
       encryption_at_host?: components['schemas']['AzureNodePoolEncryptionAtHost'];
+      /** @description Specifies the Azure Marketplace image to use for the Nodes of the Node Pool.
+       *     When specified, the provided image is used instead of the default RHCOS image.
+       *     Optional during creation. Immutable. */
+      image?: components['schemas']['AzureNodePoolImage'];
       /** @description The configuration for the OS disk used by the nodes in the Node Pool. */
       os_disk?: components['schemas']['AzureNodePoolOsDisk'];
       /** @description ResourceName is the Azure Resource Name of the NodePool.
@@ -15247,6 +15434,20 @@ export interface components {
        *     If not specified, its value is "disabled", which indicates Encryption At Host is disabled.
        *     Immutable. */
       state?: string;
+    };
+    /** @description Specifies the Azure Marketplace image to use for the Nodes of the Node Pool.
+     *     When specified, the provided image is used instead of the default RHCOS image.
+     *     All four fields must be provided together.
+     *     Optional during creation. Immutable. */
+    AzureNodePoolImage: {
+      /** @description SKU specifies an instance of an offer, such as a major release of a distribution. */
+      sku?: string;
+      /** @description Offer specifies the name of a group of related images created by the publisher. */
+      offer?: string;
+      /** @description Publisher is the name of the organization that created the image. */
+      publisher?: string;
+      /** @description Version specifies the version of an image SKU. */
+      version?: string;
     };
     /** @description Defines the configuration of a Node Pool's OS disk. */
     AzureNodePoolOsDisk: {
@@ -15685,6 +15886,8 @@ export interface components {
       load_balancer_quota?: number;
       /** @description List of machine pools on this cluster. */
       machine_pools?: components['schemas']['MachinePool'][];
+      /** @description Maintenance configuration */
+      maintenance?: components['schemas']['Maintenance'];
       /** @description Flag indicating if the cluster is managed (by Red Hat) or
        *     self-managed by the user. */
       managed?: boolean;
@@ -17122,6 +17325,16 @@ export interface components {
      * @enum {string}
      */
     MachineTypeSize: MachineTypeSize;
+    /** @description Maintenance configuration. */
+    Maintenance: {
+      /** @description Boolean flag indicating if the cluster is set into maintenance mode.
+       *     Clusters on maintenance mode are not allowed to perform any operation.
+       *
+       *     By default this is `false`.
+       *
+       *     To enable it a SREP needs to patch the value through OCM API */
+      enabled?: boolean;
+    };
     /** @description Contains the necessary attributes to support role-based authentication on AWS. */
     ManagedService: {
       /** @description Indicates whether the cluster belongs to a managed service
@@ -17746,6 +17959,59 @@ export interface components {
      * @enum {string}
      */
     ScheduleType: ScheduleType;
+    /** @description Representation of one upgrade scheduled somewhere in the fleet, regardless of
+     *     which kind of upgrade policy scheduled it. Read-only; the authoritative
+     *     resource is linked from 'policy'. */
+    ScheduledUpgrade: {
+      /** @description Indicates the type of this object. Will be 'ScheduledUpgrade' if this is a complete object or 'ScheduledUpgradeLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+      /** @description Cluster this upgrade is scheduled for (enriched link). */
+      cluster?: components['schemas']['Cluster'];
+      /**
+       * Format: date-time
+       * @description Creation timestamp. Not tracked for 'OSD' upgrades (null for those).
+       */
+      created_at?: string;
+      /**
+       * Format: date-time
+       * @description Next time the upgrade should run.
+       */
+      next_run?: string;
+      /** @description Node pool being upgraded. Only set for 'NodePool' upgrades. */
+      node_pool?: components['schemas']['NodePool'];
+      /** @description Link to the upgrade policy that scheduled this upgrade. */
+      policy?: components['schemas']['ScheduledUpgradePolicyLink'];
+      /** @description Schedule type of the upgrade. */
+      schedule_type?: components['schemas']['ScheduleType'];
+      /** @description Current state of the upgrade. */
+      state?: components['schemas']['UpgradePolicyState'];
+      /** @description Kind of upgrade: 'OSD', 'ControlPlane', 'ControlPlaneCVE', or 'NodePool'.
+       *     Both control plane types are scheduled by a control plane upgrade policy,
+       *     so "type like 'ControlPlane%'" searches for all of them. */
+      type?: components['schemas']['UpgradeType'];
+      /**
+       * Format: date-time
+       * @description Last update timestamp. Not tracked for 'OSD' upgrades (null for those).
+       */
+      updated_at?: string;
+      /** @description Desired upgrade version. */
+      version?: string;
+    };
+    /** @description Reference to one of the three kinds of upgrade policy resource. Kind
+     *     identifies which policy type it is; id and href come from the standard
+     *     metadata added by the generator. */
+    ScheduledUpgradePolicyLink: {
+      /** @description Indicates the type of this object. Will be 'ScheduledUpgradePolicyLink' if this is a complete object or 'ScheduledUpgradePolicyLinkLink' if it is just a link. */
+      kind?: string;
+      /** @description Unique identifier of the object. */
+      id?: string;
+      /** @description Self link. */
+      href?: string;
+    };
     /** @description Details for `SdnToOvn` cluster migrations. */
     SdnToOvnClusterMigration: {
       /** @description The IP address range to use for the internalJoinSubnet parameter of OVN-Kubernetes
@@ -18360,6 +18626,7 @@ export type SchemaAzureKmsKey = components['schemas']['AzureKmsKey'];
 export type SchemaAzureNodePool = components['schemas']['AzureNodePool'];
 export type SchemaAzureNodePoolEncryptionAtHost =
   components['schemas']['AzureNodePoolEncryptionAtHost'];
+export type SchemaAzureNodePoolImage = components['schemas']['AzureNodePoolImage'];
 export type SchemaAzureNodePoolOsDisk = components['schemas']['AzureNodePoolOsDisk'];
 export type SchemaAzureNodesOutboundConnectivity =
   components['schemas']['AzureNodesOutboundConnectivity'];
@@ -18492,6 +18759,7 @@ export type SchemaMachineType = components['schemas']['MachineType'];
 export type SchemaMachineTypeCategory = components['schemas']['MachineTypeCategory'];
 export type SchemaMachineTypeFeatures = components['schemas']['MachineTypeFeatures'];
 export type SchemaMachineTypeSize = components['schemas']['MachineTypeSize'];
+export type SchemaMaintenance = components['schemas']['Maintenance'];
 export type SchemaManagedService = components['schemas']['ManagedService'];
 export type SchemaManifest = components['schemas']['Manifest'];
 export type SchemaMarketType = components['schemas']['MarketType'];
@@ -18540,6 +18808,8 @@ export type SchemaRolePolicyBinding = components['schemas']['RolePolicyBinding']
 export type SchemaRolePolicyBindingStatus = components['schemas']['RolePolicyBindingStatus'];
 export type SchemaRootVolume = components['schemas']['RootVolume'];
 export type SchemaScheduleType = components['schemas']['ScheduleType'];
+export type SchemaScheduledUpgrade = components['schemas']['ScheduledUpgrade'];
+export type SchemaScheduledUpgradePolicyLink = components['schemas']['ScheduledUpgradePolicyLink'];
 export type SchemaSdnToOvnClusterMigration = components['schemas']['SdnToOvnClusterMigration'];
 export type SchemaSecurityGroup = components['schemas']['SecurityGroup'];
 export type SchemaServerConfig = components['schemas']['ServerConfig'];
