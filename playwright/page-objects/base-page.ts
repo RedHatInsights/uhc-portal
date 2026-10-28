@@ -4,6 +4,10 @@ import * as path from 'path';
 import { expect, Locator, Page } from '@playwright/test';
 
 import Features from '../../src/queries/featureGates/featureConstants';
+import {
+  OrganizationCapability,
+  waitForOrganizationCapabilities,
+} from '../support/capability-helper';
 
 type FeatureGate = (typeof Features)[keyof typeof Features];
 
@@ -102,6 +106,13 @@ export class BasePage {
     }
     const body = (await response.json()) as { enabled?: boolean };
     return Boolean(body?.enabled);
+  }
+
+  /**
+   * Reads organization capabilities from the app's own accounts_mgmt prefetch.
+   */
+  async waitForOrganizationCapabilities(): Promise<OrganizationCapability[]> {
+    return waitForOrganizationCapabilities(this.page);
   }
 
   async waitForLoadState(

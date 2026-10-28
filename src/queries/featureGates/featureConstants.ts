@@ -34,13 +34,13 @@ export const AWS_TAGS_NEW_MP = 'ocmui-aws-tags-new-mp';
 export const TABBED_MACHINE_POOL_MODAL = 'ocmui-tabbed-machine-pool-modal';
 export const MP_ADDITIONAL_MAINTENANCE_VALUES = 'ocmui-mp-additional-maintenance-values';
 export const WINDOWS_LICENSE_INCLUDED = 'ocmui-windows-license-included';
-export const ALLOW_EUS_CHANNEL = 'ocmui-allow-eus-channel';
 export const PLATFORM_LIGHTSPEED_REBRAND = 'platform.lightspeed-rebrand';
 export const CAPACITY_RESERVATION_ID_FIELD = 'ocmui-capacity-reservation-id-field';
 export const TABBED_CLUSTERS = 'ocmui-tabbed-clusters';
 export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
 export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
+export const GCP_BYO_FIREWALL_RULES = 'ocmui-gcp-bring-your-own-firewall-rules';
 export const GCP_EXCLUDE_NAMESPACE_SELECTORS = 'ocmui-gcp-exclude-namespace-selectors';
 export const HTPASSWD_IMPORT = 'ocmui-htpasswd-import';
 export const ENABLE_AUTO_NODE = 'ocmui-enable-auto-node';
@@ -72,13 +72,13 @@ export default {
   TABBED_MACHINE_POOL_MODAL,
   MP_ADDITIONAL_MAINTENANCE_VALUES,
   WINDOWS_LICENSE_INCLUDED,
-  ALLOW_EUS_CHANNEL,
   PLATFORM_LIGHTSPEED_REBRAND,
   CAPACITY_RESERVATION_ID_FIELD,
   TABBED_CLUSTERS,
   OSD_FOR_GOOGLE_CLOUD,
   FIPS_FOR_HYPERSHIFT,
   GCP_DNS_ZONE,
+  GCP_BYO_FIREWALL_RULES,
   GCP_EXCLUDE_NAMESPACE_SELECTORS,
   HTPASSWD_IMPORT,
   ENABLE_AUTO_NODE,

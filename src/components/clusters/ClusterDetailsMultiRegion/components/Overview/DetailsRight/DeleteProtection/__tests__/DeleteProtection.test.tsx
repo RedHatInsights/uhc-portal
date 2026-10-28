@@ -4,8 +4,7 @@ import * as reactRedux from 'react-redux';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useCanUpdateDeleteProtection } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen } from '~/testUtils';
+import { render, screen } from '~/testUtils';
 
 import DeleteProtection from '../DeleteProtection';
 
@@ -38,7 +37,6 @@ describe('<DeleteProtection />', () => {
   });
 
   it('Shows cluster delete protection is enabled', () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
     const props = {
       protectionEnabled: true,
       clusterID: 'fake-cluster',
@@ -49,7 +47,6 @@ describe('<DeleteProtection />', () => {
   });
 
   it('Shows cluster delete protection is disabled', () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
     const props = {
       protectionEnabled: false,
       clusterID: 'fake-cluster',

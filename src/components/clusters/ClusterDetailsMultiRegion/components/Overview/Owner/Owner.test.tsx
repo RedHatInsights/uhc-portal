@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  ALLOW_EUS_CHANNEL,
-  AUTO_CLUSTER_TRANSFER_OWNERSHIP,
-} from '~/queries/featureGates/featureConstants';
+import { AUTO_CLUSTER_TRANSFER_OWNERSHIP } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, screen, waitFor, withState } from '~/testUtils';
 
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
@@ -27,7 +24,6 @@ describe('Owner Component', () => {
     mockUseFeatureGate([[AUTO_CLUSTER_TRANSFER_OWNERSHIP, true]]);
   });
   it('Returns static N/A value when no owner found', async () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
 
@@ -59,7 +55,6 @@ describe('Owner Component', () => {
     });
   });
   it('Returns static owner value when HCP ROSA', async () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
 
@@ -95,7 +90,6 @@ describe('Owner Component', () => {
   });
 
   it('Returns static owner value when OSD', async () => {
-    mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
 
@@ -131,10 +125,7 @@ describe('Owner Component', () => {
   });
 
   it('Returns modal link to transfer owner', async () => {
-    mockUseFeatureGate([
-      [ALLOW_EUS_CHANNEL, true],
-      [AUTO_CLUSTER_TRANSFER_OWNERSHIP, true],
-    ]);
+    mockUseFeatureGate([[AUTO_CLUSTER_TRANSFER_OWNERSHIP, true]]);
     const useParamsMock = jest.requireMock('react-router-dom').useParams;
     useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
 

@@ -7,13 +7,10 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
-import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import EditButton from '~/components/common/EditButton';
 import { openModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useCanUpdateDeleteProtection } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
-import { ALLOW_EUS_CHANNEL } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 const DeleteProtection = ({
   protectionEnabled,
@@ -30,13 +27,12 @@ const DeleteProtection = ({
 }) => {
   const { canUpdateDeleteProtection, isLoading } = useCanUpdateDeleteProtection(clusterID);
   const canToggle = !!canUpdateDeleteProtection && !isLoading;
-  const useEusChannel = useFeatureGate(ALLOW_EUS_CHANNEL);
   const dispatch = useDispatch();
   const disableToggleReason =
     !canToggle &&
     `You do not have permission to ${protectionEnabled ? 'disable' : 'enable'} Delete Protection. Only cluster owners and Organization Administrators can ${protectionEnabled ? 'disable' : 'enable'} Delete Protection.`;
 
-  const DeleteProtectionButton = useEusChannel ? (
+  const DeleteProtectionButton = (
     <EditButton
       disableReason={disableToggleReason}
       isAriaDisabled={!!disableToggleReason || pending}
@@ -47,25 +43,11 @@ const DeleteProtection = ({
     >
       {protectionEnabled ? 'Enabled' : 'Disabled'}
     </EditButton>
-  ) : (
-    <ButtonWithTooltip
-      variant="link"
-      isInline
-      onClick={() =>
-        dispatch(openModal(modals.DELETE_PROTECTION, { clusterID, protectionEnabled, region }))
-      }
-      disableReason={disableToggleReason}
-      isAriaDisabled={!!disableToggleReason || pending}
-    >
-      {`${protectionEnabled ? 'Disable' : 'Enable'}`}
-    </ButtonWithTooltip>
   );
-
-  const deleteProtectionTerm = !useEusChannel && `: ${protectionEnabled ? 'Enabled' : 'Disabled'}`;
 
   return (
     <DescriptionListGroup>
-      <DescriptionListTerm>Delete Protection{deleteProtectionTerm}</DescriptionListTerm>
+      <DescriptionListTerm>Delete Protection</DescriptionListTerm>
       <DescriptionListDescription>
         {!isUninstalling ? DeleteProtectionButton : <span>N/A</span>}
       </DescriptionListDescription>
