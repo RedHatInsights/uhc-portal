@@ -157,5 +157,104 @@ test.describe.serial(
 
       await networkingPage.closeEditApplicationIngressModal();
     });
+
+    test('Edit application ingress - TLS secret name and Hostname field validations', async ({
+      networkingPage,
+    }) => {
+      const tlsValidation = ingressValidation.TlsSecretAndHostname;
+      const label64Hostname = `${'a'.repeat(64)}.example.com`;
+      const hostname225 = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(33)}`;
+      const hostname226 = `${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(63)}.${'a'.repeat(34)}`;
+
+      await networkingPage.openEditApplicationIngressModal();
+
+      await networkingPage.editApplicationIngressHostnameInput().fill(tlsValidation.ValidHostname);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError);
+
+      await networkingPage.editApplicationIngressHostnameInput().clear();
+      await networkingPage.editApplicationIngressTlsSecretInput().fill(tlsValidation.ValidSecret);
+      await networkingPage.blurTlsSecretField();
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError);
+
+      await networkingPage
+        .editApplicationIngressHostnameInput()
+        .fill(tlsValidation.InvalidHostnameFormat.Value);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.InvalidHostnameFormat.Error,
+      );
+
+      await networkingPage
+        .editApplicationIngressHostnameInput()
+        .fill(tlsValidation.SingleLabelHostname.Value);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.SingleLabelHostname.Error,
+      );
+
+      await networkingPage.editApplicationIngressHostnameInput().fill(label64Hostname);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.LabelLengthError);
+
+      await networkingPage.editApplicationIngressHostnameInput().fill(hostname226);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.HostnameLengthError,
+      );
+
+      await networkingPage.editApplicationIngressHostnameInput().fill(hostname225);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.HostnameLengthError,
+        false,
+      );
+
+      await networkingPage
+        .editApplicationIngressHostnameInput()
+        .fill(tlsValidation.DigitLeadingHostname);
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.InvalidHostnameFormat.Error,
+        false,
+      );
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.SingleLabelHostname.Error,
+        false,
+      );
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.LabelLengthError,
+        false,
+      );
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.HostnameLengthError,
+        false,
+      );
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError, false);
+
+      await networkingPage
+        .editApplicationIngressTlsSecretInput()
+        .fill(tlsValidation.InvalidSecret.Value);
+      await networkingPage.editApplicationIngressHostnameInput().fill(tlsValidation.ValidHostname);
+      await networkingPage.blurTlsSecretField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.InvalidSecret.Error,
+      );
+
+      await networkingPage.editApplicationIngressTlsSecretInput().fill(tlsValidation.DottedSecret);
+      await networkingPage.blurTlsSecretField();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.InvalidSecret.Error,
+        false,
+      );
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError, false);
+
+      await networkingPage.editApplicationIngressTlsSecretInput().clear();
+      await networkingPage.editApplicationIngressHostnameInput().clear();
+      await networkingPage.blurTlsHostnameField();
+      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError, false);
+
+      await networkingPage.closeEditApplicationIngressModal();
+    });
   },
 );
