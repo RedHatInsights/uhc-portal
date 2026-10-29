@@ -31,15 +31,11 @@ import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
 import { isHypershiftCluster } from '../../clusterStates';
-import { GcpOcp5UnsupportedWarning } from '../../GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { RosaGovCloudFipsWarning } from '../../RosaGovCloudFipsWarning/RosaGovCloudFipsWarning';
 import { shouldShowRosaGovCloudFipsWarningOnUpgrade } from '../../RosaGovCloudFipsWarning/RosaGovCloudFipsWarningHelpers';
 import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep';
 import { UpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5Warning';
-import {
-  shouldShowGcpOcp5UnsupportedUpgradeWarning,
-  shouldShowUpgradeToV5Warning,
-} from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
+import { shouldShowUpgradeToV5Warning } from '../UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
@@ -83,11 +79,6 @@ const UpgradeWizard = () => {
   });
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
   const showRosaGovCloudFipsWarning = shouldShowRosaGovCloudFipsWarningOnUpgrade(clusterVersion);
-  const showGcpOcp5UnsupportedWarning = shouldShowGcpOcp5UnsupportedUpgradeWarning({
-    cluster,
-    isOcp5SupportEnabled,
-    organizationCapabilities: organization?.details?.capabilities,
-  });
 
   const { mutateAsync: postClusterGateAgreementMutate } =
     usePostClusterGateAgreementAcknowledgeModal(clusterID || '', region);
@@ -254,11 +245,6 @@ const UpgradeWizard = () => {
                 {showRosaGovCloudFipsWarning && (
                   <div className="wizard-step-title">
                     <RosaGovCloudFipsWarning />
-                  </div>
-                )}
-                {showGcpOcp5UnsupportedWarning && (
-                  <div className="wizard-step-title">
-                    <GcpOcp5UnsupportedWarning variant="upgrade" />
                   </div>
                 )}
                 <VersionSelectionGrid

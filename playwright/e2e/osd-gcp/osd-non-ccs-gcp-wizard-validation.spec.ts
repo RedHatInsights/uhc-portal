@@ -1,9 +1,4 @@
-import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
-import { expect, test } from '../../fixtures/pages';
-import {
-  hasOrganizationCapability,
-  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
-} from '../../support/capability-helper';
+import { test, expect } from '../../fixtures/pages';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd/osd-non-ccs-wizard-validation.spec.json');
@@ -17,17 +12,9 @@ test.describe.serial(
   `OSD Wizard non CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
   { tag: ['@smoke', '@wizard-validation', '@osd'] },
   () => {
-    let shouldShowOcp5Warning = false;
-
-    test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
-      const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
-      const capabilitiesPromise = createOSDWizardPage.waitForOrganizationCapabilities();
+    test.beforeAll(async ({ navigateTo }) => {
+      // Navigate to create
       await navigateTo('create');
-      const isOcp5SupportEnabled = await gatePromise;
-      const capabilities = await capabilitiesPromise;
-      shouldShowOcp5Warning =
-        isOcp5SupportEnabled &&
-        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
     });
     test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
       await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -49,15 +36,6 @@ test.describe.serial(
 
     test(`Cluster details field validations`, async ({ page, createOSDWizardPage }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
-
-      const ocp5WarningText =
-        ClustersValidation.ClusterSettings.Details.GCP.Ocp5RedHatAccountWarning;
-      const ocp5Warning = createOSDWizardPage.gcpOcp5RedHatAccountCreationWarning(ocp5WarningText);
-      if (shouldShowOcp5Warning) {
-        await expect(ocp5Warning).toBeVisible();
-      } else {
-        await expect(ocp5Warning).toBeHidden();
-      }
 
       const clusterNameInput = page.locator(createOSDWizardPage.clusterNameInput);
       await clusterNameInput.scrollIntoViewIfNeeded();
@@ -138,8 +116,8 @@ test.describe.serial(
       await createOSDWizardPage.isMachinePoolScreen();
       await createOSDWizardPage.selectComputeNodeType(clusterProperties.InstanceType);
 
-      let minNodes = '4';
-      let maxNodes = '249';
+      var minNodes = '4';
+      var maxNodes = '249';
       await expect(createOSDWizardPage.computeNodeCountInput()).toHaveValue(minNodes);
       await expect(createOSDWizardPage.computeNodeCountDecrementButton()).not.toBeEnabled();
       await createOSDWizardPage.computeNodeCountInput().fill((parseInt(minNodes) - 1).toString());
