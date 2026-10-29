@@ -1,9 +1,4 @@
-import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
-import { expect, test } from '../../fixtures/pages';
-import {
-  hasOrganizationCapability,
-  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
-} from '../../support/capability-helper';
+import { test, expect } from '../../fixtures/pages';
 
 const gcpClusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-sa-cluster-creation.spec.json');
 const clusterName = `${gcpClusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
@@ -16,17 +11,9 @@ test.describe.serial(
   'OSD GCP CCS Service Account cluster creation tests (OCP-35992, OCP-26750)',
   { tag: ['@smoke', '@osd'] },
   () => {
-    let shouldShowOcp5Warning = false;
-
-    test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
-      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
-      const capabilitiesPromise = clusterDetailsPage.waitForOrganizationCapabilities();
+    test.beforeAll(async ({ navigateTo }) => {
+      // Navigate to create
       await navigateTo('create');
-      const isOcp5SupportEnabled = await gatePromise;
-      const capabilities = await capabilitiesPromise;
-      shouldShowOcp5Warning =
-        isOcp5SupportEnabled &&
-        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
     });
 
     test(`Launch OSD - ${gcpClusterProperties.CloudProvider} cluster wizard`, async ({
@@ -301,21 +288,6 @@ test.describe.serial(
         await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
           process.env.QE_GCP_WIF_CONFIG || '',
         );
-      }
-    });
-
-    test(`Settings tab - OpenShift 5 unsupported warning for an OSD GCP ${authType} cluster`, async ({
-      clusterDetailsPage,
-    }) => {
-      await clusterDetailsPage.navigateToSettingsTab();
-
-      const settingsWarning = clusterDetailsPage.gcpOcp5UnsupportedUpgradeWarning(
-        gcpClusterProperties.Ocp5UnsupportedUpgradeWarning,
-      );
-      if (shouldShowOcp5Warning) {
-        await expect(settingsWarning).toBeVisible();
-      } else {
-        await expect(settingsWarning).toBeHidden();
       }
     });
 

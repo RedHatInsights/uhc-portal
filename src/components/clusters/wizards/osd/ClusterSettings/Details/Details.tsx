@@ -12,8 +12,6 @@ import {
   GridItem,
   Split,
   SplitItem,
-  Stack,
-  StackItem,
   Title,
 } from '@patternfly/react-core';
 
@@ -35,10 +33,6 @@ import { versionComparator } from '~/common/versionComparator';
 import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
-import {
-  GcpOcp5UnsupportedWarning,
-  useIsOcp5MigrationWarningEnabled,
-} from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import LoadBalancersDropdown from '~/components/clusters/common/LoadBalancersDropdown';
 import PersistentStorageDropdown from '~/components/clusters/common/PersistentStorageDropdown';
 import { QuotaParams } from '~/components/clusters/common/quotaModel';
@@ -112,8 +106,6 @@ function Details() {
   const isByoc = byoc === 'true';
   const isMultiAz = multiAz === 'true';
   const isGCP = cloudProvider === CloudProviderType.Gcp;
-  const isOcp5MigrationWarningEnabled = useIsOcp5MigrationWarningEnabled();
-  const showRedHatAccountOcp5Warning = isOcp5MigrationWarningEnabled && isGCP && !isByoc;
 
   const {
     organization: { quotaList },
@@ -394,23 +386,12 @@ function Details() {
           )}
 
           <GridItem>
-            <Stack hasGutter>
-              {showRedHatAccountOcp5Warning && (
-                <StackItem>
-                  <GcpOcp5UnsupportedWarning variant="redHatAccountCreation" />
-                </StackItem>
-              )}
-              <StackItem>
-                <VersionSelectField
-                  name={FieldId.ClusterVersion}
-                  label={
-                    isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'
-                  }
-                  onChange={handleVersionChange}
-                  key={channelGroup}
-                />
-              </StackItem>
-            </Stack>
+            <VersionSelectField
+              name={FieldId.ClusterVersion}
+              label={isMarketplaceGcp ? 'Version (Google Cloud Marketplace enabled)' : 'Version'}
+              onChange={handleVersionChange}
+              key={channelGroup}
+            />
           </GridItem>
 
           <GridItem>

@@ -1,11 +1,9 @@
 import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
 import {
   isAWS,
-  isGCP,
   isHypershiftCluster,
   isOSD,
   isROSA,
-  isWIFCluster,
 } from '~/components/clusters/common/clusterStates';
 import { Capability } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
@@ -48,27 +46,4 @@ const shouldShowUpgradeToV5Warning = ({
   return isOSD(cluster) && isAWS(cluster);
 };
 
-const shouldShowGcpOcp5UnsupportedUpgradeWarning = ({
-  cluster,
-  isOcp5SupportEnabled,
-  organizationCapabilities,
-}: ShowUpgradeToV5WarningParams): boolean => {
-  if (
-    !cluster ||
-    !isOcp5MigrationWarningEnabledForOrg({ isOcp5SupportEnabled, organizationCapabilities })
-  ) {
-    return false;
-  }
-
-  if (!isOSD(cluster) || !isGCP(cluster) || isHypershiftCluster(cluster)) {
-    return false;
-  }
-
-  return !isWIFCluster(cluster);
-};
-
-export {
-  isOcp5MigrationWarningEnabledForOrg,
-  shouldShowGcpOcp5UnsupportedUpgradeWarning,
-  shouldShowUpgradeToV5Warning,
-};
+export { isOcp5MigrationWarningEnabledForOrg, shouldShowUpgradeToV5Warning };
