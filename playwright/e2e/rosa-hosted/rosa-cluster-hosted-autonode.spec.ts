@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const autonodeFixtureData = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-autonode.spec.json');
@@ -9,7 +10,8 @@ test.describe.serial(
   'ROSA HCP Autonode (Red Hat build of Karpenter) - Overview management(OCP-89243)',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@hcp', '@autonode', '@advanced'] },
   () => {
-    const clusterName = process.env.CLUSTER_NAME || creationProfile.ClusterName;
+    const clusterName =
+      process.env.CLUSTER_NAME || `${creationProfile.ClusterName}-${getUsernameSuffix()}`;
     const iamRoleArn = process.env.QE_AUTONODE_ROLE_ARN;
     const updatedIamRoleArn = process.env.QE_AUTONODE_ROLE_ARN_SECONDARY;
 

@@ -1,12 +1,14 @@
 import { expect, test } from '../../fixtures/pages';
 import { ClusterIdentityProviderPage } from '../../page-objects/cluster-identity-provider-page';
+import { getUsernameSuffix } from '../../support/auth-config';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
 } = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const htpasswdProfile = require('../../fixtures/access-control/identity-provider-htpasswd.json');
 
-const clusterName = process.env.CLUSTER_NAME || clusterProfile['day1-profile'].ClusterName;
+const day1Profile = clusterProfile['day1-profile'];
+const clusterName = process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
 const commonIdpName = htpasswdProfile.Htpasswd.Common.IDPName;
 const manualProfile = htpasswdProfile.Htpasswd.Manual;
 
