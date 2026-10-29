@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { trackEvents } from '~/common/analytics';
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { organizationCapabilities } from '~/common/capabilities';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, screen, within, withState } from '~/testUtils';
 import { Organization } from '~/types/accounts_mgmt.v1';
@@ -15,7 +15,7 @@ const warningText = 'To use OpenShift v5, please create a ROSA HCP cluster.';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({
-    capabilities: [{ name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value }],
+    capabilities: [{ name: organizationCapabilities.ROSA_OSD_ALLOW_OCP_5, value }],
   }) as Organization;
 
 const renderWarning = ({ organization }: { organization?: Organization } = {}) =>

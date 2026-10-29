@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, hasCapabilityValue } from '~/common/capabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { hasOrgLevelAutoscaleCapability } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsSelectors';
 import {
@@ -17,8 +17,9 @@ const useCanClusterAutoscale = (
   billingModel: ClusterBillingModel | undefined,
   clusterLevelCapabilities?: Array<Capability>,
 ) => {
-  const hasClusterLevelAutoscaleCapability = !!clusterLevelCapabilities?.find(
-    (capability) => capability.name === subscriptionCapabilities.AUTOSCALE_CLUSTERS,
+  const hasClusterLevelAutoscaleCapability = hasCapabilityValue(
+    clusterLevelCapabilities,
+    clusterCapabilities.AUTOSCALE_CLUSTERS,
   );
 
   const hasAutoScaleCapability = useGlobalState(
