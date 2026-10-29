@@ -22,13 +22,25 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './queryClient';
 import Router from './Router';
 
+const BREADCRUMB_STICKY_STYLE = `
+  main:has(#app-outer-div) > .chr-c-breadcrumbs__group {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--pf-t--global--z-index--md);
+    background-color: var(--pf-t--global--background--color--primary--default);
+  }
+`;
+
 const App = () => (
-  <div id="app-outer-div">
-    <QueryClientProvider client={queryClient}>
-      <Router />
-      <ReactQueryDevtools initialIsOpen={false} position="bottom" buttonPosition="bottom-right" />
-    </QueryClientProvider>
-  </div>
+  <>
+    <style id="ocm-breadcrumb-sticky">{BREADCRUMB_STICKY_STYLE}</style>
+    <div id="app-outer-div">
+      <QueryClientProvider client={queryClient}>
+        <Router />
+        <ReactQueryDevtools initialIsOpen={false} position="bottom" buttonPosition="bottom-right" />
+      </QueryClientProvider>
+    </div>
+  </>
 );
 
 export default App;
