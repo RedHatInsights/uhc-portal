@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfile = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-private-advanced-creation.spec.json');
@@ -17,7 +18,8 @@ test.describe.serial(
   'ROSA HCP Machine Pool - Compute node count definition with autoscaling (OCMUI-4932)',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@hcp', '@machine-pool', '@advanced', '@private'] },
   () => {
-    const clusterName = process.env.CLUSTER_NAME || day1Profile.ClusterName;
+    const clusterName =
+      process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
     const mpAutoscale1 = `mp-as1-${Math.random().toString(36).slice(2, 7)}`;
     const mpAutoscale2 = `mp-as2-${Math.random().toString(36).slice(2, 7)}`;
 
