@@ -8,8 +8,7 @@ const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-
  * Day-3 cleanup: delete the OSD On-Demand GCP WIF public advanced cluster
  * created by osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.ts.
  */
-const clusterName =
-  process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
 
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced cluster delete',

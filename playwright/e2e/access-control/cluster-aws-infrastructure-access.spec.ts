@@ -214,9 +214,10 @@ test.describe.serial(
         validIamUserArn,
         testData.GrantRole.ReadOnlyRoleName,
       );
-      const expectedReadOnlySuccessTitle = testData.Notifications.GrantSuccessTitle
-        .replace('{roleName}', testData.GrantRole.ReadOnlyRoleName)
-        .replace('{userArn}', validIamUserArn);
+      const expectedReadOnlySuccessTitle = testData.Notifications.GrantSuccessTitle.replace(
+        '{roleName}',
+        testData.GrantRole.ReadOnlyRoleName,
+      ).replace('{userArn}', validIamUserArn);
       await awsInfrastructureAccessPage.isTextContainsInPage(expectedReadOnlySuccessTitle);
       await expect(
         awsInfrastructureAccessPage.grantRow(validIamUserArn, testData.GrantRole.ReadOnlyRoleName),
@@ -241,9 +242,10 @@ test.describe.serial(
         validIamUserArn,
         testData.GrantRole.NetworkManagementRoleName,
       );
-      const expectedNetworkMgmtSuccessTitle = testData.Notifications.GrantSuccessTitle
-        .replace('{roleName}', testData.GrantRole.NetworkManagementRoleName)
-        .replace('{userArn}', validIamUserArn);
+      const expectedNetworkMgmtSuccessTitle = testData.Notifications.GrantSuccessTitle.replace(
+        '{roleName}',
+        testData.GrantRole.NetworkManagementRoleName,
+      ).replace('{userArn}', validIamUserArn);
       await awsInfrastructureAccessPage.isTextContainsInPage(expectedNetworkMgmtSuccessTitle);
       await expect(
         awsInfrastructureAccessPage.grantRow(validIamUserArn, testData.GrantRole.ReadOnlyRoleName),

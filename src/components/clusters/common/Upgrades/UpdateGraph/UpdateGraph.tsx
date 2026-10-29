@@ -2,8 +2,6 @@ import React from 'react';
 
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
-import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
-import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { VersionGate } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -52,55 +50,50 @@ const UpdateGraph = ({
   isHypershift,
   isSTSEnabled,
   unmetAcknowledgements,
-}: UpdateGraphProps) => {
-  const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
-  return (
-    <div className="ocm-upgrade-graph">
-      <GraphContainer>
-        <GraphPath>
-          <GraphLine>
-            <VersionLabel>{currentVersion}</VersionLabel>
-            <VersionDot current />
-          </GraphLine>
-          {updateVersion && (
-            <>
-              <GraphLine />
-              <GraphLine>
-                <VersionLabel>{updateVersion}</VersionLabel>
-                <VersionDot />
-              </GraphLine>
-            </>
-          )}
-        </GraphPath>
-      </GraphContainer>
-      {hasMore && (
-        <div className="ocm-upgrade-additional-versions-available">
-          <InfoCircleIcon />
-          {`Additional versions available between ${currentVersion} and ${updateVersion}`}
-        </div>
-      )}
-      {isYStreamEnabled && (
-        <div className="ocm-upgrade-additional-versions-available">
-          <InfoCircleIcon />
-          Additional versions may be available in other channels
-        </div>
-      )}
-      <UpgradeAcknowledgeWarning
-        isInfo
-        showConfirm
-        showUpgradeWarning
-        schedules={schedules}
-        cluster={cluster}
-        isHypershift={isHypershift}
-        unmetAcknowledgements={unmetAcknowledgements}
-      />
-      <MinorVersionUpgradeConfirm
-        schedules={schedules}
-        cluster={cluster}
-        unmetAcknowledgements={unmetAcknowledgements}
-      />
+}: UpdateGraphProps) => (
+  <div className="ocm-upgrade-graph">
+    <GraphContainer>
+      <GraphPath>
+        <GraphLine>
+          <VersionLabel>{currentVersion}</VersionLabel>
+          <VersionDot current />
+        </GraphLine>
+        {updateVersion && (
+          <>
+            <GraphLine />
+            <GraphLine>
+              <VersionLabel>{updateVersion}</VersionLabel>
+              <VersionDot />
+            </GraphLine>
+          </>
+        )}
+      </GraphPath>
+    </GraphContainer>
+    {hasMore && (
+      <div className="ocm-upgrade-additional-versions-available">
+        <InfoCircleIcon />
+        {`Additional versions available between ${currentVersion} and ${updateVersion}`}
+      </div>
+    )}
+    <div className="ocm-upgrade-additional-versions-available">
+      <InfoCircleIcon />
+      Additional versions may be available in other channels
     </div>
-  );
-};
+    <UpgradeAcknowledgeWarning
+      isInfo
+      showConfirm
+      showUpgradeWarning
+      schedules={schedules}
+      cluster={cluster}
+      isHypershift={isHypershift}
+      unmetAcknowledgements={unmetAcknowledgements}
+    />
+    <MinorVersionUpgradeConfirm
+      schedules={schedules}
+      cluster={cluster}
+      unmetAcknowledgements={unmetAcknowledgements}
+    />
+  </div>
+);
 
 export default UpdateGraph;

@@ -34,6 +34,7 @@ const accountRolesScreenProps: AccountsRolesScreenProps = {
   organizationID: 'org-id',
   isHypershiftEnabled: true,
   isHypershiftSelected: false,
+  openDrawer: jest.fn(),
 };
 
 const buildTestComponent = (children: React.ReactNode, formValues = {}) => (
@@ -78,6 +79,43 @@ describe('<AccountsRolesScreen />', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Did you complete your prerequisites?')).toBeInTheDocument();
     expect(screen.queryByText(/Make sure you are using ROSA CLI version/)).not.toBeInTheDocument();
+  });
+
+  it('calls openDrawer when How to associate a new AWS account is clicked', async () => {
+    const openDrawer = jest.fn();
+    const { user } = withState({}).render(
+      buildTestComponent(
+        <AccountsRolesScreen {...accountRolesScreenProps} openDrawer={openDrawer} />,
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'How to associate a new AWS account' }));
+
+    expect(openDrawer).toHaveBeenCalledTimes(1);
+    expect(openDrawer).toHaveBeenCalledWith({
+      onClose: expect.any(Function),
+    });
+  });
+
+  it('calls openDrawer with targetRole "user" when create the required role is clicked', async () => {
+    const openDrawer = jest.fn();
+    const { user } = withState({}).render(
+      buildTestComponent(
+        <AccountsRolesScreen
+          {...accountRolesScreenProps}
+          openDrawer={openDrawer}
+          getUserRoleResponse={{ error: true }}
+        />,
+      ),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'create the required role' }));
+
+    expect(openDrawer).toHaveBeenCalledTimes(1);
+    expect(openDrawer).toHaveBeenCalledWith({
+      targetRole: 'user',
+      onClose: expect.any(Function),
+    });
   });
 
   describe('AWS Billing Account visibility', () => {

@@ -85,6 +85,21 @@ describe('AWSAccountSelection tests', () => {
     await checkAccessibility(container);
   });
 
+  it('calls openDrawer when How to associate a new AWS account is clicked', async () => {
+    const openDrawer = jest.fn();
+    const { user } = render(<AWSAccountSelection {...defaultProps} openDrawer={openDrawer} />);
+
+    await user.click(screen.getByText(/select an account/i));
+    await user.click(
+      await screen.findByRole('button', { name: 'How to associate a new AWS account' }),
+    );
+
+    expect(openDrawer).toHaveBeenCalledTimes(1);
+    expect(openDrawer).toHaveBeenCalledWith({
+      onClose: expect.any(Function),
+    });
+  });
+
   it('field is required if required prop is set to true', () => {
     const onChangeMock = jest.fn();
 
@@ -98,7 +113,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   it('field is not required if required prop is set to false', () => {
@@ -114,7 +130,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   it('field is required if required prop is not set (aka default to required)', () => {
@@ -130,7 +147,8 @@ describe('AWSAccountSelection tests', () => {
     const { container } = render(<AWSAccountSelection {...newProps} />);
 
     // Unfortunately the only way to tell if the field is required is to find the hidden "*" in the label tag
-    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account *');
+    // Note: PatternFly renders a non-breaking space (\u00A0) before the asterisk
+    expect(container.querySelector('label')?.textContent).toEqual('AWS billing account\u00A0*');
   });
 
   describe('billing contract notification enhancements', () => {

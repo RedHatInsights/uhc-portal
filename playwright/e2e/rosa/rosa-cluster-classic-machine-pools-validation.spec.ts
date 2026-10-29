@@ -19,27 +19,22 @@ test.describe.serial(
   'ROSA Classic machine pools validation (OCP-35970)',
   { tag: ['@advanced', '@day2', '@rosa', '@rosa-classic', '@machine-pools'] },
   () => {
-    test.beforeAll(async ({
-      navigateTo,
-      clusterListPage,
-      clusterDetailsPage,
-      machinePoolsPage,
-    }) => {
-      await navigateTo(CLUSTER_LIST_FULL_PATH);
-      await clusterListPage.waitForDataReady();
-      await clusterListPage.isClusterListScreen();
-      await clusterListPage.filterTxtField().click();
-      await clusterListPage.filterTxtField().clear();
-      await clusterListPage.filterTxtField().fill(clusterNamePrefix);
-      await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
-      await clusterDetailsPage.waitForClusterDetailsLoad();
-      await machinePoolsPage.goToMachinePoolsTab();
-    });
+    test.beforeAll(
+      async ({ navigateTo, clusterListPage, clusterDetailsPage, machinePoolsPage }) => {
+        await navigateTo(CLUSTER_LIST_FULL_PATH);
+        await clusterListPage.waitForDataReady();
+        await clusterListPage.isClusterListScreen();
+        await clusterListPage.filterTxtField().click();
+        await clusterListPage.filterTxtField().clear();
+        await clusterListPage.filterTxtField().fill(clusterNamePrefix);
+        await clusterListPage.waitForDataReady();
+        await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
+        await clusterDetailsPage.waitForClusterDetailsLoad();
+        await machinePoolsPage.goToMachinePoolsTab();
+      },
+    );
 
-    test('Verify machine pools table headers and default values', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify machine pools table headers and default values', async ({ machinePoolsPage }) => {
       await machinePoolsPage.verifyTableHeader('Machine pool');
       await machinePoolsPage.verifyTableHeader('Instance type');
       await machinePoolsPage.verifyTableHeader('Availability zones');
@@ -56,9 +51,7 @@ test.describe.serial(
       await machinePoolsPage.verifyTableContainsValue(defaultPool.Autoscaling);
     });
 
-    test('Verify add machine pool modal default elements', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify add machine pool modal default elements', async ({ machinePoolsPage }) => {
       await machinePoolsPage.openAddMachinePoolModal();
       await expect(machinePoolsPage.machinePoolIdInput()).toBeVisible();
       await machinePoolsPage.machinePoolIdInput().click();
@@ -74,9 +67,7 @@ test.describe.serial(
       await machinePoolsPage.cancelMachinePoolModalButton().click();
     });
 
-    test('Verify add machine pool modal additional elements', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify add machine pool modal additional elements', async ({ machinePoolsPage }) => {
       await machinePoolsPage.goToMachinePoolsTab();
       await machinePoolsPage.openAddMachinePoolModal();
       await machinePoolsPage.nodeCountInput().fill(day2.ComputeNodeCount);
@@ -98,9 +89,7 @@ test.describe.serial(
       await machinePoolsPage.cancelMachinePoolModalButton().click();
     });
 
-    test('Configure autoscaling and name for new machine pool', async ({
-      machinePoolsPage,
-    }) => {
+    test('Configure autoscaling and name for new machine pool', async ({ machinePoolsPage }) => {
       await machinePoolsPage.openAddMachinePoolModal();
       await machinePoolsPage.machinePoolIdInput().fill(workerName);
       await machinePoolsPage.selectInstanceType(day2.NewMachinePool.InstanceType);
@@ -110,9 +99,7 @@ test.describe.serial(
       );
     });
 
-    test('Configure node labels and taints for new machine pool', async ({
-      machinePoolsPage,
-    }) => {
+    test('Configure node labels and taints for new machine pool', async ({ machinePoolsPage }) => {
       await machinePoolsPage.labelsAndTaintsTab().click();
 
       await machinePoolsPage.setLabel(0, day2.NodeLabels[0].Key, day2.NodeLabels[0].Value);
@@ -134,18 +121,14 @@ test.describe.serial(
       );
     });
 
-    test('Configure security groups for new machine pool', async ({
-      machinePoolsPage,
-    }) => {
+    test('Configure security groups for new machine pool', async ({ machinePoolsPage }) => {
       await machinePoolsPage.securityGroupsTab().click();
       await expect(machinePoolsPage.securityGroupsNoChangeAlert()).toBeVisible();
       await expect(machinePoolsPage.securityGroupsToggle()).toBeVisible();
       await machinePoolsPage.selectFirstSecurityGroup();
     });
 
-    test('Configure EC2 spot instance and submit machine pool', async ({
-      machinePoolsPage,
-    }) => {
+    test('Configure EC2 spot instance and submit machine pool', async ({ machinePoolsPage }) => {
       await machinePoolsPage.costSavingsTab().click();
       await machinePoolsPage.spotInstanceCheckbox().check();
       await machinePoolsPage.setMaxPriceRadio().check();
@@ -156,9 +139,7 @@ test.describe.serial(
       await expect(machinePoolsPage.getMachinePoolRow(workerName)).toBeVisible({ timeout: 30000 });
     });
 
-    test('Expand and verify created machine pool details', async ({
-      machinePoolsPage,
-    }) => {
+    test('Expand and verify created machine pool details', async ({ machinePoolsPage }) => {
       await machinePoolsPage.expandMachinePoolRow(workerName);
 
       await machinePoolsPage.verifyLabels(
@@ -230,9 +211,7 @@ test.describe.serial(
       await machinePoolsPage.cancelMachinePoolModalButton().click();
     });
 
-    test('Edit autoscaling range and labels', async ({
-      machinePoolsPage,
-    }) => {
+    test('Edit autoscaling range and labels', async ({ machinePoolsPage }) => {
       await machinePoolsPage.editMachinePool(workerName);
 
       await machinePoolsPage.autoscaleMinInput().fill(editData.MinimumNodeCount);
@@ -246,9 +225,7 @@ test.describe.serial(
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
     });
 
-    test('Verify edited machine pool details', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify edited machine pool details', async ({ machinePoolsPage }) => {
       await machinePoolsPage.goToMachinePoolsTab();
       await machinePoolsPage.expandMachinePoolRow(workerName);
 
@@ -279,21 +256,17 @@ test.describe.serial(
       for (const nodeType of ['Control plane', 'Infra', 'Compute'] as const) {
         await machinePoolsPage.verifyOverviewProperty('Nodes', day2.Nodes[nodeType]);
       }
-      await machinePoolsPage.verifyOverviewProperty(
-        'Autoscale',
-        day2.NewMachinePool.Autoscaling,
-      );
+      await machinePoolsPage.verifyOverviewProperty('Autoscale', day2.NewMachinePool.Autoscaling);
 
-      const expectedMin = (Number(defaultPool.MinimumNodeCount) + Number(editData.MinimumNodeCount)) * zoneCount;
-      const expectedMax = (Number(defaultPool.MaximumNodeCount) + Number(editData.MaximumNodeCount)) * zoneCount;
+      const expectedMin =
+        (Number(defaultPool.MinimumNodeCount) + Number(editData.MinimumNodeCount)) * zoneCount;
+      const expectedMax =
+        (Number(defaultPool.MaximumNodeCount) + Number(editData.MaximumNodeCount)) * zoneCount;
       await machinePoolsPage.verifyOverviewMinMaxNodeCount('Min:', expectedMin);
       await machinePoolsPage.verifyOverviewMinMaxNodeCount('Max:', expectedMax);
     });
 
-    test('Delete created machine pool', async ({
-      clusterDetailsPage,
-      machinePoolsPage,
-    }) => {
+    test('Delete created machine pool', async ({ clusterDetailsPage, machinePoolsPage }) => {
       await clusterDetailsPage.overviewTab().waitFor({ state: 'visible' });
       await machinePoolsPage.goToMachinePoolsTab();
       await machinePoolsPage.deleteMachinePool(workerName);

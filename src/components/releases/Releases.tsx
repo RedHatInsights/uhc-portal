@@ -44,7 +44,8 @@ const Releases = () => {
   );
   const hasEUSLifeCycle = (versionName: string) =>
     allVersions?.find((v) => v.name.includes(`${versionName} EUS`));
-  const latestVersion = versionsToDisplay?.[0]?.name ?? '4.7';
+  const latestVersion = versionsToDisplay?.[0]?.name;
+  const latestVersionExample = latestVersion ? `, for example ${latestVersion}` : '';
   const renderProductName = (versionName: string) => <>OpenShift {versionName}</>;
 
   return (
@@ -174,18 +175,19 @@ const Releases = () => {
                 <Stack hasGutter>
                   <StackItem>
                     {`Channels recommend release versions and help control the pace of updates.
-                    Update channels are tied to a minor version of OpenShift Container Platform,
-                    for example ${latestVersion}. To update to the next minor release, you may need to change
+                    Update channels are tied to a minor version of OpenShift Container Platform${latestVersionExample}. To update to the next minor release, you may need to change
                     the channel you're in.`}
                   </StackItem>
-                  <StackItem>
-                    <ExternalLink
-                      href={`https://docs.redhat.com/en/documentation/openshift_container_platform/${latestVersion}/html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases`}
-                      noIcon
-                    >
-                      Learn more about updating channels
-                    </ExternalLink>
-                  </StackItem>
+                  {latestVersion && (
+                    <StackItem>
+                      <ExternalLink
+                        href={`https://docs.redhat.com/en/documentation/openshift_container_platform/${latestVersion}/html/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases`}
+                        noIcon
+                      >
+                        Learn more about updating channels
+                      </ExternalLink>
+                    </StackItem>
+                  )}
                 </Stack>
               </CardBody>
             </Card>

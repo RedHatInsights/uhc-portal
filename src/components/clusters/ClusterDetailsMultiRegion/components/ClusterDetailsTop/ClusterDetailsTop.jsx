@@ -26,6 +26,7 @@ import isAssistedInstallSubscription, {
   isUninstalledAICluster,
 } from '~/common/isAssistedInstallerCluster';
 import {
+  HAS_USER_DISMISSED_ARO_OPP_MARKETPLACE_ALERT,
   HAS_USER_DISMISSED_RECOMMENDED_OPERATORS_ALERT,
   HAS_USER_DISMISSED_ROSA_OPP_MARKETPLACE_ALERT,
 } from '~/common/localStorageConstants';
@@ -55,6 +56,7 @@ import ErrorTriangle from '../../../common/ErrorTriangle';
 import HibernatingClusterCard from '../../../common/HibernatingClusterCard/HibernatingClusterCard';
 import InstallationLogView, { shouldShowLogs } from '../Overview/InstallationLogView';
 
+import AroPlatformPlusMarketplaceAlert from './components/AroPlatformPlusMarketplaceAlert';
 import ClusterNonEditableAlert from './components/ClusterNonEditableAlert';
 import ClusterProgressCard from './components/ClusterProgressCard';
 import ClusterStatusMonitor from './components/ClusterStatusMonitor';
@@ -63,7 +65,6 @@ import GcpOrgPolicyAlert from './components/GcpOrgPolicyAlert';
 import LimitedSupportAlert from './components/LimitedSupportAlert';
 import PlatformPlusMarketplaceAlert from './components/PlatformPlusMarketplaceAlert';
 import { RecommendedOperatorsAlert } from './components/RecommendedOperatorsAlert/RecommendedOperatorsAlert';
-import SeverityLabelChangeAlert from './components/SeverityLabelChangeAlert';
 import SubscriptionCompliancy from './components/SubscriptionCompliancy';
 import TermsAlert from './components/TermsAlert';
 import TransferClusterOwnershipInfo from './components/TransferClusterOwnershipInfo';
@@ -141,10 +142,17 @@ function ClusterDetailsTop(props) {
   const hasOppAlertBeenDismissed = localStorage.getItem(
     HAS_USER_DISMISSED_ROSA_OPP_MARKETPLACE_ALERT,
   );
+  const hasAroOppAlertBeenDismissed = localStorage.getItem(
+    HAS_USER_DISMISSED_ARO_OPP_MARKETPLACE_ALERT,
+  );
   const isROSA = get(cluster, 'subscription.plan.type') === normalizedProducts.ROSA;
+  const isARO = get(cluster, 'subscription.plan.type') === normalizedProducts.ARO;
   const [showPlatformPlusMarketplaceAlert, setShowPlatformPlusMarketplaceAlert] = useState(
     isROSA && !hasOppAlertBeenDismissed && !isArchived && !isDeprovisioned,
   );
+  const [isAroPlatformPlusMarketplaceAlertVisible, setIsAroPlatformPlusMarketplaceAlertVisible] =
+    useState(!hasAroOppAlertBeenDismissed && !isArchived && !isDeprovisioned);
+  const showAroPlatformPlusMarketplaceAlert = isARO && isAroPlatformPlusMarketplaceAlertVisible;
 
   let topCard = null;
   // Temporary solution needs update inside the component. (class based into functional) - OCMUI-2357
@@ -358,7 +366,6 @@ function ClusterDetailsTop(props) {
   const [hasTermsAlert, setHasTermsAlert] = React.useState(false);
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
     React.useState(false);
-  const hasSeverityLabelChangeAlert = !isArchived && !isDeprovisioned;
 
   const alerts = [
     hasLimitedSupportAlert,
@@ -372,8 +379,8 @@ function ClusterDetailsTop(props) {
     hasReccomendedOperatorsAlert,
     hasTermsAlert,
     hasTransferClusterOwnershipAlert,
-    hasSeverityLabelChangeAlert,
     showPlatformPlusMarketplaceAlert,
+    showAroPlatformPlusMarketplaceAlert,
   ];
 
   const alertsCount = alerts.filter((alert) => alert === true).length || null;
@@ -521,11 +528,16 @@ function ClusterDetailsTop(props) {
                 planType={cluster?.subscription?.plan?.id ?? normalizedProducts.UNKNOWN}
               />
             ) : null}
-            {hasSeverityLabelChangeAlert && <SeverityLabelChangeAlert />}
 
             {showPlatformPlusMarketplaceAlert ? (
               <PlatformPlusMarketplaceAlert
                 onDismiss={() => setShowPlatformPlusMarketplaceAlert(false)}
+              />
+            ) : null}
+
+            {showAroPlatformPlusMarketplaceAlert ? (
+              <AroPlatformPlusMarketplaceAlert
+                onDismiss={() => setIsAroPlatformPlusMarketplaceAlertVisible(false)}
               />
             ) : null}
           </ExpandableSection>

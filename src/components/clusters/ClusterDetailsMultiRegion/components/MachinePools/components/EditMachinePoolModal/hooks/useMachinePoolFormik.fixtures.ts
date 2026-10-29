@@ -156,7 +156,7 @@ export const defaultExpectedInitialValues = {
   autoscaling: false,
   diskSize: 300,
   instanceType: undefined,
-  imds: IMDSType.V1AndV2,
+  imds: IMDSType.V2Only,
   labels: [
     {
       key: '',

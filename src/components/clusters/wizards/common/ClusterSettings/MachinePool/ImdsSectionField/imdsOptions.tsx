@@ -12,15 +12,15 @@ export type ImdsOptionType = {
 
 export const imdsOptions: ImdsOptionType[] = [
   {
-    value: IMDSType.V1AndV2,
-    ariaLabel: 'Both IMDSv1 and IMDSv2',
-    label: 'Use both IMDSv1 and IMDSv2',
-    description: 'Allows use of both IMDS versions for backward compatibility',
-  },
-  {
     value: IMDSType.V2Only,
     ariaLabel: 'IMDSv2 only',
     label: 'Use IMDSv2 only',
     description: 'A session-oriented method with enhanced security',
+  },
+  {
+    value: IMDSType.V1AndV2,
+    ariaLabel: 'Both IMDSv1 and IMDSv2',
+    label: 'Use both IMDSv1 and IMDSv2',
+    description: 'Allows use of both IMDS versions for backward compatibility',
   },
 ];

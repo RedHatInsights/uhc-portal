@@ -37,6 +37,10 @@ export const SPOT_INSTANCES_VERSION_DISABLED_REASON = `Spot Instances require Op
 export const SPOT_INTERRUPTION_MODE_ENHANCED_LABEL = 'Spot instances Enhanced';
 export const SPOT_INTERRUPTION_MODE_SIMPLE_LABEL = 'Spot instances Simple';
 
+/** Redacts the 12-digit AWS account ID in an SQS queue URL for analytics. */
+export const redactSqsQueueUrlAccountId = (queueUrl: string): string =>
+  queueUrl.replace(/\/\d{12}\//, '/xxxxxxxxxxxx/');
+
 export const getSpotInterruptionHandlerQueueUrl = (
   cluster: ClusterAwsSpotInterruptionHandling,
 ): string | undefined => cluster?.aws?.termination_handler_queue_url || undefined;

@@ -67,7 +67,7 @@ const MAX_MACHINE_POOL_NAME_LENGTH = 30;
 
 const MAX_NODE_POOL_NAME_LENGTH = 15;
 
-const MAX_OBJECT_NAME_LENGTH = 63;
+export const MAX_OBJECT_NAME_LENGTH = 63;
 
 // Maximum length of a cluster display name
 const MAX_CLUSTER_DISPLAY_NAME_LENGTH = 63;
@@ -104,8 +104,8 @@ const AWS_KMS_MULTI_REGION_SERVICE_ACCOUNT_REGEX =
  */
 const LABEL_KEY_NAME_REGEX = /^([a-z0-9][a-z0-9-_.]*)?[a-z0-9]$/i;
 
-// Tag keys and values may only contain alphanumeric characters and the following symbols: [_ . : / = + - @].
-const AWS_TAG_KEY_VALUE_REGEX = /^([a-z0-9-_.:/=+-@]*)$/i;
+// Tag keys and values may only contain alphanumeric characters, spaces, and the following symbols: [_ . : / = + - @].
+const AWS_TAG_KEY_VALUE_REGEX = /^([a-z0-9_.:/=+\-@ ]*)$/i;
 
 const AWS_TAG_KEY_MAX_LENGTH = 128;
 const AWS_TAG_VALUE_MAX_LENGTH = 256;
@@ -184,7 +184,7 @@ const checkOpenIDIssuer = (value?: string): string | undefined => {
 };
 
 // Function to validate that the object name contains a valid DNS label:
-const checkObjectName = (
+export const checkObjectName = (
   value: string | undefined,
   objectName: string,
   maxLen: number,
@@ -618,10 +618,10 @@ const labelAndTaintKeyValidations = (
 };
 
 const awsTagKeyValidations = (value: string | undefined): Validations => [
-  { validated: !!value && value.length > 0, text: 'Required' },
+  { validated: !!value && value.trim().length > 0, text: 'Required' },
   {
     validated: !!value && AWS_TAG_KEY_VALUE_REGEX.test(value),
-    text: "A valid AWS Tag key must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS Tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {
@@ -635,10 +635,26 @@ const awsTagKeyValidations = (value: string | undefined): Validations => [
   },
 ];
 
-const awsTagValueValidations = (value: string | undefined): Validations => [
+type AwsTagValueOptions = {
+  isHypershift?: boolean;
+};
+
+const awsTagValueValidations = (
+  value: string | undefined,
+  options?: AwsTagValueOptions,
+): Validations => [
+  {
+    // HCP requires a non-empty tag value; classic allows empty values.
+    validated: !options?.isHypershift || (!!value && value.length > 0),
+    text: 'Required',
+  },
+  {
+    validated: !value || value.trim().length > 0,
+    text: 'AWS Tag value cannot consist of only spaces',
+  },
   {
     validated: !value || (!!value && AWS_TAG_KEY_VALUE_REGEX.test(value)),
-    text: "A valid AWS Tag value must consist of alphanumeric characters or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS Tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {
@@ -679,7 +695,8 @@ const checkLabelKey = createPessimisticValidator(nodeLabelKeyValidations);
 const checkAwsTagKey = createPessimisticValidator(awsTagKeyValidations);
 
 const checkLabelValue = createPessimisticValidator(labelAndTaintValueValidations);
-const checkAwsTagValue = createPessimisticValidator(awsTagValueValidations);
+const checkAwsTagValue = (value?: string, options?: AwsTagValueOptions) =>
+  findFirstFailureMessage(awsTagValueValidations(value, options));
 
 const checkTaintKey = createPessimisticValidator(taintKeyValidations);
 const checkTaintValue = createPessimisticValidator(labelAndTaintValueValidations);
@@ -1842,18 +1859,6 @@ const validateTlsSecretName = (value: string, allValues: Tls) =>
 const validateTlsHostname = (value: string, allValues: Tls) =>
   validateTlsPair(value, allValues.clusterRoutesTlsSecretRef);
 
-const validateNamespacesList = (value = '') => {
-  const namespaces = value.split(',');
-  const incorrect = namespaces.find(
-    (namespace) => !!checkObjectName(namespace, 'Namespace', MAX_OBJECT_NAME_LENGTH),
-  );
-  if (incorrect) {
-    return checkObjectName(incorrect, 'Namespace', MAX_OBJECT_NAME_LENGTH);
-  }
-
-  return undefined;
-};
-
 const validateWorkerVolumeSize = (
   size: number,
   allValues: object,
@@ -2009,7 +2014,6 @@ export {
   validateListOfBalancingLabels,
   validateMaxNodes,
   validateMultipleMachinePoolsSubnets,
-  validateNamespacesList,
   validateNumericInput,
   validatePositive,
   validatePrivateHostedZoneId,

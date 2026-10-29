@@ -1,4 +1,9 @@
-import { test, expect } from '../../fixtures/pages';
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
+import { expect, test } from '../../fixtures/pages';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
+} from '../../support/capability-helper';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-cluster-creation.spec.json');
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
@@ -6,10 +11,17 @@ test.describe(
   'OSD Non CCS GCP cluster creation tests (OCP-42746, OCP-21086)',
   { tag: ['@smoke', '@osd'] },
   () => {
-    // Iterate through each cluster configuration
-    test.beforeAll(async ({ navigateTo }) => {
-      // Navigate to create
+    let shouldShowOcp5Warning = false;
+
+    test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
+      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
+      const capabilitiesPromise = clusterDetailsPage.waitForOrganizationCapabilities();
       await navigateTo('create');
+      const isOcp5SupportEnabled = await gatePromise;
+      const capabilities = await capabilitiesPromise;
+      shouldShowOcp5Warning =
+        isOcp5SupportEnabled &&
+        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
     });
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
       page,
@@ -94,7 +106,7 @@ test.describe(
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
       await expect(createOSDWizardPage.updateStrategyRecurringRadio()).not.toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
@@ -222,6 +234,21 @@ test.describe(
       await expect(clusterDetailsPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
       await expect(clusterDetailsPage.individualUpdatesRadioButton()).toBeChecked();
       await expect(clusterDetailsPage.recurringUpdatesRadioButton()).not.toBeChecked();
+    });
+
+    test('Settings tab - OpenShift 5 unsupported warning for an OSD GCP Red Hat cloud account cluster', async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.navigateToSettingsTab();
+
+      const settingsWarning = clusterDetailsPage.gcpOcp5UnsupportedUpgradeWarning(
+        clusterProperties.Ocp5UnsupportedUpgradeWarning,
+      );
+      if (shouldShowOcp5Warning) {
+        await expect(settingsWarning).toBeVisible();
+      } else {
+        await expect(settingsWarning).toBeHidden();
+      }
     });
 
     test(`Delete OSD ${clusterProperties.CloudProvider} cluster`, async ({

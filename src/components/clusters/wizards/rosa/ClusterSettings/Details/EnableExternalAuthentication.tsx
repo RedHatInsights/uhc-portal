@@ -2,7 +2,7 @@ import React from 'react';
 
 import { GridItem } from '@patternfly/react-core';
 
-import supportLinks from '~/common/supportLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { CheckboxField } from '~/components/clusters/wizards/form';
 import { CheckboxDescription } from '~/components/common/CheckboxDescription';
@@ -14,7 +14,7 @@ export const EnableExternalAuthentication = () => (
       name={FieldId.EnableExteranlAuthentication}
       label="External authentication"
       hint={
-        <ExternalLink href={supportLinks.ROSA_HCP_EXT_AUTH}>
+        <ExternalLink href={docLinks.ROSA_HCP_EXT_AUTH}>
           Learn more about external authentication
         </ExternalLink>
       }

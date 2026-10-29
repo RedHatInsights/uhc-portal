@@ -14342,6 +14342,7 @@ export enum AccessReviewResource_type {
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
   DeletedCluster = 'DeletedCluster',
   DeleteProtection = 'DeleteProtection',
+  ScheduledUpgrade = 'ScheduledUpgrade',
 }
 export enum AccessReviewResponseAction {
   get = 'get',
@@ -14398,6 +14399,7 @@ export enum AccessReviewResponseResource_type {
   ManifestWorkSync = 'ManifestWorkSync',
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
   DeleteProtection = 'DeleteProtection',
+  ScheduledUpgrade = 'ScheduledUpgrade',
 }
 export enum AccountGroupManaged_by {
   SSO = 'SSO',
@@ -14691,6 +14693,7 @@ export enum SelfAccessReviewResource_type {
   ClusterForcedUpgrade = 'ClusterForcedUpgrade',
   DeletedCluster = 'DeletedCluster',
   DeleteProtection = 'DeleteProtection',
+  ScheduledUpgrade = 'ScheduledUpgrade',
 }
 export enum SelfResourceReviewAction {
   get = 'get',

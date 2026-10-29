@@ -2,7 +2,7 @@ import React from 'react';
 import type { FormikValues } from 'formik';
 
 import { DescriptionList, Grid, GridItem, Title } from '@patternfly/react-core';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import { getRandomID } from '~/common/helpers';
 import { STANDARD_TRIAL_BILLING_MODEL_TYPE } from '~/common/subscriptionTypes';

@@ -1,8 +1,8 @@
 import React from 'react';
+import { expect, within } from 'storybook/test';
 
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
-import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import OpenShiftWidget from './openshift-widget';
 
@@ -14,7 +14,7 @@ const meta: Meta<typeof OpenShiftWidget> = {
       <div style={{ maxWidth: '400px' }}>
         <Card>
           <CardHeader>
-            <CardTitle>Red Hat OpenShift *</CardTitle>
+            <CardTitle component="h2">Red Hat OpenShift *</CardTitle>
           </CardHeader>
           <CardBody>
             <Story />

@@ -1,4 +1,4 @@
-import { getMaxNodesTotalDefaultAutoscaler } from '~/components/clusters/common/machinePools/utils';
+import { getClusterAutoscalerMax } from '~/components/clusters/common/machinePools/utils';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks/useFormState';
 import { Version } from '~/types/clusters_mgmt.v1';
@@ -15,10 +15,7 @@ function useResetMaxNodesTotal() {
     const newVersion = clusterVersion ?? getFieldProps(FieldId.ClusterVersion).value;
     const newIsMultiAz = isMultiAz ?? getFieldProps(FieldId.MultiAz).value === 'true';
 
-    const maxNodesTotalDefault = getMaxNodesTotalDefaultAutoscaler(
-      newVersion?.raw_id,
-      newIsMultiAz,
-    );
+    const maxNodesTotalDefault = getClusterAutoscalerMax(newVersion?.raw_id, newIsMultiAz);
 
     setFieldValue('cluster_autoscaling.resource_limits.max_nodes_total', maxNodesTotalDefault);
   };

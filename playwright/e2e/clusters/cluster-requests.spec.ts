@@ -20,7 +20,6 @@ test.describe.serial(
       await page.unroute('**/subscriptions*');
       await page.unroute('**/cluster_transfers*');
       await page.unroute('**/cluster_transfers?search*');
-
     });
     test('Cluster requests links and page definitions', async ({
       clusterListPage,

@@ -97,10 +97,7 @@ test.describe.serial(
         docLinks.IBM_CLOUD_LEARN_MORE,
       );
 
-      await createClusterPage.checkManagedServiceButton(
-        'Try it on IBM',
-        docLinks.IBM_CLOUD,
-      );
+      await createClusterPage.checkManagedServiceButton('Try it on IBM', docLinks.IBM_CLOUD);
 
       await createClusterPage.expandManagedServiceRow('ibm');
       await createClusterPage.isTextVisible(IBMDescriptionText);
@@ -112,10 +109,7 @@ test.describe.serial(
     });
 
     test('Check ROVS section contents', async ({ createClusterPage }) => {
-      test.skip(
-        !isRovsRegistrationEnabled,
-        'ocmui-rovs-registration disabled in this environment',
-      );
+      test.skip(!isRovsRegistrationEnabled, 'ocmui-rovs-registration disabled in this environment');
 
       await createClusterPage.checkManagedServiceLink(
         'Red Hat OpenShift Virtualization Service on IBM Cloud',

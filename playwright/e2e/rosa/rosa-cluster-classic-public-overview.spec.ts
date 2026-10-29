@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { CLUSTER_LIST_FULL_PATH } from '../../support/playwright-constants';
 
 const clusterDetails = require('../../fixtures/rosa/rosa-cluster-classic-public-creation-advanced.spec.json');
@@ -11,6 +11,10 @@ test.describe.serial(
   'ROSA classic cluster properties - Public',
   { tag: ['@day2', '@rosa', '@rosa-classic', '@public', '@multizone', '@singlezone'] },
   () => {
+    test.afterAll(async ({ clusterDetailsPage }) => {
+      await clusterDetailsPage.clearStsOcmRoleInquiryMock();
+    });
+
     test(`Open ${clusterNamePrefix} cluster`, async ({ navigateTo, clusterListPage }) => {
       await navigateTo(CLUSTER_LIST_FULL_PATH);
       await clusterListPage.waitForDataReady();
@@ -21,7 +25,9 @@ test.describe.serial(
       await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
     });
 
-    test(`Cluster details - Overview tab for ${clusterNamePrefix}`, async ({ clusterDetailsPage }) => {
+    test(`Cluster details - Overview tab for ${clusterNamePrefix}`, async ({
+      clusterDetailsPage,
+    }) => {
       await clusterDetailsPage.isClusterDetailsPage(clusterNamePrefix);
       await clusterDetailsPage.overviewTab().click();
       await expect(clusterDetailsPage.clusterTypeLabelValue()).toContainText(
@@ -39,9 +45,9 @@ test.describe.serial(
         clusterProperties.Availability,
       );
       await expect(clusterDetailsPage.clusterRegionLabelValue()).toContainText(region);
-      await expect(
-        clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue(),
-      ).toContainText(awsAccountID);
+      await expect(clusterDetailsPage.clusterInfrastructureAWSaccountLabelValue()).toContainText(
+        awsAccountID,
+      );
       await expect(clusterDetailsPage.clusterAdditionalEncryptionStatus()).toContainText(
         clusterProperties.AdditionalEncryption,
       );
@@ -67,6 +73,41 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterHostPrefixLabelValue()).toContainText(
         clusterProperties.HostPrefix.replace('/', ''),
       );
+    });
+
+    test('shows Missing OCM role warning and clears it via Refresh OCM role', async ({
+      page,
+      clusterDetailsPage,
+    }) => {
+      const ocmRoleState = { isLinked: false };
+      await clusterDetailsPage.mockStsOcmRoleInquiry(ocmRoleState);
+
+      await Promise.all([
+        page.waitForResponse(
+          (response) =>
+            response.url().includes('/aws_inquiries/sts_ocm_role') && response.status() === 404,
+        ),
+        clusterDetailsPage.clusterDetailsRefreshButton().click(),
+      ]);
+
+      await expect(clusterDetailsPage.missingOcmRoleAlertHeading()).toBeVisible();
+      await expect(clusterDetailsPage.missingOcmRoleAlertBody()).toBeVisible();
+      await expect(clusterDetailsPage.missingOcmRoleRequiredByText()).toBeVisible();
+      await expect(clusterDetailsPage.missingOcmRoleRefreshPrompt()).toBeVisible();
+      await expect(clusterDetailsPage.missingOcmRoleLearnMoreLink()).toBeVisible();
+      await expect(clusterDetailsPage.refreshOcmRoleButton()).toBeVisible();
+
+      ocmRoleState.isLinked = true;
+
+      await Promise.all([
+        page.waitForResponse(
+          (response) =>
+            response.url().includes('/aws_inquiries/sts_ocm_role') && response.status() === 200,
+        ),
+        clusterDetailsPage.refreshOcmRoleButton().click(),
+      ]);
+
+      await expect(clusterDetailsPage.missingOcmRoleAlertHeading()).toBeHidden();
     });
   },
 );

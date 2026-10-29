@@ -1,4 +1,4 @@
-@import '~@patternfly/patternfly/sass-utilities';
+@use '~@patternfly/patternfly/sass-utilities' as *;
 
 $ocm-c-marketing-banner--breakpoint-map: build-breakpoint-map();
 

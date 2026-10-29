@@ -63,10 +63,10 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
               <Timestamp
                 date={new Date(accessRequest?.created_at || '')}
                 dateFormat={TimestampFormat.short}
-                // timeFormat={TimestampFormat.long}
+                timeFormat={TimestampFormat.long}
                 is12Hour={false}
                 locale="en-CA"
-                // shouldDisplayUTC
+                shouldDisplayUTC
                 tooltip={{
                   variant: TimestampTooltipVariant.custom,
                   tooltipProps: {
@@ -78,10 +78,10 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
                       <Timestamp
                         date={new Date(accessRequest?.updated_at || '')}
                         dateFormat={TimestampFormat.short}
-                        // timeFormat={TimestampFormat.long}
+                        timeFormat={TimestampFormat.long}
                         is12Hour={false}
                         locale="en-CA"
-                        // shouldDisplayUTC
+                        shouldDisplayUTC
                       />
                     </>
                   ),
@@ -104,9 +104,9 @@ const AccessRequestDetails = ({ accessRequest }: AccessRequestDetailsProps) => {
               <Timestamp
                 date={new Date(accessRequest.deadline_at || '')}
                 dateFormat={TimestampFormat.short}
-                // timeFormat={TimestampFormat.long}
+                timeFormat={TimestampFormat.long}
                 is12Hour={false}
-                // shouldDisplayUTC
+                shouldDisplayUTC
                 locale="en-CA"
               >
                 {!accessRequest.deadline_at && 'N/A'}

@@ -1,7 +1,10 @@
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import { hasOrgLevelAutoscaleCapability } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsSelectors';
-import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
+import {
+  ClusterBillingModel,
+  isGcpMarketplaceBilling,
+} from '~/components/clusters/common/billingModelMapper';
 import { useGlobalState } from '~/redux/hooks';
 import {
   Capability,
@@ -11,7 +14,7 @@ import { Product } from '~/types/clusters_mgmt.v1';
 
 const useCanClusterAutoscale = (
   product: Product['id'],
-  billingModel: string | undefined /* TO-DO: should use type from openAPI once it's updated */,
+  billingModel: ClusterBillingModel | undefined,
   clusterLevelCapabilities?: Array<Capability>,
 ) => {
   const hasClusterLevelAutoscaleCapability = !!clusterLevelCapabilities?.find(

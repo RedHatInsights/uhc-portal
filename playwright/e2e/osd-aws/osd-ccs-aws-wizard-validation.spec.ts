@@ -861,11 +861,47 @@ test.describe.serial(
       );
 
       await createOSDWizardPage.applicationIngressExcludedNamespacesInput().clear();
+      await createOSDWizardPage
+        .applicationIngressExcludedNamespacesInput()
+        .fill(
+          ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+            .ExcludedNamespaces[2].InvalidValue,
+        );
+      await page.getByText('Route selector').click();
+      await createOSDWizardPage.isTextContainsInPage(
+        ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+          .ExcludedNamespaces[2].Error,
+      );
+
+      await createOSDWizardPage.applicationIngressExcludedNamespacesInput().clear();
+      await createOSDWizardPage
+        .applicationIngressExcludedNamespacesInput()
+        .fill(
+          ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+            .ExcludedNamespaces[3].InvalidValue,
+        );
+      await page.getByText('Route selector').click();
+      await createOSDWizardPage.isTextContainsInPage(
+        ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+          .ExcludedNamespaces[3].Error,
+      );
+
+      await createOSDWizardPage.applicationIngressExcludedNamespacesInput().clear();
       await createOSDWizardPage.applicationIngressExcludedNamespacesInput().fill('abc-123');
       await page.getByText('Route selector').click();
       await createOSDWizardPage.isTextContainsInPage(
         ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
           .ExcludedNamespaces[1].Error,
+        false,
+      );
+      await createOSDWizardPage.isTextContainsInPage(
+        ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+          .ExcludedNamespaces[2].Error,
+        false,
+      );
+      await createOSDWizardPage.isTextContainsInPage(
+        ClustersValidation.Networking.Configuration.Common.IngressSettings.CustomSettings
+          .ExcludedNamespaces[3].Error,
         false,
       );
 

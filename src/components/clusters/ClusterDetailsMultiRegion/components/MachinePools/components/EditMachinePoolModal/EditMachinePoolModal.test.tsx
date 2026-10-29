@@ -9,7 +9,7 @@ import {
   IMDS_SELECTION,
   TABBED_MACHINE_POOL_MODAL,
 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, within } from '~/testUtils';
+import { mockUseChrome, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { ClusterFromSubscription } from '~/types/types';
 
 import EditMachinePoolModal from './EditMachinePoolModal';
@@ -97,6 +97,8 @@ const testCluster = {
     display_name: 'test-cluster-display-name',
   },
 };
+
+mockUseChrome({ analytics: { track: jest.fn() } });
 
 describe('<EditMachinePoolModal />', () => {
   describe('error state', () => {
@@ -201,13 +203,13 @@ describe('<EditMachinePoolModal />', () => {
       const imdsV1AndV2Radio = screen.getByRole('radio', { name: /Use both IMDSv1 and IMDSv2/i });
       const imdsV2Radio = screen.getByRole('radio', { name: /Use IMDSv2 only/i });
 
-      expect(imdsV1AndV2Radio).toBeChecked();
-      expect(imdsV2Radio).not.toBeChecked();
-
-      await user.click(imdsV2Radio);
-
       expect(imdsV2Radio).toBeChecked();
       expect(imdsV1AndV2Radio).not.toBeChecked();
+
+      await user.click(imdsV1AndV2Radio);
+
+      expect(imdsV1AndV2Radio).toBeChecked();
+      expect(imdsV2Radio).not.toBeChecked();
     });
 
     it('Shows IMDS radio buttons with enabled feature gate AND tabbed machine pool modal', async () => {
@@ -228,13 +230,13 @@ describe('<EditMachinePoolModal />', () => {
       const imdsV1AndV2Radio = screen.getByRole('radio', { name: /Use both IMDSv1 and IMDSv2/i });
       const imdsV2Radio = screen.getByRole('radio', { name: /Use IMDSv2 only/i });
 
-      expect(imdsV1AndV2Radio).toBeChecked();
-      expect(imdsV2Radio).not.toBeChecked();
-
-      await user.click(imdsV2Radio);
-
       expect(imdsV2Radio).toBeChecked();
       expect(imdsV1AndV2Radio).not.toBeChecked();
+
+      await user.click(imdsV1AndV2Radio);
+
+      expect(imdsV1AndV2Radio).toBeChecked();
+      expect(imdsV2Radio).not.toBeChecked();
     });
 
     describe('tabs', () => {
@@ -565,6 +567,45 @@ describe('<EditMachinePoolModal />', () => {
       // Assert
       expect(screen.getAllByRole('button', { name: 'Plus' })[1]).toBeDisabled();
       expect(await screen.findByTestId('submit-btn')).toBeDisabled();
+    });
+
+    it('Add Machine Pool button is not aria-disabled when below max replicas', async () => {
+      const { user } = render(
+        <EditMachinePoolModal
+          cluster={
+            {
+              multi_az: false,
+              hypershift: { enabled: true },
+              product: { id: 'ROSA' },
+            } as ClusterFromSubscription
+          }
+          onClose={() => {}}
+          isHypershift
+          {...commonProps}
+          machinePoolsResponse={[
+            {
+              availability_zones: ['us-east-1a'],
+              href: '/api/clusters_mgmt/v1/clusters/282fg0gt74jjb9558ge1poe8m4dlvb07/machine_pools/some-user-mp',
+              id: 'fooId',
+              instance_type: 'm5.xlarge',
+              kind: 'MachinePool',
+              replicas: MAX_NODES_HCP - 1,
+              root_volume: { aws: { size: 300 } },
+            },
+          ]}
+        />,
+      );
+
+      // Give the new pool a name so the form is valid
+      const inputField = await screen.findByRole('textbox');
+      await user.type(inputField, 'test');
+
+      // Assert — submit button is present and not aria-disabled due to max reached
+      const submitBtn = await screen.findByTestId('submit-btn');
+      expect(submitBtn).not.toHaveAttribute('aria-disabled', 'true');
+      expect(
+        screen.queryByText('Maximum cluster node count limit reached'),
+      ).not.toBeInTheDocument();
     });
   });
 

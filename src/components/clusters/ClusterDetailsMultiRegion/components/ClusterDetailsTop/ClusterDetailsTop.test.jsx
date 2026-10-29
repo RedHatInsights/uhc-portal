@@ -5,7 +5,6 @@ import * as notifications from '@redhat-cloud-services/frontend-components-notif
 
 import { CLUSTER_LIST_PATH, ocmBaseName } from '~/common/routing';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import supportLinks from '~/common/supportLinks.mjs';
 import * as clusterService from '~/services/clusterService';
 import { checkAccessibility, mockUseChrome, render, screen, within } from '~/testUtils';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
@@ -334,79 +333,8 @@ describe('<ClusterDetailsTop />', () => {
       expect(container.querySelector('.pf-v6-c-skeleton')).toBeInTheDocument();
     });
 
-    it('should show severity label change alert', async () => {
-      const { user } = render(<ClusterDetailsTop {...props} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-      await user.click(expandBtn);
-
-      expect(
-        screen.getByText(
-          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it('displays learn more link in severity label change alert', async () => {
-      const { user } = render(<ClusterDetailsTop {...props} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-      await user.click(expandBtn);
-
-      const learnMoreLink = screen.getByText('Learn more.');
-      expect(learnMoreLink).toHaveAttribute('href', supportLinks.SEVERITY_LABEL_CHANGE_KB);
-    });
-
-    it('should not show severity label change alert when cluster is archived', async () => {
-      const expDate = new Date();
-      expDate.setDate(expDate.getDate() - (365 * 2 + 1));
-
-      const cluster = {
-        ...fixtures.clusterDetails.cluster,
-        subscription: { status: 'Archived', id: 'fake' },
-        expiration_timestamp: expDate.toISOString(), // Include an expiration alert so the Alerts and recommendations section is rendered
-      };
-
-      const newProps = { ...props, cluster };
-
-      const { user } = render(<ClusterDetailsTop {...newProps} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-      await user.click(expandBtn);
-
-      expect(
-        screen.queryByText(
-          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
-        ),
-      ).not.toBeInTheDocument();
-    });
-
-    it('should not show severity label change alert when cluster is deprovisioned', async () => {
-      const expDate = new Date();
-      expDate.setDate(expDate.getDate() - (365 * 2 + 1));
-
-      const cluster = {
-        ...fixtures.clusterDetails.cluster,
-        subscription: { status: 'Deprovisioned', id: 'fake' },
-        expiration_timestamp: expDate.toISOString(),
-      };
-
-      const newProps = { ...props, cluster };
-
-      const { user } = render(<ClusterDetailsTop {...newProps} />);
-
-      const expandBtn = screen.getByText('Alerts and recommendations');
-      await user.click(expandBtn);
-
-      expect(
-        screen.queryByText(
-          'To ensure consistency across our platform, we are updating the severity labels of the service log messages.',
-        ),
-      ).not.toBeInTheDocument();
-    });
-
     it('displays the correct count of alerts', async () => {
-      // mock osdtrial expiration, gcpOrgPolicy, reccomendedOperators, and severity label alerts
+      // mock osdtrial expiration, gcpOrgPolicy, reccomendedOperators
       const { cluster } = fixtures.OSDTrialClusterDetails;
       const expDate = new Date();
       expDate.setDate(expDate.getDate() + 1); // now + 1 day
@@ -417,7 +345,7 @@ describe('<ClusterDetailsTop />', () => {
       render(<ClusterDetailsTop {...newProps} />);
 
       const alertsBadge = screen.getByTestId('alerts-badge');
-      expect(alertsBadge).toHaveTextContent('4');
+      expect(alertsBadge).toHaveTextContent('3');
     });
 
     it('shows Platform Plus Marketplace alert for ROSA clusters', async () => {
@@ -506,6 +434,91 @@ describe('<ClusterDetailsTop />', () => {
 
       expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
       expect(localStorage.getItem('hasUserDismissedRosaOppMarketplaceAlert')).toEqual('true');
+    });
+
+    it('shows ARO Platform Plus Marketplace alert for ARO clusters', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.getByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', {
+          name: 'Azure Marketplace listing for EMEA (new window or tab)',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show ARO Platform Plus Marketplace alert for non-ARO clusters', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.OSD },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show ARO Platform Plus Marketplace alert for ARO clusters if user has dismissed it', async () => {
+      localStorage.setItem('hasUserDismissedAroOppMarketplaceAlert', 'true');
+
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      expect(
+        screen.queryByText(
+          'Red Hat OpenShift Platform Plus is now available for Azure Red Hat OpenShift',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides ARO Platform Plus Marketplace alert when dismissed', async () => {
+      const cluster = {
+        ...defaultCluster,
+        subscription: {
+          ...defaultCluster.subscription,
+          plan: { type: normalizedProducts.ARO },
+        },
+      };
+      const { user } = render(<ClusterDetailsTop {...props} cluster={cluster} />);
+
+      await user.click(screen.getByText('Alerts and recommendations'));
+
+      const alert = screen.getByTestId('aro-platform-plus-marketplace-alert');
+      expect(alert).toBeInTheDocument();
+
+      await user.click(within(alert).getByRole('button', { name: /close/i }));
+
+      expect(screen.queryByTestId('aro-platform-plus-marketplace-alert')).not.toBeInTheDocument();
+      expect(localStorage.getItem('hasUserDismissedAroOppMarketplaceAlert')).toEqual('true');
     });
   });
 });

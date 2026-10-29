@@ -1,6 +1,8 @@
 import React from 'react';
 
 import docLinks from '~/common/docLinks.mjs';
+import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING } from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { useDeleteSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useDeleteSchedule';
 import { useEditSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useEditSchedule';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
@@ -13,11 +15,7 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import {
-  HCP_LOG_FORWARDING,
-  OCP5_SUPPORT,
-  Y_STREAM_CHANNEL,
-} from '~/queries/featureGates/featureConstants';
+import { HCP_LOG_FORWARDING, OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
   mockUseFeatureGate,
@@ -25,6 +23,7 @@ import {
   screen,
   waitFor,
   within,
+  withState,
 } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
@@ -460,29 +459,6 @@ describe('<UpgradeSettingsTab>', () => {
   });
 
   describe('Channel settings', () => {
-    beforeEach(() => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-    });
-
-    it('does not render channel settings when Y_STREAM_CHANNEL feature gate is disabled', () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
-
-      renderComponent(
-        createMockCluster({
-          channel: 'stable-4.12',
-          version: {
-            id: '4.12.0',
-            raw_id: 'openshift-v4.12.0',
-            available_upgrades: ['4.12.1', '4.12.2'],
-            available_channels: ['stable-4.12', 'eus-4.12'],
-          },
-        }),
-      );
-
-      expect(screen.queryByText('Channel settings')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
-    });
-
     it('renders channel settings card with current channel and edit button', () => {
       renderComponent(
         createMockCluster({
@@ -532,8 +508,8 @@ describe('<UpgradeSettingsTab>', () => {
       });
 
       const { user } = renderComponent(rosaCluster);
-      const moreInfoBtn = await screen.findByLabelText('More information');
-      await user.click(moreInfoBtn);
+      const [monitoringMoreInfoBtn] = await screen.findAllByLabelText('More information');
+      await user.click(monitoringMoreInfoBtn);
 
       const link = screen.getByText('Learn more');
       expect(link).toHaveAttribute('href', docLinks.ROSA_CLASSIC_MONITORING);
@@ -545,7 +521,20 @@ describe('<UpgradeSettingsTab>', () => {
       product: { id: 'ROSA' },
       subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
     });
-    const osdClassicCluster = createMockCluster({ product: { id: 'OSD' } });
+
+    const osdAwsClassicCluster = createMockCluster({
+      product: { id: 'OSD' },
+      subscription: {
+        ...createMockCluster().subscription,
+        plan: { type: 'OSD' },
+        cloud_provider_id: 'aws',
+      },
+    });
+    const osdGcpClassicCluster = createMockCluster({
+      product: { id: 'OSD' },
+      cloud_provider: { id: 'gcp' },
+      subscription: { ...createMockCluster().subscription, plan: { type: 'OSD' } },
+    });
 
     it('does not render when showUpgradeToV5Warning is false', () => {
       mockUseFeatureGate([[OCP5_SUPPORT, false]]);
@@ -561,20 +550,116 @@ describe('<UpgradeSettingsTab>', () => {
       renderComponent(rosaClassicCluster);
 
       expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
+    });
+
+    it('renders for an OSD Classic AWS cluster when showUpgradeToV5Warning is true', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(osdAwsClassicCluster);
+
+      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
+      expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
+    });
+
+    it('does not render for an OSD Classic GCP cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(osdGcpClassicCluster);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
+    });
+
+    it('renders the GCP upgrade warning in Update strategy for a service account cluster when ocmui-ocp5-support is on', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(
+        createMockCluster({
+          product: { id: 'OSD' },
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: {},
+          subscription: {
+            ...createMockCluster().subscription,
+            plan: { type: 'OSD' },
+            cloud_provider_id: 'gcp',
+          },
+        }),
+      );
+
+      const updateStrategyCard = screen.getByText('Update strategy').closest('.pf-v6-c-card');
       expect(
-        screen.getByText('create a new ROSA HCP cluster', { exact: false }),
+        within(updateStrategyCard as HTMLElement).getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING),
       ).toBeInTheDocument();
     });
 
-    it('renders for an OSD Classic cluster when showUpgradeToV5Warning is true', () => {
+    it('renders the GCP upgrade warning in Update strategy for a Red Hat cloud account cluster when ocmui-ocp5-support is on', () => {
       mockUseFeatureGate([[OCP5_SUPPORT, true]]);
 
-      renderComponent(osdClassicCluster);
+      renderComponent(osdGcpClassicCluster);
 
-      expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
-      expect(
-        screen.getByText('the last supported version for OSD Classic', { exact: false }),
-      ).toBeInTheDocument();
+      expect(screen.getByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning for a Workload Identity Federation cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      renderComponent(
+        createMockCluster({
+          product: { id: 'OSD' },
+          cloud_provider: { id: 'gcp' },
+          ccs: { enabled: true },
+          gcp: { authentication: { kind: 'WifConfig', id: 'wif-config-id' } },
+          subscription: {
+            ...createMockCluster().subscription,
+            plan: { type: 'OSD' },
+            cloud_provider_id: 'gcp',
+          },
+        }),
+      );
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning when ocmui-ocp5-support is off', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
+
+      renderComponent(osdGcpClassicCluster);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render the GCP upgrade warning when the organization has rosa_osd_allow_ocp_5 set to "true"', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      withState({
+        userProfile: {
+          organization: {
+            details: {
+              capabilities: [
+                { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'true' },
+              ],
+            },
+          },
+        },
+      }).render(<UpgradeSettingsTab cluster={osdGcpClassicCluster as AugmentedCluster} />);
+
+      expect(screen.queryByText(GCP_OCP5_UNSUPPORTED_UPGRADE_WARNING)).not.toBeInTheDocument();
+    });
+
+    it('does not render for a ROSA HCP cluster', () => {
+      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
+
+      const rosaHcpCluster = createMockCluster({
+        product: { id: 'ROSA' },
+        subscription: { ...createMockCluster().subscription, plan: { type: 'ROSA' } },
+        hypershift: { enabled: true },
+        version: { ...createMockCluster().version, raw_id: '4.19.0' },
+      });
+
+      renderComponent(rosaHcpCluster);
+
+      expect(screen.queryByTestId('classic-upgrade-to-v5-warning')).not.toBeInTheDocument();
     });
   });
 

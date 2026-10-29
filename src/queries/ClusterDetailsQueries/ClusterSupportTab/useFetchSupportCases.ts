@@ -15,7 +15,8 @@ export const useFetchSupportCases = (subscriptionID: string, isRestricted: boole
       const response = await accountsService.getSupportCases(subscriptionID);
       return response;
     },
-    enabled: isRestricted,
+    enabled: !isRestricted,
+    retry: false,
   });
   // TODO: not matching with SupportCasesCreatedResponse object
   const cases = (data?.data as any)?.response?.docs || [];

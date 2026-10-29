@@ -19,8 +19,8 @@ limitations under the License.
 
 import React from 'react';
 
+import docLinks from '../../common/docLinks.mjs';
 import { tools } from '../../common/installLinks.mjs';
-import supportLinks from '../../common/supportLinks.mjs';
 import ExternalLink from '../common/ExternalLink';
 
 import Tokens from './Instructions';
@@ -36,7 +36,7 @@ const InstructionsROSA = (props: Props) => (
     commandName="rosa"
     commandTool={tools.ROSA}
     docsLink={
-      <ExternalLink href={supportLinks.ROSA_CLI_DOCS} noIcon>
+      <ExternalLink href={docLinks.ROSA_CLI_DOCS} noIcon>
         read more about setting up the rosa CLI
       </ExternalLink>
     }

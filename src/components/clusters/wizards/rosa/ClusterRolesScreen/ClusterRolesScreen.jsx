@@ -24,9 +24,9 @@ import {
 } from '~/components/clusters/wizards/rosa/ClusterRolesScreen/clusterRolesHelper';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import useAnalytics from '~/hooks/useAnalytics';
+import { refetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import { MULTIREGION_PREVIEW_ENABLED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import docLinks from '../../../../../common/docLinks.mjs';

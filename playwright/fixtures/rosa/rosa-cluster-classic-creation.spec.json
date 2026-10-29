@@ -19,7 +19,7 @@
     "AdditionalEncryption": "Disabled",
     "FIPSCryptography": "Disabled",
     "UserWorkloadMonitoring": "Enabled",
-    "InstanceMetadataService": "IMDSv1 and IMDSv2",
+    "InstanceMetadataService": "IMDSv2 only",
     "RootDiskSize": "300",
     "ApplicationIngress": "Use default settings",
     "OidcProviderMode": "auto",

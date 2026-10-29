@@ -156,12 +156,17 @@ export const BillingModel = () => {
       selectedProduct = normalizedProducts.OSDTrial;
     }
 
-    if (isGcpMarketplaceBilling(value)) {
-      setFieldValue(FieldId.MarketplaceSelection, value, false);
+    const clusterBillingModel =
+      value === SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+        ? SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp
+        : SubscriptionCommonFieldsClusterBillingModel.standard;
+
+    if (isGcpMarketplaceBilling(clusterBillingModel)) {
+      setFieldValue(FieldId.MarketplaceSelection, clusterBillingModel, false);
       setFieldValue(FieldId.CloudProvider, CloudProviderType.Gcp, false);
     }
 
-    setFieldValue(FieldId.Byoc, getDefaultByoc(quotas, value));
+    setFieldValue(FieldId.Byoc, getDefaultByoc(quotas, clusterBillingModel));
     setFieldValue(FieldId.Product, selectedProduct);
   };
 

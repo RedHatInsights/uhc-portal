@@ -15,8 +15,11 @@ import { ocmResourceType, trackEvents } from '~/common/analytics';
 import { BREADCRUMB_PATHS, buildBreadcrumbs } from '~/common/breadcrumbPaths';
 import { shouldRefetchQuota } from '~/common/helpers';
 import { Navigate, useNavigate } from '~/common/routing';
-import { AppDrawerContext } from '~/components/App/AppDrawer';
 import { AppPage } from '~/components/App/AppPage';
+import {
+  redactSqsQueueUrlAccountId,
+  SpotInterruptionMode,
+} from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { rosaWizardFormValidator } from '~/components/clusters/wizards/rosa/formValidators';
 import { LogForwardingScreen } from '~/components/clusters/wizards/rosa/LogForwarding/LogForwardingScreen';
@@ -43,6 +46,7 @@ import PageTitle from '../../../common/PageTitle';
 import Unavailable from '../../../common/Unavailable';
 import { useClusterWizardResetStepsHook } from '../hooks/useClusterWizardResetStepsHook';
 
+import { useAccountsAndRolesDrawer } from './AccountsRolesScreen/AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import CIDRScreen from './CIDRScreen/CIDRScreen';
 import ClusterRolesScreen from './ClusterRolesScreen/ClusterRolesScreen';
 import Details from './ClusterSettings/Details/Details';
@@ -101,13 +105,13 @@ const CreateROSAWizardInternal = ({
   installToVPCSelected,
   configureProxySelected,
   resetResponse,
-  closeDrawer,
   isErrorModalOpen,
   openModal,
   selectedAWSAccountID,
   createCluster,
 }) => {
   const navigate = useNavigate();
+  const { openDrawer, closeDrawer } = useAccountsAndRolesDrawer(isHypershiftSelected);
   const track = useAnalytics();
   const { resetForm, values } = useFormState();
 
@@ -139,6 +143,22 @@ const CreateROSAWizardInternal = ({
       logForwardingConfigured
     ) {
       track('Log Forwarding Configured', { context: 'cluster_creation' });
+    }
+
+    const spotTerminationQueueConfigured =
+      values[FieldId.SpotInterruptionHandling] === SpotInterruptionMode.Enhanced &&
+      values[FieldId.SpotTerminationHandlerQueueUrl];
+    if (
+      fromStepId === stepId.CLUSTER_SETTINGS__MACHINE_POOL &&
+      isHypershiftSelected &&
+      spotTerminationQueueConfigured
+    ) {
+      track(trackEvents.SqsQueueUrlConfigured, {
+        customProperties: {
+          context: 'cluster_creation',
+          sqs_queue_url: redactSqsQueueUrlAccountId(values[FieldId.SpotTerminationHandlerQueueUrl]),
+        },
+      });
     }
   };
 
@@ -307,6 +327,7 @@ const CreateROSAWizardInternal = ({
                   organizationID={organization?.details?.id}
                   isHypershiftEnabled={isHypershiftEnabled}
                   isHypershiftSelected={isHypershiftSelected}
+                  openDrawer={openDrawer}
                 />
               </ErrorBoundary>
             </WizardStep>
@@ -473,20 +494,15 @@ function CreateROSAWizard(props) {
 
   return (
     <AppPage title="Create OpenShift ROSA Cluster">
-      <AppDrawerContext.Consumer>
-        {({ closeDrawer }) => (
-          <CreateROSAWizardInternal
-            {...combinedProps}
-            closeDrawer={closeDrawer}
-            isHypershiftEnabled={isHypershiftEnabled}
-            isHcpLogForwardingEnabled={isHcpLogForwardingEnabled}
-            formValues={values}
-            isValidating={isValidating}
-            isValid={isValid}
-            resetForm={resetForm}
-          />
-        )}
-      </AppDrawerContext.Consumer>
+      <CreateROSAWizardInternal
+        {...combinedProps}
+        isHypershiftEnabled={isHypershiftEnabled}
+        isHcpLogForwardingEnabled={isHcpLogForwardingEnabled}
+        formValues={values}
+        isValidating={isValidating}
+        isValid={isValid}
+        resetForm={resetForm}
+      />
     </AppPage>
   );
 }
@@ -539,8 +555,6 @@ CreateROSAWizardInternal.propTypes = {
     push: PropTypes.func.isRequired,
     block: PropTypes.func,
   }).isRequired,
-
-  closeDrawer: PropTypes.func,
 };
 
 const CreateROSAWizardFormik = (props) => {
@@ -567,4 +581,5 @@ const CreateROSAWizardFormik = (props) => {
 
 CreateROSAWizardFormik.propTypes = { ...CreateROSAWizardInternal.propTypes };
 
+export { CreateROSAWizardInternal };
 export default withAnalytics(CreateROSAWizardFormik);

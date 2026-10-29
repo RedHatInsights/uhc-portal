@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useCanCreateManagedCluster } from '~/queries/ClusterDetailsQueries/useFetchActionsPermissions';
+import * as useFetchGetOCMRoleModule from '~/queries/common/useFetchGetOCMRole';
 import { OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
-import * as useFetchGetOCMRoleModule from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { mockUseFeatureGate, mockUseFormState, render, screen } from '~/testUtils';
 
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';

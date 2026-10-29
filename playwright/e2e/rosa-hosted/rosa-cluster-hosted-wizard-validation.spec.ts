@@ -1,3 +1,4 @@
+import docLinks from '../../../src/common/docLinks.mjs';
 import { test, expect } from '../../fixtures/pages';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
@@ -116,7 +117,7 @@ test.describe.serial(
       await createRosaWizardPage.clearQuotaCostMock();
 
       // Both accounts have no contracts: no warning, Next advances directly
-      // Re-mock with no contracted account    
+      // Re-mock with no contracted account
       await createRosaWizardPage.mockQuotaCostWithBillingContract('', [
         awsBillingAccountID,
         awsSecondaryBillingAccountID,
@@ -561,6 +562,10 @@ test.describe.serial(
       await expect(createRosaWizardPage.enhancedSpotInstancesRadio()).toBeChecked();
       await expect(createRosaWizardPage.simpleSpotInstancesRadio()).not.toBeChecked();
       await expect(createRosaWizardPage.sqsQueueUrlInput()).toBeVisible();
+      await expect(createRosaWizardPage.spotInterruptionSetupDocLink()).toHaveAttribute(
+        'href',
+        docLinks.ROSA_HCP_SPOT_INTERRUPTION_SET_UP,
+      );
 
       await createRosaWizardPage.rosaNextButton().click();
       await createRosaWizardPage.isTextContainsInPage(spot.RequiredError);
@@ -583,27 +588,19 @@ test.describe.serial(
       await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError);
 
       await createRosaWizardPage.fillSqsQueueUrl(mismatchQueueUrl);
-      await createRosaWizardPage.isTextContainsInPage(
-        withRegion(spot.RegionMismatchError),
-      );
+      await createRosaWizardPage.isTextContainsInPage(withRegion(spot.RegionMismatchError));
       await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
 
       await createRosaWizardPage.fillSqsQueueUrl(tooLongQueueUrl);
       await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError);
-      await createRosaWizardPage.isTextContainsInPage(
-        withRegion(spot.RegionMismatchError),
-        false,
-      );
+      await createRosaWizardPage.isTextContainsInPage(withRegion(spot.RegionMismatchError), false);
 
       await createRosaWizardPage.fillSqsQueueUrl(matchingQueueUrl);
       await createRosaWizardPage.isTextContainsInPage(spot.QueueNameMaxLengthError, false);
       await createRosaWizardPage.isTextContainsInPage(spot.RequiredError, false);
       await createRosaWizardPage.isTextContainsInPage(spot.HttpsSchemeError, false);
       await createRosaWizardPage.isTextContainsInPage(spot.InvalidSqsUrlError, false);
-      await createRosaWizardPage.isTextContainsInPage(
-        withRegion(spot.RegionMismatchError),
-        false,
-      );
+      await createRosaWizardPage.isTextContainsInPage(withRegion(spot.RegionMismatchError), false);
 
       await createRosaWizardPage.simpleSpotInstancesRadio().check();
       await expect(createRosaWizardPage.simpleSpotInstancesRadio()).toBeChecked();

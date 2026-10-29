@@ -16,7 +16,7 @@
       "last_name": "",
       "log_type": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Upgrade maintenance beginning",
       "timestamp": "2023-10-25T12:59:19Z",
       "username": "remanuel-ocm"
@@ -37,7 +37,7 @@
       "last_name": "",
       "log_type": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Upgrade maintenance scheduled",
       "timestamp": "2023-10-25T12:02:44Z",
       "username": ""
@@ -58,7 +58,7 @@
       "last_name": "",
       "log_type": "",
       "service_name": "AccountManager",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Cluster registered successfully",
       "timestamp": "2023-10-25T10:44:43.309274Z",
       "username": "service-account-telemeter-service"
@@ -79,7 +79,7 @@
       "last_name": "",
       "log_type": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Default router is enabled",
       "timestamp": "2023-10-25T10:17:56Z",
       "username": "remanuel-ocm"

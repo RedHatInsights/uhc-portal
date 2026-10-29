@@ -4,16 +4,8 @@ import { Formik } from 'formik';
 import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
-import {
-  ALLOW_EUS_CHANNEL,
-  HCP_SPOT_INSTANCES,
-  OCM_ROLE_NO_CONSOLE,
-  Y_STREAM_CHANNEL,
-} from '~/queries/featureGates/featureConstants';
-import {
-  refetchGetOCMRole,
-  useFetchGetOCMRole,
-} from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
+import { refetchGetOCMRole, useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
+import { HCP_SPOT_INSTANCES, OCM_ROLE_NO_CONSOLE } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { initialValues } from '../constants';
@@ -23,7 +15,7 @@ import ReviewClusterScreen from './ReviewClusterScreen';
 
 jest.mock('~/components/CLILoginPage/useOrganization');
 
-jest.mock('~/queries/RosaWizardQueries/useFetchGetOCMRole', () => ({
+jest.mock('~/queries/common/useFetchGetOCMRole', () => ({
   useFetchGetOCMRole: jest.fn().mockReturnValue({
     data: { profile: 'standard' },
     isSuccess: true,
@@ -509,39 +501,7 @@ describe('<ReviewClusterScreen />', () => {
   });
 
   describe('Channel group', () => {
-    it('is shown when ALLOW_EUS_CHANNEL feature gate is enabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, true]]);
-
-      render(
-        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
-          channel_group: 'stable',
-        }),
-      );
-
-      expect(await screen.findByText('Channel group')).toBeInTheDocument();
-      expect(screen.getByText('Stable')).toBeInTheDocument();
-    });
-
-    it('is not shown when ALLOW_EUS_CHANNEL feature gate is disabled', async () => {
-      mockUseFeatureGate([[ALLOW_EUS_CHANNEL, false]]);
-
-      render(
-        buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
-          channel_group: 'stable',
-        }),
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Channel group')).not.toBeInTheDocument();
-      });
-    });
-
-    it('is not shown when both ALLOW_EUS_CHANNEL and Y_STREAM_CHANNEL feature gates are enabled', async () => {
-      mockUseFeatureGate([
-        [ALLOW_EUS_CHANNEL, true],
-        [Y_STREAM_CHANNEL, true],
-      ]);
-
+    it('is not shown', async () => {
       render(
         buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
           channel_group: 'stable',
@@ -555,28 +515,14 @@ describe('<ReviewClusterScreen />', () => {
   });
 
   describe('Channel', () => {
-    it('is shown when Y_STREAM_CHANNEL feature gate is enabled', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-
+    it('is shown on the review step', async () => {
       render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
 
       expect(await screen.findByText('Channel')).toBeInTheDocument();
       expect(screen.getByText('fast-4.13')).toBeInTheDocument();
     });
 
-    it('is not shown when Y_STREAM_CHANNEL feature gate is disabled', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
-
-      render(buildTestComponent(<ReviewClusterScreen {...defaultProps} />));
-
-      await waitFor(() => {
-        expect(screen.queryByText('Channel')).not.toBeInTheDocument();
-      });
-    });
-
     it('shows no channels message when the version has no available channels', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-
       render(
         buildTestComponent(<ReviewClusterScreen {...defaultProps} />, {
           cluster_version: {

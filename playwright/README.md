@@ -53,6 +53,8 @@ The tests support:
 
 The test configuration uses `playwright.env.json` for environment-specific settings. All authentication credentials, cloud provider settings, infrastructure configurations, and test environment options are mapped in this file.
 
+`qe-helper-scripts/create-aws-infrastructure.sh` creates the AWS resources those tests use and writes the resulting ids into `playwright.env.json` at the repo root. Run `./qe-helper-scripts/create-aws-infrastructure.sh --help` to see how to use it.
+
 #### Example `playwright.env.json` Structure
 
 ```json
@@ -330,7 +332,6 @@ test.describe.serial('Register cluster flow', () => {
 - `ocmRolesAndAccessPage` - OCM roles management
 - `tokensPage` - Token management
 - `downloadsPage` - Downloads and CLI tools
-- `globalNavPage` - Global navigation menu
 
 ### Configuration Files
 

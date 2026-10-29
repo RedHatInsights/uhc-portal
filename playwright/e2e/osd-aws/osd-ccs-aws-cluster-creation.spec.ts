@@ -1,3 +1,4 @@
+import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
 const clusterProperties = require('../../fixtures/osd-aws/osd-ccs-aws-cluster-creation.spec.json');
 
@@ -11,9 +12,14 @@ test.describe.serial(
   'OSD AWS CCS cluster creation tests (OCP-35992, OCP-26750)',
   { tag: ['@smoke', '@osd'] },
   () => {
-    test.beforeAll(async ({ navigateTo }) => {
+    let isOcp5SupportEnabled = false;
+
+    test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
+      // Capture Unleash state before the create page loads and prefetches feature gates
+      const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
       // Navigate to create
       await navigateTo('create');
+      isOcp5SupportEnabled = await gatePromise;
     });
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
       createOSDWizardPage,
@@ -79,7 +85,7 @@ test.describe.serial(
       await createOSDWizardPage.selectComputeNodeCount(clusterProperties.MachinePools[0].NodeCount);
       await expect(createOSDWizardPage.enableAutoscalingCheckbox()).not.toBeChecked();
       if (clusterProperties.CloudProvider.includes('AWS')) {
-        await expect(createOSDWizardPage.useBothIMDSv1AndIMDSv2Radio()).toBeChecked();
+        await expect(createOSDWizardPage.useIMDSv2Radio()).toBeChecked();
       }
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
@@ -119,7 +125,7 @@ test.describe.serial(
     }) => {
       await createOSDWizardPage.isClusterUpdatesScreen();
       await expect(createOSDWizardPage.updateStrategyIndividualRadio()).toBeChecked();
-      await createOSDWizardPage.selectNodeDraining(clusterProperties.NodeDraining);
+      await createOSDWizardPage.selectGracePeriod(clusterProperties.NodeDraining);
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
 
@@ -251,6 +257,23 @@ test.describe.serial(
       await expect(clusterDetailsPage.clusterInfrastructureBillingModelValue()).toContainText(
         clusterProperties.InfrastructureType,
       );
+    });
+
+    test(`Settings tab - OCP v5 migration warning renders in Update strategy section for OSD CCS AWS`, async ({
+      clusterDetailsPage,
+    }) => {
+      await clusterDetailsPage.navigateToSettingsTab();
+
+      if (isOcp5SupportEnabled) {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
+        await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(
+          'href',
+          /\/create\/rosa\/getstarted/,
+        );
+      } else {
+        await expect(clusterDetailsPage.ocp5UpgradeWarning()).not.toBeVisible();
+      }
     });
 
     test(`Delete OSD ${clusterProperties.CloudProvider}  cluster`, async ({

@@ -32,6 +32,7 @@ import { getAWSBillingAccountIDs } from '../../../../../../redux/actions/rosaAct
 import ErrorBox from '../../../../../common/ErrorBox';
 import ExternalLink from '../../../../../common/ExternalLink';
 import { FieldId } from '../../constants';
+import { OpenAccountsAndRolesDrawer } from '../AccountsAndRolesDrawer/useAccountsAndRolesDrawer';
 import AWSAccountSelection from '../AWSAccountSelection';
 
 import {
@@ -46,11 +47,13 @@ import ContractInfo from './ContractInfo';
 interface AWSBillingAccountProps {
   selectedAWSBillingAccountID: string;
   selectedAWSAccountID: string;
+  openDrawer: OpenAccountsAndRolesDrawer;
 }
 
 const AWSBillingAccount = ({
   selectedAWSBillingAccountID,
   selectedAWSAccountID,
+  openDrawer,
 }: AWSBillingAccountProps) => {
   const { setFieldValue, getFieldProps, getFieldMeta, setFieldTouched } = useFormState();
   const dispatch = useDispatch();
@@ -184,6 +187,7 @@ const AWSBillingAccount = ({
           isLoading={organization.pending || getAWSBillingAccountsResponse.pending}
           isDisabled={organization.pending || getAWSBillingAccountsResponse.pending}
           isBillingAccount
+          openDrawer={openDrawer}
         />
         {selectedContract ? (
           <Stack>

@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
@@ -25,12 +25,152 @@ export class NetworkingPage extends BasePage {
     ).toBeVisible({ timeout: 60000 });
   }
 
+  /** Alias used by GCP custom-ingress day-2 specs. */
+  async goToNetworkingTab(): Promise<void> {
+    await this.navigateToNetworkingTab();
+  }
+
+  applicationIngressCard(): Locator {
+    return this.networkingTabPanel().getByTestId('application-ingress-card');
+  }
+
+  applicationIngressTitle(): Locator {
+    return this.networkingTabPanel().getByText('Application ingress', { exact: true });
+  }
+
+  /** Namespace ownership policy switch on the Application ingress card (label varies by policy). */
+  applicationIngressNamespaceOwnershipStrictSwitch(): Locator {
+    return this.applicationIngressCard().getByRole('switch', { name: 'Strict' });
+  }
+
+  applicationIngressNamespaceOwnershipInterNamespaceSwitch(): Locator {
+    return this.applicationIngressCard().getByRole('switch', {
+      name: 'Inter-namespace ownership allowed',
+    });
+  }
+
+  /** Wildcard policy switch on the Application ingress card (label is Allowed or Disallowed). */
+  applicationIngressWildcardPolicyAllowedSwitch(): Locator {
+    return this.applicationIngressCard().getByRole('switch', { name: 'Allowed' });
+  }
+
+  applicationIngressWildcardPolicyDisallowedSwitch(): Locator {
+    return this.applicationIngressCard().getByRole('switch', { name: 'Disallowed' });
+  }
+
+  static isNamespaceOwnershipPolicyStrict(namespaceOwnershipPolicy: string): boolean {
+    return namespaceOwnershipPolicy.toLowerCase().includes('strict');
+  }
+
+  static isWildcardPolicyDisallowed(wildcardPolicy: string): boolean {
+    return wildcardPolicy.toLowerCase().includes('disallow');
+  }
+
+  /**
+   * Application ingress is below cluster ingress on the Networking tab; auto-scroll often stops
+   * at VPC farther down. The card title is plain text (not a heading) in the a11y tree.
+   */
+  async scrollToApplicationIngressSection(): Promise<void> {
+    const routerInput = this.defaultApplicationRouterInput();
+    await routerInput.scrollIntoViewIfNeeded();
+    await expect(routerInput).toBeVisible({ timeout: 30000 });
+    await expect(this.applicationIngressTitle()).toBeVisible({ timeout: 30000 });
+  }
+
+  async expectApplicationIngressRouteSelectorCardVisible(): Promise<void> {
+    await expect(this.applicationIngressRouteSelectorCardInput()).toBeVisible();
+  }
+
+  async expectApplicationIngressExcludedNamespacesCardVisible(): Promise<void> {
+    await expect(this.applicationIngressExcludedNamespacesCardInput()).toBeVisible();
+  }
+
+  async expectEditApplicationIngressButtonVisible(): Promise<void> {
+    await expect(this.editApplicationIngressButton()).toBeVisible();
+  }
+
+  async expectApplicationIngressRouteSelectorCardValue(value: string): Promise<void> {
+    await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(value);
+  }
+
+  async expectApplicationIngressExcludedNamespacesCardValue(value: string): Promise<void> {
+    await expect(this.applicationIngressExcludedNamespacesCardInput()).toHaveValue(value);
+  }
+
+  async expectApplicationIngressNamespaceOwnershipPolicy(
+    namespaceOwnershipPolicy: string,
+  ): Promise<void> {
+    const isStrict = NetworkingPage.isNamespaceOwnershipPolicyStrict(namespaceOwnershipPolicy);
+    if (isStrict) {
+      await expect(this.applicationIngressNamespaceOwnershipStrictSwitch()).toBeChecked();
+    } else {
+      await expect(this.applicationIngressNamespaceOwnershipInterNamespaceSwitch()).toBeVisible();
+      await expect(
+        this.applicationIngressNamespaceOwnershipInterNamespaceSwitch(),
+      ).not.toBeChecked();
+    }
+  }
+
+  async expectApplicationIngressWildcardPolicy(wildcardPolicy: string): Promise<void> {
+    const disallowed = NetworkingPage.isWildcardPolicyDisallowed(wildcardPolicy);
+    if (disallowed) {
+      await expect(this.applicationIngressWildcardPolicyDisallowedSwitch()).toBeVisible();
+      await expect(this.applicationIngressWildcardPolicyDisallowedSwitch()).not.toBeChecked();
+    } else {
+      await expect(this.applicationIngressWildcardPolicyAllowedSwitch()).toBeChecked();
+    }
+  }
+
+  async expectEditApplicationIngressModalRouteSelectorValue(value: string): Promise<void> {
+    await expect(this.editApplicationIngressRouteSelectorInput()).toHaveValue(value);
+  }
+
+  async expectEditApplicationIngressModalExcludedNamespacesValue(value: string): Promise<void> {
+    await expect(this.editApplicationIngressExcludedNamespacesInput()).toHaveValue(value);
+  }
+
+  async expectEditApplicationIngressModalSaveDisabled(): Promise<void> {
+    await expect(this.editModalSaveButton()).toBeDisabled();
+  }
+
+  descriptionListValue(container: Locator, term: string): Locator {
+    return container.locator('dt').filter({ hasText: term }).locator('+ dd');
+  }
+
+  editModalRouteSelectorInput(): Locator {
+    return this.editApplicationIngressRouteSelectorInput();
+  }
+
+  editModalExcludedNamespacesInput(): Locator {
+    return this.editApplicationIngressExcludedNamespacesInput();
+  }
+
+  editModalSaveButton(): Locator {
+    return this.networkingModalSaveButton();
+  }
+
+  editModalCancelButton(): Locator {
+    return this.networkingModalCancelButton();
+  }
+
+  async closeEditApplicationIngressModal(): Promise<void> {
+    await this.cancelNetworkingModal();
+  }
+
+  async blurRouteSelectorField(): Promise<void> {
+    await this.editModalExcludedNamespacesInput().click();
+  }
+
+  async blurExcludedNamespacesField(): Promise<void> {
+    await this.editModalRouteSelectorInput().click();
+  }
+
   editClusterIngressButton(): Locator {
     return this.page.getByRole('button', { name: 'Edit cluster ingress' });
   }
 
   editApplicationIngressButton(): Locator {
-    return this.page.getByRole('button', { name: 'Edit application ingress' });
+    return this.networkingTabPanel().getByRole('button', { name: 'Edit application ingress' });
   }
 
   editClusterWideProxyButton(): Locator {
@@ -297,6 +437,7 @@ export class NetworkingPage extends BasePage {
   }
 
   async openEditApplicationIngressModal(): Promise<void> {
+    await this.scrollToApplicationIngressSection();
     await this.editApplicationIngressButton().click();
     await expect(this.editApplicationIngressModal()).toBeVisible({ timeout: 30000 });
   }
@@ -364,9 +505,7 @@ export class NetworkingPage extends BasePage {
     return `${key}=[${values.join(', ')}]`;
   }
 
-  excludeNamespaceSelectorsCardValues(
-    selectors: { key: string; values: string }[],
-  ): string {
+  excludeNamespaceSelectorsCardValues(selectors: { key: string; values: string }[]): string {
     return selectors
       .filter((selector) => selector.key)
       .map((selector) => this.excludeNamespaceSelectorsCardValue(selector.key, selector.values))
@@ -388,9 +527,13 @@ export class NetworkingPage extends BasePage {
     excludeNamespaceSelectorKey: string;
     excludeNamespaceSelectorValues: string;
   }): Promise<void> {
-    await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(fields.routeSelector, {
-      timeout: 60000,
-    });
+    await this.scrollToApplicationIngressSection();
+    await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(
+      fields.routeSelector,
+      {
+        timeout: 60000,
+      },
+    );
     await expect(this.applicationIngressExcludedNamespacesCardInput()).toHaveValue(
       fields.excludedNamespaces,
     );

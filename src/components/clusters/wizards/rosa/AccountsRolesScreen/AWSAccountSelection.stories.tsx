@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { BILLING_CONTRACT_NOTIFICATION } from '~/queries/featureGates/featureConstants';
@@ -107,6 +107,7 @@ function AWSAccountSelectionStoryShell({
           error: '',
         }}
         clearGetAWSAccountIDsResponse={() => undefined}
+        openDrawer={() => undefined}
       />
     </QueryClientProvider>
   );

@@ -15,10 +15,10 @@ describe('refreshClusterDetails', () => {
     jest.clearAllMocks();
   });
 
-  it('invalidates cluster details, control plane log forwarder, and OCP lifecycle queries', () => {
+  it('invalidates cluster details, OCM role, control plane log forwarder, and OCP lifecycle queries', () => {
     refreshClusterDetails();
 
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(3);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(4);
 
     const clusterDetailsPredicate = (queryClient.invalidateQueries as jest.Mock).mock.calls[0][0]
       .predicate;
@@ -31,7 +31,16 @@ describe('refreshClusterDetails', () => {
       }),
     ).toBe(false);
 
-    const logForwardersPredicate = (queryClient.invalidateQueries as jest.Mock).mock.calls[1][0]
+    const ocmRolePredicate = (queryClient.invalidateQueries as jest.Mock).mock.calls[1][0]
+      .predicate;
+    expect(
+      ocmRolePredicate({ queryKey: [queryConstants.FETCH_GET_OCM_ROLE, 'aws-account-1'] }),
+    ).toBe(true);
+    expect(ocmRolePredicate({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] })).toBe(
+      false,
+    );
+
+    const logForwardersPredicate = (queryClient.invalidateQueries as jest.Mock).mock.calls[2][0]
       .predicate;
     expect(
       logForwardersPredicate({
@@ -42,7 +51,7 @@ describe('refreshClusterDetails', () => {
       logForwardersPredicate({ queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY] }),
     ).toBe(false);
 
-    expect(queryClient.invalidateQueries).toHaveBeenNthCalledWith(3, {
+    expect(queryClient.invalidateQueries).toHaveBeenNthCalledWith(4, {
       queryKey: [OCP_LIFECYCLE_QUERY_KEY],
     });
   });

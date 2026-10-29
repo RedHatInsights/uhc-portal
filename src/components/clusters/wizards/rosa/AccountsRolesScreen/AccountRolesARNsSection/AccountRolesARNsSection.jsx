@@ -29,9 +29,9 @@ import ReduxVerticalFormGroup from '~/components/common/ReduxFormComponents_depr
 import { useOCPLatestVersion } from '~/components/releases/hooks';
 import useAnalytics from '~/hooks/useAnalytics';
 import { usePreviousProps } from '~/hooks/usePreviousProps';
+import { refetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import { HCP_USE_UNMANAGED } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
-import { refetchGetOCMRole } from '~/queries/RosaWizardQueries/useFetchGetOCMRole';
 import { useIsNoConsoleRole } from '~/queries/RosaWizardQueries/useIsNoConsoleRole';
 
 import { FieldId } from '../../constants';
@@ -105,6 +105,7 @@ function AccountRolesARNsSection({
   getAWSAccountRolesARNsResponse,
   clearGetAWSAccountRolesARNsResponse,
   isHypershiftSelected,
+  openDrawer,
   onAccountChanged,
   onOCMRoleRefresh,
 }) {
@@ -371,6 +372,7 @@ function AccountRolesARNsSection({
             isMissingOCMRole={isMissingOCMRole}
             isNoConsoleRole={isNoConsoleRole}
             isOCMRoleError={isOCMRoleError}
+            openDrawer={openDrawer}
             onRefreshOCMRole={() => {
               refetchGetOCMRole(selectedAWSAccountID);
               onOCMRoleRefresh?.();
@@ -591,6 +593,7 @@ AccountRolesARNsSection.propTypes = {
   getAWSAccountRolesARNsResponse: PropTypes.object.isRequired,
   clearGetAWSAccountRolesARNsResponse: PropTypes.func.isRequired,
   isHypershiftSelected: PropTypes.bool,
+  openDrawer: PropTypes.func.isRequired,
   onAccountChanged: PropTypes.func.isRequired,
   onOCMRoleRefresh: PropTypes.func,
 };

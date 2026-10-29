@@ -251,33 +251,33 @@ describe('getQueryParam', () => {
   });
 
   it.each([
-    ['?severityTypes=Info', 'severityTypes', 'Info'],
-    ['?severityTypes=Info,Warning,Error', 'severityTypes', 'Info,Warning,Error'],
+    ['?severityTypes=Low', 'severityTypes', 'Low'],
+    ['?severityTypes=Low,Moderate,Important', 'severityTypes', 'Low,Moderate,Important'],
     [
       '?logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'logTypes',
       'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
     ],
-    ['?severityTypes=Info&logTypes=clusterremove-high-level', 'severityTypes', 'Info'],
+    ['?severityTypes=Low&logTypes=clusterremove-high-level', 'severityTypes', 'Low'],
     [
-      '?severityTypes=Info&logTypes=clusterremove-high-level',
+      '?severityTypes=Low&logTypes=clusterremove-high-level',
       'logTypes',
       'clusterremove-high-level',
     ],
     [
-      '?severityTypes=Info,Warning,Error&logTypes=clusterremove-high-level',
+      '?severityTypes=Low,Moderate,Important&logTypes=clusterremove-high-level',
       'severityTypes',
-      'Info,Warning,Error',
+      'Low,Moderate,Important',
     ],
     [
-      '?severityTypes=Info&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
+      '?severityTypes=Low&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'logTypes',
       'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
     ],
     [
-      '?severityTypes=Info,Warning,Error&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
+      '?severityTypes=Low,Moderate,Important&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'severityTypes',
-      'Info,Warning,Error',
+      'Low,Moderate,Important',
     ],
   ])('search %p to be %p', (search, queryParam, expected) => {
     locationSpy.mockReturnValue({
@@ -288,7 +288,7 @@ describe('getQueryParam', () => {
   });
 });
 
-describe('createServiceLogQueryObject severity dual support', () => {
+describe('createServiceLogQueryObject severity filter', () => {
   const baseViewOptions = {
     currentPage: 1,
     pageSize: 50,
@@ -304,29 +304,12 @@ describe('createServiceLogQueryObject severity dual support', () => {
     },
   };
 
-  it('expands Warning filter to include Moderate', () => {
+  it('filters by selected HCC severity labels only', () => {
     const viewOptions = {
       ...baseViewOptions,
       flags: {
         conditionalFilterFlags: {
-          severityTypes: ['Warning'],
-          logTypes: [],
-        },
-      },
-    };
-
-    const result = createServiceLogQueryObject(viewOptions);
-    expect(result.filter).toContain("'Warning'");
-    expect(result.filter).toContain("'Moderate'");
-    expect(result.filter).toMatch(/severity IN \(/);
-  });
-
-  it('expands Important filter to include Major', () => {
-    const viewOptions = {
-      ...baseViewOptions,
-      flags: {
-        conditionalFilterFlags: {
-          severityTypes: ['Important'],
+          severityTypes: ['Important', 'Moderate'],
           logTypes: [],
         },
       },
@@ -334,6 +317,9 @@ describe('createServiceLogQueryObject severity dual support', () => {
 
     const result = createServiceLogQueryObject(viewOptions);
     expect(result.filter).toContain("'Important'");
-    expect(result.filter).toContain("'Major'");
+    expect(result.filter).toContain("'Moderate'");
+    expect(result.filter).not.toContain("'Major'");
+    expect(result.filter).not.toContain("'Warning'");
+    expect(result.filter).toMatch(/severity IN \(/);
   });
 });

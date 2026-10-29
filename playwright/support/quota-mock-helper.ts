@@ -67,3 +67,17 @@ export async function mockQuotaCostWithBillingContract(
 export async function clearQuotaCostMock(page: Page): Promise<void> {
   await page.unroute('**/quota_cost**');
 }
+
+/**
+ * Overrides quota_cost with an empty list, simulating an org with zero
+ * remaining Red Hat quota for every product/resource.
+ */
+export async function mockEmptyQuotaCost(page: Page): Promise<void> {
+  await page.route('**/quota_cost**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ kind: 'QuotaCostList', page: 1, size: 0, total: 0, items: [] }),
+    });
+  });
+}

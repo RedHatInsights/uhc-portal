@@ -4,14 +4,14 @@
  */
 
 import { combineAndSortLinks } from './linkUtils.mjs';
+import { getRosaDocsBase } from './rosaDocsBase.mjs';
 
 const ROSA_CLASSIC_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws_classic_architecture/4/html';
 const OCP_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_container_platform/latest/html';
 const OSD_DOCS_BASE = 'https://docs.redhat.com/en/documentation/openshift_dedicated/4/html';
-const ROSA_DOCS_BASE =
-  'https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html';
+const ROSA_DOCS_BASE = getRosaDocsBase();
 const RH_BASE = 'https://www.redhat.com/en';
 const OCM_DOCS_BASE =
   'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html/managing_clusters';
@@ -78,8 +78,12 @@ const docLinks = {
     'https://registry.terraform.io/providers/terraform-redhat/rhcs/latest/docs/guides/hosted-control-planes',
   ROSA_AWS_FEDRAMP: `${ROSA_DOCS_BASE}/getting_started_with_red_hat_openshift_service_on_aws_in_aws_govcloud/index`,
   ROSA_HCP_CLI_URL: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-sts-creating-a-cluster-quickly`,
+  ROSA_CLI_DOCS: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli`,
+  ROSA_HCP_EXT_AUTH: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth`,
+  ROSA_HCP_BREAK_GLASS: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-sts-creating-a-cluster-ext-auth#rosa-hcp-sts-accessing-a-break-glass-cred-cli_rosa-hcp-sts-creating-a-cluster-ext-auth`,
   LEARN_MORE_SSO_ROSA: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli`,
   ROSA_AUTONODE: `${ROSA_DOCS_BASE}-single/cluster_administration/index#rosa-nodes-autonode-managing`,
+  ROSA_HCP_SPOT_INTERRUPTION_SET_UP: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-config-aws-spot-instances-cli`,
 
   // OSD
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
@@ -127,6 +131,8 @@ const docLinks = {
   AWS_SPOT_INSTANCES: `${OCP_DOCS_BASE}/machine_management/managing-compute-machines-with-the-machine-api#machineset-non-guaranteed-instance_creating-machineset-aws`,
   COSTMGMT_ADDING_OCP: `${COSTMGMT_DOCS_BASE}/integrating_openshift_container_platform_data_into_cost_management/index`,
   UPDATING_CLUSTER: `${OCP_DOCS_BASE}/updating_clusters/performing-a-cluster-update#updating-cluster-web-console`,
+  OCP_INSTALLING_FIPS:
+    'https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/installation_overview/installing-fips',
 
   // AWS
   AWS_CLI: 'https://aws.amazon.com/cli/',

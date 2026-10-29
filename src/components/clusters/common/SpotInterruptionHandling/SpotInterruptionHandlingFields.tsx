@@ -14,6 +14,8 @@ import {
   TextInputProps,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
+import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 
 import {
@@ -125,8 +127,9 @@ export const SpotInterruptionHandlingFields = ({
                 {showPrereqAlert ? (
                   <StackItem>
                     <Alert variant="info" isInline title={prereqAlertMessage}>
-                      {/* TODO https://redhat.atlassian.net/browse/OCMUI-5221 */}
-                      {/* <ExternalLink href={}>View setup documentation</ExternalLink> */}
+                      <ExternalLink href={docLinks.ROSA_HCP_SPOT_INTERRUPTION_SET_UP}>
+                        View setup documentation
+                      </ExternalLink>
                     </Alert>
                   </StackItem>
                 ) : null}

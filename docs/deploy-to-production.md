@@ -39,7 +39,7 @@
 
    Click _Generate release notes_, and then _Publish release_.
 
-1. #### Announce the release on the [#ocm-osd-ui][13] public slack forum
+1. #### Announce the release on the [#forum-rosa-deployments][13] public slack forum
 
    Use this message (just update the Release Notes link to the latest release, before posting):
 
@@ -66,7 +66,7 @@ For more details on self-service, see [User Content Approval Process][25] and [G
 
 
 [9]: https://gitlab.cee.redhat.com/service/app-interface/-/merge_requests/116437
-[13]: https://redhat.enterprise.slack.com/archives/C01G3PL29SS
+[13]: https://redhat.enterprise.slack.com/archives/C081W589GRG
 [16]: https://redhat.enterprise.slack.com/archives/C03GKHGMX7U
 [17]: https://gitlab.cee.redhat.com/service/app-interface/-/blob/master/data/services/ocm/ui/cicd/deploy.yml
 [24]: https://console.redhat.com/openshift

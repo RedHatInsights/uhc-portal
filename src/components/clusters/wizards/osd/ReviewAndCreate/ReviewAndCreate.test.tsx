@@ -5,8 +5,8 @@ import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/types';
 import { FieldId } from '~/components/clusters/wizards/osd/constants';
 import { ReviewAndCreate } from '~/components/clusters/wizards/osd/ReviewAndCreate/ReviewAndCreate';
-import { GCP_DNS_ZONE, Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
-import { checkAccessibility, mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen } from '~/testUtils';
 
 const formValues = {
   product: 'OSD',
@@ -53,7 +53,7 @@ const formValues = {
   load_balancers: 0,
   disable_scp_checks: false,
   customer_managed_key: 'false',
-  imds: 'optional',
+  imds: 'required',
   applicationIngress: 'default',
   defaultRouterExcludedNamespacesFlag: '',
   defaultRouterExcludeNamespaceSelectors: [{ id: 't1', key: '', value: '' }],
@@ -292,10 +292,44 @@ describe('<ReviewAndCreate />', () => {
     });
   });
 
-  describe('Channel', () => {
-    it('is shown when Y_STREAM_CHANNEL feature gate is enabled', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+  describe('Cluster settings - Persistent storage and Load balancers', () => {
+    it('shows Persistent storage and Load balancers with the selected value for non-CCS clusters', () => {
+      const values = {
+        ...formValues,
+        byoc: 'false',
+        load_balancers: 4,
+      };
 
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.getByText('Persistent storage')).toBeInTheDocument();
+      expect(screen.getByText('Load balancers')).toBeInTheDocument();
+      expect(screen.getByTestId('Load-balancers')).toHaveTextContent('4');
+    });
+
+    it("doesn't show Persistent storage or Load balancers for CCS clusters", () => {
+      const values = {
+        ...formValues,
+        byoc: 'true',
+      };
+
+      render(
+        <Formik initialValues={values} onSubmit={() => {}}>
+          <ReviewAndCreate />
+        </Formik>,
+      );
+
+      expect(screen.queryByText('Persistent storage')).not.toBeInTheDocument();
+      expect(screen.queryByText('Load balancers')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Channel', () => {
+    it('is shown on the review step', async () => {
       render(
         <Formik initialValues={formValues} onSubmit={() => {}}>
           <ReviewAndCreate />
@@ -306,23 +340,7 @@ describe('<ReviewAndCreate />', () => {
       expect(screen.getByText('fast-4.16')).toBeInTheDocument();
     });
 
-    it('is not shown when Y_STREAM_CHANNEL feature gate is disabled', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
-
-      render(
-        <Formik initialValues={formValues} onSubmit={() => {}}>
-          <ReviewAndCreate />
-        </Formik>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Channel')).not.toBeInTheDocument();
-      });
-    });
-
     it('shows no channels message when the version has no available channels', async () => {
-      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-
       const values = {
         ...formValues,
         cluster_version: {

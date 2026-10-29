@@ -2,7 +2,8 @@ import React from 'react';
 
 import { Card, CardBody, Title } from '@patternfly/react-core';
 
-import supportLinks from '../../../../../../common/supportLinks.mjs';
+import docLinks from '~/common/docLinks.mjs';
+
 import ExternalLink from '../../../../../common/ExternalLink';
 
 import { BreakGlassCredentialList } from './BreakGlassCredentialList';
@@ -28,7 +29,7 @@ export const ExternalAuthenticationSection = ({
       </Title>
       <p>
         Allow authentication to be handled by an external provider.
-        <ExternalLink href={supportLinks.ROSA_HCP_EXT_AUTH}> Learn more.</ExternalLink>
+        <ExternalLink href={docLinks.ROSA_HCP_EXT_AUTH}> Learn more.</ExternalLink>
       </p>
 
       <ExternalAuthProviderList
@@ -43,7 +44,7 @@ export const ExternalAuthenticationSection = ({
       </Title>
       <p>
         Allows temporary admin access to the cluster using kubeconfig file.
-        <ExternalLink href={supportLinks.ROSA_HCP_BREAK_GLASS}> Learn more.</ExternalLink>
+        <ExternalLink href={docLinks.ROSA_HCP_BREAK_GLASS}> Learn more.</ExternalLink>
       </p>
       <BreakGlassCredentialList
         subscriptionID={subscriptionID}

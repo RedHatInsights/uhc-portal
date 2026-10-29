@@ -7,60 +7,46 @@
 
 import { combineAndSortLinks } from './linkUtils.mjs';
 
-const MIRROR_BUTANE_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest';
-const MIRROR_CLIENTS_STABLE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/';
-const MIRROR_CLIENTS_CANDIDATE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/candidate/';
-const MIRROR_CLIENTS_STABLE_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp/stable/';
-const MIRROR_CLIENTS_STABLE_MULTI =
-  'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp/stable/';
-const MIRROR_CLIENTS_LATEST_PRE_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/ocp-dev-preview/pre-release/';
-const MIRROR_CLIENTS_LATEST_PRE_MULTI =
-  'https://mirror.openshift.com/pub/openshift-v4/multi/clients/ocp-dev-preview/pre-release/';
-const MIRROR_COREOS_INSTALLER_LATEST =
-  'https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest';
+// Prefer the v5 path so download URLs match the OpenShift major version customers use.
+const MIRROR_VERSION_PATH = 'openshift-v5';
+
+const MIRROR_BUTANE_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/butane/latest`;
+const MIRROR_CLIENTS_STABLE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp/stable/`;
+const MIRROR_CLIENTS_CANDIDATE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp/candidate/`;
+const MIRROR_CLIENTS_STABLE_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/ocp/stable/`;
+const MIRROR_CLIENTS_STABLE_MULTI = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/multi/clients/ocp/stable/`;
+const MIRROR_CLIENTS_LATEST_PRE_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_CLIENTS_LATEST_PRE_MULTI = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/multi/clients/ocp-dev-preview/pre-release/`;
+const MIRROR_COREOS_INSTALLER_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/coreos-installer/latest`;
 const MIRROR_CRC_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/cgw/crc/latest';
-const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest';
-const MIRROR_KN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/serverless/latest';
-const MIRROR_TKN_LATEST = 'https://mirror.openshift.com/pub/openshift-v4/clients/pipeline/latest';
+const MIRROR_HELM3_LATEST = 'https://mirror.openshift.com/pub/cgw/helm/latest';
+// Helm v4 has no `latest`/`stable` pointer; pin to a numbered release.
+const MIRROR_HELM_LATEST = 'https://mirror.openshift.com/pub/cgw/helm/4.3.0';
+const MIRROR_KN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/serverless/latest`;
+const MIRROR_TKN_LATEST = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/clients/pipeline/latest`;
+// odo is deprecated/EOL and is not published under /openshift-v5/; keep the v4 path.
 const MIRROR_ODO_LATEST =
   'https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/latest';
-const MIRROR_OSDK_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/operator-sdk/latest';
-const MIRROR_OSDK_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/clients/operator-sdk/latest';
-const MIRROR_RHCOS_LATEST_X86 =
-  'https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_IBMZ =
-  'https://mirror.openshift.com/pub/openshift-v4/s390x/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_PPC =
-  'https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/latest';
-const MIRROR_RHCOS_LATEST_ARM =
-  'https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/latest';
+const MIRROR_OSDK_LATEST_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/clients/operator-sdk/latest`;
+const MIRROR_OSDK_LATEST_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/clients/operator-sdk/latest`;
+const MIRROR_RHCOS_LATEST_X86 = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/x86_64/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_IBMZ = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/s390x/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_PPC = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/ppc64le/dependencies/rhcos/latest`;
+const MIRROR_RHCOS_LATEST_ARM = `https://mirror.openshift.com/pub/${MIRROR_VERSION_PATH}/aarch64/dependencies/rhcos/latest`;
 const MIRROR_ROSA_LATEST = 'https://mirror.openshift.com/pub/cgw/rosa/latest';
 const MIRROR_MIRROR_REGISTRY_LATEST = 'https://mirror.openshift.com/pub/cgw/mirror-registry/latest';
 const MIRROR_OC_MIRROR_LATEST = 'https://mirror.openshift.com/pub/cgw/oc-mirror/latest';
 
 const ARGO_CD_CLI_LATEST =
-  'https://developers.redhat.com/content-gateway/rest/browse/pub/openshift-v4/clients/openshift-gitops/latest/';
+  'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-gitops/latest/';
 
 const SHP_CLI_LATEST =
   'https://developers.redhat.com/content-gateway/rest/browse/pub/cgw/openshift-builds/latest/';
@@ -202,6 +188,11 @@ const links = {
   ROSA_OPP_AWS_MARKETPLACE_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
   ROSA_OPP_AWS_MARKETPLACE_NON_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-dm5otbp2o25zk',
 
+  ARO_OPP_AZURE_MARKETPLACE_EMEA:
+    'https://marketplace.microsoft.com/en-us/product/redhat-limited.rh-opp-bundle',
+  ARO_OPP_AZURE_MARKETPLACE_NON_EMEA:
+    'https://marketplace.microsoft.com/en-us/product/redhat.rh-opp-bundle',
+
   KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
   TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,
   CLI_TOOLS_OCP_GETTING_STARTED: `${OCP_DOCS_BASE}/cli_tools/openshift-cli-oc#cli-about-cli_cli-developer-commands`,
@@ -227,6 +218,7 @@ const tools = {
   CCOCTL: 'ccoctl',
   COREOS_INSTALLER: 'coreos-installer',
   CRC: 'crc',
+  HELM3: 'helm3',
   HELM: 'helm',
   X86INSTALLER: 'x86_64-openshift-install',
   IBMZINSTALLER: 's390x-openshift-install',
@@ -431,12 +423,32 @@ const urls = {
     },
   },
 
+  [tools.HELM3]: {
+    [channels.STABLE]: {
+      [architectures.x86]: {
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-amd64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM3_LATEST}/helm-darwin-amd64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_HELM3_LATEST}/helm-windows-amd64.exe.zip`,
+      },
+      [architectures.s390x]: {
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-s390x.tar.gz`,
+      },
+      [architectures.ppc]: {
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-ppc64le.tar.gz`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${MIRROR_HELM3_LATEST}/helm-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_HELM3_LATEST}/helm-darwin-arm64.tar.gz`,
+      },
+    },
+  },
+
   [tools.HELM]: {
     [channels.STABLE]: {
       [architectures.x86]: {
         [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-amd64.tar.gz`,
         [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-amd64.tar.gz`,
-        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-amd64.exe.zip`,
+        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-amd64.zip`,
       },
       [architectures.s390x]: {
         [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-s390x.tar.gz`,
@@ -447,6 +459,7 @@ const urls = {
       [architectures.arm]: {
         [operatingSystems.linux]: `${MIRROR_HELM_LATEST}/helm-linux-arm64.tar.gz`,
         [operatingSystems.mac]: `${MIRROR_HELM_LATEST}/helm-darwin-arm64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_HELM_LATEST}/helm-windows-arm64.zip`,
       },
     },
   },
@@ -674,6 +687,11 @@ const urls = {
         [operatingSystems.linux]: `${MIRROR_ROSA_LATEST}/rosa-linux.tar.gz`,
         [operatingSystems.mac]: `${MIRROR_ROSA_LATEST}/rosa-macosx.tar.gz`,
         [operatingSystems.windows]: `${MIRROR_ROSA_LATEST}/rosa-windows.zip`,
+      },
+      [architectures.arm]: {
+        [operatingSystems.linux]: `${MIRROR_ROSA_LATEST}/rosa-linux-arm64.tar.gz`,
+        [operatingSystems.mac]: `${MIRROR_ROSA_LATEST}/rosa-macos-arm64.tar.gz`,
+        [operatingSystems.windows]: `${MIRROR_ROSA_LATEST}/rosa-windows-arm64.zip`,
       },
     },
   },

@@ -89,6 +89,18 @@ export const DEFAULT_EXPECT_TIMEOUT = 10000;
  */
 export const GLOBAL_TEST_TIMEOUT = 300000;
 
+/**
+ * Extended timeout for UI controls to become enabled or for modals to settle (30 seconds).
+ * Use when UI state depends on async rendering or short-lived cluster status transitions.
+ */
+export const UI_ENABLEMENT_TIMEOUT = 30000;
+
+/**
+ * Timeout for cluster-mgmt mutations and dependent UI updates to complete (60 seconds).
+ * Use after PATCH/POST operations (channel edits, upgrade policy changes, etc.).
+ */
+export const CLUSTER_MUTATION_SETTLE_TIMEOUT = 60000;
+
 // ==================== Route Paths ====================
 
 /**

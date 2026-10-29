@@ -36,8 +36,7 @@ test.describe.serial('Releases pages tests', { tag: ['@smoke'] }, () => {
     const data = await response.json();
     const allVersions: VersionData[] = data.data[0].versions;
     const targetVersions = allVersions.filter(
-      (version) =>
-        version.type?.toLowerCase() !== 'end of life' && !version.name.includes('EUS'),
+      (version) => version.type?.toLowerCase() !== 'end of life' && !version.name.includes('EUS'),
     );
     expect(targetVersions.length, 'Expected at least one non-EOL version').toBeGreaterThan(0);
     currentVersion = targetVersions[0].name;

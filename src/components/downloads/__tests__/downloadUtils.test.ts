@@ -15,9 +15,9 @@ describe('allArchitecturesForTool', () => {
     expect(values).toEqual([x86, arm, ppc, s390x]);
   });
 
-  it('has only x86 for rosa', () => {
+  it('includes x86 and arm for rosa', () => {
     const values = allArchitecturesForTool(urls, tools.ROSA, channels.STABLE).map((o) => o.value);
-    expect(values).toEqual([x86]);
+    expect(values).toEqual([x86, arm]);
   });
 });
 
@@ -57,6 +57,16 @@ describe('initialSelection', () => {
   it('on Windows, chooses x86', () => {
     const initial = initialSelection(urls, tools.OC, channels.STABLE, windows);
     expect(initial).toEqual({ OS: windows, architecture: architectures.x86 });
+  });
+
+  it('on macOS, prefers arm when available', () => {
+    const initial = initialSelection(urls, tools.ROSA, channels.STABLE, mac);
+    expect(initial).toEqual({ OS: mac, architecture: arm });
+  });
+
+  it('on macOS, falls back to x86 when arm is unavailable', () => {
+    const initial = initialSelection(urls, tools.OCM, channels.STABLE, mac);
+    expect(initial).toEqual({ OS: mac, architecture: x86 });
   });
 
   it('when not available for detected OS, chooses first option Linux x86', () => {

@@ -90,8 +90,13 @@ const trackEvents: { [key: string]: TrackEvent } = {
     link_name: 'crc',
     ocm_resource_type: ocmResourceType.CRC,
   },
-  [tools.HELM]: {
+  [tools.HELM3]: {
     deprecated_name: 'Download-HELM-CLI',
+    event: eventNames.FILE_DOWNLOADED,
+    link_name: 'helm3-cli',
+    ocm_resource_type: ocmResourceType.ALL,
+  },
+  [tools.HELM]: {
     event: eventNames.FILE_DOWNLOADED,
     link_name: 'helm-cli',
     ocm_resource_type: ocmResourceType.ALL,
@@ -400,6 +405,21 @@ const trackEvents: { [key: string]: TrackEvent } = {
   BillingContractWarningShown: {
     event: eventNames.ALERT_INTERACTION,
     link_name: 'billing-contract-warning-shown',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  MachinePoolHcpSpotInstancesEnabled: {
+    event: eventNames.CHECKBOX_CLICKED,
+    link_name: 'machine-pool-hcp-spot-instances-enabled',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  MachinePoolHcpSpotMaxPriceTypeSelected: {
+    event: eventNames.RADIOBUTTON_CLICKED,
+    link_name: 'machine-pool-hcp-spot-max-price-type-selected',
+    ocm_resource_type: ocmResourceType.MOA,
+  },
+  SqsQueueUrlConfigured: {
+    event: 'SQS Queue URL Configured',
+    link_name: 'sqs-queue-url-configured',
     ocm_resource_type: ocmResourceType.MOA,
   },
 };

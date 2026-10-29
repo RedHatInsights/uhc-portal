@@ -10,6 +10,7 @@ class RosaRequestTranslator implements IClusterRequestTranslator {
 
   // TODO: to be implemented
   fromYaml(yaml: string): object {
+    if (!yaml) return {};
     return load(yaml) as object;
   }
 }
