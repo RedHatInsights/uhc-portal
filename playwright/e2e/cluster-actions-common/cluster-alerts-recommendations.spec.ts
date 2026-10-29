@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 
 const clusterProfileFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const recommendedOperatorsFixture = require('../../fixtures/cluster-actions-common/cluster-alerts-recommendations.spec.json');
@@ -10,7 +11,8 @@ test.describe.serial(
   'Cluster details - Recommended operators alert and drawer functionality',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@hcp', '@advanced', '@recommended-operators'] },
   () => {
-    const clusterName = process.env.CLUSTER_NAME || creationProfile.ClusterName;
+    const clusterName =
+      process.env.CLUSTER_NAME || `${creationProfile.ClusterName}-${getUsernameSuffix()}`;
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       await navigateTo('cluster-list');

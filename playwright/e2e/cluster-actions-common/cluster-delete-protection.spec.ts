@@ -1,11 +1,12 @@
 import { expect, test } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 
 const fixtureData = require('../../fixtures/cluster-actions-common/cluster-delete-protection.spec.json');
 const rosaHostedFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const testData = fixtureData['delete-protection'];
-const clusterName =
-  process.env.CLUSTER_NAME ||
+const day1ClusterName =
   rosaHostedFixture['rosa-hosted-public-advanced']['day1-profile'].ClusterName;
+const clusterName = process.env.CLUSTER_NAME || `${day1ClusterName}-${getUsernameSuffix()}`;
 
 test.describe.serial(
   'Cluster delete protection - Day 2 management (OCP-72600)',
