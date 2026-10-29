@@ -1,4 +1,7 @@
-import { hasAllowOcp5Capability } from '~/common/subscriptionCapabilities';
+import {
+  hasAllowOcp5InstallCapability,
+  hasAllowOcp5UpgradeCapability,
+} from '~/common/subscriptionCapabilities';
 import {
   isAWS,
   isHypershiftCluster,
@@ -17,11 +20,17 @@ interface ShowUpgradeToV5WarningParams extends Ocp5MigrationWarningOrgParams {
   cluster: AugmentedCluster | undefined;
 }
 
-const isOcp5MigrationWarningEnabledForOrg = ({
+const isOcp5InstallWarningEnabledForOrg = ({
   isOcp5SupportEnabled,
   organizationCapabilities,
 }: Ocp5MigrationWarningOrgParams): boolean =>
-  isOcp5SupportEnabled && !hasAllowOcp5Capability(organizationCapabilities);
+  isOcp5SupportEnabled && !hasAllowOcp5InstallCapability(organizationCapabilities);
+
+const isOcp5UpgradeWarningEnabledForOrg = ({
+  isOcp5SupportEnabled,
+  organizationCapabilities,
+}: Ocp5MigrationWarningOrgParams): boolean =>
+  isOcp5SupportEnabled && !hasAllowOcp5UpgradeCapability(organizationCapabilities);
 
 const shouldShowUpgradeToV5Warning = ({
   cluster,
@@ -30,7 +39,7 @@ const shouldShowUpgradeToV5Warning = ({
 }: ShowUpgradeToV5WarningParams): boolean => {
   if (
     !cluster ||
-    !isOcp5MigrationWarningEnabledForOrg({ isOcp5SupportEnabled, organizationCapabilities })
+    !isOcp5UpgradeWarningEnabledForOrg({ isOcp5SupportEnabled, organizationCapabilities })
   ) {
     return false;
   }
@@ -46,4 +55,8 @@ const shouldShowUpgradeToV5Warning = ({
   return isOSD(cluster) && isAWS(cluster);
 };
 
-export { isOcp5MigrationWarningEnabledForOrg, shouldShowUpgradeToV5Warning };
+export {
+  isOcp5InstallWarningEnabledForOrg,
+  isOcp5UpgradeWarningEnabledForOrg,
+  shouldShowUpgradeToV5Warning,
+};

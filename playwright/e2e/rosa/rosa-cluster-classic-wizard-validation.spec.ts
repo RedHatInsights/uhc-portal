@@ -1,5 +1,9 @@
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_INSTALL_CAPABILITY,
+} from '../../support/capability-helper';
 
 // Import cluster field validations JSON
 const clusterFieldValidations = require('../../fixtures/rosa/rosa-cluster-classic-wizard-validation.spec.json');
@@ -13,13 +17,18 @@ test.describe.serial(
     const rolePrefix = process.env.QE_ACCOUNT_ROLE_PREFIX || '';
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterName = `ocmui-playwright-smoke-rosa-${Math.random().toString(36).substring(7)}`;
-    let isOcp5SupportEnabled = false;
+    let shouldShowOcp5Warning = false;
 
     test.beforeAll(async ({ navigateTo, createRosaWizardPage }) => {
-      // Capture Unleash state before the create page loads and prefetches feature gates
+      // Capture Unleash state and org capabilities before the create page loads
       const gatePromise = createRosaWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
+      const capabilitiesPromise = createRosaWizardPage.waitForOrganizationCapabilities();
       await navigateTo('create');
-      isOcp5SupportEnabled = await gatePromise;
+      const isOcp5SupportEnabled = await gatePromise;
+      const capabilities = await capabilitiesPromise;
+      shouldShowOcp5Warning =
+        isOcp5SupportEnabled &&
+        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_INSTALL_CAPABILITY);
     });
     test('Open Rosa cluster wizard', async ({ page, createRosaWizardPage }) => {
       await createRosaWizardPage.waitAndClick(createRosaWizardPage.rosaCreateClusterButton());
@@ -52,7 +61,7 @@ test.describe.serial(
 
       const warningDetails = clusterFieldValidations.ClusterSettings.Details;
       const ocp5Warning = createRosaWizardPage.classicV5CreationWarning();
-      if (isOcp5SupportEnabled) {
+      if (shouldShowOcp5Warning) {
         await expect(ocp5Warning).toBeVisible();
         await expect(ocp5Warning).toContainText(warningDetails.Ocp5MigrationWarningText);
         await expect(createRosaWizardPage.classicV5CreationWarningHcpLink()).toHaveAttribute(

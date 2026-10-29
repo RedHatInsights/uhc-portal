@@ -15,7 +15,7 @@ const warningText = 'To use OpenShift v5, please create a ROSA HCP cluster.';
 
 const orgWithCapability = (value: 'true' | 'false'): Organization =>
   ({
-    capabilities: [{ name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value }],
+    capabilities: [{ name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL, value }],
   }) as Organization;
 
 const renderWarning = ({ organization }: { organization?: Organization } = {}) =>
@@ -66,14 +66,14 @@ describe('<ClassicV5CreationWarning />', () => {
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
   });
 
-  it('renders when organization has ROSA_OSD_ALLOW_OCP_5 capability set to "false"', () => {
+  it('renders when organization has ROSA_OSD_ALLOW_OCP_5_INSTALL capability set to "false"', () => {
     renderWarning({ organization: orgWithCapability('false') });
 
     expect(screen.getByTestId('classic-v5-creation-warning')).toBeInTheDocument();
     expect(screen.getByTestId('classic-v5-creation-warning')).toHaveTextContent(warningText);
   });
 
-  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5 capability set to "true"', () => {
+  it('does not render if organization has ROSA_OSD_ALLOW_OCP_5_INSTALL capability set to "true"', () => {
     renderWarning({ organization: orgWithCapability('true') });
 
     expect(screen.queryByTestId('classic-v5-creation-warning')).not.toBeInTheDocument();
