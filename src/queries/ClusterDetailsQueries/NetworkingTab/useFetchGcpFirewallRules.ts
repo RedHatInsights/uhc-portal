@@ -6,7 +6,9 @@ import clusterService from '~/services/clusterService';
 import { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
 export const refetchGcpFirewallRules = () =>
-  queryClient.invalidateQueries({ queryKey: ['gcpFirewallRules'] });
+  // 'all': wizard invalidates while the selector is unmounted; with
+  // refetchOnMount: false, 'active' alone would leave stale cache in place.
+  queryClient.invalidateQueries({ queryKey: ['gcpFirewallRules'], refetchType: 'all' });
 
 type UseFetchGcpFirewallRulesParams = {
   profile: string;
