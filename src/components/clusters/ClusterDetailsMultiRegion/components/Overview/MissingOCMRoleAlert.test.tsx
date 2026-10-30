@@ -20,16 +20,21 @@ const ALERT_TITLE = /Missing or unlinked OCM role/;
 const ocmRoleResponse = ({
   isError = false,
   errorCode,
+  isPending = false,
+  isFetching = false,
 }: {
   isError?: boolean;
   errorCode?: number;
+  isPending?: boolean;
+  isFetching?: boolean;
 } = {}) => ({
-  data: isError ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
+  data: isError || isPending ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
   isError,
   error: isError ? { errorCode } : null,
-  isPending: false,
-  isSuccess: !isError,
-  status: isError ? 'error' : 'success',
+  isPending,
+  isFetching,
+  isSuccess: !isError && !isPending,
+  status: isError ? 'error' : isPending ? 'pending' : 'success',
 });
 
 describe('<MissingOCMRoleAlertContent />', () => {
@@ -153,5 +158,31 @@ describe('<MissingOCMRoleAlert />', () => {
     resolveRefetch();
 
     expect(await screen.findByRole('button', { name: 'Refresh OCM role' })).not.toBeDisabled();
+  });
+
+  it('keeps the banner visible during a background refetch', () => {
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode: 404 }));
+
+    const { rerender } = render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isPending: true, isFetching: true }));
+    rerender(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+  });
+
+  it('hides the banner when a background refetch resolves with a linked role', () => {
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isError: true, errorCode: 404 }));
+
+    const { rerender } = render(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse());
+    rerender(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
+
+    expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
   });
 });
