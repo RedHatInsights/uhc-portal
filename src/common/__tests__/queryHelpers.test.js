@@ -251,33 +251,33 @@ describe('getQueryParam', () => {
   });
 
   it.each([
-    ['?severityTypes=Info', 'severityTypes', 'Info'],
-    ['?severityTypes=Info,Warning,Error', 'severityTypes', 'Info,Warning,Error'],
+    ['?severityTypes=Low', 'severityTypes', 'Low'],
+    ['?severityTypes=Low,Moderate,Important', 'severityTypes', 'Low,Moderate,Important'],
     [
       '?logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'logTypes',
       'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
     ],
-    ['?severityTypes=Info&logTypes=clusterremove-high-level', 'severityTypes', 'Info'],
+    ['?severityTypes=Low&logTypes=clusterremove-high-level', 'severityTypes', 'Low'],
     [
-      '?severityTypes=Info&logTypes=clusterremove-high-level',
+      '?severityTypes=Low&logTypes=clusterremove-high-level',
       'logTypes',
       'clusterremove-high-level',
     ],
     [
-      '?severityTypes=Info,Warning,Error&logTypes=clusterremove-high-level',
+      '?severityTypes=Low,Moderate,Important&logTypes=clusterremove-high-level',
       'severityTypes',
-      'Info,Warning,Error',
+      'Low,Moderate,Important',
     ],
     [
-      '?severityTypes=Info&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
+      '?severityTypes=Low&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'logTypes',
       'Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
     ],
     [
-      '?severityTypes=Info,Warning,Error&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
+      '?severityTypes=Low,Moderate,Important&logTypes=Cluster version,clusterremove-high-level,Hardware/AWS global infrastructure',
       'severityTypes',
-      'Info,Warning,Error',
+      'Low,Moderate,Important',
     ],
   ])('search %p to be %p', (search, queryParam, expected) => {
     locationSpy.mockReturnValue({

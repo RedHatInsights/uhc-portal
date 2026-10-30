@@ -15,7 +15,7 @@
       "kind": "ClusterLog",
       "last_name": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "New upgrade version available",
       "timestamp": "2023-01-13T04:47:01Z",
       "username": ""
@@ -35,7 +35,7 @@
       "kind": "ClusterLog",
       "last_name": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Identity provider added",
       "timestamp": "2023-01-11T16:28:55Z",
       "username": "user-hypershift"
@@ -55,7 +55,7 @@
       "kind": "ClusterLog",
       "last_name": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Group user added",
       "timestamp": "2023-01-11T16:28:54Z",
       "username": "user-hypershift"
@@ -75,7 +75,7 @@
       "kind": "ClusterLog",
       "last_name": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "NodePool added",
       "timestamp": "2023-01-11T16:27:21Z",
       "username": "user-hypershift"
@@ -95,7 +95,7 @@
       "kind": "ClusterLog",
       "last_name": "",
       "service_name": "ClusterService",
-      "severity": "Info",
+      "severity": "Low",
       "summary": "Default router is enabled",
       "timestamp": "2023-01-11T16:17:50Z",
       "username": "user-hypershift"
