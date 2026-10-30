@@ -22,13 +22,14 @@ import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
 import { modalActions } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
 import { useFetchGcpDnsZone } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpDnsZone';
-import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule';
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import type { AugmentedCluster } from '~/types/types';
 
 import EditClusterWideProxyDialog from '../EditClusterWideProxyDialog';
+
+import { GcpFirewallRulesRow } from './GcpFirewallRulesRow';
 
 import './VPCDetailsCard.scss';
 
@@ -76,16 +77,13 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
 
-  const { data: dnsZoneResponse } = useFetchGcpDnsZone(cluster.dns?.base_domain ?? '', isGCP);
-  const dnsZone = Array.isArray(dnsZoneResponse) ? dnsZoneResponse[0] : dnsZoneResponse;
+  const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain ?? '', isGCP);
   const hasPreSelectedDnsZone = !!dnsZone?.gcp?.domain_prefix;
 
-  const shouldFetchFirewallRules = isGCP && isGcpByoFirewallRulesEnabled && !!firewallRulesId;
-  const { data: firewallRule } = useFetchGcpFirewallRule(firewallRulesId, shouldFetchFirewallRules);
-  const firewallRulesName = firewallRule?.name || firewallRulesId;
-  const showFirewallRules = shouldFetchFirewallRules && !!firewallRulesName;
+  // Layout-only: whether a firewall row may appear (child owns fetch + gate details).
+  const mayShowFirewallRules = isGCP && isGcpByoFirewallRulesEnabled && !!firewallRulesId;
   const isSharedVpc = !!hostProjectId;
-  const showSharedVpcSection = isSharedVpc && (isGcpDnsZoneEnabled || showFirewallRules);
+  const showSharedVpcSection = isSharedVpc && (isGcpDnsZoneEnabled || mayShowFirewallRules);
 
   const { canUpdateClusterResource } = cluster;
   const isReadOnly = cluster.status?.configuration_mode === 'read_only';
@@ -124,7 +122,7 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
         {gcpVPCName ||
         showPrivateLink ||
         gcpPrivateServiceConnect ||
-        (!isSharedVpc && showFirewallRules) ? (
+        (!isSharedVpc && mayShowFirewallRules) ? (
           <>
             <Title headingLevel="h3" className="pf-v6-l-stack__item">
               VPC Details
@@ -139,11 +137,8 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
                   <DescriptionListDescription>{gcpVPCName}</DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
-              {!isSharedVpc && showFirewallRules ? (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
-                  <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
-                </DescriptionListGroup>
+              {!isSharedVpc && isGCP ? (
+                <GcpFirewallRulesRow firewallRulesId={firewallRulesId} />
               ) : null}
               {showPrivateLink ? (
                 <DescriptionListGroup>
@@ -186,12 +181,7 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               ) : null}
-              {showFirewallRules ? (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>Firewall rules</DescriptionListTerm>
-                  <DescriptionListDescription>{firewallRulesName}</DescriptionListDescription>
-                </DescriptionListGroup>
-              ) : null}
+              {isGCP ? <GcpFirewallRulesRow firewallRulesId={firewallRulesId} /> : null}
             </DescriptionList>
           </>
         ) : null}
