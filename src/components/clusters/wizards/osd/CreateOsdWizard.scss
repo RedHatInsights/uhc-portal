@@ -1,0 +1,8 @@
+// Avoid a nested wizard-body scrollbar; lets the page be the only scroller.
+#osd-wizard {
+  height: auto;
+
+  .pf-v6-c-wizard__main {
+    overflow: visible;
+  }
+}
