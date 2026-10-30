@@ -130,6 +130,7 @@ The test configuration uses `playwright.env.json` for environment-specific setti
         "VPC_NAME": "vpc name",
         "CAPACITY_RESERVATION": {
           "AvailabilityZone": "AZ region CR configured",
+          "InstanceType": "instance type the reservation was created for",
           "ID": "cr-id"
         },
         "SECURITY_GROUPS": [
