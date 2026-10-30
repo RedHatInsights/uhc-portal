@@ -26,7 +26,7 @@ test.describe.serial(
     const clusterNamePrefix = clusterProperties.ClusterName;
     const userSuffix = getUsernameSuffix();
     const clusterName = `${clusterNamePrefix}-${userSuffix}`;
-    const clusterDomainPrefix = `rosa${userSuffix}`;
+    const clusterDomainPrefix = `rosapvt${userSuffix}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     test.beforeAll(async ({ navigateTo }) => {
       await navigateTo(CREATE_CLUSTER_ROUTE);
