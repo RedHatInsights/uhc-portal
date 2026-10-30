@@ -585,6 +585,10 @@ const reviewValues = {
         ? `${dnsZone?.gcp?.domain_prefix}.${dnsZone?.id} (${dnsZone?.gcp?.project_id})`
         : '',
   },
+  firewall_rules: {
+    title: 'Firewall rules',
+    valueTransform: (firewallRules = {}) => firewallRules.name || firewallRules.id || '',
+  },
   billing_account_id: {
     title: 'AWS billing account ID',
   },

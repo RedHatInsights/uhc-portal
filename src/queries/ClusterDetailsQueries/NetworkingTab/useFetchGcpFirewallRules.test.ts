@@ -288,6 +288,7 @@ describe('useFetchGcpFirewallRules', () => {
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['gcpFirewallRules'],
+      refetchType: 'all',
     });
   });
 });
