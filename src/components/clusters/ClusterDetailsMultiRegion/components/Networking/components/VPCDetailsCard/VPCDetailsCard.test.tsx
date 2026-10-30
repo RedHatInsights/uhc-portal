@@ -336,6 +336,56 @@ describe('<VPCDetailsCard />', () => {
       expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
       expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, false);
     });
+
+    it('does not render Firewall Rules when the feature gate is enabled but firewall_rules_id is missing', () => {
+      useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, false],
+        [GCP_BYO_FIREWALL_RULES, true],
+      ]);
+
+      render(
+        <VPCDetailsCard
+          cluster={
+            {
+              cloud_provider: { id: 'gcp' },
+              gcp_network: {
+                vpc_name: 'mipereir-byo-vpc',
+              },
+            } as AugmentedCluster
+          }
+        />,
+      );
+
+      expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
+      expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(undefined, false);
+    });
+
+    it('does not render Firewall Rules for a non-GCP cluster even when firewall_rules_id is present', () => {
+      useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
+      mockUseFeatureGate([
+        [GCP_DNS_ZONE, false],
+        [GCP_BYO_FIREWALL_RULES, true],
+      ]);
+
+      render(
+        <VPCDetailsCard
+          cluster={
+            {
+              cloud_provider: { id: 'aws' },
+              aws: { subnet_ids: ['subnet-1'] },
+              gcp_network: {
+                vpc_name: 'should-not-matter',
+                firewall_rules_id: firewallRule.id,
+              },
+            } as AugmentedCluster
+          }
+        />,
+      );
+
+      expect(screen.queryByText('Firewall rules')).not.toBeInTheDocument();
+      expect(useFetchGcpFirewallRuleMock).toHaveBeenCalledWith(firewallRule.id, false);
+    });
   });
 
   describe.each([

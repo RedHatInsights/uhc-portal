@@ -15,8 +15,13 @@ jest.mock('./components/ApplicationIngressCard', () => ({
   default: () => <div>ApplicationIngressCard</div>,
 }));
 
+const clusterIngressCardProps: Array<{ clusterRoutersData?: unknown }> = [];
+
 jest.mock('./components/ClusterIngressCard/ClusterIngressCard', () => ({
-  ClusterIngressCard: () => <div>ClusterIngressCard</div>,
+  ClusterIngressCard: (props: { clusterRoutersData?: unknown }) => {
+    clusterIngressCardProps.push(props);
+    return <div>ClusterIngressCard</div>;
+  },
 }));
 
 jest.mock('./components/NetworkConfigurationCard', () => ({
@@ -44,6 +49,10 @@ describe('<Networking />', () => {
     aws: { subnet_ids: ['subnet-1'] },
   } as AugmentedCluster;
 
+  beforeEach(() => {
+    clusterIngressCardProps.length = 0;
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -69,8 +78,9 @@ describe('<Networking />', () => {
   });
 
   it('renders networking cards when cluster routers have loaded', () => {
+    const routers = [{ id: 'router-1' }];
     useGetClusterRoutersMock.mockReturnValue({
-      data: [{ id: 'router-1' }],
+      data: routers,
       isLoading: false,
       isError: false,
     });
@@ -91,6 +101,7 @@ describe('<Networking />', () => {
     expect(screen.getByText('ApplicationIngressCard')).toBeInTheDocument();
     expect(screen.getByText('VPCSubnetsCard')).toBeInTheDocument();
     expect(screen.getByText('VPCDetailsCard')).toBeInTheDocument();
+    expect(clusterIngressCardProps[0]?.clusterRoutersData).toEqual(routers);
   });
 
   it('renders networking cards when routers fail to load', () => {
@@ -106,6 +117,7 @@ describe('<Networking />', () => {
 
     expect(screen.queryByLabelText('Loading...')).not.toBeInTheDocument();
     expect(screen.getByText('ClusterIngressCard')).toBeInTheDocument();
+    expect(clusterIngressCardProps[0]?.clusterRoutersData).toEqual([]);
   });
 
   it('defaults isManaged to false when omitted', () => {
@@ -125,5 +137,6 @@ describe('<Networking />', () => {
 
     expect(useGetClusterRoutersMock).toHaveBeenCalledWith('cluster-1', false, undefined);
     expect(screen.getByText('VPCDetailsCard')).toBeInTheDocument();
+    expect(clusterIngressCardProps[0]?.clusterRoutersData).toEqual([]);
   });
 });
