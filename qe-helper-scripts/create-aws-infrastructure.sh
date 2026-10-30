@@ -38,6 +38,7 @@ CR_INSTANCE_TYPE="${CR_INSTANCE_TYPE:-m6id.xlarge}"
 CR_INSTANCE_COUNT="${CR_INSTANCE_COUNT:-3}"
 CAPACITY_RESERVATION_ID=""
 CAPACITY_RESERVATION_AZ=""
+CAPACITY_RESERVATION_INSTANCE_TYPE=""
 # CLI flag overrides this. When both the flag and the env var are empty, CloudWatch is skipped.
 ENV_CENTRAL_LOG_ROLE_ARN="${CENTRAL_LOG_ROLE_ARN:-}"
 CENTRAL_LOG_ROLE_ARN=""
@@ -793,7 +794,8 @@ capacity_reservation_end_date() {
 }
 
 # Reuse an active or pending reservation tagged for this VPC. Sets
-# CAPACITY_RESERVATION_ID and CAPACITY_RESERVATION_AZ when one exists.
+# CAPACITY_RESERVATION_ID, CAPACITY_RESERVATION_AZ, and
+# CAPACITY_RESERVATION_INSTANCE_TYPE when one exists.
 check_capacity_reservation_exists() {
     local reservation_name
     reservation_name="$(capacity_reservation_name)"
@@ -815,6 +817,7 @@ check_capacity_reservation_exists() {
     CAPACITY_RESERVATION_AZ=$(echo "$reservation_json" | jq -r '.AZ // empty')
     local existing_type
     existing_type=$(echo "$reservation_json" | jq -r '.Type // empty')
+    CAPACITY_RESERVATION_INSTANCE_TYPE="${existing_type:-$CR_INSTANCE_TYPE}"
     print_found "Capacity reservation '$reservation_name' already exists ($CAPACITY_RESERVATION_ID in $CAPACITY_RESERVATION_AZ)"
     if [[ -n "$existing_type" && "$existing_type" != "$CR_INSTANCE_TYPE" ]]; then
         print_warning "Existing capacity reservation instance type is $existing_type; requested $CR_INSTANCE_TYPE. Reusing the existing reservation."
@@ -869,6 +872,7 @@ create_capacity_reservation() {
     rm -f "$create_error"
 
     CAPACITY_RESERVATION_AZ="$az"
+    CAPACITY_RESERVATION_INSTANCE_TYPE="$CR_INSTANCE_TYPE"
     print_status "Capacity reservation created: $CAPACITY_RESERVATION_ID in $CAPACITY_RESERVATION_AZ"
 }
 
@@ -1522,6 +1526,7 @@ output_summary() {
     if [ -n "${CAPACITY_RESERVATION_ID:-}" ]; then
         cr_json='"CAPACITY_RESERVATION": {
           "AvailabilityZone": "'"$CAPACITY_RESERVATION_AZ"'",
+          "InstanceType": "'"${CAPACITY_RESERVATION_INSTANCE_TYPE:-$CR_INSTANCE_TYPE}"'",
           "ID": "'"$CAPACITY_RESERVATION_ID"'"
         },'
     fi
@@ -2182,7 +2187,7 @@ show_usage() {
     echo "                   The S3 bucket and prefix are written as QE_LOG_FORWARDING_S3_BUCKET_NAME"
     echo "                   and QE_LOG_FORWARDING_S3_BUCKET_PREFIX."
     echo "                   A targeted capacity reservation is created in the first subnet AZ and written"
-    echo "                   under QE_INFRA_REGIONS as CAPACITY_RESERVATION.AvailabilityZone and ID"
+    echo "                   under QE_INFRA_REGIONS as CAPACITY_RESERVATION.AvailabilityZone, InstanceType, and ID"
     echo "                   for rosa-cluster-hosted-machine-pool-cr.spec.ts. It expires 3 hours after"
     echo "                   creation, so a failed --cleanup still releases it."
     echo "                   A name owned by another account, or a bucket in another region, is not reused."
