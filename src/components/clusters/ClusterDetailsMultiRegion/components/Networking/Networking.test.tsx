@@ -18,7 +18,7 @@ jest.mock('./components/ApplicationIngressCard', () => ({
 const clusterIngressCardProps: Array<{ clusterRoutersData?: unknown }> = [];
 
 jest.mock('./components/ClusterIngressCard/ClusterIngressCard', () => ({
-  ClusterIngressCard: (props: { clusterRoutersData?: unknown }) => {
+  ClusterIngressCard: (props: Record<string, unknown>) => {
     clusterIngressCardProps.push(props);
     return <div>ClusterIngressCard</div>;
   },
