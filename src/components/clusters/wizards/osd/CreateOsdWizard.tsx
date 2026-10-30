@@ -71,6 +71,8 @@ import {
 } from './Networking';
 import { ReviewAndCreate } from './ReviewAndCreate';
 
+import './CreateOsdWizard.scss';
+
 interface CreateOsdWizardProps {
   product?: string;
   isOSDFromGoogleCloud?: boolean;
