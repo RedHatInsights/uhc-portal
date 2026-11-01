@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field } from 'formik';
 
-import { Alert, AlertActionLink, AlertVariant, Flex, FlexItem } from '@patternfly/react-core';
+import { Alert, AlertVariant, Flex, FlexItem } from '@patternfly/react-core';
 
 import { SupportedFeature } from '~/common/featureCompatibility';
 import { validateSecurityGroups } from '~/common/validators';
@@ -55,9 +55,7 @@ const EditSecurityGroupsField = ({ cluster, isReadOnly }: EditSecurityGroupsFiel
     return <SecurityGroupsEmptyAlert refreshVPCCallback={refreshVPC} />;
   }
   return incompatibleReason?.trim().length > 0 ? (
-    <Alert variant={AlertVariant.warning} title={incompatibleReason} isInline>
-      <AlertActionLink onClick={refreshVPC}>Refresh Security Groups</AlertActionLink>
-    </Alert>
+    <Alert variant={AlertVariant.warning} title={incompatibleReason} isInline />
   ) : (
     <Flex direction={{ default: 'column' }}>
       <FlexItem>
