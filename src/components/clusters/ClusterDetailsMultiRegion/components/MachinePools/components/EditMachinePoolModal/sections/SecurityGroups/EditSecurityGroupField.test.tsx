@@ -90,6 +90,40 @@ describe('EditSecurityGroupsField', () => {
   });
 
   it.each([
+    ['vpc aws_security_groups undefined', undefined],
+    ['vpc aws_security_groups empty', []],
+  ])(
+    'shows the immutable security groups message with no refresh action when editing a machine pool and %p',
+    (_title: string, awsSecurityGroups: SecurityGroup[] | undefined) => {
+      // Arrange
+      useAWSVPCFromClusterMock.mockReturnValueOnce({
+        refreshVPC: jest.fn(),
+        clusterVpc: { aws_security_groups: awsSecurityGroups },
+      });
+
+      // Act
+      render(
+        <Formik initialValues={{ [FieldId.SecurityGroupIds]: [] }} onSubmit={() => {}}>
+          <EditSecurityGroupsField cluster={{} as ClusterFromSubscription} isReadOnly />
+        </Formik>,
+      );
+
+      // Assert
+      expect(
+        screen.getByText(
+          /you cannot add or edit security groups to the machine pool nodes after they are created\./i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/this machine pool does not have additional security groups\./i),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /refresh security groups/i }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it.each([
     [
       'it is not hypershift and lower version',
       { openshift_version: '4.10.0' } as ClusterFromSubscription,

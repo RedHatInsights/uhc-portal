@@ -50,7 +50,8 @@ const EditSecurityGroupsField = ({ cluster, isReadOnly }: EditSecurityGroupsFiel
       />
     );
   }
-  if ((clusterVpc.aws_security_groups || []).length === 0) {
+  const hasVpcSecurityGroups = (clusterVpc.aws_security_groups || []).length > 0;
+  if (!hasVpcSecurityGroups && !isReadOnly) {
     return <SecurityGroupsEmptyAlert refreshVPCCallback={refreshVPC} />;
   }
   return incompatibleReason?.trim().length > 0 ? (
