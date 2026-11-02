@@ -293,16 +293,12 @@ export class NetworkingPage extends BasePage {
     );
   }
 
-  /**
-   * Day-2 TLS / hostname Formik inputs: label is on a parent FormGroup without fieldId,
-   * so no accessible name is exposed. Prefer role/label when product wiring improves.
-   */
   editApplicationIngressTlsSecretInput(): Locator {
-    return this.editApplicationIngressModal().locator('input[name="clusterRoutesTlsSecretRef"]');
+    return this.editApplicationIngressModal().getByRole('textbox', { name: 'TLS Secret name' });
   }
 
   editApplicationIngressHostnameInput(): Locator {
-    return this.editApplicationIngressModal().locator('input[name="clusterRoutesHostname"]');
+    return this.editApplicationIngressModal().getByRole('textbox', { name: 'Hostname' });
   }
 
   async blurTlsSecretField(): Promise<void> {
@@ -311,6 +307,12 @@ export class NetworkingPage extends BasePage {
 
   async blurTlsHostnameField(): Promise<void> {
     await this.editApplicationIngressTlsSecretInput().click();
+  }
+
+  async blurBothTlsPairFields(): Promise<void> {
+    await this.editApplicationIngressTlsSecretInput().click();
+    await this.editApplicationIngressHostnameInput().click();
+    await this.editApplicationIngressRouteSelectorInput().click();
   }
 
   editApplicationIngressExcludeNamespaceSelectorKeyInput(index = 0): Locator {

@@ -169,13 +169,21 @@ test.describe.serial(
       await networkingPage.openEditApplicationIngressModal();
 
       await networkingPage.editApplicationIngressHostnameInput().fill(tlsValidation.ValidHostname);
-      await networkingPage.blurTlsHostnameField();
-      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError);
+      await networkingPage.blurBothTlsPairFields();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.PairError,
+        true,
+        2,
+      );
 
       await networkingPage.editApplicationIngressHostnameInput().clear();
       await networkingPage.editApplicationIngressTlsSecretInput().fill(tlsValidation.ValidSecret);
-      await networkingPage.blurTlsSecretField();
-      await networkingPage.expectTextInEditApplicationIngressModal(tlsValidation.PairError);
+      await networkingPage.blurBothTlsPairFields();
+      await networkingPage.expectTextInEditApplicationIngressModal(
+        tlsValidation.PairError,
+        true,
+        2,
+      );
 
       await networkingPage
         .editApplicationIngressHostnameInput()
