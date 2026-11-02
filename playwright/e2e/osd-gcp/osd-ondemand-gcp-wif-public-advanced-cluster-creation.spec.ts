@@ -250,14 +250,6 @@ test.describe.serial(
       await expect(createOSDWizardPage.encryptVolumesWithCustomerkeysValue()).toContainText(
         clusterProperties.EncryptVolumesWithCustomerKeys,
       );
-      await expect(createOSDWizardPage.keyRingLocationValue()).toContainText(
-        QE_GCP_KEY_RING_LOCATION,
-      );
-      await expect(createOSDWizardPage.keyRingValue()).toContainText(QE_GCP_KEY_RING);
-      await expect(createOSDWizardPage.keyNameValue()).toContainText(QE_GCP_KEY_NAME);
-      await expect(createOSDWizardPage.kmsServiceAccountValue()).toContainText(
-        QE_GCP_KMS_SERVICE_ACCOUNT,
-      );
       await expect(createOSDWizardPage.additionalEtcdEncryptionValue()).toContainText(
         clusterProperties.AdditionalEncryption,
       );

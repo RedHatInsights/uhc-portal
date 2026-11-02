@@ -480,22 +480,6 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     return this.page.getByTestId('Encrypt-volumes-with-customer-keys').locator('div');
   }
 
-  keyRingLocationValue(): Locator {
-    return this.page.getByTestId('Key-ring-location');
-  }
-
-  keyRingValue(): Locator {
-    return this.page.getByTestId('Key-ring');
-  }
-
-  keyNameValue(): Locator {
-    return this.page.getByTestId('Key-name');
-  }
-
-  kmsServiceAccountValue(): Locator {
-    return this.page.getByTestId('KMS-Service-Account');
-  }
-
   additionalEtcdEncryptionValue(): Locator {
     return this.page.getByTestId('Additional-etcd-encryption').locator('div');
   }
