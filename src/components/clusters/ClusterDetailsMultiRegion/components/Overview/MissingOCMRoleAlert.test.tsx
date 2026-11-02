@@ -27,15 +27,21 @@ const ocmRoleResponse = ({
   errorCode?: number;
   isPending?: boolean;
   isFetching?: boolean;
-} = {}) => ({
-  data: isError || isPending ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
-  isError,
-  error: isError ? { errorCode } : null,
-  isPending,
-  isFetching,
-  isSuccess: !isError && !isPending,
-  status: isError ? 'error' : isPending ? 'pending' : 'success',
-});
+} = {}) => {
+  let status = 'success';
+  if (isError) status = 'error';
+  else if (isPending) status = 'pending';
+
+  return {
+    data: isError || isPending ? undefined : { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
+    isError,
+    error: isError ? { errorCode } : null,
+    isPending,
+    isFetching,
+    isSuccess: !isError && !isPending,
+    status,
+  };
+};
 
 describe('<MissingOCMRoleAlertContent />', () => {
   const onRefresh = jest.fn();
