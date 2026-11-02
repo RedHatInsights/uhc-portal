@@ -259,4 +259,34 @@ describe('shouldShowUpgradeToV5Warning', () => {
       }),
     ).toBe(true);
   });
+
+  it('returns true for an OSD Classic AWS cluster when rosa_osd_allow_ocp_5_upgrade is "false"', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: denyOcp5UpgradeCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false for an OSD Classic AWS cluster when rosa_osd_allow_ocp_5_upgrade is "true"', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5UpgradeCapability,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true for an OSD Classic AWS cluster when only the install capability is enabled', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5InstallCapability,
+      }),
+    ).toBe(true);
+  });
 });
