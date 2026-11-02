@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 const PipelinesDrawerPanelBody = (
@@ -68,7 +69,7 @@ const PipelinesDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-red-hat-openshift-pipelines-drawer-panel-content-link"
-        href="https://catalog.redhat.com/software/container-stacks/detail/5ec54a4628834587a6b85ca5"
+        href={installLinks.CATALOG_PIPELINES}
       >
         Learn more about Red Hat OpenShift Pipelines
       </ExternalLink>

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Alert, Card, PageSection, Title } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import { AppPage } from '~/components/App/AppPage';
 import useAuthToken from '~/hooks/useAuthToken';
 import { ErrorState } from '~/types/types';
@@ -17,7 +18,7 @@ export const InstallPullSecretAzure = () => {
   const token = useAuthToken();
   const azureText =
     'Download or copy your pull secret. Your pull secret provides your Azure Red Hat OpenShift cluster with access to additional content provided by Red Hat.';
-  const msDocLink = 'https://docs.microsoft.com/en-us/azure/openshift/howto-add-update-pull-secret';
+  const msDocLink = docLinks.AZURE_PULL_SECRET_DOCS;
 
   const isErrorStateObj = (
     obj:
