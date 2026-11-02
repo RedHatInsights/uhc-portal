@@ -74,7 +74,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
       <Button variant="link" isInline onClick={handleEditSettings}>
         Edit subscription settings
       </Button>
-      {' for non-evaluation use. '}
+      {' to enable support. '}
     </>
   ) : (
     <>
@@ -87,8 +87,8 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
 
   const textForUsersCanNotEdit = (
     <>
-      The cluster owner or an Organization Administrator can edit subscription settings for
-      non-evaluation use.
+      The cluster owner or an Organization Administrator can edit subscription settings to enable
+      support.
     </>
   );
 
@@ -98,7 +98,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
         className="subscription-settings compliancy-alert pf-v6-u-mt-md"
         isInline
         variant="danger"
-        title="Your 60-day OpenShift evaluation has expired"
+        title="Your OpenShift cluster is not supported"
       >
         {lastChecked}
         <p>
@@ -123,16 +123,23 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
       className="subscription-settings compliancy-alert pf-v6-u-mt-md"
       isInline
       variant="warning"
-      title="OpenShift evaluation expiration date"
+      title="OpenShift cluster support status"
     >
       {lastChecked}
       <p>
-        Your OpenShift evaluation will expire at{' '}
-        <Timestamp
-          date={subscription.eval_expiration_date}
-          dateFormat={TimestampFormat.medium}
-          locale="eng-GB"
-        />{' '}
+        Your OpenShift cluster is not supported.
+        {subscription.eval_expiration_date && (
+          <>
+            {' '}
+            Please enable support by{' '}
+            <Timestamp
+              date={subscription.eval_expiration_date}
+              dateFormat={TimestampFormat.medium}
+              locale="eng-GB"
+            />
+            .
+          </>
+        )}{' '}
         {cluster.canEdit ? textForUsersCanEdit : textForUsersCanNotEdit}
       </p>
     </Alert>
