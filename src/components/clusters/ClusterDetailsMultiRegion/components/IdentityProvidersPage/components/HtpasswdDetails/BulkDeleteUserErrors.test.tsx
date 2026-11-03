@@ -50,15 +50,23 @@ describe('<BulkDeleteUserErrors />', () => {
       <BulkDeleteUserErrors
         failedDeletions={[
           {
+            username: 'user1',
             error: {
               errorMessage: 'Permission denied',
               operationID: 'op-1',
+            },
+          },
+          {
+            error: {
+              errorMessage: 'User not found',
+              operationID: 'op-2',
             },
           },
         ]}
       />,
     );
 
+    expect(screen.getByRole('alert')).toHaveTextContent('user1, Unknown user');
     expect(screen.getByRole('button', { name: 'Unknown user' })).toBeInTheDocument();
   });
 });
