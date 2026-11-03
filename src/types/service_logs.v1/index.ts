@@ -49,24 +49,11 @@ export interface paths {
            *     all the accounts that the user has permission to see will be returned."
            *      */
           search?: components['parameters']['search'];
-          /** @description Specifies the order by criteria. The syntax of this parameter is
-           *     similar to the syntax of the _order by_ clause of an SQL statement,
-           *     but using the names of the json attributes / column of the account.
-           *     For example, in order to retrieve all accounts ordered by username:
-           *
-           *     ```sql
-           *     username asc
-           *     ```
-           *
-           *     Or in order to retrieve all accounts ordered by username _and_
-           *     first name:
-           *
-           *     ```sql
-           *     username asc, firstName asc
-           *     ```
-           *
-           *     If the parameter isn't provided, or if the value is empty, then
-           *     no explicit ordering will be applied. */
+          /** @description Specifies the order criteria using the syntax of an SQL ORDER BY
+           *     clause, with service log field names. For example: `timestamp desc`.
+           *     If omitted, the result order is undefined. */
+          order?: components['parameters']['order'];
+          /** @description Legacy alias for `order`; accepts the same ordering criteria. */
           orderBy?: components['parameters']['orderBy'];
           /** @description Supplies a comma-separated list of fields to be returned.
            *     Fields of sub-structures and of arrays use <structure>.<field>
@@ -374,24 +361,11 @@ export interface paths {
            *     all the accounts that the user has permission to see will be returned."
            *      */
           search?: components['parameters']['search'];
-          /** @description Specifies the order by criteria. The syntax of this parameter is
-           *     similar to the syntax of the _order by_ clause of an SQL statement,
-           *     but using the names of the json attributes / column of the account.
-           *     For example, in order to retrieve all accounts ordered by username:
-           *
-           *     ```sql
-           *     username asc
-           *     ```
-           *
-           *     Or in order to retrieve all accounts ordered by username _and_
-           *     first name:
-           *
-           *     ```sql
-           *     username asc, firstName asc
-           *     ```
-           *
-           *     If the parameter isn't provided, or if the value is empty, then
-           *     no explicit ordering will be applied. */
+          /** @description Specifies the order criteria using the syntax of an SQL ORDER BY
+           *     clause, with service log field names. For example: `timestamp desc`.
+           *     If omitted, the result order is undefined. */
+          order?: components['parameters']['order'];
+          /** @description Legacy alias for `order`; accepts the same ordering criteria. */
           orderBy?: components['parameters']['orderBy'];
           /** @description Supplies a comma-separated list of fields to be returned.
            *     Fields of sub-structures and of arrays use <structure>.<field>
@@ -486,7 +460,7 @@ export interface paths {
      * Get notification status for service logs of a cluster
      * @description Returns notification bookkeeping fields for service logs on a cluster
      *     identified by cluster_id and/or cluster_uuid (via any-id). Supported
-     *     query parameters are any-id, page, size, search, and orderBy. Unlike
+     *     query parameters are any-id, page, size, search, order, and orderBy. Unlike
      *     GET /api/service_logs/v1/clusters/cluster_logs, this endpoint does not
      *     support fields, format, or fetchAccounts.
      *
@@ -535,24 +509,11 @@ export interface paths {
            *     all the accounts that the user has permission to see will be returned."
            *      */
           search?: components['parameters']['search'];
-          /** @description Specifies the order by criteria. The syntax of this parameter is
-           *     similar to the syntax of the _order by_ clause of an SQL statement,
-           *     but using the names of the json attributes / column of the account.
-           *     For example, in order to retrieve all accounts ordered by username:
-           *
-           *     ```sql
-           *     username asc
-           *     ```
-           *
-           *     Or in order to retrieve all accounts ordered by username _and_
-           *     first name:
-           *
-           *     ```sql
-           *     username asc, firstName asc
-           *     ```
-           *
-           *     If the parameter isn't provided, or if the value is empty, then
-           *     no explicit ordering will be applied. */
+          /** @description Specifies the order criteria using the syntax of an SQL ORDER BY
+           *     clause, with service log field names. For example: `timestamp desc`.
+           *     If omitted, the result order is undefined. */
+          order?: components['parameters']['order'];
+          /** @description Legacy alias for `order`; accepts the same ordering criteria. */
           orderBy?: components['parameters']['orderBy'];
         };
         header?: never;
@@ -658,24 +619,11 @@ export interface paths {
            *     all the accounts that the user has permission to see will be returned."
            *      */
           search?: components['parameters']['search'];
-          /** @description Specifies the order by criteria. The syntax of this parameter is
-           *     similar to the syntax of the _order by_ clause of an SQL statement,
-           *     but using the names of the json attributes / column of the account.
-           *     For example, in order to retrieve all accounts ordered by username:
-           *
-           *     ```sql
-           *     username asc
-           *     ```
-           *
-           *     Or in order to retrieve all accounts ordered by username _and_
-           *     first name:
-           *
-           *     ```sql
-           *     username asc, firstName asc
-           *     ```
-           *
-           *     If the parameter isn't provided, or if the value is empty, then
-           *     no explicit ordering will be applied. */
+          /** @description Specifies the order criteria using the syntax of an SQL ORDER BY
+           *     clause, with service log field names. For example: `timestamp desc`.
+           *     If omitted, the result order is undefined. */
+          order?: components['parameters']['order'];
+          /** @description Legacy alias for `order`; accepts the same ordering criteria. */
           orderBy?: components['parameters']['orderBy'];
           /** @description Supplies a comma-separated list of fields to be returned.
            *     Fields of sub-structures and of arrays use <structure>.<field>
@@ -1027,24 +975,11 @@ export interface components {
     format: string;
     /** @description The id of the record */
     id: string;
-    /** @description Specifies the order by criteria. The syntax of this parameter is
-     *     similar to the syntax of the _order by_ clause of an SQL statement,
-     *     but using the names of the json attributes / column of the account.
-     *     For example, in order to retrieve all accounts ordered by username:
-     *
-     *     ```sql
-     *     username asc
-     *     ```
-     *
-     *     Or in order to retrieve all accounts ordered by username _and_
-     *     first name:
-     *
-     *     ```sql
-     *     username asc, firstName asc
-     *     ```
-     *
-     *     If the parameter isn't provided, or if the value is empty, then
-     *     no explicit ordering will be applied. */
+    /** @description Specifies the order criteria using the syntax of an SQL ORDER BY
+     *     clause, with service log field names. For example: `timestamp desc`.
+     *     If omitted, the result order is undefined. */
+    order: string;
+    /** @description Legacy alias for `order`; accepts the same ordering criteria. */
     orderBy: string;
     /** @description Id of an organization (organization_id) */
     organization_id: string;
@@ -1106,6 +1041,7 @@ export type ParameterFetchAccounts = components['parameters']['fetchAccounts'];
 export type ParameterFields = components['parameters']['fields'];
 export type ParameterFormat = components['parameters']['format'];
 export type ParameterId = components['parameters']['id'];
+export type ParameterOrder = components['parameters']['order'];
 export type ParameterOrderBy = components['parameters']['orderBy'];
 export type ParameterOrganizationId = components['parameters']['organization_id'];
 export type ParameterPage = components['parameters']['page'];
