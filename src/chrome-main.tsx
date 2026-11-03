@@ -19,7 +19,6 @@ import { Provider } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { NotificationsProvider } from '@redhat-cloud-services/frontend-components-notifications';
 import * as Sentry from '@sentry/browser';
-import { sessionTimingIntegration } from '@sentry/integrations';
 
 import { trackEvents } from '~/common/analytics';
 import { preFetchAllFeatureGates } from '~/queries/featureGates/useFetchFeatureGate';
@@ -64,9 +63,14 @@ class AppEntry extends React.Component<Props> {
           Sentry.init({
             dsn: config.configData.sentryDSN,
             ...(APP_SENTRY_RELEASE_VERSION ? { release: APP_SENTRY_RELEASE_VERSION } : {}),
-            autoSessionTracking: false,
-            integrations: [
-              sessionTimingIntegration(),
+            // autoSessionTracking was removed in Sentry v9; disable the default BrowserSession
+            // integration to preserve the previous autoSessionTracking: false behavior.
+            // sessionTimingIntegration was also removed in v9 with no direct replacement.
+            integrations: (defaults) => [
+              ...defaults.filter(
+                (integration) =>
+                  integration.name !== 'BrowserSession' && integration.name !== 'GlobalHandlers',
+              ),
               Sentry.globalHandlersIntegration({
                 onerror: true,
                 onunhandledrejection: false,
