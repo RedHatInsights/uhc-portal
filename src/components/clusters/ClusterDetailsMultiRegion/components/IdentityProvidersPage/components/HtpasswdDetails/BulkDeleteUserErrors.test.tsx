@@ -11,7 +11,6 @@ describe('<BulkDeleteUserErrors />', () => {
         failedDeletions={[
           {
             username: 'user1',
-            userId: 'userId1',
             error: {
               errorMessage: 'Permission denied',
               operationID: 'op-1',
@@ -19,7 +18,6 @@ describe('<BulkDeleteUserErrors />', () => {
           },
           {
             username: 'user2',
-            userId: 'userId2',
             error: {
               errorMessage: 'User not found',
               operationID: 'op-2',
@@ -52,7 +50,6 @@ describe('<BulkDeleteUserErrors />', () => {
       <BulkDeleteUserErrors
         failedDeletions={[
           {
-            userId: 'userId1',
             error: {
               errorMessage: 'Permission denied',
               operationID: 'op-1',
