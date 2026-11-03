@@ -79,7 +79,7 @@ describe('<SubscriptionCompliancy />', () => {
     cluster.subscription.eval_expiration_date = '2020-08-15T12:00:00Z';
     cluster.subscription.capabilities = [
       {
-        name: subscriptionCapabilities.SUBSCRIBED_OCP,
+        name: clusterCapabilities.SUBSCRIBED_OCP,
         value: 'true',
         inherited: true,
       },
@@ -99,7 +99,7 @@ describe('<SubscriptionCompliancy />', () => {
     cluster.subscription.eval_expiration_date = undefined;
     cluster.subscription.capabilities = [
       {
-        name: subscriptionCapabilities.SUBSCRIBED_OCP,
+        name: clusterCapabilities.SUBSCRIBED_OCP,
         value: 'true',
         inherited: true,
       },
