@@ -2,8 +2,8 @@ import { Capability } from '~/types/accounts_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
 import {
-  isOcp5MigrationWarningEnabledForOrg,
-  shouldShowGcpOcp5UnsupportedUpgradeWarning,
+  isOcp5InstallWarningEnabledForOrg,
+  isOcp5UpgradeWarningEnabledForOrg,
   shouldShowUpgradeToV5Warning,
 } from './UpgradeToV5WarningHelpers';
 
@@ -20,24 +20,7 @@ const osdAwsClassicCluster = {
 const osdGcpClassicCluster = {
   product: { id: 'OSD' },
   cloud_provider: { id: 'gcp' },
-  ccs: { enabled: false },
   subscription: { plan: { type: 'OSD' } },
-} as AugmentedCluster;
-
-const osdGcpServiceAccountCluster = {
-  product: { id: 'OSD' },
-  cloud_provider: { id: 'gcp' },
-  ccs: { enabled: true },
-  gcp: {},
-  subscription: { plan: { type: 'OSD' }, cloud_provider_id: 'gcp' },
-} as AugmentedCluster;
-
-const osdGcpWifCluster = {
-  product: { id: 'OSD' },
-  cloud_provider: { id: 'gcp' },
-  ccs: { enabled: true },
-  gcp: { authentication: { kind: 'WifConfig', id: 'wif-config-id' } },
-  subscription: { plan: { type: 'OSD' }, cloud_provider_id: 'gcp' },
 } as AugmentedCluster;
 
 const rosaHcpV4Cluster = {
@@ -47,47 +30,150 @@ const rosaHcpV4Cluster = {
   version: { raw_id: '4.19.0' },
 } as AugmentedCluster;
 
-const allowOcp5Capability: Capability[] = [
-  { name: 'capability.organization.rosa_osd_allow_ocp_5', value: 'true', inherited: false },
+const allowOcp5InstallCapability: Capability[] = [
+  {
+    name: 'capability.organization.rosa_osd_allow_ocp_5_install',
+    value: 'true',
+    inherited: false,
+  },
 ];
 
-const denyOcp5Capability: Capability[] = [
-  { name: 'capability.organization.rosa_osd_allow_ocp_5', value: 'false', inherited: false },
+const denyOcp5InstallCapability: Capability[] = [
+  {
+    name: 'capability.organization.rosa_osd_allow_ocp_5_install',
+    value: 'false',
+    inherited: false,
+  },
 ];
 
-describe('isOcp5MigrationWarningEnabledForOrg', () => {
+const allowOcp5UpgradeCapability: Capability[] = [
+  {
+    name: 'capability.organization.rosa_osd_allow_ocp_5_upgrade',
+    value: 'true',
+    inherited: false,
+  },
+];
+
+const denyOcp5UpgradeCapability: Capability[] = [
+  {
+    name: 'capability.organization.rosa_osd_allow_ocp_5_upgrade',
+    value: 'false',
+    inherited: false,
+  },
+];
+
+const allowBothOcp5Capabilities: Capability[] = [
+  ...allowOcp5InstallCapability,
+  ...allowOcp5UpgradeCapability,
+];
+
+describe('isOcp5InstallWarningEnabledForOrg', () => {
   it('returns false when the feature flag is off', () => {
     expect(
-      isOcp5MigrationWarningEnabledForOrg({
+      isOcp5InstallWarningEnabledForOrg({
         isOcp5SupportEnabled: false,
         organizationCapabilities: undefined,
       }),
     ).toBe(false);
   });
 
-  it('returns true when the feature flag is on and the org has no OCP 5 capability', () => {
+  it('returns true when the feature flag is on and the org has no OCP 5 install capability', () => {
     expect(
-      isOcp5MigrationWarningEnabledForOrg({
+      isOcp5InstallWarningEnabledForOrg({
         isOcp5SupportEnabled: true,
         organizationCapabilities: undefined,
       }),
     ).toBe(true);
   });
 
-  it('returns true when the org has rosa_osd_allow_ocp_5 set to "false"', () => {
+  it('returns true when the org has rosa_osd_allow_ocp_5_install set to "false"', () => {
     expect(
-      isOcp5MigrationWarningEnabledForOrg({
+      isOcp5InstallWarningEnabledForOrg({
         isOcp5SupportEnabled: true,
-        organizationCapabilities: denyOcp5Capability,
+        organizationCapabilities: denyOcp5InstallCapability,
       }),
     ).toBe(true);
   });
 
-  it('returns false when the org has rosa_osd_allow_ocp_5 set to "true"', () => {
+  it('returns false when the org has rosa_osd_allow_ocp_5_install set to "true"', () => {
     expect(
-      isOcp5MigrationWarningEnabledForOrg({
+      isOcp5InstallWarningEnabledForOrg({
         isOcp5SupportEnabled: true,
-        organizationCapabilities: allowOcp5Capability,
+        organizationCapabilities: allowOcp5InstallCapability,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true when only the upgrade capability is enabled', () => {
+    expect(
+      isOcp5InstallWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5UpgradeCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when both install and upgrade capabilities are enabled', () => {
+    expect(
+      isOcp5InstallWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowBothOcp5Capabilities,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isOcp5UpgradeWarningEnabledForOrg', () => {
+  it('returns false when the feature flag is off', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: false,
+        organizationCapabilities: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true when the feature flag is on and the org has no OCP 5 upgrade capability', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: undefined,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns true when the org has rosa_osd_allow_ocp_5_upgrade set to "false"', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: denyOcp5UpgradeCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when the org has rosa_osd_allow_ocp_5_upgrade set to "true"', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5UpgradeCapability,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true when only the install capability is enabled', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5InstallCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false when both install and upgrade capabilities are enabled', () => {
+    expect(
+      isOcp5UpgradeWarningEnabledForOrg({
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowBothOcp5Capabilities,
       }),
     ).toBe(false);
   });
@@ -144,85 +230,63 @@ describe('shouldShowUpgradeToV5Warning', () => {
     ).toBe(false);
   });
 
-  it('returns true when the org has rosa_osd_allow_ocp_5 set to "false"', () => {
+  it('returns true when the org has rosa_osd_allow_ocp_5_upgrade set to "false"', () => {
     expect(
       shouldShowUpgradeToV5Warning({
         cluster: rosaClassicCluster,
         isOcp5SupportEnabled: true,
-        organizationCapabilities: denyOcp5Capability,
+        organizationCapabilities: denyOcp5UpgradeCapability,
       }),
     ).toBe(true);
   });
 
-  it('returns false when the org has the rosa_osd_allow_ocp_5 capability set to "true"', () => {
+  it('returns false when the org has rosa_osd_allow_ocp_5_upgrade set to "true"', () => {
     expect(
       shouldShowUpgradeToV5Warning({
         cluster: rosaClassicCluster,
         isOcp5SupportEnabled: true,
-        organizationCapabilities: allowOcp5Capability,
-      }),
-    ).toBe(false);
-  });
-});
-
-describe('shouldShowGcpOcp5UnsupportedUpgradeWarning', () => {
-  it('returns false when the feature flag is off', () => {
-    expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
-        cluster: osdGcpServiceAccountCluster,
-        isOcp5SupportEnabled: false,
-        organizationCapabilities: undefined,
+        organizationCapabilities: allowOcp5UpgradeCapability,
       }),
     ).toBe(false);
   });
 
-  it('returns true for an OSD GCP CCS cluster that uses a service account', () => {
+  it('returns true when only the install capability is enabled', () => {
     expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
-        cluster: osdGcpServiceAccountCluster,
-        isOcp5SupportEnabled: true,
-        organizationCapabilities: undefined,
-      }),
-    ).toBe(true);
-  });
-
-  it('returns true for an OSD GCP Red Hat cloud account cluster', () => {
-    expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
-        cluster: osdGcpClassicCluster,
-        isOcp5SupportEnabled: true,
-        organizationCapabilities: undefined,
-      }),
-    ).toBe(true);
-  });
-
-  it('returns false for an OSD GCP WIF cluster', () => {
-    expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
-        cluster: osdGcpWifCluster,
-        isOcp5SupportEnabled: true,
-        organizationCapabilities: undefined,
-      }),
-    ).toBe(false);
-  });
-
-  it('returns false for a ROSA Classic cluster', () => {
-    expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
+      shouldShowUpgradeToV5Warning({
         cluster: rosaClassicCluster,
         isOcp5SupportEnabled: true,
-        organizationCapabilities: undefined,
+        organizationCapabilities: allowOcp5InstallCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns true for an OSD Classic AWS cluster when rosa_osd_allow_ocp_5_upgrade is "false"', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: denyOcp5UpgradeCapability,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false for an OSD Classic AWS cluster when rosa_osd_allow_ocp_5_upgrade is "true"', () => {
+    expect(
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
+        isOcp5SupportEnabled: true,
+        organizationCapabilities: allowOcp5UpgradeCapability,
       }),
     ).toBe(false);
   });
 
-  it('returns false when the org has rosa_osd_allow_ocp_5 set to "true"', () => {
+  it('returns true for an OSD Classic AWS cluster when only the install capability is enabled', () => {
     expect(
-      shouldShowGcpOcp5UnsupportedUpgradeWarning({
-        cluster: osdGcpServiceAccountCluster,
+      shouldShowUpgradeToV5Warning({
+        cluster: osdAwsClassicCluster,
         isOcp5SupportEnabled: true,
-        organizationCapabilities: allowOcp5Capability,
+        organizationCapabilities: allowOcp5InstallCapability,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 });

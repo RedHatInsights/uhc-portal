@@ -9,8 +9,6 @@ import {
   noProviders,
   providersResponse,
 } from '~/common/__tests__/regions.fixtures';
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import { GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING } from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import * as quotaSelectors from '~/components/clusters/common/quotaSelectors';
 import {
   lifecycleResponseData,
@@ -18,11 +16,10 @@ import {
 } from '~/components/clusters/wizards/common/ClusterSettings/Details/VersionSelectField.fixtures';
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleStatuses';
-import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
-import { mockUseFeatureGate, render, screen, withState } from '~/testUtils';
-import { Organization } from '~/types/accounts_mgmt.v1';
+import { render, screen, withState } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -418,90 +415,34 @@ describe('<Details />', () => {
     });
   });
 
-  describe('OpenShift 5 Red Hat cloud account warning', () => {
-    const orgWithOcp5Capability = (value: 'true' | 'false'): Organization =>
-      ({
-        capabilities: [{ name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value }],
-      }) as Organization;
-
-    const renderDetails = ({
-      cloudProvider = 'gcp',
-      byoc = 'false',
-      organization,
-    }: {
-      cloudProvider?: string;
-      byoc?: string;
-      organization?: Organization;
-    } = {}) => {
-      (clusterService.getCloudProviders as jest.Mock).mockResolvedValue(providersResponse);
+  describe('Version label', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
       (clusterService.getInstallableVersions as jest.Mock).mockResolvedValue({
         data: { items: [version] },
       });
       (getOCPLifeCycleStatus as jest.Mock).mockResolvedValue(ocpLifeCycleStatuses);
+      (clusterService.getCloudProviders as jest.Mock).mockResolvedValue(providersResponse);
+    });
 
-      return withState({
-        cloudProviders: fulfilledProviders,
-        userProfile: {
-          organization: {
-            quotaList: { items: [] },
-            details: organization,
-          },
-        },
-      }).render(
+    it('shows marketplace label when billing model is marketplace_gcp', async () => {
+      const loadedState = { cloudProviders: fulfilledProviders };
+
+      withState(loadedState).render(
         <Formik
           initialValues={{
             ...defaultValues,
-            [FieldId.CloudProvider]: cloudProvider,
-            [FieldId.Byoc]: byoc,
+            [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
           }}
           onSubmit={() => {}}
         >
           <Details />
         </Formik>,
       );
-    };
 
-    beforeEach(() => {
-      jest.resetAllMocks();
-      mockUseFeatureGate([[OCP5_SUPPORT, true]]);
-    });
-
-    it('shows the warning above the version field for a GCP Red Hat cloud account when ocmui-ocp5-support is on', () => {
-      renderDetails();
-
-      expect(screen.getByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).toBeInTheDocument();
-    });
-
-    it('does not show the warning for a GCP Customer Cloud Subscription cluster', () => {
-      renderDetails({ byoc: 'true' });
-
-      expect(screen.queryByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).not.toBeInTheDocument();
-    });
-
-    it('does not show the warning for an AWS Red Hat cloud account cluster', () => {
-      renderDetails({ cloudProvider: 'aws' });
-
-      expect(screen.queryByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).not.toBeInTheDocument();
-    });
-
-    it('does not show the warning when ocmui-ocp5-support is off', () => {
-      mockUseFeatureGate([[OCP5_SUPPORT, false]]);
-
-      renderDetails();
-
-      expect(screen.queryByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).not.toBeInTheDocument();
-    });
-
-    it('does not show the warning when the organization has rosa_osd_allow_ocp_5 set to "true"', () => {
-      renderDetails({ organization: orgWithOcp5Capability('true') });
-
-      expect(screen.queryByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).not.toBeInTheDocument();
-    });
-
-    it('shows the warning when the organization has rosa_osd_allow_ocp_5 set to "false"', () => {
-      renderDetails({ organization: orgWithOcp5Capability('false') });
-
-      expect(screen.getByText(GCP_OCP5_RED_HAT_ACCOUNT_CREATION_WARNING)).toBeInTheDocument();
+      expect(
+        await screen.findByText('Version (Google Cloud Marketplace enabled)'),
+      ).toBeInTheDocument();
     });
   });
 });

@@ -1,9 +1,4 @@
-import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { expect, test } from '../../fixtures/pages';
-import {
-  hasOrganizationCapability,
-  ROSA_OSD_ALLOW_OCP_5_CAPABILITY,
-} from '../../support/capability-helper';
 
 // Test data - importing as modules since JSON imports need special config
 const testData = require('../../fixtures/osd-gcp/osd-ccs-gcp-wizard-validation.spec.json');
@@ -23,17 +18,9 @@ Clusters.forEach((clusterProperties) => {
     `OSD Wizard CCS GCP validation tests (${configName}) - OCP-54134,OCP-73204`,
     { tag: ['@smoke', '@wizard-validation', '@osd'] },
     () => {
-      let shouldShowOcp5Warning = false;
-
-      test.beforeAll(async ({ navigateTo, createOSDWizardPage }) => {
-        const gatePromise = createOSDWizardPage.isFeatureGateEnabled(OCP5_SUPPORT);
-        const capabilitiesPromise = createOSDWizardPage.waitForOrganizationCapabilities();
+      test.beforeAll(async ({ navigateTo }) => {
+        // Navigate to create
         await navigateTo('create');
-        const isOcp5SupportEnabled = await gatePromise;
-        const capabilities = await capabilitiesPromise;
-        shouldShowOcp5Warning =
-          isOcp5SupportEnabled &&
-          !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_CAPABILITY);
       });
       test(`Launch OSD cluster wizard`, async ({ createOSDWizardPage }) => {
         await createOSDWizardPage.waitAndClick(createOSDWizardPage.osdCreateClusterButton());
@@ -58,19 +45,8 @@ Clusters.forEach((clusterProperties) => {
         );
 
         if (clusterProperties.CloudProvider.includes('GCP')) {
-          const serviceAccountWarningText =
-            ClustersValidation.ClusterSettings.CloudProvider.GCP.Ocp5ServiceAccountWarning;
-          const serviceAccountWarning =
-            createOSDWizardPage.gcpOcp5ServiceAccountCreationWarning(serviceAccountWarningText);
-          await expect(serviceAccountWarning).toBeHidden();
-
           if (clusterProperties.AuthenticationType?.includes('Service Account')) {
             await createOSDWizardPage.serviceAccountButton().click();
-            if (shouldShowOcp5Warning) {
-              await expect(serviceAccountWarning).toBeVisible();
-            } else {
-              await expect(serviceAccountWarning).toBeHidden();
-            }
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.EmptyGCPServiceJSONFieldError,
@@ -99,7 +75,6 @@ Clusters.forEach((clusterProperties) => {
             }
           } else {
             await createOSDWizardPage.workloadIdentityFederationButton().click();
-            await expect(serviceAccountWarning).toBeHidden();
             await createOSDWizardPage.wizardNextButton().click();
             await createOSDWizardPage.isTextContainsInPage(
               ClustersValidation.ClusterSettings.CloudProvider.GCP.NoWIFConfigSelectionError,

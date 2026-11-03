@@ -24,7 +24,6 @@
   "PodCIDR": "10.128.0.0/14",
   "HostPrefix": "/23",
   "UpdateStrategy": "Individual updates",
-  "Ocp5UnsupportedUpgradeWarning": "Upgrading to OpenShift 5 on GCP requires Customer Cloud Subscription configured with Workload Identity Federation deployed into an existing VPC. To use OpenShift 5, create a new cluster with this configuration.",
   "NodeDraining": "1 hour",
   "MachinePools": [
     {
