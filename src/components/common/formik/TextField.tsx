@@ -17,8 +17,10 @@ type TextFieldProps = {
   ariaLabelledBy?: string;
   trimOnBlur?: boolean;
   shouldShowError?: boolean;
+  customIcon?: React.ReactNode;
 };
 
+/** Formik-bound text input with optional help popover, read-only mode and a custom icon. */
 const TextField = ({
   fieldId,
   label,
@@ -30,6 +32,7 @@ const TextField = ({
   ariaLabelledBy,
   trimOnBlur,
   shouldShowError,
+  customIcon,
 }: TextFieldProps) => {
   const [field, { error, touched }, { setValue }] = useField(fieldId);
   const isInvalid = (touched || shouldShowError) && !!error;
@@ -68,6 +71,7 @@ const TextField = ({
         isDisabled={isDisabled}
         placeholder={placeHolderText}
         readOnlyVariant={isReadOnly ? 'default' : undefined}
+        customIcon={customIcon}
         aria-labelledby={ariaLabelledBy}
         aria-describedby={showHelperText ? helperTextId : undefined}
         aria-errormessage={isInvalid ? helperTextId : undefined}

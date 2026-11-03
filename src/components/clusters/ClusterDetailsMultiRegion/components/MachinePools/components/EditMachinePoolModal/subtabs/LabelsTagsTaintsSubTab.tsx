@@ -3,10 +3,15 @@ import { FormikErrors } from 'formik';
 
 import { Form, Tab, TabContent } from '@patternfly/react-core';
 
+import {
+  AWS_TAGS_EDIT_VERSION_REASON,
+  splitAwsTags,
+} from '~/components/clusters/common/awsTags/awsTagsHelpers';
+import { useCanEditAwsTags } from '~/components/clusters/common/awsTags/useCanEditAwsTags';
 import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { MachineTypesResponse } from '~/queries/types';
-import { MachinePool } from '~/types/clusters_mgmt.v1';
+import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
 import { EditMachinePoolValues } from '../hooks/useMachinePoolFormik';
@@ -29,6 +34,7 @@ type Props = {
   isNewMachinePool: boolean;
 };
 
+/** Tab and content for the machine pool modal's labels, taints and (ROSA HCP) AWS tags sections. */
 export const useLabelsTagsTaintsSubTab = ({
   cluster,
   machinePools,
@@ -47,6 +53,15 @@ export const useLabelsTagsTaintsSubTab = ({
 
   const showAWSTags = awsTagsNewMPFeature && isROSAHCP;
 
+  const canEditExistingAwsTags = useCanEditAwsTags(cluster);
+  const canEditAwsTags = isNewMachinePool || canEditExistingAwsTags;
+  const currentNodePool = isNewMachinePool
+    ? undefined
+    : (machinePools.find((pool) => pool.id === currentMachinePoolId) as NodePool | undefined);
+  const { readOnly: readOnlyAwsTags } = splitAwsTags(currentNodePool?.aws_node_pool?.tags, {
+    inheritedTags: cluster.aws?.tags,
+  });
+
   const tab = (errors: FormikErrors<EditMachinePoolValues>) => {
     const tabErrors = hasErrors(errors, fieldsInTab);
 
@@ -54,7 +69,7 @@ export const useLabelsTagsTaintsSubTab = ({
       <Tab
         eventKey={tabKey}
         title={tabTitle(
-          `Labels${showAWSTags ? ', Taints and AWS Tags' : ' and Taints'}`,
+          `Labels${showAWSTags ? ', taints and AWS tags' : ' and taints'}`,
           tabErrors,
         )}
         tabContentRef={contentRef1}
@@ -78,7 +93,13 @@ export const useLabelsTagsTaintsSubTab = ({
           machinePoolId={currentMachinePoolId}
           machineTypes={machineTypes}
         />
-        {showAWSTags ? <EditAWSTagsSection isNewMachinePool={isNewMachinePool} /> : null}
+        {showAWSTags ? (
+          <EditAWSTagsSection
+            isDisabled={!canEditAwsTags}
+            disabledReason={AWS_TAGS_EDIT_VERSION_REASON}
+            readOnlyTags={readOnlyAwsTags}
+          />
+        ) : null}
       </Form>
     </TabContent>
   );
