@@ -248,6 +248,9 @@ function Details() {
       }
     }
 
+    // Firewall rules are version-gated; clear so a stale selection cannot reach submit.
+    setFieldValue(FieldId.FirewallRules, { id: '' });
+
     resetMaxNodesTotal({ clusterVersion });
 
     setFieldValue(FieldId.VersionChannel, '');
