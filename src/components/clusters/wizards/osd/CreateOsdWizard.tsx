@@ -201,6 +201,8 @@ const CreateOsdWizardInternal = () => {
   return (
     <Wizard
       id="osd-wizard"
+      className="osd-wizard"
+      height="auto"
       onClose={onClose}
       onStepChange={onStepChange}
       footer={

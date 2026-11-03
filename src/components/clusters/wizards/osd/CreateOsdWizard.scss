@@ -1,7 +1,6 @@
-// Avoid a nested wizard-body scrollbar; lets the page be the only scroller.
-#osd-wizard {
-  height: auto;
-
+// PF Wizard has no prop to disable overflow-y: auto on .pf-v6-c-wizard__main.
+// Keep the page as the only scroller.
+.osd-wizard {
   .pf-v6-c-wizard__main {
     overflow: visible;
   }
