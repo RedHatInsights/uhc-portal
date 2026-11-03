@@ -9,11 +9,13 @@ type BulkDeleteUserErrorsProps = {
   failedDeletions: BulkDeleteHtpasswdUserError[];
 };
 
+const UNKNOWN_USER = 'Unknown user';
+
+const getFailureDisplayName = (failure: BulkDeleteHtpasswdUserError) =>
+  failure.username || UNKNOWN_USER;
+
 const BulkDeleteUserErrors = ({ failedDeletions }: BulkDeleteUserErrorsProps) => {
-  const failedUsernames = failedDeletions
-    .map((failure) => failure.username)
-    .filter(Boolean)
-    .join(', ');
+  const failedUsernames = failedDeletions.map(getFailureDisplayName).join(', ');
 
   return (
     <Alert
@@ -27,13 +29,17 @@ const BulkDeleteUserErrors = ({ failedDeletions }: BulkDeleteUserErrorsProps) =>
       {failedUsernames}
       <br />
       <List isPlain>
-        {failedDeletions.map((failure, index) => (
-          <ListItem key={failure.username ?? index}>
-            <ExpandableSection toggleText={failure.username ?? 'Unknown user'}>
-              <ErrorDetailsDisplay response={failure.error} />
-            </ExpandableSection>
-          </ListItem>
-        ))}
+        {failedDeletions.map((failure, index) => {
+          const displayName = getFailureDisplayName(failure);
+
+          return (
+            <ListItem key={`${displayName}-${index}`}>
+              <ExpandableSection toggleText={displayName}>
+                <ErrorDetailsDisplay response={failure.error} />
+              </ExpandableSection>
+            </ListItem>
+          );
+        })}
       </List>
     </Alert>
   );
