@@ -1,5 +1,10 @@
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_UPGRADE_CAPABILITY,
+} from '../../support/capability-helper';
+
 const clusterProperties = require('../../fixtures/osd-aws/osd-ccs-aws-cluster-creation.spec.json');
 
 const awsAccountID = process.env.QE_AWS_ID;
@@ -12,14 +17,19 @@ test.describe.serial(
   'OSD AWS CCS cluster creation tests (OCP-35992, OCP-26750)',
   { tag: ['@smoke', '@osd'] },
   () => {
-    let isOcp5SupportEnabled = false;
+    let shouldShowOcp5Warning = false;
 
     test.beforeAll(async ({ navigateTo, clusterDetailsPage }) => {
-      // Capture Unleash state before the create page loads and prefetches feature gates
+      // Capture Unleash state and org capabilities before the create page loads
       const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
+      const capabilitiesPromise = clusterDetailsPage.waitForOrganizationCapabilities();
       // Navigate to create
       await navigateTo('create');
-      isOcp5SupportEnabled = await gatePromise;
+      const isOcp5SupportEnabled = await gatePromise;
+      const capabilities = await capabilitiesPromise;
+      shouldShowOcp5Warning =
+        isOcp5SupportEnabled &&
+        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_UPGRADE_CAPABILITY);
     });
     test(`Launch OSD - ${clusterProperties.CloudProvider} cluster wizard`, async ({
       createOSDWizardPage,
@@ -264,7 +274,7 @@ test.describe.serial(
     }) => {
       await clusterDetailsPage.navigateToSettingsTab();
 
-      if (isOcp5SupportEnabled) {
+      if (shouldShowOcp5Warning) {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
         await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
         await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(
