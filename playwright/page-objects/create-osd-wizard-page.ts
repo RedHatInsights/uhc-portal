@@ -342,7 +342,11 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   dnsZoneDropdown(): Locator {
-    return this.page.getByRole('button', { name: 'Options menu' });
+    // FuzzySelect toggles share aria-label "Options menu". The firewall dropdown on
+    // this step is a second match, so target the DNS zone placeholder text.
+    return this.page
+      .getByRole('button', { name: 'Options menu' })
+      .filter({ hasText: 'Select a DNS Zone' });
   }
 
   dnsZoneFilterInput(): Locator {
@@ -350,7 +354,9 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   async selectDnsZone(dnsZone: string, partialMatch: boolean = false): Promise<void> {
-    await this.dnsZoneDropdown().click();
+    const dnsZoneDropdown = this.dnsZoneDropdown();
+    await expect(dnsZoneDropdown).toHaveCount(1);
+    await dnsZoneDropdown.click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
     const escapedDnsZone = this.escapeRegExp(dnsZone);
