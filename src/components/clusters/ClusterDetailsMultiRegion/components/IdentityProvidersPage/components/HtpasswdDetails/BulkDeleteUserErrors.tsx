@@ -27,8 +27,8 @@ const BulkDeleteUserErrors = ({ failedDeletions }: BulkDeleteUserErrorsProps) =>
       {failedUsernames}
       <br />
       <List isPlain>
-        {failedDeletions.map((failure) => (
-          <ListItem key={failure.userId ?? failure.username}>
+        {failedDeletions.map((failure, index) => (
+          <ListItem key={failure.username ?? index}>
             <ExpandableSection toggleText={failure.username ?? 'Unknown user'}>
               <ErrorDetailsDisplay response={failure.error} />
             </ExpandableSection>

@@ -211,7 +211,6 @@ describe('<BulkDeleteUserModal />', () => {
       failedDeletions: [
         {
           username: 'user1',
-          userId: 'userId1',
           error: {
             errorMessage: 'I am an error',
             operationID: 'op-1',

@@ -26,7 +26,6 @@ export const useBulkDeleteHtpasswdUser = (clusterID: string, idpId: string, regi
 
             failedDeletions.push({
               username: user.username,
-              userId: user.id,
               error: {
                 errorMessage,
                 operationID,
