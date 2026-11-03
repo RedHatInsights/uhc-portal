@@ -62,7 +62,7 @@ const CreateRHOCPCluterLink = (props: any) => (
 );
 
 const DEVSNBXOfferingCardDocLinkComponent = () => (
-  <ExternalLink noTarget noIcon href="https://sandbox.redhat.com">
+  <ExternalLink noTarget noIcon href={docLinks.RH_DEVELOPER_SANDBOX}>
     View details
   </ExternalLink>
 );

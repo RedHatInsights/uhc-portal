@@ -1,7 +1,9 @@
 /**
  * Contains urls related directly to downloads and installation binaries.
  * Contains https://console.* urls (console.cloud.google, console.aws.amazon, console.redhat).
- * Contains urls related to pricing information.
+ * Contains urls related to pricing, marketplace, and contact-sales destinations.
+ * Contains Red Hat Catalog (catalog.redhat.com) product and search links.
+ * Contains SSO account-management urls (sso.redhat.com).
  * This module has .mjs extension to simplify importing from NodeJS scripts.
  */
 
@@ -182,16 +184,39 @@ const links = {
   AWS_CONSOLE_ROSA_HOME_GET_STARTED: 'https://console.aws.amazon.com/rosa/home#/get-started',
   AWS_CONSOLE_HOSTED_ZONES: 'https://console.aws.amazon.com/route53/v2/hostedzones',
   AWS_CONSOLE_SECURITY_GROUPS: 'https://console.aws.amazon.com/ec2/home#SecurityGroups',
+  AWS_CONSOLE_INFRA_ACCESS_HOME: 'https://console.aws.amazon.com/console/home',
 
   FEDRAMP_ACCESS_REQUEST_FORM: 'https://console.redhat.com/openshift/create/rosa/govcloud',
+  SSO_APPLICATION_MANAGEMENT:
+    'https://sso.redhat.com/auth/realms/redhat-external/account/#/applications',
 
   ROSA_OPP_AWS_MARKETPLACE_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-sxbakgvp63pcs',
   ROSA_OPP_AWS_MARKETPLACE_NON_EMEA: 'https://aws.amazon.com/marketplace/pp/prodview-dm5otbp2o25zk',
+  AWS_MARKETPLACE_OPENSHIFT_AI:
+    'https://aws.amazon.com/marketplace/search/results?searchTerms=OpenShift+Data+Science+enables',
 
   ARO_OPP_AZURE_MARKETPLACE_EMEA:
     'https://marketplace.microsoft.com/en-us/product/redhat-limited.rh-opp-bundle',
   ARO_OPP_AZURE_MARKETPLACE_NON_EMEA:
     'https://marketplace.microsoft.com/en-us/product/redhat.rh-opp-bundle',
+
+  MARKETPLACE_REDHAT_OSD:
+    'https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated',
+  OSD_CONTACT_SALES: 'https://cloud.redhat.com/products/dedicated/contact/',
+
+  // Red Hat Catalog
+  CATALOG_OPERATORS_SEARCH:
+    'https://catalog.redhat.com/search?searchType=software&deployed_as=Operator',
+  CATALOG_OPENSHIFT_AI:
+    'https://catalog.redhat.com/software/container-stacks/detail/63b85b573112fe5a95ee9a3a',
+  CATALOG_SERVICE_MESH:
+    'https://catalog.redhat.com/software/container-stacks/detail/5ec53e8c110f56bd24f2ddc4',
+  CATALOG_ADVANCED_CLUSTER_SECURITY:
+    'https://catalog.redhat.com/software/container-stacks/detail/60eefc88ee05ae7c5b8f041c',
+  CATALOG_PIPELINES:
+    'https://catalog.redhat.com/software/container-stacks/detail/5ec54a4628834587a6b85ca5',
+  CATALOG_GITOPS:
+    'https://catalog.redhat.com/software/container-stacks/detail/5fb288c70a12d20cbecc6056',
 
   KN_DOCS: `${OCP_DOCS_BASE}/cli_tools/kn-cli-tools`,
   TKN_DOCS: `${OCP_DOCS_BASE}/cli_tools/pipelines-cli-tkn#installing-tkn`,

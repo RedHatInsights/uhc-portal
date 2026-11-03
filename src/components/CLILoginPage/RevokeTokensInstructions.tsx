@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Content, List, ListItem } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
+
 import ExternalLink from '../common/ExternalLink';
 
 import './RevokeTokensInstructions.scss';
@@ -23,7 +25,7 @@ const RevokeTokensInstructions = ({ reason }: Props) => (
     <List component="ol">
       <ListItem>
         Navigate to the{' '}
-        <ExternalLink href="https://sso.redhat.com/auth/realms/redhat-external/account/#/applications">
+        <ExternalLink href={installLinks.SSO_APPLICATION_MANAGEMENT}>
           <b>SSO application management</b>
         </ExternalLink>{' '}
         page.
