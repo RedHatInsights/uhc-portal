@@ -32,6 +32,7 @@ import Unavailable from '~/components/common/Unavailable';
 import config from '~/config';
 import useAnalytics from '~/hooks/useAnalytics';
 import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
+import { refetchGcpFirewallRules } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRules';
 import { resetCreatedClusterResponse } from '~/redux/actions/clustersActions';
 import getLoadBalancerValues from '~/redux/actions/loadBalancerActions';
 import getPersistentStorageValues from '~/redux/actions/persistentStorageActions';
@@ -290,6 +291,9 @@ export const CreateOsdWizard = ({
     if (shouldRefetchQuota(organization, false)) {
       dispatch(getOrganizationAndQuota() as any);
     }
+    // Firewall rules use staleTime: Infinity; invalidate so a new wizard does not
+    // reuse rules consumed by a prior create.
+    refetchGcpFirewallRules();
     // just on getting into the component
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
