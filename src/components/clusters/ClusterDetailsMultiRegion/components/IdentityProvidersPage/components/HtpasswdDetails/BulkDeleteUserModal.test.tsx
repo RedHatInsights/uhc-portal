@@ -177,7 +177,7 @@ describe('<BulkDeleteUserModal />', () => {
     expect(onSuccess).not.toHaveBeenCalled();
     expect(refreshHtpasswdUsers).not.toHaveBeenCalled();
     expect(
-      screen.getByText('A problem occurred while deleting htpasswd user "user1"'),
+      screen.getByText('A problem occurred while deleting the following htpasswd users.'),
     ).toBeInTheDocument();
   });
 
@@ -211,8 +211,10 @@ describe('<BulkDeleteUserModal />', () => {
       failedDeletions: [
         {
           username: 'user1',
+          userId: 'userId1',
           error: {
             errorMessage: 'I am an error',
+            operationID: 'op-1',
           },
         },
       ],
@@ -223,78 +225,11 @@ describe('<BulkDeleteUserModal />', () => {
     );
 
     expect(
-      screen.getByText('A problem occurred while deleting htpasswd user "user1"'),
+      screen.getByText('A problem occurred while deleting the following htpasswd users.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('I am an error')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toBeInTheDocument();
 
     // the modal text is still showing
     expect(screen.getByText('These users will lose access to this cluster.')).toBeInTheDocument();
-  });
-
-  it('shows one error box with comma-separated usernames when failures share the same root cause', () => {
-    mockedBulkDeleteUsers.mockReturnValue({
-      ...defaultReturnBulkDeleteUser,
-      failedDeletions: [
-        {
-          username: 'user1',
-          error: {
-            errorMessage:
-              "Failed to delete HTPasswd user 'id1' from cluster 'cluster1': IAM role missing",
-          },
-        },
-        {
-          username: 'user2',
-          error: {
-            errorMessage:
-              "Failed to delete HTPasswd user 'id2' from cluster 'cluster1': IAM role missing",
-          },
-        },
-        {
-          username: 'user3',
-          error: {
-            errorMessage:
-              "Failed to delete HTPasswd user 'id3' from cluster 'cluster1': IAM role missing",
-          },
-        },
-      ],
-    });
-
-    withState(initialState, true).render(
-      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
-    );
-
-    expect(
-      screen.getByText('A problem occurred while deleting htpasswd users "user1, user2, user3"'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('alert')).toHaveLength(1);
-  });
-
-  it('shows separate error boxes when failures have different error messages', () => {
-    mockedBulkDeleteUsers.mockReturnValue({
-      ...defaultReturnBulkDeleteUser,
-      failedDeletions: [
-        {
-          username: 'user1',
-          error: { errorMessage: 'Permission denied' },
-        },
-        {
-          username: 'user2',
-          error: { errorMessage: 'User not found' },
-        },
-      ],
-    });
-
-    withState(initialState, true).render(
-      <BulkDeleteUserModal onSuccess={onSuccess} refreshHtpasswdUsers={refreshHtpasswdUsers} />,
-    );
-
-    expect(
-      screen.getByText('A problem occurred while deleting htpasswd user "user1"'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('A problem occurred while deleting htpasswd user "user2"'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('alert')).toHaveLength(2);
   });
 });

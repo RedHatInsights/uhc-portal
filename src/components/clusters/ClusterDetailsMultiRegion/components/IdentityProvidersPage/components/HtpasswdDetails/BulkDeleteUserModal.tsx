@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { Content, ContentVariants, Spinner, Stack, StackItem } from '@patternfly/react-core';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
-import ErrorBox from '~/components/common/ErrorBox';
 import Modal from '~/components/common/Modal/Modal';
 import { closeModal } from '~/components/common/Modal/ModalActions';
 import modals from '~/components/common/Modal/modals';
@@ -12,7 +11,7 @@ import { useBulkDeleteHtpasswdUser } from '~/queries/ClusterDetailsQueries/Acces
 import { useGlobalState } from '~/redux/hooks';
 import { HtPasswdUser } from '~/types/clusters_mgmt.v1';
 
-import { groupBulkDeleteHtpasswdUserErrors } from './htpasswdUtilities';
+import BulkDeleteUserErrors from './BulkDeleteUserErrors';
 
 const BulkDeleteUserModal = ({
   onSuccess,
@@ -38,7 +37,6 @@ const BulkDeleteUserModal = ({
     region,
   );
   const hasFailedDeletions = failedDeletions?.length > 0;
-  const groupedFailedDeletions = groupBulkDeleteHtpasswdUserErrors(failedDeletions ?? []);
 
   const dispatch = useDispatch();
   const addNotification = useAddNotification();
@@ -79,20 +77,7 @@ const BulkDeleteUserModal = ({
       isPrimaryDisabled={hasFailedDeletions}
     >
       <>
-        {hasFailedDeletions
-          ? groupedFailedDeletions.map((err) => {
-              const userLabel = err.usernames.length === 1 ? 'user' : 'users';
-              const usernameList = err.usernames.join(', ');
-
-              return (
-                <ErrorBox
-                  key={`${userLabel}-${usernameList}`}
-                  message={`A problem occurred while deleting htpasswd ${userLabel} "${usernameList}"`}
-                  response={err.error}
-                />
-              );
-            })
-          : null}
+        {hasFailedDeletions ? <BulkDeleteUserErrors failedDeletions={failedDeletions} /> : null}
         {isPending ? (
           <Spinner size="xl" aria-label="Deleting users" />
         ) : (
