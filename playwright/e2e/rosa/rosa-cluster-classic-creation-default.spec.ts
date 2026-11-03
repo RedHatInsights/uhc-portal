@@ -1,5 +1,9 @@
 import { OCP5_SUPPORT } from '../../../src/queries/featureGates/featureConstants';
 import { test, expect } from '../../fixtures/pages';
+import {
+  hasOrganizationCapability,
+  ROSA_OSD_ALLOW_OCP_5_UPGRADE_CAPABILITY,
+} from '../../support/capability-helper';
 
 // Import cluster properties JSON
 const clusterProfiles = require('../../fixtures/rosa/rosa-cluster-classic-creation.spec.json');
@@ -15,14 +19,19 @@ test.describe.serial(
     const installerARN = `arn:aws:iam::${awsAccountID}:role/${rolePrefix}-Installer-Role`;
     const clusterName = `${clusterProperties.ClusterNamePrefix}-${Math.random().toString(36).substring(7)}`;
     const clusterDomainPrefix = `rosa${Math.random().toString(36).substring(2, 13)}`;
-    let isOcp5SupportEnabled = false;
+    let shouldShowOcp5Warning = false;
 
     test.beforeAll(async ({ navigateTo, createClusterPage, clusterDetailsPage }) => {
-      // Capture Unleash state before the create page loads and prefetches feature gates
+      // Capture Unleash state and org capabilities before the create page loads
       const gatePromise = clusterDetailsPage.isFeatureGateEnabled(OCP5_SUPPORT);
+      const capabilitiesPromise = clusterDetailsPage.waitForOrganizationCapabilities();
       // Navigate to create page
       await navigateTo('create');
-      isOcp5SupportEnabled = await gatePromise;
+      const isOcp5SupportEnabled = await gatePromise;
+      const capabilities = await capabilitiesPromise;
+      shouldShowOcp5Warning =
+        isOcp5SupportEnabled &&
+        !hasOrganizationCapability(capabilities, ROSA_OSD_ALLOW_OCP_5_UPGRADE_CAPABILITY);
       // Navigate to create cluster page
       await createClusterPage.isCreateClusterPageHeaderVisible();
     });
@@ -307,7 +316,7 @@ test.describe.serial(
     }) => {
       await clusterDetailsPage.navigateToSettingsTab();
 
-      if (isOcp5SupportEnabled) {
+      if (shouldShowOcp5Warning) {
         await expect(clusterDetailsPage.ocp5UpgradeWarning()).toBeVisible();
         await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toBeVisible();
         await expect(clusterDetailsPage.ocp5UpgradeWarningHcpLink()).toHaveAttribute(

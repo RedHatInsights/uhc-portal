@@ -7,7 +7,8 @@ import { SubscriptionCommonFieldsStatus } from '../types/accounts_mgmt.v1';
 
 import { getRandomID } from './helpers';
 import {
-  hasAllowOcp5Capability,
+  hasAllowOcp5InstallCapability,
+  hasAllowOcp5UpgradeCapability,
   hasCapability,
   haveCapabilities,
   subscriptionCapabilities,
@@ -189,32 +190,86 @@ describe('haveCapabilities', () => {
   });
 });
 
-describe('hasAllowOcp5Capability', () => {
-  it('is true when the capabilities array contains rosa_osd_allow_ocp_5 set to "true"', () => {
+describe('hasAllowOcp5InstallCapability', () => {
+  it('is true when the capabilities array contains rosa_osd_allow_ocp_5_install set to "true"', () => {
     const capabilities = [
-      { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'true', inherited: false },
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL,
+        value: 'true',
+        inherited: false,
+      },
     ];
 
-    expect(hasAllowOcp5Capability(capabilities)).toBeTruthy();
+    expect(hasAllowOcp5InstallCapability(capabilities)).toBeTruthy();
   });
 
-  it('is false when the capabilities array contains rosa_osd_allow_ocp_5 set to "false"', () => {
+  it('is false when the capabilities array contains rosa_osd_allow_ocp_5_install set to "false"', () => {
     const capabilities = [
-      { name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5, value: 'false', inherited: false },
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL,
+        value: 'false',
+        inherited: false,
+      },
     ];
 
-    expect(hasAllowOcp5Capability(capabilities)).toBeFalsy();
+    expect(hasAllowOcp5InstallCapability(capabilities)).toBeFalsy();
   });
 
-  it('is false when the capabilities array does not contain rosa_osd_allow_ocp_5', () => {
+  it('is false when only the upgrade capability is enabled', () => {
     const capabilities = [
-      { name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS, value: 'true', inherited: false },
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_UPGRADE,
+        value: 'true',
+        inherited: false,
+      },
     ];
 
-    expect(hasAllowOcp5Capability(capabilities)).toBeFalsy();
+    expect(hasAllowOcp5InstallCapability(capabilities)).toBeFalsy();
   });
 
   it('is false when capabilities is undefined', () => {
-    expect(hasAllowOcp5Capability(undefined)).toBeFalsy();
+    expect(hasAllowOcp5InstallCapability(undefined)).toBeFalsy();
+  });
+});
+
+describe('hasAllowOcp5UpgradeCapability', () => {
+  it('is true when the capabilities array contains rosa_osd_allow_ocp_5_upgrade set to "true"', () => {
+    const capabilities = [
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_UPGRADE,
+        value: 'true',
+        inherited: false,
+      },
+    ];
+
+    expect(hasAllowOcp5UpgradeCapability(capabilities)).toBeTruthy();
+  });
+
+  it('is false when the capabilities array contains rosa_osd_allow_ocp_5_upgrade set to "false"', () => {
+    const capabilities = [
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_UPGRADE,
+        value: 'false',
+        inherited: false,
+      },
+    ];
+
+    expect(hasAllowOcp5UpgradeCapability(capabilities)).toBeFalsy();
+  });
+
+  it('is false when only the install capability is enabled', () => {
+    const capabilities = [
+      {
+        name: subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL,
+        value: 'true',
+        inherited: false,
+      },
+    ];
+
+    expect(hasAllowOcp5UpgradeCapability(capabilities)).toBeFalsy();
+  });
+
+  it('is false when capabilities is undefined', () => {
+    expect(hasAllowOcp5UpgradeCapability(undefined)).toBeFalsy();
   });
 });
