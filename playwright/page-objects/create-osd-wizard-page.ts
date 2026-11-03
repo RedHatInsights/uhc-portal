@@ -1,5 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
+import { DEFAULT_ACTION_TIMEOUT } from '../support/playwright-constants';
+
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -355,7 +357,7 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   async selectDnsZone(dnsZone: string, partialMatch: boolean = false): Promise<void> {
     const dnsZoneDropdown = this.dnsZoneDropdown();
-    await expect(dnsZoneDropdown).toHaveCount(1);
+    await expect(dnsZoneDropdown).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
     await dnsZoneDropdown.click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
