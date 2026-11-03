@@ -34,6 +34,7 @@ import { getIncompatibleVersionReason } from '~/common/versionCompatibility';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { QuotaTypes } from '~/components/clusters/common/quotaModel';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
+import { RosaGovCloudFipsWarning } from '~/components/clusters/common/RosaGovCloudFipsWarning/RosaGovCloudFipsWarning';
 import {
   getMinReplicasCount,
   getNodesCount,
@@ -67,6 +68,7 @@ import { useFetchSearchClusterName } from '~/queries/RosaWizardQueries/useFetchS
 import { useFetchSearchDomainPrefix } from '~/queries/RosaWizardQueries/useFetchSearchDomainPrefix';
 import { getMachineTypesByRegionARN } from '~/redux/actions/machineTypesActions';
 import { useGlobalState } from '~/redux/hooks';
+import { isRestrictedEnv } from '~/restrictedEnv';
 import { QuotaCostList } from '~/types/accounts_mgmt.v1';
 import { Version } from '~/types/clusters_mgmt.v1';
 
@@ -469,6 +471,7 @@ function Details() {
 
         <GridItem md={6}>
           <Stack hasGutter>
+            {isRestrictedEnv() ? <RosaGovCloudFipsWarning /> : null}
             {!isHypershiftSelected ? <ClassicV5CreationWarning /> : null}
             <VersionSelection
               label="Version"

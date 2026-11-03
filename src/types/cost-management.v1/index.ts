@@ -2465,6 +2465,11 @@ export interface components {
       description: string;
       enabled: boolean;
       has_dynamic_rate: boolean;
+      /**
+       * @description Rate in force for the current UTC month. static: a static rate window overlaps this month (wins over dynamic). dynamic: enabled, no current-month static, and a dynamic rate exists. none: disabled, or enabled with no current-month static and no dynamic. UI: if enabled is false show Not enabled; otherwise Static / Dynamic / None.
+       * @enum {string}
+       */
+      active_rate_type: CurrencySettingsItemActive_rate_type;
       /** @description Whether the enable/disable toggle is available for this currency. Always true when the currency is disabled (so it can be re-enabled). When enabled, false if it is the sole enabled currency, or is referenced by a cost model, price list, cloud provider billing data, or the system/account default. */
       is_disableable: boolean;
       static_rates: components['schemas']['StaticExchangeRateOut'][];
@@ -3606,6 +3611,15 @@ export interface components {
        * @example 2026-06-30
        */
       end_date: string;
+      /**
+       * @description Lifecycle of this static rate vs the current UTC month (UI labels). expired: end_date is before the current month. active: the validity window includes the current UTC month. upcoming: start_date is in a future month. Past-month rates remain editable/deletable when the caller has cost-model write access.
+       * @enum {string}
+       */
+      status: StaticExchangeRateOutStatus;
+      /** @description Whether PUT would succeed for this caller (cost_model.write * or enhanced org admin). Not a date-window flag; base_currency remains immutable on update. */
+      can_edit: boolean;
+      /** @description Whether DELETE would succeed for this caller (same RBAC rule as can_edit). */
+      can_delete: boolean;
       /** Format: date-time */
       created_timestamp: string;
       /** Format: date-time */
@@ -10081,6 +10095,11 @@ export enum CostModelRespDistribution {
   memory = 'memory',
   cpu = 'cpu',
 }
+export enum CurrencySettingsItemActive_rate_type {
+  static = 'static',
+  dynamic = 'dynamic',
+  none = 'none',
+}
 export enum MarkupUnit {
   percent = 'percent',
 }
@@ -10373,6 +10392,11 @@ export enum ReportResourceScope {
   EBS = 'EBS',
   EFS = 'EFS',
   S3 = 'S3',
+}
+export enum StaticExchangeRateOutStatus {
+  active = 'active',
+  expired = 'expired',
+  upcoming = 'upcoming',
 }
 export enum ComponentsParametersCostType {
   unblended_cost = 'unblended_cost',

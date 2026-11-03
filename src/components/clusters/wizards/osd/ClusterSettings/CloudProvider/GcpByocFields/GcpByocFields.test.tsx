@@ -69,6 +69,15 @@ describe('<GcpByocFields />', () => {
     await checkAccessibility(container);
   });
 
+  it('opens authentication type popover on help icon click', async () => {
+    const { user } = render(prepareComponent());
+
+    await screen.findByRole('button', { name: serviceAccountLabel });
+    await user.click(screen.getByRole('button', { name: /more info for authentication types/i }));
+
+    expect(screen.getByText(/Service Account uses long-lived credentials/i)).toBeInTheDocument();
+  });
+
   it('shows service account button and title when isOSDFromGoogleCloud is false', async () => {
     const { user } = render(prepareComponent());
 

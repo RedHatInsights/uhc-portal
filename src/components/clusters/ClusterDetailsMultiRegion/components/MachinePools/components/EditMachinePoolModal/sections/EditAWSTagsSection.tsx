@@ -127,8 +127,8 @@ const EditAWSTagsSection = ({ isNewMachinePool }: { isNewMachinePool: boolean })
             </Grid>
             <Grid hasGutter>
               {input.value.map((_, index) => (
-                // eslint-disable-next-line react/no-array-index-key
                 <AWSTagRow
+                  // eslint-disable-next-line react/no-array-index-key
                   key={index}
                   index={index}
                   disabled={disabled}

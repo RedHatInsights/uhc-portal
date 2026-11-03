@@ -4,6 +4,7 @@ import * as reactRedux from 'react-redux';
 import { OCP5_SUPPORT } from '~/queries/featureGates/featureConstants';
 import {
   checkAccessibility,
+  mockRestrictedEnv,
   mockUseFeatureGate,
   render,
   screen,
@@ -175,6 +176,81 @@ describe('<UpgradeWizard />', () => {
 
       expect(screen.getByTestId('classic-upgrade-to-v5-warning')).toBeInTheDocument();
       expect(screen.getByText('create a ROSA HCP cluster', { exact: false })).toBeInTheDocument();
+    });
+  });
+
+  describe('RosaGovCloudFipsWarning', () => {
+    const clusterBelowFullCmvp = {
+      ...fixtures.clusterDetails.cluster,
+      openshift_version: '4.18.5',
+      subscription: {
+        ...fixtures.clusterDetails.cluster.subscription,
+        id: 'mySubscriptionId',
+      },
+    };
+
+    const clusterAtOrAboveFullCmvp = {
+      ...fixtures.clusterDetails.cluster,
+      openshift_version: '4.19.0',
+      subscription: {
+        ...fixtures.clusterDetails.cluster.subscription,
+        id: 'mySubscriptionId',
+      },
+    };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('does not render outside restricted env', () => {
+      mockRestrictedEnv(false);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: clusterBelowFullCmvp,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
+    });
+
+    it('renders in the Select version step in restricted env when cluster is below 4.19', () => {
+      mockRestrictedEnv(true);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: clusterBelowFullCmvp,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.getByRole('alert', { name: /CMVP/i })).toBeInTheDocument();
+    });
+
+    it('does not render in restricted env when cluster is already 4.19 or newer', () => {
+      mockRestrictedEnv(true);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: clusterAtOrAboveFullCmvp,
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
+    });
+
+    it('does not render in restricted env when cluster is on OpenShift 5.x', () => {
+      mockRestrictedEnv(true);
+      mockedUseFetchClusterDetails.mockReturnValue({
+        ...defaultClusterDetailsResponse,
+        cluster: {
+          ...clusterAtOrAboveFullCmvp,
+          openshift_version: '5.0.0',
+        },
+      });
+
+      withState(initialState, true).render(<UpgradeWizard />);
+
+      expect(screen.queryByRole('alert', { name: /CMVP/i })).not.toBeInTheDocument();
     });
   });
 });

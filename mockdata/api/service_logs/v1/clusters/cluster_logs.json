@@ -20,7 +20,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Red Hat's ability to manage an OSD cluster is limited when workloads use pod disruption budgets that prevent any disruptions",
       "timestamp": "2025-02-06T10:15:38.3607Z",
       "username": "insights-advisor"
@@ -41,7 +41,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "The cluster cannot spread load across nodes evenly when workloads do not specify container memory requests and limits",
       "timestamp": "2025-02-06T10:15:38.322239Z",
       "username": "insights-advisor"
@@ -62,7 +62,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Image registries are not available when a ConfigMap with required trusted CA certificates is missing",
       "timestamp": "2025-02-06T09:04:36.322216Z",
       "username": "insights-advisor"
@@ -83,7 +83,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Setting pidsLimit and logSizeMax in ContainerRuntimeConfig CRs is expected to be deprecated",
       "timestamp": "2025-02-05T16:50:05.308941Z",
       "username": "insights-advisor"
@@ -104,7 +104,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "The cost management service fails to upload data to console.redhat.com when configured to use a token for authentication",
       "timestamp": "2025-02-04T16:34:17.915588Z",
       "username": "insights-advisor"
@@ -125,7 +125,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "The cluster operator operator-lifecycle-manager-packageserver is unavailable when its certificate has expired",
       "timestamp": "2025-02-03T16:56:11.415194Z",
       "username": "insights-advisor"
@@ -146,7 +146,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Workloads are prone to security breaches when no NetworkPolicy matches them",
       "timestamp": "2025-01-31T16:37:50.708946Z",
       "username": "insights-advisor"
@@ -167,7 +167,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "Workloads are still using the deprecated APIs which will be removed in the next release",
       "timestamp": "2025-01-30T16:37:43.039042Z",
       "username": "insights-advisor"
@@ -188,7 +188,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Image registries are not available when a ConfigMap with required trusted CA certificates is missing",
       "timestamp": "2025-01-29T16:49:29.519257Z",
       "username": "insights-advisor"
@@ -209,7 +209,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Setting pidsLimit and logSizeMax in ContainerRuntimeConfig CRs is expected to be deprecated",
       "timestamp": "2025-01-28T16:57:38.479369Z",
       "username": "insights-advisor"
@@ -230,7 +230,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "The cost management service fails to upload data to console.redhat.com when configured to use a token for authentication",
       "timestamp": "2025-01-27T16:58:18.303125Z",
       "username": "insights-advisor"
@@ -251,7 +251,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "The cluster operator operator-lifecycle-manager-packageserver is unavailable when its certificate has expired",
       "timestamp": "2025-01-24T16:38:18.206107Z",
       "username": "insights-advisor"
@@ -272,7 +272,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Workloads are prone to security breaches when no NetworkPolicy matches them",
       "timestamp": "2025-01-23T16:46:57.967759Z",
       "username": "insights-advisor"
@@ -293,7 +293,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "Workloads are still using the deprecated APIs which will be removed in the next release",
       "timestamp": "2025-01-22T16:36:02.853505Z",
       "username": "insights-advisor"
@@ -314,7 +314,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Image registries are not available when a ConfigMap with required trusted CA certificates is missing",
       "timestamp": "2025-01-21T16:41:20.369936Z",
       "username": "insights-advisor"
@@ -335,7 +335,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Setting pidsLimit and logSizeMax in ContainerRuntimeConfig CRs is expected to be deprecated",
       "timestamp": "2025-01-20T16:44:13.159562Z",
       "username": "insights-advisor"
@@ -356,7 +356,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "The cost management service fails to upload data to console.redhat.com when configured to use a token for authentication",
       "timestamp": "2025-01-17T16:46:34.387011Z",
       "username": "insights-advisor"
@@ -377,7 +377,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "The cluster operator operator-lifecycle-manager-packageserver is unavailable when its certificate has expired",
       "timestamp": "2025-01-16T16:43:29.154069Z",
       "username": "insights-advisor"
@@ -398,7 +398,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Warning",
+      "severity": "Moderate",
       "summary": "Workloads are prone to security breaches when no NetworkPolicy matches them",
       "timestamp": "2025-01-15T16:45:38.771932Z",
       "username": "insights-advisor"
@@ -419,7 +419,7 @@
       "last_name": "",
       "log_type": "General Notification",
       "service_name": "CCX Notification Service",
-      "severity": "Major",
+      "severity": "Important",
       "summary": "Workloads are still using the deprecated APIs which will be removed in the next release",
       "timestamp": "2025-01-14T16:44:58.059184Z",
       "username": "insights-advisor"
@@ -444,7 +444,7 @@
         "kind": "ClusterLog",
         "href": "/api/service_logs/v1/clusters/6544b1fe-8d30-47d4-90c0-1038de0fe0c7/cluster_logs",
         "timestamp": "2020-02-27T10:27:43Z",
-        "severity": "Info",
+        "severity": "Low",
         "service_name": "liran_service",
         "cluster_uuid": "6544b1fe-8d30-47d4-90c0-1038de0fe0c7",
         "summary": "Some positive log",
@@ -456,7 +456,7 @@
         "kind": "ClusterLog",
         "href": "/api/service_logs/v1/clusters/6544b1fe-8d30-47d4-90c0-1038de0fe0c7/cluster_logs",
         "timestamp": "2020-02-27T10:25:43Z",
-        "severity": "Major",
+        "severity": "Important",
         "service_name": "liran_service",
         "cluster_uuid": "6544b1fe-8d30-47d4-90c0-1038de0fe0c7",
         "summary": "Another one just for fun",
@@ -468,7 +468,7 @@
         "kind": "ClusterLog",
         "href": "/api/service_logs/v1/clusters/6544b1fe-8d30-47d4-90c0-1038de0fe0c7/cluster_logs",
         "timestamp": "2020-02-27T10:24:43Z",
-        "severity": "Major",
+        "severity": "Important",
         "service_name": "liran_service",
         "cluster_uuid": "6544b1fe-8d30-47d4-90c0-1038de0fe0c7",
         "summary": "Another log",
@@ -492,7 +492,7 @@
         "kind": "ClusterLog",
         "href": "/api/service_logs/v1/clusters/6544b1fe-8d30-47d4-90c0-1038de0fe0c7/cluster_logs",
         "timestamp": "2020-02-27T10:16:32Z",
-        "severity": "Warning",
+        "severity": "Moderate",
         "service_name": "liran_service",
         "cluster_uuid": "6544b1fe-8d30-47d4-90c0-1038de0fe0c7",
         "summary": "md test",

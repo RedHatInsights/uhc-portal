@@ -19,6 +19,7 @@ import ocpLifeCycleStatuses from '~/components/releases/__mocks__/ocpLifeCycleSt
 import clusterService from '~/services/clusterService';
 import getOCPLifeCycleStatus from '~/services/productLifeCycleService';
 import { render, screen, withState } from '~/testUtils';
+import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { ClusterPrivacyType } from '../../Networking/constants';
 
@@ -411,6 +412,37 @@ describe('<Details />', () => {
       expect(fipsCheckbox).toBeChecked();
       expect(etcdCheckbox).toBeChecked();
       expect(etcdCheckbox).toBeDisabled();
+    });
+  });
+
+  describe('Version label', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+      (clusterService.getInstallableVersions as jest.Mock).mockResolvedValue({
+        data: { items: [version] },
+      });
+      (getOCPLifeCycleStatus as jest.Mock).mockResolvedValue(ocpLifeCycleStatuses);
+      (clusterService.getCloudProviders as jest.Mock).mockResolvedValue(providersResponse);
+    });
+
+    it('shows marketplace label when billing model is marketplace_gcp', async () => {
+      const loadedState = { cloudProviders: fulfilledProviders };
+
+      withState(loadedState).render(
+        <Formik
+          initialValues={{
+            ...defaultValues,
+            [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.marketplace_gcp,
+          }}
+          onSubmit={() => {}}
+        >
+          <Details />
+        </Formik>,
+      );
+
+      expect(
+        await screen.findByText('Version (Google Cloud Marketplace enabled)'),
+      ).toBeInTheDocument();
     });
   });
 });

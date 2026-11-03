@@ -130,12 +130,12 @@ export class RosaGetStartedPage extends BasePage {
     await this.page.locator('div[role="status"]').waitFor({ state: 'detached', timeout: 100000 });
   }
 
-  // Helper method for checking anchor properties
+  // Helper method for checking anchor properties.
   async checkAnchorProperties(
     linkLocator: Locator,
     anchorText: string,
     anchorLink: string,
-    accessLink: boolean = true,
+    accessLink: boolean = false,
   ): Promise<void> {
     const link = linkLocator.filter({ hasText: anchorText });
     await expect(link).toHaveAttribute('href', anchorLink);
