@@ -3,6 +3,7 @@ import * as React from 'react';
 import fixtures from '~/components/clusters/ClusterDetailsMultiRegion/__tests__/ClusterDetails.fixtures';
 import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { MAX_NODES_HCP } from '~/components/clusters/common/machinePools/constants';
+import { useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
 import {
   AWS_TAGS_NEW_MP,
   HCP_SPOT_INSTANCES,
@@ -13,6 +14,13 @@ import { mockUseChrome, mockUseFeatureGate, render, screen, within } from '~/tes
 import { ClusterFromSubscription } from '~/types/types';
 
 import EditMachinePoolModal from './EditMachinePoolModal';
+
+jest.mock('~/queries/common/useFetchGetOCMRole', () => ({
+  useFetchGetOCMRole: jest.fn(),
+  refetchGetOCMRole: jest.fn(),
+}));
+
+const mockUseFetchGetOCMRole = useFetchGetOCMRole as jest.Mock;
 
 const machinePoolsResponse = [
   {
@@ -688,6 +696,120 @@ describe('<EditMachinePoolModal />', () => {
           'Secure Boot settings can only be modified during machine pool creation and are not editable afterward',
         ),
       );
+    });
+  });
+
+  describe('MissingOCMRoleAlert', () => {
+    const AWS_ACCOUNT_ID = '123456789012';
+    const ALERT_TITLE = /Missing or unlinked OCM role/;
+
+    beforeEach(() => {
+      // Default: OCM role is linked. Tests that need 404 call mockOCMRoleMissing().
+      mockUseFetchGetOCMRole.mockReturnValue({
+        data: { arn: 'arn:aws:iam::123456789012:role/OCM-Role' },
+        isError: false,
+        error: null,
+        isPending: false,
+        isSuccess: true,
+      });
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    /** Returns a ROSA STS cluster fixture with optional field overrides. */
+    const buildCluster = (overrides: object = {}) =>
+      ({
+        ...defaultClusterFromSubscription,
+        product: { id: 'ROSA' },
+        aws: { sts: { enabled: true } },
+        subscription: {
+          ...defaultClusterFromSubscription.subscription,
+          cloud_account_id: AWS_ACCOUNT_ID,
+        },
+        ...overrides,
+      }) as unknown as ClusterFromSubscription;
+
+    /** Simulates the OCM role being absent (404) for the current test. */
+    const mockOCMRoleMissing = () =>
+      mockUseFetchGetOCMRole.mockReturnValue({
+        data: undefined,
+        isError: true,
+        error: { errorCode: 404 },
+        isPending: false,
+        isSuccess: false,
+      });
+
+    it('shows the OCM role warning banner when getOCMRole returns 404', async () => {
+      mockOCMRoleMissing();
+
+      render(<EditMachinePoolModal cluster={buildCluster()} onClose={() => {}} {...commonProps} />);
+
+      expect(await screen.findByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+    });
+
+    it('does not show the OCM role banner when the OCM role is linked', async () => {
+      render(<EditMachinePoolModal cluster={buildCluster()} onClose={() => {}} {...commonProps} />);
+
+      // Wait for modal to finish loading before asserting absence.
+      await screen.findByRole('button', { name: 'Add machine pool' });
+
+      expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
+    });
+
+    it('does not show the OCM role banner for a non-ROSA cluster', async () => {
+      mockOCMRoleMissing();
+
+      render(
+        <EditMachinePoolModal
+          cluster={buildCluster({ product: { id: 'OSD' } })}
+          onClose={() => {}}
+          {...commonProps}
+        />,
+      );
+
+      await screen.findByRole('button', { name: 'Add machine pool' });
+
+      expect(mockUseFetchGetOCMRole).not.toHaveBeenCalled();
+      expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
+    });
+
+    it('does not show the OCM role banner when STS is not enabled', async () => {
+      mockOCMRoleMissing();
+
+      render(
+        <EditMachinePoolModal
+          cluster={buildCluster({ aws: { sts: { enabled: false } } })}
+          onClose={() => {}}
+          {...commonProps}
+        />,
+      );
+
+      await screen.findByRole('button', { name: 'Add machine pool' });
+
+      expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
+    });
+
+    it('does not show the OCM role banner when there is no AWS account ID', async () => {
+      mockOCMRoleMissing();
+
+      render(
+        <EditMachinePoolModal
+          cluster={buildCluster({
+            subscription: {
+              ...defaultClusterFromSubscription.subscription,
+              cloud_account_id: undefined,
+            },
+          })}
+          onClose={() => {}}
+          {...commonProps}
+        />,
+      );
+
+      await screen.findByRole('button', { name: 'Add machine pool' });
+
+      expect(screen.queryByRole('heading', { name: ALERT_TITLE })).not.toBeInTheDocument();
     });
   });
 });

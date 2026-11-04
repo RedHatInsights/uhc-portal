@@ -24,7 +24,8 @@ import {
 
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
-import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
+import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
+import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import { getMaxNodeCount, getNodeCount } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { ShieldedVM } from '~/components/clusters/wizards/common/ShieldedVM';
@@ -273,6 +274,11 @@ const EditMachinePoolModal = ({
     (!machinePoolsError && machinePoolsLoading) ||
     (!machineTypesError && machineTypesLoading) ||
     (isEdit && machineTypesResponse && machinePoolsResponse && !currentMachinePool);
+
+  const awsAccountId = cluster.subscription?.cloud_account_id;
+  const shouldCheckOCMRole =
+    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!awsAccountId;
+
   return (
     <Formik<EditMachinePoolValues>
       onSubmit={async (values) => {
@@ -339,6 +345,10 @@ const EditMachinePoolModal = ({
               <div className="pf-v6-u-text-align-center">
                 <Spinner size="lg" aria-label="Loading..." />
               </div>
+            ) : null}
+
+            {!isPending && shouldCheckOCMRole ? (
+              <MissingOCMRoleAlert awsAccountId={awsAccountId!} />
             ) : null}
 
             {!isPending && (machinePoolsError || machineTypesError) ? (
