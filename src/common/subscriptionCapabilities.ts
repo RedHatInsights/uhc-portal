@@ -27,7 +27,8 @@ const subscriptionCapabilities = {
   ALLOW_ETCD_ENCRYPTION: 'capability.account.allow_etcd_encryption',
   ENABLE_ACCESS_PROTECTION: 'capability.cluster.enable_access_protection',
   ENABLE_TERMS_ENFORCEMENT: 'capability.account.enable_terms_enforcement',
-  ROSA_OSD_ALLOW_OCP_5: 'capability.organization.rosa_osd_allow_ocp_5',
+  ROSA_OSD_ALLOW_OCP_5_INSTALL: 'capability.organization.rosa_osd_allow_ocp_5_install',
+  ROSA_OSD_ALLOW_OCP_5_UPGRADE: 'capability.organization.rosa_osd_allow_ocp_5_upgrade',
 };
 
 const hasCapabilityValue = (capabilities: Capability[] | undefined, name: string): boolean =>
@@ -35,8 +36,11 @@ const hasCapabilityValue = (capabilities: Capability[] | undefined, name: string
     (capability) => capability.name === name && capability.value === 'true',
   );
 
-const hasAllowOcp5Capability = (capabilities: Capability[] | undefined): boolean =>
-  hasCapabilityValue(capabilities, subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5);
+const hasAllowOcp5InstallCapability = (capabilities: Capability[] | undefined): boolean =>
+  hasCapabilityValue(capabilities, subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL);
+
+const hasAllowOcp5UpgradeCapability = (capabilities: Capability[] | undefined): boolean =>
+  hasCapabilityValue(capabilities, subscriptionCapabilities.ROSA_OSD_ALLOW_OCP_5_UPGRADE);
 
 const hasCapability = (subscription: Subscription | undefined, name: string): boolean => {
   if (name === subscriptionCapabilities.RELEASE_OCP_CLUSTERS) {
@@ -66,4 +70,10 @@ const haveCapabilities = (
     {},
   );
 
-export { hasCapability, hasAllowOcp5Capability, haveCapabilities, subscriptionCapabilities };
+export {
+  hasAllowOcp5InstallCapability,
+  hasAllowOcp5UpgradeCapability,
+  hasCapability,
+  haveCapabilities,
+  subscriptionCapabilities,
+};

@@ -21,6 +21,7 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import config from '~/config';
 import { PLATFORM_LIGHTSPEED_REBRAND } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -138,11 +139,7 @@ const GovCloudForm = ({
                 label={
                   <>
                     Contract ID, Award ID or RFP Number from the{' '}
-                    <a
-                      href="https://www.usaspending.gov/search"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                    >
+                    <a href={docLinks.US_SPENDING_SEARCH} target="_blank" rel="noreferrer noopener">
                       U.S. Spending government
                     </a>{' '}
                     website . If the contract is not numbered, specify ‘N/A’.

@@ -4,6 +4,8 @@ import { expect, within } from 'storybook/test';
 import { Card, CardBody, CardHeader, CardTitle } from '@patternfly/react-core';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 
+import docLinks from '~/common/docLinks.mjs';
+
 import OpenShiftAiWidget from './openshift-ai-widget';
 
 const meta: Meta<typeof OpenShiftAiWidget> = {
@@ -50,10 +52,7 @@ export const Default: Story = {
 
     const link = await canvas.findByRole('link', { name: /OpenShift AI/i });
     await expect(link).toBeInTheDocument();
-    await expect(link).toHaveAttribute(
-      'href',
-      'https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai/trial',
-    );
+    await expect(link).toHaveAttribute('href', docLinks.RH_OPENSHIFT_AI_TRIAL);
     await expect(link).toHaveAttribute('target', '_blank');
     await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   },

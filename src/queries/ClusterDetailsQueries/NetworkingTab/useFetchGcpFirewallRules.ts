@@ -6,7 +6,9 @@ import clusterService from '~/services/clusterService';
 import { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
 export const refetchGcpFirewallRules = () =>
-  queryClient.invalidateQueries({ queryKey: ['gcpFirewallRules'] });
+  // 'all': wizard invalidates while the selector is unmounted; with
+  // refetchOnMount: false, 'active' alone would leave stale cache in place.
+  queryClient.invalidateQueries({ queryKey: ['gcpFirewallRules'], refetchType: 'all' });
 
 type UseFetchGcpFirewallRulesParams = {
   profile: string;
@@ -52,6 +54,12 @@ export const useFetchGcpFirewallRules = ({
       return response;
     },
     enabled: hasRequiredContext,
+    // App QueryClient defaults to refetchOnMount: 'always' + 1s staleTime, which
+    // refetches on every wizard step remount. Cache until Refresh (invalidate) or
+    // profile key change; VPC/project/WIF are filtered client-side.
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   if (!hasRequiredContext) {
