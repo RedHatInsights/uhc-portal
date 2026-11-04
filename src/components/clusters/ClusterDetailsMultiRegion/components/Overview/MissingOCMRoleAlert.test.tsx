@@ -173,7 +173,7 @@ describe('<MissingOCMRoleAlert />', () => {
 
     expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
 
-    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isPending: true, isFetching: true }));
+    mockUseFetchGetOCMRole.mockReturnValue(ocmRoleResponse({ isFetching: true }));
     rerender(<MissingOCMRoleAlert awsAccountId={AWS_ACCOUNT_ID} />);
 
     expect(screen.getByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
