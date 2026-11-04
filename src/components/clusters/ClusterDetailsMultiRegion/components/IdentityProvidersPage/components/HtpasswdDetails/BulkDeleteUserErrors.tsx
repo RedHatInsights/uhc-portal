@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, ExpandableSection, List, ListItem } from '@patternfly/react-core';
+import { Alert, ExpandableSection, List, ListItem, Stack, StackItem } from '@patternfly/react-core';
 
 import ErrorDetailsDisplay from '~/components/common/ErrorDetailsDisplay';
 import { BulkDeleteHtpasswdUserError } from '~/queries/types';
@@ -26,21 +26,24 @@ const BulkDeleteUserErrors = ({ failedDeletions }: BulkDeleteUserErrorsProps) =>
       className="error-box"
       data-testid="alert-error"
     >
-      {failedUsernames}
-      <br />
-      <List isPlain>
-        {failedDeletions.map((failure, index) => {
-          const displayName = getFailureDisplayName(failure);
+      <Stack hasGutter>
+        <StackItem>{failedUsernames}</StackItem>
+        <StackItem>
+          <List isPlain>
+            {failedDeletions.map((failure, index) => {
+              const displayName = getFailureDisplayName(failure);
 
-          return (
-            <ListItem key={`${displayName}-${index}`}>
-              <ExpandableSection toggleText={displayName}>
-                <ErrorDetailsDisplay response={failure.error} />
-              </ExpandableSection>
-            </ListItem>
-          );
-        })}
-      </List>
+              return (
+                <ListItem key={`${displayName}-${index}`}>
+                  <ExpandableSection toggleText={displayName}>
+                    <ErrorDetailsDisplay response={failure.error} />
+                  </ExpandableSection>
+                </ListItem>
+              );
+            })}
+          </List>
+        </StackItem>
+      </Stack>
     </Alert>
   );
 };
