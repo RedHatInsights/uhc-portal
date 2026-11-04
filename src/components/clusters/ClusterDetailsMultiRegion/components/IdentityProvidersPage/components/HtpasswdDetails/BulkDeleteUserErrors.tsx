@@ -30,11 +30,11 @@ const BulkDeleteUserErrors = ({ failedDeletions }: BulkDeleteUserErrorsProps) =>
         <StackItem>{failedUsernames}</StackItem>
         <StackItem>
           <List isPlain>
-            {failedDeletions.map((failure, index) => {
+            {failedDeletions.map((failure) => {
               const displayName = getFailureDisplayName(failure);
 
               return (
-                <ListItem key={`${displayName}-${index}`}>
+                <ListItem key={failure.userId ?? displayName}>
                   <ExpandableSection toggleText={displayName}>
                     <ErrorDetailsDisplay response={failure.error} />
                   </ExpandableSection>
