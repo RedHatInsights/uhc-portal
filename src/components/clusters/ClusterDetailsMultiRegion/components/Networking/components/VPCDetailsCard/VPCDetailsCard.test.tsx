@@ -284,6 +284,8 @@ describe('<VPCDetailsCard />', () => {
     });
 
     it('renders Shared VPC and Firewall Rules when only the firewall feature gate is enabled', () => {
+      // Populate DNS data so a missing DNS gate check would incorrectly render the row.
+      useFetchGcpDnsZoneMock.mockReturnValue({ data: dnsZone });
       useFetchGcpFirewallRuleMock.mockReturnValue({ data: firewallRule });
       mockUseFeatureGate([
         [GCP_DNS_ZONE, false],

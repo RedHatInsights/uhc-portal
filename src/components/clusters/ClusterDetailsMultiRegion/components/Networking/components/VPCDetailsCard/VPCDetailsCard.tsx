@@ -45,7 +45,7 @@ const resolveDisableEditReason = ({
   isReadOnly: boolean;
   clusterHibernating: boolean;
   canUpdateClusterResource?: boolean;
-}): string | false | undefined => {
+}): string | false => {
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
@@ -77,7 +77,7 @@ const VPCDetailsCard = ({ cluster }: VPCDetailsCardProps) => {
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
   const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
 
-  const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain ?? '', isGCP);
+  const { data: dnsZone } = useFetchGcpDnsZone(cluster.dns?.base_domain ?? '', isGCP && isBYOVPC);
   const hasPreSelectedDnsZone = !!dnsZone?.gcp?.domain_prefix;
 
   // Layout-only: whether a firewall row may appear (child owns fetch + gate details).

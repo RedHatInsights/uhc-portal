@@ -80,7 +80,7 @@ describe('<GcpFirewallRulesRow />', () => {
     expect(screen.getByLabelText('Loading firewall rules')).toBeInTheDocument();
   });
 
-  it('shows an error message when the firewall rule request fails', () => {
+  it('falls back to the firewall rules id when the request fails', () => {
     useFetchGcpFirewallRuleMock.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -89,6 +89,6 @@ describe('<GcpFirewallRulesRow />', () => {
 
     render(<GcpFirewallRulesRow firewallRulesId="fw-1" />);
 
-    expect(screen.getByText('Unable to load firewall rules name')).toBeInTheDocument();
+    expect(screen.getByText('fw-1')).toBeInTheDocument();
   });
 });

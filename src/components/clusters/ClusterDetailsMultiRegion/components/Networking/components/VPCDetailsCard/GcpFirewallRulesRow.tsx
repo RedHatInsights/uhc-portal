@@ -18,22 +18,19 @@ type GcpFirewallRulesRowProps = {
 export const GcpFirewallRulesRow = ({ firewallRulesId }: GcpFirewallRulesRowProps) => {
   const isGcpByoFirewallRulesEnabled = useFeatureGate(GCP_BYO_FIREWALL_RULES);
   const shouldFetch = isGcpByoFirewallRulesEnabled && !!firewallRulesId;
-  const {
-    data: firewallRule,
-    isLoading,
-    isError,
-  } = useFetchGcpFirewallRule(firewallRulesId, shouldFetch);
+  const { data: firewallRule, isLoading } = useFetchGcpFirewallRule(firewallRulesId, shouldFetch);
 
   if (!shouldFetch) {
     return null;
   }
 
-  let value: React.ReactNode = firewallRule?.name || firewallRulesId;
-  if (isLoading) {
-    value = <Spinner size="sm" aria-label="Loading firewall rules" />;
-  } else if (isError) {
-    value = 'Unable to load firewall rules name';
-  }
+  // Prefer the resolved name; the cluster already has firewallRulesId as a stable fallback
+  // when the name request is still loading or fails.
+  const value = isLoading ? (
+    <Spinner size="sm" aria-label="Loading firewall rules" />
+  ) : (
+    firewallRule?.name || firewallRulesId
+  );
 
   return (
     <DescriptionListGroup>
