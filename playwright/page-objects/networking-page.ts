@@ -293,6 +293,28 @@ export class NetworkingPage extends BasePage {
     );
   }
 
+  editApplicationIngressTlsSecretInput(): Locator {
+    return this.editApplicationIngressModal().getByRole('textbox', { name: 'TLS Secret name' });
+  }
+
+  editApplicationIngressHostnameInput(): Locator {
+    return this.editApplicationIngressModal().getByRole('textbox', { name: 'Hostname' });
+  }
+
+  async blurTlsSecretField(): Promise<void> {
+    await this.editApplicationIngressHostnameInput().click();
+  }
+
+  async blurTlsHostnameField(): Promise<void> {
+    await this.editApplicationIngressTlsSecretInput().click();
+  }
+
+  async blurBothTlsPairFields(): Promise<void> {
+    await this.editApplicationIngressTlsSecretInput().click();
+    await this.editApplicationIngressHostnameInput().click();
+    await this.editApplicationIngressRouteSelectorInput().click();
+  }
+
   editApplicationIngressExcludeNamespaceSelectorKeyInput(index = 0): Locator {
     return this.editApplicationIngressModal()
       .getByRole('textbox', {

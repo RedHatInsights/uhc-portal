@@ -3,6 +3,7 @@ import React from 'react';
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -20,7 +21,7 @@ const ServiceMeshDrawerPanelBody = (
           </ExternalLink>
           project and is pre-validated and fully supported to work on Red Hat OpenShift. It can be
           installed with the{' '}
-          <ExternalLink href="https://github.com/kiali/kiali-operator" noIcon>
+          <ExternalLink href={docLinks.KIALI_OPERATOR} noIcon>
             Kiali{' '}
           </ExternalLink>
           dashboard for managing service mesh, while integrating with{' '}
@@ -97,7 +98,7 @@ const ServiceMeshDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-red-hat-openshift-service-mesh-drawer-panel-content-link"
-        href="https://catalog.redhat.com/software/container-stacks/detail/5ec53e8c110f56bd24f2ddc4"
+        href={installLinks.CATALOG_SERVICE_MESH}
       >
         Learn more about Red Hat OpenShift Service Mesh
       </ExternalLink>

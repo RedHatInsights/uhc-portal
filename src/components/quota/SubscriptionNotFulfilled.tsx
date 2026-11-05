@@ -9,9 +9,10 @@ import {
   Spinner,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import { Link } from '~/common/routing';
 
-import docLinks from '../../common/docLinks.mjs';
 import { BANNED_USER_CODE, overrideErrorMessage } from '../../common/errors';
 import ExternalLink from '../common/ExternalLink';
 
@@ -91,11 +92,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
       errorTitle: 'Unable to retrieve quota information',
       text: (
         <p>
-          <a
-            href="https://cloud.redhat.com/products/dedicated/contact/"
-            rel="noreferrer noopener"
-            target="_blank"
-          >
+          <a href={installLinks.OSD_CONTACT_SALES} rel="noreferrer noopener" target="_blank">
             Contact sales
           </a>{' '}
           to get started with OpenShift Dedicated.
@@ -116,7 +113,7 @@ const SubscriptionNotFulfilled = ({ data, refresh, marketplace }: Props) => {
           <p>
             <Button
               component="a"
-              href="https://marketplace.redhat.com/en-us/products/red-hat-openshift-dedicated"
+              href={installLinks.MARKETPLACE_REDHAT_OSD}
               variant="primary"
               rel="noopener noreferrer"
               target="_blank"

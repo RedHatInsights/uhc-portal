@@ -172,7 +172,7 @@ const IDPForm = ({
           <>
             Configure an <code>oidc</code> identity provider to integrate with an OpenID Connect
             identity provider using an{' '}
-            <ExternalLink href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">
+            <ExternalLink href={docLinks.IDP_OPENID_AUTHORIZATION_CODE_FLOW}>
               Authorization Code Flow
             </ExternalLink>
             .
@@ -199,8 +199,8 @@ const IDPForm = ({
         text = (
           <>
             Configure a <code>gitlab</code> identity provider to use{' '}
-            <ExternalLink href="https://gitlab.com/">GitLab.com</ExternalLink> or any other GitLab
-            instance as an identity provider.
+            <ExternalLink href={docLinks.IDP_GITLAB_COM}>GitLab.com</ExternalLink> or any other
+            GitLab instance as an identity provider.
           </>
         );
         break;
@@ -208,7 +208,7 @@ const IDPForm = ({
         text = (
           <>
             Configure a <code>google</code> identity provider using{' '}
-            <ExternalLink href="https://developers.google.com/identity/protocols/OpenIDConnect">
+            <ExternalLink href={docLinks.IDP_GOOGLE_OPENID_CONNECT}>
               Google’s OpenID Connect integration
             </ExternalLink>
             .
