@@ -1,0 +1,181 @@
+# Playwright E2E image for OpenShift CI / local cloud-backed test runs.
+#
+# Base image matches Konflux `e2e-playwright-image` in
+# `.tekton/uhc-portal-pull-request.yaml` and `@playwright/test` in package.json.
+# Browsers + OS deps come from the official image; we only add version-pinned
+# cloud CLIs and the minimal app sources needed by Playwright + QE helpers
+# (AWS CLI, ROSA, OCM, gcloud — same class of tooling as smoke CI / rosa-aws-cli
+# steps in openshift/release). Secrets are never COPY'd; Prow mounts them via
+# step `credentials:`.
+#
+# Architectures: linux/amd64, linux/arm64.
+# Default entrypoint is Playwright-only. A later change can switch ENTRYPOINT to
+# playwright-qe-executor.sh (cloud setup → test → cleanup).
+#
+# Prow / ci-operator note: do not put this MCR pullspec in ci-operator config
+# (only namespace/name:tag is accepted). Mirror the public image to QCI first via
+# supplementalCIImages in openshift/release core-services/image-mirroring, then
+# reference the mirrored namespace/name:tag. See:
+# https://docs.ci.openshift.org/how-tos/external-images/
+FROM mcr.microsoft.com/playwright:v1.64.1-noble
+
+USER root
+WORKDIR /app
+
+# TARGETARCH is set by buildx/podman from --platform (amd64|arm64).
+ARG TARGETARCH
+
+# Pin CLI versions (openshift/release Playwright peers + rosa-e2e steps prefer
+# versioned downloads over /latest; override at build time when bumping).
+# Examples: quay/quay web/Containerfile.playwright, distributed-tracing-qe
+# Dockerfile.playwright, rosa-e2e-ocm-fvt OCM_FVT_OCM_CLI_VERSION.
+ARG OCM_VERSION=1.0.17
+ARG ROSA_VERSION=1.2.67
+ARG AWSCLI_VERSION=2.39.4
+ARG GCLOUD_VERSION=548.0.0
+
+# ---------------------------------------------------------------------------
+# 1. Host packages for CLI installs (browsers/deps already in the base image).
+# ---------------------------------------------------------------------------
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      jq \
+      python3 \
+      tar \
+      unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------------------------
+# 2. Cloud CLIs — OCM, ROSA, AWS, Google Cloud.
+#    Version-pinned URLs (no /latest). OCM/ROSA verify SHA256 from upstream
+#    checksum files when present (same idea as CLUSTERCTL_SHA256 checks in
+#    openshift/release ci-operator configs).
+# ---------------------------------------------------------------------------
+RUN set -eux; \
+    arch="${TARGETARCH:-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')}"; \
+    echo "Installing CLIs for ${arch}"; \
+    # --- OCM CLI (binary + .sha256 from GitHub release) -------------------- \
+    echo "Installing OCM CLI v${OCM_VERSION}"; \
+    curl -fsSL -o "/tmp/ocm-linux-${arch}" \
+      "https://github.com/openshift-online/ocm-cli/releases/download/v${OCM_VERSION}/ocm-linux-${arch}"; \
+    curl -fsSL -o "/tmp/ocm-linux-${arch}.sha256" \
+      "https://github.com/openshift-online/ocm-cli/releases/download/v${OCM_VERSION}/ocm-linux-${arch}.sha256"; \
+    (cd /tmp && sha256sum -c "ocm-linux-${arch}.sha256"); \
+    install -m 0755 "/tmp/ocm-linux-${arch}" /usr/local/bin/ocm; \
+    rm -f "/tmp/ocm-linux-${arch}" "/tmp/ocm-linux-${arch}.sha256"; \
+    # --- ROSA CLI (versioned GitHub assets + SHA256SUMS) ------------------- \
+    echo "Installing ROSA CLI v${ROSA_VERSION}"; \
+    case "${arch}" in \
+      amd64) ROSA_TGZ=rosa-linux.tar.gz ;; \
+      arm64) ROSA_TGZ=rosa-linux-arm64.tar.gz ;; \
+      *) echo "unsupported architecture for ROSA: ${arch}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL -o "/tmp/${ROSA_TGZ}" \
+      "https://github.com/openshift/rosa/releases/download/v${ROSA_VERSION}/${ROSA_TGZ}"; \
+    curl -fsSL -o /tmp/ROSA_SHA256SUMS \
+      "https://github.com/openshift/rosa/releases/download/v${ROSA_VERSION}/rosa_${ROSA_VERSION}_SHA256SUMS"; \
+    (cd /tmp && grep -E "  ${ROSA_TGZ}\$" ROSA_SHA256SUMS | sha256sum -c); \
+    tar -xzf "/tmp/${ROSA_TGZ}" -C /tmp; \
+    install -m 0755 /tmp/rosa /usr/local/bin/rosa; \
+    rm -f "/tmp/${ROSA_TGZ}" /tmp/rosa /tmp/ROSA_SHA256SUMS; \
+    # --- AWS CLI (versioned installer zip) --------------------------------- \
+    echo "Installing AWS CLI v${AWSCLI_VERSION}"; \
+    case "${arch}" in amd64) AWS_ARCH=x86_64;; arm64) AWS_ARCH=aarch64;; \
+      *) echo "unsupported architecture for AWS CLI: ${arch}" >&2; exit 1 ;; esac; \
+    curl -fsSL -o /tmp/awscliv2.zip \
+      "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${AWSCLI_VERSION}.zip"; \
+    unzip -q /tmp/awscliv2.zip -d /tmp; \
+    /tmp/aws/install; \
+    rm -rf /tmp/awscliv2.zip /tmp/aws; \
+    # --- Google Cloud CLI (versioned rapid channel tarball) ---------------- \
+    echo "Installing Google Cloud CLI v${GCLOUD_VERSION}"; \
+    case "${arch}" in amd64) GCLOUD_ARCH=x86_64;; arm64) GCLOUD_ARCH=arm;; \
+      *) echo "unsupported architecture for gcloud: ${arch}" >&2; exit 1 ;; esac; \
+    curl -fsSL -o /tmp/gcloud.tar.gz \
+      "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_VERSION}-linux-${GCLOUD_ARCH}.tar.gz"; \
+    tar -xzf /tmp/gcloud.tar.gz -C /opt; \
+    ln -sf /opt/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud; \
+    ln -sf /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil; \
+    rm -rf /tmp/gcloud.tar.gz \
+           /opt/google-cloud-sdk/platform \
+           /opt/google-cloud-sdk/deb \
+           /opt/google-cloud-sdk/rpm \
+           /opt/google-cloud-sdk/install* \
+           /opt/google-cloud-sdk/.install \
+           /opt/google-cloud-sdk/bin/anthoscli*; \
+    find /opt/google-cloud-sdk -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true; \
+    # --- Verify ------------------------------------------------------------ \
+    ocm version; \
+    rosa version; \
+    aws --version; \
+    gcloud --version | head -1
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false \
+    CLOUDSDK_PYTHON=/usr/bin/python3
+
+# ---------------------------------------------------------------------------
+# 3. npm dependencies — install then strip packages unused at test-runtime.
+#    Playwright browsers stay those from the base image; keep @playwright/test
+#    version aligned with the FROM tag (currently 1.64.1).
+# ---------------------------------------------------------------------------
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /root/.npm \
+    && rm -rf node_modules/@storybook \
+              node_modules/storybook \
+              node_modules/monaco-editor \
+              node_modules/@babel \
+              node_modules/@jest \
+              node_modules/jest* \
+              node_modules/@swc \
+              node_modules/@types/jest \
+              node_modules/webpack \
+              node_modules/webpack-* \
+              node_modules/css-loader \
+              node_modules/style-loader \
+              node_modules/html-webpack-plugin \
+              node_modules/mini-css-extract-plugin \
+              node_modules/@pmmmwh \
+              node_modules/sass
+
+# ---------------------------------------------------------------------------
+# 4. Application sources for Playwright + cloud helpers.
+#    Minimal COPY surface (peers bake only what the runner needs — e.g. Quay
+#    Containerfile.playwright copies playwright config/suite only; otel image
+#    bakes no suite). Do not COPY run/ or other unrelated app tooling.
+# ---------------------------------------------------------------------------
+COPY playwright.config.ts tsconfig.json ./
+COPY playwright ./playwright
+COPY src ./src
+COPY qe-helper-scripts ./qe-helper-scripts
+
+# Make infra helper scripts executable (executor / wrapper scripts may be added later).
+RUN chmod +x qe-helper-scripts/*.sh \
+    && mkdir -p /app/playwright-artifacts \
+    && chown -R pwuser:pwuser /app \
+    && chmod -R g=u /app
+
+# ---------------------------------------------------------------------------
+# 5. Runtime config.
+#    Use pwuser to match the base image non-root account (OpenShift CI often
+#    overrides UID; peers use USER 1001 / pwuser the same way).
+# ---------------------------------------------------------------------------
+USER pwuser
+
+ENV CI=true \
+    BROWSER=chromium \
+    PLAYWRIGHT_HTML_REPORT=/app/playwright-artifacts/reports \
+    HOME=/app \
+    CLOUDSDK_CORE_DISABLE_PROMPTS=1 \
+    CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK=true
+
+# Credentials: never COPY secrets into the image (.dockerignore excludes
+# playwright.env.json / .env*). In Prow, mount via step `credentials:` to paths
+# like /usr/local/*-credentials (see openshift/release rosa-*-ref.yaml); locally
+# bind-mount playwright.env.json at /app/playwright.env.json:ro.
+# Extra playwright CLI args can be passed after the image name.
+ENTRYPOINT ["npx", "playwright", "test"]
