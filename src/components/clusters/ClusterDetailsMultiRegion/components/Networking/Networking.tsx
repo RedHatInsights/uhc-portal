@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { EmptyState, EmptyStateBody, Grid, GridItem, Spinner } from '@patternfly/react-core';
 
 import { useGetClusterRouters } from '~/queries/ClusterDetailsQueries/NetworkingTab/useGetClusterRouters';
+import type { AugmentedCluster } from '~/types/types';
 
 import ApplicationIngressCard from './components/ApplicationIngressCard';
 import { ClusterIngressCard } from './components/ClusterIngressCard/ClusterIngressCard';
@@ -13,7 +13,21 @@ import VPCSubnetsCard from './components/VPCSubnetsCard';
 
 import './Networking.scss';
 
-const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) => {
+type NetworkingProps = {
+  cluster: AugmentedCluster;
+  refreshCluster: () => void;
+  clusterID: string;
+  isManaged?: boolean;
+  region?: string;
+};
+
+const Networking = ({
+  cluster,
+  refreshCluster,
+  clusterID,
+  isManaged = false,
+  region,
+}: NetworkingProps) => {
   const {
     data: clusterRouters,
     isLoading: isClusterRoutersLoading,
@@ -21,7 +35,8 @@ const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) =
   } = useGetClusterRouters(clusterID, isManaged, region);
 
   const network = cluster.network || {};
-  const provider = cluster.cloud_provider.id ? cluster.cloud_provider.id : 'N/A';
+  const provider = cluster.cloud_provider?.id ? cluster.cloud_provider.id : 'N/A';
+  const clusterRoutersData = clusterRouters ?? [];
 
   if (isClusterRoutersLoading && !isClusterRoutersError) {
     return (
@@ -40,9 +55,8 @@ const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) =
       <GridItem lg={9} md={12} className="networking-grid-item">
         <ClusterIngressCard
           refreshCluster={refreshCluster}
-          provider={provider}
           cluster={cluster}
-          clusterRoutersData={clusterRouters}
+          clusterRoutersData={clusterRoutersData}
         />
       </GridItem>
       <GridItem lg={3} md={12} className="networking-grid-item">
@@ -53,7 +67,7 @@ const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) =
           provider={provider}
           cluster={cluster}
           refreshCluster={refreshCluster}
-          clusterRoutersData={clusterRouters}
+          clusterRoutersData={clusterRoutersData}
         />
       </GridItem>
       <GridItem lg={3} md={12} className="networking-grid-item">
@@ -64,14 +78,6 @@ const Networking = ({ cluster, refreshCluster, clusterID, isManaged, region }) =
       </GridItem>
     </Grid>
   );
-};
-
-Networking.propTypes = {
-  cluster: PropTypes.object.isRequired,
-  region: PropTypes.string,
-  isManaged: PropTypes.bool,
-  clusterID: PropTypes.string.isRequired,
-  refreshCluster: PropTypes.func.isRequired,
 };
 
 export default Networking;
