@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
@@ -109,7 +109,7 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
     });
   }, [pathname, planType, clusterId, externalClusterId, setPageMetadata]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     scrollAppToTop();
   }, [pathname]);
 
