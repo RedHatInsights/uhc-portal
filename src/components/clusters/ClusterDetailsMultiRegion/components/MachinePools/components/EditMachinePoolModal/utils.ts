@@ -1,4 +1,8 @@
-import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
+import {
+  AwsTags,
+  buildAwsTagsPatch,
+  getOwnAwsTags,
+} from '~/components/clusters/common/awsTags/awsTagsHelpers';
 import { AwsMachinePool, AwsNodePool, MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
 
@@ -8,17 +12,6 @@ const getLabels = (labels: EditMachinePoolValues['labels']) =>
   labels.length === 1 && !labels[0].key
     ? {}
     : labels.reduce(
-        (acc, { key, value }) => {
-          acc[key] = value;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-
-const getAWSTags = (awsTags: EditMachinePoolValues['awsTags']) =>
-  awsTags.length === 1 && !awsTags[0].key
-    ? {}
-    : awsTags.reduce(
         (acc, { key, value }) => {
           acc[key] = value;
           return acc;
@@ -120,16 +113,24 @@ export const buildMachinePoolRequest = (
   return machinePool;
 };
 
+/**
+ * Builds the node pool create/update request. Creation-only fields are omitted on edit,
+ * and AWS tags are sent as a diff of the node pool's own tags when they can be edited.
+ */
 export const buildNodePoolRequest = (
   values: EditMachinePoolValues,
   {
     isEdit,
     isMultiZoneMachinePool,
     canUseCapacityReservation,
+    canEditAwsTags,
+    initialAwsTags = {},
   }: {
     isEdit: boolean;
     isMultiZoneMachinePool: boolean;
     canUseCapacityReservation?: boolean;
+    canEditAwsTags?: boolean;
+    initialAwsTags?: AwsTags;
   },
 ): NodePool => {
   const nodePool: NodePool = {
@@ -173,14 +174,20 @@ export const buildNodePoolRequest = (
     nodePool.aws_node_pool = awsNodePool;
   }
 
-  if (ENABLE_AWS_TAGS_EDITING || !isEdit) {
-    const awsTags = getAWSTags(values.awsTags);
+  if (!isEdit || canEditAwsTags) {
+    // On edit the API merges tags, so only send changes to the node pool's own tags
+    // (`null` removes a tag, which also removes an override of a cluster tag)
+    const awsTags = isEdit
+      ? buildAwsTagsPatch(initialAwsTags, getOwnAwsTags(values.awsTags))
+      : getOwnAwsTags(values.awsTags);
     if (Object.keys(awsTags).length > 0) {
+      // The generated type does not allow `null`, which the API uses to remove a tag
+      const tags = awsTags as AwsTags;
       if (nodePool.aws_node_pool) {
-        nodePool.aws_node_pool.tags = awsTags;
+        nodePool.aws_node_pool.tags = tags;
       } else {
         nodePool.aws_node_pool = {
-          tags: awsTags,
+          tags,
         };
       }
     }

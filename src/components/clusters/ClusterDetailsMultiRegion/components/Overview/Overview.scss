@@ -25,3 +25,9 @@
     margin-top: 0 !important;
   }
 }
+
+// The edit button is the last (and tallest) item in the AWS tags label group; center the items
+// so labels on its row keep their normal height instead of stretching to match it
+.ocm-c-overview-aws-tags .pf-v6-c-label-group__list {
+  align-items: center;
+}

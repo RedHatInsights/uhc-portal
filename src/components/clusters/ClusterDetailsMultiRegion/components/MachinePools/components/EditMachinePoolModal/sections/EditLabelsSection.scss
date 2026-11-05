@@ -3,3 +3,8 @@
   font-size: var(--pf-t--global--font--size--sm);
   padding-bottom: 0.5rem;
 }
+
+// PatternFly disables pointer events on icons inside text inputs; re-enable them so the tooltip shows on hover
+.uhc-aws-tags__inherited-icon {
+  pointer-events: auto;
+}

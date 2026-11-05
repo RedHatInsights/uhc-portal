@@ -1457,9 +1457,9 @@ describe('checkRouteSelectors', () => {
   );
 });
 
-describe('AWS Tag Key Validation', () => {
+describe('AWS tag Key Validation', () => {
   const validationErrorMessage =
-    "A valid AWS Tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+    "A valid AWS tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
   it.each([
     [undefined, 'Required'],
     ['', 'Required'],
@@ -1476,15 +1476,15 @@ describe('AWS Tag Key Validation', () => {
     ['key with spaces', undefined],
     ['123valid', undefined],
     ['UPPERCASE', undefined],
-    ['aws:something', 'AWS Tag keys cannot start with "aws"'],
-    ['AWS:something', 'AWS Tag keys cannot start with "aws"'],
-    ['aws-test', 'AWS Tag keys cannot start with "aws"'],
+    ['aws:something', 'AWS tag keys cannot start with "aws"'],
+    ['AWS:something', 'AWS tag keys cannot start with "aws"'],
+    ['aws-test', 'AWS tag keys cannot start with "aws"'],
     ['!invalid', validationErrorMessage],
     ['invalid@#$', validationErrorMessage],
     ['key,with,comma', validationErrorMessage],
     ['key<with>brackets', validationErrorMessage],
     ['key?with?question', validationErrorMessage],
-    ['a'.repeat(129), 'A valid AWS Tag key must be 128 characters or less'],
+    ['a'.repeat(129), 'A valid AWS tag key must be 128 characters or less'],
     ['a'.repeat(128), undefined],
   ])(
     'checkAwsTagKey value %p to be %p',
@@ -1494,9 +1494,9 @@ describe('AWS Tag Key Validation', () => {
   );
 });
 
-describe('AWS Tag Value Validation', () => {
+describe('AWS tag Value Validation', () => {
   const validationErrorMessage =
-    "A valid AWS Tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
+    "A valid AWS tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'";
   it.each([
     [undefined, undefined, undefined],
     ['', undefined, undefined],
@@ -1504,9 +1504,9 @@ describe('AWS Tag Value Validation', () => {
     ['', { isHypershift: true }, 'Required'],
     [undefined, { isHypershift: false }, undefined],
     ['', { isHypershift: false }, undefined],
-    [' ', undefined, 'AWS Tag value cannot consist of only spaces'],
-    ['  ', undefined, 'AWS Tag value cannot consist of only spaces'],
-    [' ', { isHypershift: true }, 'AWS Tag value cannot consist of only spaces'],
+    [' ', undefined, 'AWS tag value cannot consist of only spaces'],
+    ['  ', undefined, 'AWS tag value cannot consist of only spaces'],
+    [' ', { isHypershift: true }, 'AWS tag value cannot consist of only spaces'],
     ['valid-value', undefined, undefined],
     ['valid-value', { isHypershift: true }, undefined],
     ['valid_value', undefined, undefined],
@@ -1524,7 +1524,7 @@ describe('AWS Tag Value Validation', () => {
     ['value,with,comma', undefined, validationErrorMessage],
     ['value<with>brackets', undefined, validationErrorMessage],
     ['value?with?question', undefined, validationErrorMessage],
-    ['a'.repeat(257), undefined, 'A valid AWS Tag key must be 256 characters or less'],
+    ['a'.repeat(257), undefined, 'A valid AWS tag value must be 256 characters or less'],
     ['a'.repeat(256), undefined, undefined],
   ])(
     'checkAwsTagValue value %p options %p to be %p',

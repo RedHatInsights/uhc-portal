@@ -209,4 +209,47 @@ export class BasePage {
       await expect(locator).not.toBeVisible();
     }
   }
+
+  // ── AWS tags (shared by the cluster and machine pool AWS tag editors) ──
+
+  // AWS tag rows share the "Key"/"Value" column labels, so there is no unique accessible
+  // name per row; Formik-stable name attributes are the only reliable per-row selectors.
+  awsTagKeyInput(container: Locator, index: number): Locator {
+    return container.locator(`input[name="awsTags[${index}].key"]`);
+  }
+
+  awsTagValueInput(container: Locator, index: number): Locator {
+    return container.locator(`input[name="awsTags[${index}].value"]`);
+  }
+
+  awsTagRemoveButton(container: Locator, index: number): Locator {
+    return container.getByRole('button', { name: 'Remove AWS tag' }).nth(index);
+  }
+
+  /** Returns the row index of the AWS tag with the given key, or -1 when it is not listed. */
+  async awsTagRowIndex(container: Locator, key: string): Promise<number> {
+    const rows = await container
+      .locator('input[name^="awsTags["][name$="].key"]')
+      .evaluateAll((inputs) =>
+        inputs.map((input) => ({
+          name: input.getAttribute('name') ?? '',
+          value: (input as HTMLInputElement).value,
+        })),
+      );
+    const row = rows.find(({ value }) => value === key);
+    return row ? Number(row.name.match(/^awsTags\[(\d+)\]/)?.[1] ?? -1) : -1;
+  }
+
+  /** Fills the empty placeholder row when it is the only row, otherwise adds a new row. */
+  async addAwsTag(container: Locator, key: string, value: string): Promise<void> {
+    const rowCount = await container.locator('input[name^="awsTags["][name$="].key"]').count();
+    const usePlaceholderRow =
+      rowCount === 1 && !(await this.awsTagKeyInput(container, 0).inputValue());
+    const index = usePlaceholderRow ? 0 : rowCount;
+    if (!usePlaceholderRow) {
+      await container.getByRole('button', { name: 'Add AWS tag' }).click();
+    }
+    await this.awsTagKeyInput(container, index).fill(key);
+    await this.awsTagValueInput(container, index).fill(value);
+  }
 }
