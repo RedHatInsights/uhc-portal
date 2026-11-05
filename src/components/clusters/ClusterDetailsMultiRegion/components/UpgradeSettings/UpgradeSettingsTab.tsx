@@ -244,7 +244,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const hibernatingClusterInfo = (
     <Alert
       variant="info"
-      className="pf-v6-u-mb-md"
       isInline
       title="Version updates will not occur while this cluster is Hibernating.
           Once resumed, updates will start according to the selected updates strategy."
@@ -379,63 +378,63 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                   <Card>
                     <CardTitle>Update strategy</CardTitle>
                     <CardBody>
-                      {clusterHibernating && hibernatingClusterInfo}
-                      {(isPostScheduleError || isReplaceScheduleError || isEditSchedulesError) && (
-                        <ErrorBox
-                          response={
-                            postScheduleError || replaceScheduleError || editSchedulesError || {}
-                          }
-                          message="Can't schedule upgrade"
-                        />
-                      )}
-                      {isDeleteScheduleError && (
-                        <ErrorBox
-                          response={deleteScheduleError}
-                          message="Can't unschedule upgrade"
-                        />
-                      )}
-
-                      <UpgradeAcknowledgeWarning
-                        isHypershift={isHypershift}
-                        schedules={schedules}
-                        cluster={cluster}
-                        unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
-                      />
-                      <MinorVersionUpgradeAlert
-                        clusterId={cluster?.id || ''}
-                        schedules={schedules}
-                        cluster={cluster}
-                        isHypershift={isHypershift}
-                        hasUnmetAcknowledgements={hasVersionGates}
-                      />
-                      {showUpgradeToV5Warning && (
-                        <div className="pf-v6-u-mb-md">
-                          <UpgradeToV5Warning />
-                        </div>
-                      )}
-                      <UpdateAllMachinePools
-                        goToMachinePoolTab
-                        isHypershift={isHypershift}
-                        clusterId={clusterID}
-                        controlPlaneVersion={clusterVersion}
-                        controlPlaneRawVersion={cluster.version?.raw_id || ''}
-                        isMachinePoolError={isMachinePoolError}
-                        machinePoolData={machinePoolData}
-                        region={region}
-                      />
-
-                      <Form>
-                        <Grid hasGutter>
-                          <UpgradeSettingsFields
-                            isDisabled={!!formDisableReason}
-                            initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
-                            showDivider
-                            isHypershift={isHypershift}
-                            isRosa={isRosa}
-                            scheduledManualUpgrade={scheduledManualUpgrade}
+                      <Stack hasGutter>
+                        {clusterHibernating && hibernatingClusterInfo}
+                        {(isPostScheduleError ||
+                          isReplaceScheduleError ||
+                          isEditSchedulesError) && (
+                          <ErrorBox
+                            response={
+                              postScheduleError || replaceScheduleError || editSchedulesError || {}
+                            }
+                            message="Can't schedule upgrade"
                           />
-                        </Grid>
-                      </Form>
+                        )}
+                        {isDeleteScheduleError && (
+                          <ErrorBox
+                            response={deleteScheduleError}
+                            message="Can't unschedule upgrade"
+                          />
+                        )}
+
+                        <UpgradeAcknowledgeWarning
+                          isHypershift={isHypershift}
+                          schedules={schedules}
+                          cluster={cluster}
+                          unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
+                        />
+                        <MinorVersionUpgradeAlert
+                          clusterId={cluster?.id || ''}
+                          schedules={schedules}
+                          cluster={cluster}
+                          isHypershift={isHypershift}
+                          hasUnmetAcknowledgements={hasVersionGates}
+                        />
+                        {showUpgradeToV5Warning && <UpgradeToV5Warning />}
+                        <UpdateAllMachinePools
+                          goToMachinePoolTab
+                          isHypershift={isHypershift}
+                          clusterId={clusterID}
+                          controlPlaneVersion={clusterVersion}
+                          controlPlaneRawVersion={cluster.version?.raw_id || ''}
+                          isMachinePoolError={isMachinePoolError}
+                          machinePoolData={machinePoolData}
+                          region={region}
+                        />
+
+                        <Form>
+                          <Grid hasGutter>
+                            <UpgradeSettingsFields
+                              isDisabled={!!formDisableReason}
+                              initialScheduleValue={formik.initialValues.automatic_upgrade_schedule}
+                              showDivider
+                              isHypershift={isHypershift}
+                              isRosa={isRosa}
+                              scheduledManualUpgrade={scheduledManualUpgrade}
+                            />
+                          </Grid>
+                        </Form>
+                      </Stack>
                     </CardBody>
                     <CardFooter>
                       <Flex>

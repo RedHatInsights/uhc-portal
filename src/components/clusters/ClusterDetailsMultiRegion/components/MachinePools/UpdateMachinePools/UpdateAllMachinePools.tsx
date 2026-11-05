@@ -1,7 +1,7 @@
 import React from 'react';
 import semver from 'semver';
 
-import { Alert, AlertActionLink, AlertVariant, Spinner } from '@patternfly/react-core';
+import { Alert, AlertActionLink, AlertVariant, Flex, Spinner } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import { Link } from '~/common/routing';
@@ -99,61 +99,61 @@ const UpdateAllMachinePools = ({
 
   return (
     <>
-      {!pending && errors.length > 0 ? (
+      <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsMd' }}>
+        {!pending && errors.length > 0 ? (
+          <Alert
+            title="Some machine pools could not be updated"
+            variant={AlertVariant.danger}
+            isExpandable
+            isInline
+            role="alert"
+            data-testid="alert-danger"
+          >
+            {errors.map((error, index) => (
+              // There isn't another accessible unique key
+              // eslint-disable-next-line react/no-array-index-key
+              <p key={index}>{error}</p>
+            ))}
+          </Alert>
+        ) : null}
         <Alert
-          title="Some machine pools could not be updated"
-          variant={AlertVariant.danger}
           isExpandable
           isInline
           role="alert"
-          className="pf-v6-u-mt-md"
-          data-testid="alert-danger"
+          variant={AlertVariant.warning}
+          title="Update available for Machine pools"
+          data-testid="alert-warning"
+          actionLinks={
+            <>
+              {pending && !goToMachinePoolTab ? (
+                <Spinner size="sm" aria-label="Updating machine pools" />
+              ) : null}
+              {!pending && !goToMachinePoolTab ? (
+                <AlertActionLink
+                  onClick={() => setIsConfirmModalOpen(true)}
+                  data-testid="btn-update-all"
+                >
+                  Update all Machine pools now
+                </AlertActionLink>
+              ) : null}
+              {goToMachinePoolTab ? (
+                <Link to={`/details/${clusterId}#machinePools`}>Go to Machine pools list</Link>
+              ) : null}
+            </>
+          }
         >
-          {errors.map((error, index) => (
-            // There isn't another accessible unique key
-            // eslint-disable-next-line react/no-array-index-key
-            <p key={index}>{error}</p>
-          ))}
+          <p>
+            You can update all worker nodes to the current control plane version (
+            {semver.coerce(controlPlaneVersion)?.version}
+            ), or use the CLI to update a specific version.{' '}
+            <ExternalLink
+              href={isHypershift ? docLinks.ROSA_UPGRADES : docLinks.ROSA_CLASSIC_UPGRADES}
+            >
+              Learn more about updates
+            </ExternalLink>
+          </p>
         </Alert>
-      ) : null}
-      <Alert
-        className={goToMachinePoolTab ? 'pf-v6-u-mb-lg' : 'pf-v6-u-mt-lg'}
-        isExpandable
-        isInline
-        role="alert"
-        variant={AlertVariant.warning}
-        title="Update available for Machine pools"
-        data-testid="alert-warning"
-        actionLinks={
-          <>
-            {pending && !goToMachinePoolTab ? (
-              <Spinner size="sm" aria-label="Updating machine pools" />
-            ) : null}
-            {!pending && !goToMachinePoolTab ? (
-              <AlertActionLink
-                onClick={() => setIsConfirmModalOpen(true)}
-                data-testid="btn-update-all"
-              >
-                Update all Machine pools now
-              </AlertActionLink>
-            ) : null}
-            {goToMachinePoolTab ? (
-              <Link to={`/details/${clusterId}#machinePools`}>Go to Machine pools list</Link>
-            ) : null}
-          </>
-        }
-      >
-        <p>
-          You can update all worker nodes to the current control plane version (
-          {semver.coerce(controlPlaneVersion)?.version}
-          ), or use the CLI to update a specific version.{' '}
-          <ExternalLink
-            href={isHypershift ? docLinks.ROSA_UPGRADES : docLinks.ROSA_CLASSIC_UPGRADES}
-          >
-            Learn more about updates
-          </ExternalLink>
-        </p>
-      </Alert>
+      </Flex>
       {isConfirmModalOpen ? (
         <Modal
           modalSize="small"
