@@ -17,6 +17,7 @@ import {
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-triangle-icon';
 
 import { noMachineTypes } from '~/common/helpers';
+import installLinks from '~/common/installLinks.mjs';
 import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import { availableQuota } from '~/components/clusters/common/quotaSelectors';
@@ -381,7 +382,7 @@ const MachineTypeSelection = ({
     if (filteredMachineTypes.length === 0) {
       return (
         <Alert variant={AlertVariant.danger} isInline title={noMachineTypes} role="alert">
-          <ExternalLink href="https://cloud.redhat.com/products/dedicated/contact/">
+          <ExternalLink href={installLinks.OSD_CONTACT_SALES}>
             Contact sales to purchase additional quota.
           </ExternalLink>
         </Alert>

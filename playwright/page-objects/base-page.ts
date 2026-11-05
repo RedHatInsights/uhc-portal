@@ -4,6 +4,7 @@ import * as path from 'path';
 import { expect, Locator, Page } from '@playwright/test';
 
 import Features from '../../src/queries/featureGates/featureConstants';
+
 import {
   OrganizationCapability,
   waitForOrganizationCapabilities,

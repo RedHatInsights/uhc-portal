@@ -23,14 +23,12 @@ test.describe.serial(
         rosaGetStartedPage.rosaFedRampDoclink(),
         'Learn more about ROSA with hosted control planes in AWS GovCloud',
         docLinks.ROSA_AWS_FEDRAMP,
-        true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         rosaGetStartedPage.rosaFedRampRequestFormlink(),
         'FedRAMP access request form',
         installLinks.FEDRAMP_ACCESS_REQUEST_FORM,
-        true,
       );
     });
 
@@ -73,7 +71,6 @@ test.describe.serial(
         page.getByRole('link', { name: 'More information on ROSA setup' }),
         'More information on ROSA setup',
         docLinks.AWS_ROSA_GET_STARTED,
-        true,
       );
     });
 
@@ -99,7 +96,6 @@ test.describe.serial(
         step11Content.locator('..').getByRole('link', { name: 'Help with ROSA CLI setup' }),
         'Help with ROSA CLI setup',
         docLinks.ROSA_CLI_DOCS,
-        true,
       );
 
       // Test ROSA client download options
@@ -127,14 +123,12 @@ test.describe.serial(
         step12Parent.getByRole('link', { name: 'installing' }),
         'installing',
         docLinks.AWS_CLI,
-        true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         step12Parent.getByRole('link', { name: 'configuring' }),
         'configuring',
         docLinks.AWS_CLI_CONFIGURATION_INSTRUCTIONS,
-        true,
       );
     });
 
@@ -166,7 +160,6 @@ test.describe.serial(
         }),
         'logging into OpenShift Cluster Manager ROSA CLI with Red Hat single sign-on',
         docLinks.LEARN_MORE_SSO_ROSA,
-        true,
       );
 
       const step22Content = rosaGetStartedPage.rosaPrerequisitesStep22Content();
@@ -183,7 +176,6 @@ test.describe.serial(
         step22Content.getByRole('link', { name: 'these instructions' }),
         'these instructions',
         docLinks.AWS_CLI_GETTING_STARTED_MANUAL,
-        true,
       );
     });
 
@@ -209,14 +201,12 @@ test.describe.serial(
         page.getByRole('link', { name: 'create network command' }),
         'create network command',
         supportLinks.ROSA_CREATE_NETWORK,
-        true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         page.getByRole('link', { name: 'create a VPC' }),
         'create a VPC',
         docLinks.CREATE_VPC_WAYS,
-        true,
       );
     });
 
@@ -245,7 +235,6 @@ test.describe.serial(
         cliCard.getByRole('link', { name: 'deploy ROSA clusters with the ROSA CLI' }),
         'deploy ROSA clusters with the ROSA CLI',
         docLinks.ROSA_HCP_CLI_URL,
-        true,
       );
 
       // Deploy with web interface card
@@ -289,14 +278,12 @@ test.describe.serial(
         terraformCard.getByRole('link', { name: 'deploy a ROSA HCP cluster' }),
         'deploy a ROSA HCP cluster',
         docLinks.TERRAFORM_ROSA_HCP_URL,
-        true,
       );
 
       await rosaGetStartedPage.checkAnchorProperties(
         terraformCard.getByRole('link', { name: 'visit the Terraform registry' }),
         'visit the Terraform registry',
         docLinks.TERRAFORM_REGISTRY_ROSA_HCP,
-        true,
       );
     });
   },

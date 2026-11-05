@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Gallery, GalleryItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { DrawerPanelContentNode } from '~/hooks/useChromeDrawerPanel';
 
@@ -84,7 +85,7 @@ const RecommendedOperatorsCards = ({
         </GalleryItem>
       ))}
     </Gallery>
-    <ExternalLink href="https://catalog.redhat.com/search?searchType=software&deployed_as=Operator">
+    <ExternalLink href={installLinks.CATALOG_OPERATORS_SEARCH}>
       View all in Ecosystem Catalog
     </ExternalLink>
   </div>

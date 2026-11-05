@@ -1283,11 +1283,6 @@ export class ClusterDetailsPage extends BasePage {
     return this.upgradeSettingsPanel().getByTestId('classic-upgrade-to-v5-warning');
   }
 
-  /** OSD GCP upgrade warning in the Update strategy section of the Settings tab. */
-  gcpOcp5UnsupportedUpgradeWarning(warningText: string): Locator {
-    return this.upgradeSettingsPanel().getByText(warningText);
-  }
-
   ocp5UpgradeWarningHcpLink(): Locator {
     return this.ocp5UpgradeWarning().getByRole('link', { name: 'create a ROSA HCP cluster' });
   }

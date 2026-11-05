@@ -18,10 +18,6 @@ import styles from '@patternfly/react-styles/css/components/Form/form';
 
 import links from '~/common/installLinks.mjs';
 import { isGcpMarketplaceBilling } from '~/components/clusters/common/billingModelMapper';
-import {
-  GcpOcp5UnsupportedWarning,
-  useIsOcp5MigrationWarningEnabled,
-} from '~/components/clusters/common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import { Prerequisites } from '~/components/clusters/wizards/common/Prerequisites/Prerequisites';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { PrepareGCPHint } from '~/components/clusters/wizards/osd/ClusterSettings/CloudProvider/GcpByocFields/PrepareGCPHint';
@@ -47,7 +43,6 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   } = useFormState();
 
   const isOSDFromGoogleCloud = useIsOSDFromGoogleCloud();
-  const isOcp5MigrationWarningEnabled = useIsOcp5MigrationWarningEnabled();
 
   const {
     setFieldValue,
@@ -58,8 +53,6 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
   const authType = isOSDFromGoogleCloud
     ? GCPAuthType.WorkloadIdentityFederation
     : authTypeFormValue;
-  const showServiceAccountOcp5Warning =
-    isOcp5MigrationWarningEnabled && authType === GCPAuthType.ServiceAccounts;
   let gcpTitle = 'Have you prepared your Google account?';
   let gcpText = `To prepare your account, accept the Google Cloud Terms and Agreements. If you've already accepted the terms, you can continue to complete OSD prerequisites.`;
   let linkHref = links.GCP_CONSOLE_OSD_HOME;
@@ -121,45 +114,34 @@ export const GcpByocFields = (props: GcpByocFieldsProps) => {
             Google Cloud account details
           </Title>
           {!isOSDFromGoogleCloud ? (
-            <Flex direction={{ default: 'column' }} spaceItems={{ default: 'spaceItemsSm' }}>
-              {showServiceAccountOcp5Warning && (
-                <FlexItem>
-                  <GcpOcp5UnsupportedWarning variant="serviceAccountCreation" />
-                </FlexItem>
-              )}
-              <FlexItem>
-                <FormGroup
-                  label="Authentication type"
-                  labelHelp={
-                    <Popover
-                      bodyContent={
-                        <div>
-                          <div>
-                            Workload Identity Federation (WIF) uses short-lived credentials which
-                            are more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
-                            <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
-                          </div>
-                          <br />
-                          <div>
-                            Service Account uses long-lived credentials, which are less secure.
-                          </div>
-                        </div>
-                      }
-                    >
-                      <Button
-                        variant="plain"
-                        aria-label="More info for authentication types"
-                        onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
-                        icon={<HelpIcon />}
-                        className={styles.formGroupLabelHelp}
-                      />
-                    </Popover>
+            <FormGroup
+              label="Authentication type"
+              labelHelp={
+                <Popover
+                  bodyContent={
+                    <div>
+                      <div>
+                        Workload Identity Federation (WIF) uses short-lived credentials which are
+                        more secure. Use of WIF requires an OSD cluster running OpenShift{' '}
+                        <span className="pf-v6-u-font-family-monospace">4.17</span> or later.
+                      </div>
+                      <br />
+                      <div>Service Account uses long-lived credentials, which are less secure.</div>
+                    </div>
                   }
                 >
-                  {authButtons}
-                </FormGroup>
-              </FlexItem>
-            </Flex>
+                  <Button
+                    variant="plain"
+                    aria-label="More info for authentication types"
+                    onClick={(e: { preventDefault: () => any }) => e.preventDefault()}
+                    icon={<HelpIcon />}
+                    className={styles.formGroupLabelHelp}
+                  />
+                </Popover>
+              }
+            >
+              {authButtons}
+            </FormGroup>
           ) : (
             <Flex className="pf-v6-u-pt-md" data-testid="gcp-auth-type-wif">
               <span className="pf-v6-u-font-weight-bold">Authentication type:&nbsp;</span>Workload

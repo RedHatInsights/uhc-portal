@@ -50,16 +50,12 @@ import clusterStates, {
   isHypershiftCluster,
   isROSA,
 } from '../../../common/clusterStates';
-import { GcpOcp5UnsupportedWarning } from '../../../common/GcpOcp5UnsupportedWarning/GcpOcp5UnsupportedWarning';
 import MinorVersionUpgradeAlert from '../../../common/Upgrades/MinorVersionUpgradeAlert/MinorVersionUpgradeAlert';
 import UpgradeAcknowledgeWarning from '../../../common/Upgrades/UpgradeAcknowledge/UpgradeAcknowledgeWarning/UpgradeAcknowledgeWarning';
 import UpgradeSettingsFields from '../../../common/Upgrades/UpgradeSettingsFields';
 import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
 import { UpgradeToV5Warning } from '../../../common/Upgrades/UpgradeToV5Warning/UpgradeToV5Warning';
-import {
-  shouldShowGcpOcp5UnsupportedUpgradeWarning,
-  shouldShowUpgradeToV5Warning,
-} from '../../../common/Upgrades/UpgradeToV5Warning/UpgradeToV5WarningHelpers';
+import { shouldShowUpgradeToV5Warning } from '../../../common/Upgrades/UpgradeToV5Warning/UpgradeToV5WarningHelpers';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
 import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
@@ -90,11 +86,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const clusterVersion = getClusterVersion(cluster);
   const isRosa = isROSA(cluster);
   const showUpgradeToV5Warning = shouldShowUpgradeToV5Warning({
-    cluster,
-    isOcp5SupportEnabled,
-    organizationCapabilities: organization?.details?.capabilities,
-  });
-  const showGcpOcp5UnsupportedWarning = shouldShowGcpOcp5UnsupportedUpgradeWarning({
     cluster,
     isOcp5SupportEnabled,
     organizationCapabilities: organization?.details?.capabilities,
@@ -420,11 +411,6 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                       {showUpgradeToV5Warning && (
                         <div className="pf-v6-u-mb-md">
                           <UpgradeToV5Warning />
-                        </div>
-                      )}
-                      {showGcpOcp5UnsupportedWarning && (
-                        <div className="pf-v6-u-mb-md">
-                          <GcpOcp5UnsupportedWarning variant="upgrade" />
                         </div>
                       )}
                       <UpdateAllMachinePools

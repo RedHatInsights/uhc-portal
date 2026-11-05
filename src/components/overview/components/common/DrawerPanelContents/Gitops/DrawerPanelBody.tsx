@@ -3,6 +3,7 @@ import React from 'react';
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 
 const GitopsDrawerPanelBody = (
@@ -50,7 +51,7 @@ const GitopsDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-red-hat-openshift-gitops-drawer-panel-content-link"
-        href="https://catalog.redhat.com/software/container-stacks/detail/5fb288c70a12d20cbecc6056"
+        href={installLinks.CATALOG_GITOPS}
       >
         Learn more about Red Hat OpenShift GitOps
       </ExternalLink>

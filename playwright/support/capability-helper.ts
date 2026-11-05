@@ -5,7 +5,10 @@ export type OrganizationCapability = {
   value?: string;
 };
 
-export const ROSA_OSD_ALLOW_OCP_5_CAPABILITY = 'capability.organization.rosa_osd_allow_ocp_5';
+export const ROSA_OSD_ALLOW_OCP_5_INSTALL_CAPABILITY =
+  'capability.organization.rosa_osd_allow_ocp_5_install';
+export const ROSA_OSD_ALLOW_OCP_5_UPGRADE_CAPABILITY =
+  'capability.organization.rosa_osd_allow_ocp_5_upgrade';
 
 export async function waitForOrganizationCapabilities(
   page: Page,

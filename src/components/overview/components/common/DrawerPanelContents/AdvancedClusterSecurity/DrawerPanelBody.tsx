@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -95,7 +96,7 @@ const AdvancedClusterSecurityDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-advanced-cluster-security-drawer-panel-content-link"
-        href="https://catalog.redhat.com/software/container-stacks/detail/60eefc88ee05ae7c5b8f041c"
+        href={installLinks.CATALOG_ADVANCED_CLUSTER_SECURITY}
       >
         Learn more about Advanced Cluster Security
       </ExternalLink>

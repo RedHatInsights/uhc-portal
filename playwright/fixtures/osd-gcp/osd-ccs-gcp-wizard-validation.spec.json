@@ -34,7 +34,6 @@
           "InvalidGCPServiceJSONValues": "{\"testing\":\"samples\"}",
           "InvalidGCPServiceJSONFieldError": "The provided JSON does not meet the requirements: requires property \"type\"",
           "EmptyGCPServiceJSONFieldError": "Field is required",
-          "Ocp5ServiceAccountWarning": "OpenShift v5 is not supported with a Google Cloud service account. To install OpenShift v5, select Workload Identity Federation as the authentication type.",
           "NoWIFConfigSelectionError": "Wif configuration is required",
           "NoMatchingWIFConfigValue": "nomatchingwif",
           "NoMatchingWIFConfigError": "No results found",
@@ -217,6 +216,27 @@
                   "Key": "department",
                   "Value": "finance,hr,legal"
                 }
+              },
+              "TlsSecretAndHostname": {
+                "PairError": "You cannot provide only one of TLS secret name and Hostname",
+                "ValidSecret": "my-tls-secret",
+                "ValidHostname": "downloads.example.com",
+                "DigitLeadingHostname": "3scale.example.com",
+                "DottedSecret": "console.tls",
+                "InvalidSecret": {
+                  "Value": "Invalid_Secret",
+                  "Error": "TLS secret name 'Invalid_Secret' isn't valid, must consist of lower-case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character. For example, 'my-tls-secret', or 'console.tls'."
+                },
+                "InvalidHostnameFormat": {
+                  "Value": "not a hostname",
+                  "Error": "Hostname 'not a hostname' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'."
+                },
+                "SingleLabelHostname": {
+                  "Value": "localhost",
+                  "Error": "Hostname 'localhost' isn't valid, must contain at least two valid lower-case host labels separated by dots, for example 'mydomain.com'."
+                },
+                "LabelLengthError": "Hostname labels may not exceed 63 characters.",
+                "HostnameLengthError": "Hostname may not exceed 225 characters."
               },
               "ReviewScreenDefaults": {
                 "RouteSelectorEmpty": "None specified",
