@@ -2,7 +2,7 @@ import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterrupt
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
-import { rosaWizardFormValidator } from './formValidators';
+import { mergeErrors, rosaWizardFormValidator } from './formValidators';
 import { stepId } from './rosaWizardConstants';
 
 jest.mock('~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation');
@@ -30,6 +30,46 @@ const validAutoscaling = {
 };
 
 const logForwardingStep = stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING;
+
+describe('mergeErrors', () => {
+  it('returns an empty object when called with no arguments', () => {
+    expect(mergeErrors()).toEqual({});
+  });
+
+  it('returns an empty object when all inputs are empty', () => {
+    expect(mergeErrors({}, {}, {})).toEqual({});
+  });
+
+  it('returns a single non-empty object when other inputs are empty', () => {
+    expect(mergeErrors({}, { a: 'error' }, {})).toEqual({ a: 'error' });
+  });
+
+  it('merges multiple non-empty objects, with later keys winning', () => {
+    expect(mergeErrors({ a: 'first', b: 'keep' }, { a: 'second', c: 'added' })).toEqual({
+      a: 'second',
+      b: 'keep',
+      c: 'added',
+    });
+  });
+
+  it('preserves nested error objects without deep merging', () => {
+    const autoscalingErrors = {
+      cluster_autoscaling: {
+        resource_limits: { cores: { min: 'error', max: 'error' } },
+      },
+    };
+    const spotErrors = { spot_queue_url: 'SQS queue URL is required.' };
+
+    expect(mergeErrors(autoscalingErrors, spotErrors, {})).toEqual({
+      ...autoscalingErrors,
+      ...spotErrors,
+    });
+  });
+
+  it('skips empty objects between non-empty ones', () => {
+    expect(mergeErrors({ a: 1 }, {}, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+});
 
 describe('rosaWizardFormValidator', () => {
   beforeEach(() => {
