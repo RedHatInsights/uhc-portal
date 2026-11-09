@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { useGlobalState } from '~/redux/hooks';
+import type { State as CloudProvidersState } from '~/redux/reducers/cloudProvidersReducer';
 import { render, screen } from '~/testUtils';
+import type { AugmentedCluster } from '~/types/types';
 
 import fixtures from '../../__tests__/ClusterDetails.fixtures';
 
@@ -13,11 +15,14 @@ jest.mock('~/redux/hooks', () => ({
 
 jest.mock('~/hooks/useAnalytics', () => () => jest.fn());
 
-jest.mock('./MissingOCMRoleAlert', () => ({
-  MissingOCMRoleAlert: ({ awsAccountId }: { awsAccountId: string }) => (
-    <div data-testid="missing-ocm-role-alert">OCM Role Alert {awsAccountId}</div>
-  ),
-}));
+jest.mock(
+  '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert',
+  () => ({
+    MissingOCMRoleAlert: ({ awsAccountId }: { awsAccountId: string }) => (
+      <div data-testid="missing-ocm-role-alert">OCM Role Alert {awsAccountId}</div>
+    ),
+  }),
+);
 
 jest.mock('./InsightsAdvisor/InsightsAdvisor', () => () => null);
 jest.mock('./CostBreakdownCard', () => () => null);
@@ -48,11 +53,11 @@ const rosaSTSCluster = {
     organization_id: CLUSTER_ORG_ID,
     cloud_account_id: '123456789012',
   },
-};
+} as unknown as AugmentedCluster;
 
 const defaultProps = {
   cluster: rosaSTSCluster,
-  cloudProviders: fixtures.cloudProviders,
+  cloudProviders: fixtures.cloudProviders as unknown as CloudProvidersState,
   refresh: jest.fn(),
   insightsData: undefined,
   userAccess: { fulfilled: false, data: false },
