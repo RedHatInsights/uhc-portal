@@ -83,6 +83,25 @@ function getKnownFalsePositiveNote(url) {
   return match ? match.reason : null;
 }
 
+/**
+ * Classifies a broken result using the URL that matches KNOWN_FALSE_POSITIVES
+ * (redirect destination when present, original URL otherwise).
+ * @param {string} url - Original URL
+ * @param {string} [redirectUrl] - Redirect destination, if it is a redirect failure
+ * @returns {string|null} Explanation string or null
+ */
+function getKnownFalsePositiveNoteForBrokenLink(url, redirectUrl) {
+  return (redirectUrl && getKnownFalsePositiveNote(redirectUrl)) || getKnownFalsePositiveNote(url);
+}
+
+/**
+ * @param {string|null} note - Known false positive reason
+ * @returns {string} 🟡 for known false positives, 🔴 for actionable errors
+ */
+function errorMarker(note) {
+  return note ? '🟡' : '🔴';
+}
+
 // ======================================================================
 // CONCURRENCY CONTROL
 // ======================================================================
@@ -616,7 +635,8 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
 
     // Display the failed URLs
     failedTests.forEach((r) => {
-      console.log(`  [Original URL] ${r.url}`);
+      const note = getKnownFalsePositiveNoteForBrokenLink(r.url, r.redirectUrl);
+      console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
       if (r.redirectUrl) {
         console.log(`  [Redirect URL] ${r.redirectUrl}`);
 
@@ -635,11 +655,9 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
           }
           console.log(`  [Redirect URL Test] ${statusText}`);
         }
-
-        const note = getKnownFalsePositiveNote(r.redirectUrl);
-        if (note) {
-          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
-        }
+      }
+      if (note) {
+        console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
       }
       console.log();
     });
@@ -790,8 +808,8 @@ function displayErrorSection(title, errorItems) {
 
     if (items.length > 0) {
       items.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
         const note = getKnownFalsePositiveNote(r.url);
+        console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
         if (note) {
           console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
@@ -836,9 +854,9 @@ function displayRequestErrorsSection(errors) {
 
     if (items.length > 0) {
       items.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
-        console.log(`  [Error] ${r.errorMessage}`);
         const note = getKnownFalsePositiveNote(r.url);
+        console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
+        console.log(`  [Error] ${r.errorMessage}`);
         if (note) {
           console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
@@ -907,12 +925,67 @@ const SUMMARY_MAX_BROKEN_LINK_ENTRIES = 12;
 const SUMMARY_MAX_REPORT_LENGTH = 2800;
 
 /**
- * Formats a count for plain-text output (no ANSI).
+ * Formats a count for plain text output (no ANSI).
  * @param {number} count - The count to display
  * @returns {string} Formatted count string
  */
 function formatPlainCount(count) {
   return count.toString().padStart(6);
+}
+
+/**
+ * @param {Object} item - Redirect test result
+ * @returns {boolean} Whether the redirect destination failed
+ */
+function isRedirectTestError(item) {
+  return Boolean(
+    item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
+  );
+}
+
+/**
+ * Counts broken results whose URL matches KNOWN_FALSE_POSITIVES.
+ * Redirect failures are classified using the matching URL.
+ * @param {Object} categories - Categorized results
+ * @param {Array} testedRedirects - Redirect test results
+ * @returns {number}
+ */
+function countKnownFalsePositives(categories, testedRedirects) {
+  const { clientErrors, serverErrors, errors } = categories;
+  let count = 0;
+
+  [...clientErrors, ...serverErrors, ...errors].forEach(({ url }) => {
+    if (getKnownFalsePositiveNote(url)) {
+      count += 1;
+    }
+  });
+
+  testedRedirects.forEach((item) => {
+    if (
+      isRedirectTestError(item) &&
+      getKnownFalsePositiveNoteForBrokenLink(item.originalUrl, item.redirectUrl)
+    ) {
+      count += 1;
+    }
+  });
+
+  return count;
+}
+
+/**
+ * Prefixes a broken-link entry with 🟡/🔴 and appends the false positive reason when present.
+ * @param {'simple'|'redirect'} kind
+ * @param {string[]} lines - Body lines; first line is the URL (no indent)
+ * @param {string|null} note - Known false positive reason
+ * @returns {{ kind: 'simple'|'redirect', text: string }}
+ */
+function formatBrokenLinkEntry(kind, lines, note) {
+  const [first, ...rest] = lines;
+  const markedLines = [`  ${errorMarker(note)} ${first}`, ...rest];
+  if (note) {
+    markedLines.push(`     ${note}`);
+  }
+  return { kind, text: markedLines.join('\n') };
 }
 
 /**
@@ -932,51 +1005,48 @@ function formatBrokenLinksList(
   const entries = [];
 
   clientErrors.forEach(({ url, status }) => {
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${status})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${status})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   serverErrors.forEach(({ url, status }) => {
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${status})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${status})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   errors.forEach(({ url, errorMessage }) => {
     const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${shortError})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${shortError})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   testedRedirects.forEach((item) => {
-    const isError =
-      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300));
-    if (!isError) {
+    if (!isRedirectTestError(item)) {
       return;
     }
 
+    const note = getKnownFalsePositiveNoteForBrokenLink(item.originalUrl, item.redirectUrl);
+
     if (item.error) {
       const shortError = item.error.length > 60 ? `${item.error.slice(0, 57)}...` : item.error;
-      entries.push({
-        kind: 'redirect',
-        text: [
-          `  ${item.originalUrl}`,
-          `  -> ${item.redirectUrl}`,
-          `  (redirect error: ${shortError})`,
-        ].join('\n'),
-      });
-    } else {
-      entries.push({
-        kind: 'redirect',
-        text: [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join(
-          '\n',
+      entries.push(
+        formatBrokenLinkEntry(
+          'redirect',
+          [item.originalUrl, `  -> ${item.redirectUrl}`, `  (redirect error: ${shortError})`],
+          note,
         ),
-      });
+      );
+    } else {
+      entries.push(
+        formatBrokenLinkEntry(
+          'redirect',
+          [item.originalUrl, `  -> ${item.redirectUrl} (${item.finalStatus})`],
+          note,
+        ),
+      );
     }
   });
 
@@ -1010,8 +1080,8 @@ function formatBrokenLinksList(
  * @param {number} redirectErrorCount - Count of redirect errors
  * @param {Object} [options] - Formatting options
  * @param {boolean} [options.plain] - Omit ANSI color codes from counts
- * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when issues exist
- * @param {Array} [options.testedRedirects] - Redirect test results for broken link list
+ * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when any exist
+ * @param {Array} [options.testedRedirects] - Redirect test results for counts and broken link list
  * @param {number} [options.maxBrokenEntries] - Maximum broken links to include in Slack output
  * @returns {string} Summary report text
  */
@@ -1027,16 +1097,16 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     : (value, useRed = false) => formatCount(value, useRed);
 
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
-  const hasIssues =
-    redirectErrorCount > 0 ||
-    clientErrors.length > 0 ||
-    serverErrors.length > 0 ||
-    errors.length > 0;
   const totalErrors =
     redirectErrorCount + clientErrors.length + serverErrors.length + errors.length;
+  const knownFalsePositives = countKnownFalsePositives(categories, testedRedirects);
+  const actionableErrors = totalErrors - knownFalsePositives;
+  const statusCounts = `(${knownFalsePositives} known false positives 🟡, ${actionableErrors} actionable 🔴)`;
+  const statusLine =
+    actionableErrors > 0 ? `👎 Issues found ${statusCounts}` : `👍 All clear ${statusCounts}`;
 
   const lines = [
-    hasIssues ? '👎 Issues found' : '👍 All clear',
+    statusLine,
     '',
     'Category                           Count',
     '---------------------------------- ------',
@@ -1049,10 +1119,12 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     `Request errors                    ${count(errors.length, true)}`,
     '---------------------------------- ------',
     `Total URLs checked                ${count(totalChecked)}`,
-    `Total Errors                      ${count(totalErrors, true)}`,
+    `Total errors                      ${count(totalErrors, true)}`,
+    `Known false positives             ${count(knownFalsePositives)}  🟡`,
+    `Actionable errors                 ${count(actionableErrors, true)}  🔴`,
   ];
 
-  if (includeBrokenLinks && hasIssues) {
+  if (includeBrokenLinks && totalErrors > 0) {
     const brokenLinks = formatBrokenLinksList(categories, testedRedirects, maxBrokenEntries);
     if (brokenLinks) {
       lines.push(brokenLinks);
@@ -1100,9 +1172,12 @@ function buildSummaryReport(categories, totalChecked, redirectErrorCount, tested
  * @param {Object} categories - Categorized results
  * @param {number} totalChecked - Total checked URLs
  * @param {number} redirectErrorCount - Count of redirect errors
+ * @param {Array} testedRedirects - Redirect test results (needed to classify redirect false positives)
  */
-function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
-  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
+function displaySummaryTable(categories, totalChecked, redirectErrorCount, testedRedirects) {
+  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+    testedRedirects,
+  });
 
   console.log('\nURL CHECK RESULTS');
   console.log(summary);
@@ -1174,7 +1249,7 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   }
 
   // Display summary table
-  displaySummaryTable(categories, totalChecked, redirectErrorCount);
+  displaySummaryTable(categories, totalChecked, redirectErrorCount, testedRedirects);
 
   // Display detailed sections
   displaySuccessSection(success, verbose);
