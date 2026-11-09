@@ -53,17 +53,21 @@ describe('mergeErrors', () => {
   });
 
   it('preserves nested error objects without deep merging', () => {
-    const autoscalingErrors = {
+    const coresAutoscalingErrors = {
       cluster_autoscaling: {
         resource_limits: { cores: { min: 'error', max: 'error' } },
       },
     };
-    const spotErrors = { spot_queue_url: 'SQS queue URL is required.' };
+    const memoryAutoscalingErrors = {
+      cluster_autoscaling: {
+        resource_limits: { memory: { min: 'error', max: 'error' } },
+      },
+    };
 
-    expect(mergeErrors(autoscalingErrors, spotErrors, {})).toEqual({
-      ...autoscalingErrors,
-      ...spotErrors,
-    });
+    // Same top-level key: shallow merge replaces the whole nested object (later wins).
+    expect(mergeErrors(coresAutoscalingErrors, memoryAutoscalingErrors)).toEqual(
+      memoryAutoscalingErrors,
+    );
   });
 
   it('skips empty objects between non-empty ones', () => {
@@ -256,6 +260,43 @@ describe('rosaWizardFormValidator', () => {
           },
         },
       },
+      [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
+    });
+  });
+
+  it('merges autoscaling, spot interruption, and log forwarding errors on the review step', () => {
+    mockValidateLogForwardingFields.mockReturnValue({
+      [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
+    });
+
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: {
+          resource_limits: {
+            cores: { min: 2, max: 1 },
+            memory: { min: 0, max: 50 },
+          },
+        },
+        [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+        [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        [FieldId.LogForwardingS3Enabled]: true,
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+        ...rosaHcpLogForwardingContext,
+      },
+      stepId.REVIEW_AND_CREATE,
+    );
+
+    expect(result).toEqual({
+      cluster_autoscaling: {
+        resource_limits: {
+          cores: {
+            min: 'The minimum cannot be above the maximum value.',
+            max: 'The minimum cannot be above the maximum value.',
+          },
+        },
+      },
+      [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
       [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
     });
   });
