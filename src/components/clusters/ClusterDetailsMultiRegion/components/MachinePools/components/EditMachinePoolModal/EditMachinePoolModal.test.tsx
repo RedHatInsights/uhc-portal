@@ -749,6 +749,22 @@ describe('<EditMachinePoolModal />', () => {
       expect(await screen.findByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
     });
 
+    it('shows the OCM role warning while machine pools are still loading', async () => {
+      mockOCMRoleMissing();
+
+      render(
+        <EditMachinePoolModal
+          cluster={buildCluster()}
+          onClose={() => {}}
+          {...commonProps}
+          machinePoolsLoading
+        />,
+      );
+
+      expect(await screen.findByRole('heading', { name: ALERT_TITLE })).toBeInTheDocument();
+      expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
+    });
+
     it('does not show the OCM role banner when the OCM role is linked', async () => {
       render(<EditMachinePoolModal cluster={buildCluster()} onClose={() => {}} {...commonProps} />);
 
