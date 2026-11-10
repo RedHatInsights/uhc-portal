@@ -1,9 +1,16 @@
-// PF sets overflow-y: auto on the step body.
-// Use clip/visible so Chrome doesn't coerces Y back to auto.
+// Use visible so Chrome doesn't force Y back to auto.
 .pf-v6-c-wizard.osd-wizard {
-  .pf-v6-c-wizard__main {
-    overflow-x: clip;
-    overflow-y: visible;
+  height: auto;
+  min-height: 0;
+  .pf-v6-c-wizard__outer-wrap,
+  .pf-v6-c-wizard__inner-wrap {
     flex-grow: 0;
+    min-height: auto;
+    overflow: visible;
+  }
+  .pf-v6-c-wizard__main {
+    flex-grow: 0;
+    overflow-x: visible;
+    overflow-y: visible;
   }
 }
