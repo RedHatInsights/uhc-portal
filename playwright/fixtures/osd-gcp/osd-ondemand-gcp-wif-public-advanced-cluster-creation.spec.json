@@ -10,7 +10,7 @@
   "Availability": "Single zone",
   "SecureBootSupportForShieldedVMs": "Enabled",
   "UserWorkloadMonitoring": "Enabled",
-  "EncryptVolumesWithCustomerKeys": "Disabled",
+  "EncryptVolumesWithCustomerKeys": "Enabled",
   "FIPSCryptography": "Disabled",
   "AdditionalEncryption": "Disabled",
   "ClusterAutoscaling": "Enabled",
