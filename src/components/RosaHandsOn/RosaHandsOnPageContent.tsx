@@ -17,12 +17,9 @@ import ErrorBoundary from '../App/ErrorBoundary';
 import { AugmentedDemoExperience } from './augmentedModelTypes';
 import { UNAUTHORIZED } from './constants';
 import { DemoExperienceStatusEnum } from './DemoExperienceModels';
+import { RosaHandsOnCustomerSuccessLink } from './RosaHandsOnContactLinks';
 import RosaHandsOnErrorPage from './RosaHandsOnErrorPage';
 import RosaHandsOnGetStartedCard from './RosaHandsOnGetStartedCard';
-import {
-  RosaHandsOnContactSupport,
-  RosaHandsOnRequestAuthorization,
-} from './RosaHandsOnIntercomButtons';
 import RosaHandsOnPageHeader from './RosaHandsOnPageHeader';
 import RosaHandsOnRecommendedContentTable from './RosaHandsOnRecommendedContentTable';
 
@@ -36,20 +33,22 @@ const getErrorMessage = (error: unknown): string => {
   return 'Unexpected error';
 };
 
-const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => {
+export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => {
   const remainingTime =
     new Date(demoExperience.scheduled_delete_timestamp || '').getTime() - Date.now();
   const remainingQuota = demoExperience.quota.limit - demoExperience.quota.current;
+  const launchLabel = remainingQuota === 1 ? 'launch' : 'launches';
   let alert;
   switch (demoExperience.status) {
     case 'quota-exceeded':
       alert = (
         <Alert
+          component="span"
           title={
             <>
               After {demoExperience.quota.limit} launches, you can create ROSA clusters using a
-              pay-as-you-go option. If you have any questions, you can <RosaHandsOnContactSupport />
-              .
+              pay-as-you-go option. If you have any questions, you can{' '}
+              <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
             </>
           }
           isInline
@@ -69,7 +68,7 @@ const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperien
                 round: true,
                 delimiter: ' and ',
               })}
-              . You have {remainingQuota} experience launches remaining.
+              . You have {remainingQuota} experience {launchLabel} remaining.
             </>
           }
           variant="info"
@@ -80,10 +79,12 @@ const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperien
     case DemoExperienceStatusEnum.Failed:
       alert = (
         <Alert
+          component="span"
           title={
             <>
               We&apos;re experiencing an error on our end. This does not affect your quota. Try
-              again and if this issue persists, <RosaHandsOnContactSupport />.
+              again and if this issue persists,{' '}
+              <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
             </>
           }
           variant="danger"
@@ -95,28 +96,30 @@ const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperien
       const alertTitle =
         demoExperience.unavailable_reason === UNAUTHORIZED ? (
           <>
-            Let&apos;s get you access to the Hands-on Experience. To continue, we need some{' '}
-            <RosaHandsOnRequestAuthorization />.
+            Let&apos;s get you access to the Hands-on Experience. To continue, you can{' '}
+            <RosaHandsOnCustomerSuccessLink linkText="email support" />.
           </>
         ) : (
           <>
-            The demo system is currently unavailable. If this issue persists, you can{' '}
-            <RosaHandsOnContactSupport />.
+            You must be logged in with your business email account to access the experience. If you
+            are logged in with a business email and still cannot request, we will review your
+            request when we have additional capacity.
           </>
         );
-      alert = <Alert title={alertTitle} variant="danger" isInline />;
+      alert = <Alert component="span" title={alertTitle} variant="danger" isInline />;
       break;
     }
     case DemoExperienceStatusEnum.Available:
       alert =
         demoExperience.quota.current > 0 ? (
           <Alert
+            component="span"
             variant="info"
             isInline
             title={
               <>
-                You have {remainingQuota} launches remaining. If you have any questions, you can{' '}
-                <RosaHandsOnContactSupport />.
+                You have {remainingQuota} {launchLabel} remaining. If you have any questions, you
+                can <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
               </>
             }
           />
