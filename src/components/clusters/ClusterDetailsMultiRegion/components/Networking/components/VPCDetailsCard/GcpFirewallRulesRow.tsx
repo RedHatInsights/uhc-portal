@@ -4,7 +4,7 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Spinner,
+  Skeleton,
 } from '@patternfly/react-core';
 
 import { useFetchGcpFirewallRule } from '~/queries/ClusterDetailsQueries/NetworkingTab/useFetchGcpFirewallRule';
@@ -27,7 +27,7 @@ export const GcpFirewallRulesRow = ({ firewallRulesId }: GcpFirewallRulesRowProp
   // Prefer the resolved name; the cluster already has firewallRulesId as a stable fallback
   // when the name request is still loading or fails.
   const value = isLoading ? (
-    <Spinner size="sm" aria-label="Loading firewall rules" />
+    <Skeleton fontSize="sm" width="12em" screenreaderText="Loading firewall rules" />
   ) : (
     firewallRule?.name || firewallRulesId
   );

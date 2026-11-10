@@ -65,12 +65,7 @@ describe('<Networking />', () => {
     });
 
     render(
-      <Networking
-        cluster={defaultCluster}
-        refreshCluster={refreshCluster}
-        clusterID="cluster-1"
-        isManaged
-      />,
+      <Networking cluster={defaultCluster} refreshCluster={refreshCluster} clusterID="cluster-1" />,
     );
 
     expect(screen.getByLabelText('Loading...')).toBeInTheDocument();
@@ -90,12 +85,11 @@ describe('<Networking />', () => {
         cluster={defaultCluster}
         refreshCluster={refreshCluster}
         clusterID="cluster-1"
-        isManaged
         region="us-east1"
       />,
     );
 
-    expect(useGetClusterRoutersMock).toHaveBeenCalledWith('cluster-1', true, 'us-east1');
+    expect(useGetClusterRoutersMock).toHaveBeenCalledWith('cluster-1', 'us-east1');
     expect(screen.getByText('ClusterIngressCard')).toBeInTheDocument();
     expect(screen.getByText('NetworkConfigurationCard')).toBeInTheDocument();
     expect(screen.getByText('ApplicationIngressCard')).toBeInTheDocument();
@@ -117,26 +111,6 @@ describe('<Networking />', () => {
 
     expect(screen.queryByLabelText('Loading...')).not.toBeInTheDocument();
     expect(screen.getByText('ClusterIngressCard')).toBeInTheDocument();
-    expect(clusterIngressCardProps[0]?.clusterRoutersData).toEqual([]);
-  });
-
-  it('defaults isManaged to false when omitted', () => {
-    useGetClusterRoutersMock.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-    });
-
-    render(
-      <Networking
-        cluster={{ cloud_provider: undefined } as AugmentedCluster}
-        refreshCluster={refreshCluster}
-        clusterID="cluster-1"
-      />,
-    );
-
-    expect(useGetClusterRoutersMock).toHaveBeenCalledWith('cluster-1', false, undefined);
-    expect(screen.getByText('VPCDetailsCard')).toBeInTheDocument();
     expect(clusterIngressCardProps[0]?.clusterRoutersData).toEqual([]);
   });
 });

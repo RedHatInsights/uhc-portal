@@ -703,7 +703,6 @@ const ClusterDetails = (props) => {
                 clusterID={cluster.id}
                 refreshCluster={refresh}
                 cluster={cluster}
-                isManaged={cluster.managed}
                 region={cluster.subscription.rh_region_id}
               />
             </ErrorBoundary>

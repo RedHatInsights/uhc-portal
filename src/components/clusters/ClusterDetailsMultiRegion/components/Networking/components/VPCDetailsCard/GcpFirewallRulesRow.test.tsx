@@ -68,7 +68,7 @@ describe('<GcpFirewallRulesRow />', () => {
     expect(screen.getByText('fw-1')).toBeInTheDocument();
   });
 
-  it('shows a loading spinner while the firewall rule is fetching', () => {
+  it('shows a loading skeleton while the firewall rule is fetching', () => {
     useFetchGcpFirewallRuleMock.mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -77,7 +77,7 @@ describe('<GcpFirewallRulesRow />', () => {
 
     render(<GcpFirewallRulesRow firewallRulesId="fw-1" />);
 
-    expect(screen.getByLabelText('Loading firewall rules')).toBeInTheDocument();
+    expect(screen.getByText('Loading firewall rules')).toBeInTheDocument();
   });
 
   it('falls back to the firewall rules id when the request fails', () => {

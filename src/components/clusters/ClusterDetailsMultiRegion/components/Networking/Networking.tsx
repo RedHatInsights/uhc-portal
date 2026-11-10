@@ -17,22 +17,15 @@ type NetworkingProps = {
   cluster: AugmentedCluster;
   refreshCluster: () => void;
   clusterID: string;
-  isManaged?: boolean;
   region?: string;
 };
 
-const Networking = ({
-  cluster,
-  refreshCluster,
-  clusterID,
-  isManaged = false,
-  region,
-}: NetworkingProps) => {
+const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingProps) => {
   const {
     data: clusterRouters,
     isLoading: isClusterRoutersLoading,
     isError: isClusterRoutersError,
-  } = useGetClusterRouters(clusterID, isManaged, region);
+  } = useGetClusterRouters(clusterID, region);
 
   const network = cluster.network || {};
   const provider = cluster.cloud_provider?.id ? cluster.cloud_provider.id : 'N/A';
