@@ -1,7 +1,5 @@
-// PF Wizard sets overflow-x: hidden and overflow-y: auto on the step body.
-// Chrome 157 coerces overflow-y: visible back to auto when the other axis is a
-// scroll value (hidden). Use clip on X (not a scroll container) so Y can stay
-// visible and the page remains the only vertical scroller.
+// PF sets overflow-y: auto on the step body.
+// Use clip/visible so Chrome doesn't coerces Y back to auto.
 .pf-v6-c-wizard.osd-wizard {
   .pf-v6-c-wizard__main {
     overflow-x: clip;

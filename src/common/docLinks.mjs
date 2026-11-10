@@ -28,6 +28,8 @@ const docLinks = {
   ROSA_QUICKSTART: `${ROSA_CLASSIC_DOCS_BASE}/getting_started/rosa-quickstart-guide-ui`,
   OSD_QUICKSTART: 'https://www.youtube.com/watch?v=p9KBFvMDQJM&feature=youtu.be',
   AZURE_OPENSHIFT_GET_STARTED: 'https://azure.microsoft.com/en-us/products/openshift/',
+  AZURE_PULL_SECRET_DOCS:
+    'https://docs.microsoft.com/en-us/azure/openshift/howto-add-update-pull-secret',
   OPENSHIFT_LOCAL_SUPPORT_AND_COMMUNITY_DOCS: 'https://crc.dev/docs/using/',
 
   // Rosa Classic
@@ -84,6 +86,7 @@ const docLinks = {
   LEARN_MORE_SSO_ROSA: `${ROSA_DOCS_BASE}/cli_tools/rosa-cli#rosa-login-sso_rosa-getting-started-cli`,
   ROSA_AUTONODE: `${ROSA_DOCS_BASE}-single/cluster_administration/index#rosa-nodes-autonode-managing`,
   ROSA_HCP_SPOT_INTERRUPTION_SET_UP: `${ROSA_DOCS_BASE}/install_clusters/rosa-hcp-config-aws-spot-instances-cli`,
+  ROSA_OCM_ROLE_PERMISSIONS: `${ROSA_DOCS_BASE}/prepare_your_environment/rosa-hcp-prepare-iam-roles-resources#rosa-sts-ocm-roles-and-permissions-iam-basic-role_prepare-role-resources`,
 
   // OSD
   OSD_DEDICATED_ADMIN_ROLE: `${OSD_DOCS_BASE}/authentication_and_authorization/osd-admin-roles`,
@@ -121,8 +124,12 @@ const docLinks = {
   IDP_LDAP: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-ldap-identity-provider`,
   IDP_GITHUB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#configuring-github-identity-provider`,
   IDP_GITLAB: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-gitlab-identity-provider`,
+  IDP_GITLAB_COM: 'https://gitlab.com/',
   IDP_GOOGLE: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-google-identity-provider`,
+  IDP_GOOGLE_OPENID_CONNECT: 'https://developers.google.com/identity/protocols/OpenIDConnect',
   IDP_OPENID: `${OCP_DOCS_BASE}/authentication_and_authorization/configuring-identity-providers#identity-provider-overview_configuring-oidc-identity-provider`,
+  IDP_OPENID_AUTHORIZATION_CODE_FLOW:
+    'https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth',
   CCO_MANUAL_MODE: `${OCP_DOCS_BASE}/authentication_and_authorization/managing-cloud-provider-credentials#cco-mode-manual`,
   UNDERSTANDING_AUTHENTICATION: `${OCP_DOCS_BASE}/authentication_and_authorization/understanding-authentication`,
   UNDERSTANDING_IDENTITY_PROVIDER: `${OCP_DOCS_BASE}/authentication_and_authorization/understanding-identity-provider`,
@@ -174,6 +181,7 @@ const docLinks = {
   // RH Base docs
   RH_CONTACT: `${RH_BASE}/contact`,
   RH_ISTIO: `${RH_BASE}/topics/microservices/what-is-istio`,
+  KIALI_OPERATOR: 'https://github.com/kiali/kiali-operator',
   RH_ARGO_CD: `${RH_BASE}/blog/argocd-and-gitops-whats-next`,
   RH_OCP_SUBSCRIPTIONS: `${RH_BASE}/resources/self-managed-openshift-sizing-subscription-guide`,
   RH_ACS_TRIAL: `${RH_BASE}/technologies/cloud-computing/openshift/advanced-cluster-security-kubernetes/trial`,
@@ -209,6 +217,8 @@ const docLinks = {
     'https://docs.redhat.com/en/documentation/openshift_cluster_manager/1-latest/html-single/managing_clusters/index#transferring-cluster-ownership_downloading-and-updating-pull-secrets',
 
   RH_DEV_TOOLS: 'https://developers.redhat.com/topics/developer-tools',
+  RH_DEVELOPER_SANDBOX: 'https://sandbox.redhat.com',
+  US_SPENDING_SEARCH: 'https://www.usaspending.gov/search',
 
   OCP_UPDATE_CHANNELS: `${OCP_DOCS_BASE}/updating_clusters/understanding-openshift-updates-1#understanding-update-channels-releases`,
 };

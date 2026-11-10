@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Content, ContentVariants, Stack, StackItem, Title } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import ExternalLink from '~/components/common/ExternalLink';
 import { YoutubePlayer } from '~/components/common/YoutubePlayer/YoutubePlayer';
 
@@ -126,7 +127,7 @@ const OpenShiftAiDrawerPanelBody = (
     <StackItem className="drawer-panel-content__learn-more">
       <ExternalLink
         data-testid="learn-more-about-redhat-openshift-ai-drawer-panel-content-link"
-        href="https://catalog.redhat.com/software/container-stacks/detail/63b85b573112fe5a95ee9a3a"
+        href={installLinks.CATALOG_OPENSHIFT_AI}
       >
         Learn more about Red Hat OpenShift AI
       </ExternalLink>

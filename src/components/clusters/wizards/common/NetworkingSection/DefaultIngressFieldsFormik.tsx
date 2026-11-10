@@ -185,11 +185,13 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
 
       {isDay2 && hasSufficientIngressEditVersion && !isHypershiftCluster && (
         <>
-          <FormGroup className={className} label="TLS Secret name">
+          <FormGroup className={className}>
             <Field
               component={ReduxVerticalFormGroup}
               name="clusterRoutesTlsSecretRef"
               type="text"
+              label="TLS Secret name"
+              aria-label="TLS Secret name"
               validate={(value: string) => validateTlsSecretName(value, values)}
               disabled={areFieldsDisabled}
               helpText="The name of a secret holding custom TLS certificate, in the openshift-config namespace. Optional."
@@ -200,11 +202,13 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
           </FormGroup>
 
           {/* TODO: provide link to documentation once it is written */}
-          <FormGroup className={className} label="Hostname">
+          <FormGroup className={className}>
             <Field
               component={ReduxVerticalFormGroup}
               name="clusterRoutesHostname"
               type="text"
+              label="Hostname"
+              aria-label="Hostname"
               validate={(value: string) => validateTlsHostname(value, values)}
               disabled={areFieldsDisabled}
               helpText="The cluster routes hostname the TLS certificate is issued for."

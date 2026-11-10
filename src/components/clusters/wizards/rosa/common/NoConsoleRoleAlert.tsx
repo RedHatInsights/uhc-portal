@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Alert, Button, Content, ContentVariants } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
+
 type Props = {
   onRefresh: () => void;
   isRefreshPending?: boolean;
@@ -16,11 +18,7 @@ export const NoConsoleRoleAlert = ({ onRefresh, isRefreshPending, className }: P
         creation through the console is not supported with this configuration. To create a cluster
         using the Red Hat console, update your OCM role with appropriate permissions using the ROSA
         CLI.{' '}
-        <a
-          href="https://docs.redhat.com/en/documentation/red_hat_openshift_service_on_aws/4/html/prepare_your_environment/rosa-hcp-prepare-iam-roles-resources#rosa-sts-ocm-roles-and-permissions-iam-basic-role_prepare-role-resources"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={docLinks.ROSA_OCM_ROLE_PERMISSIONS} target="_blank" rel="noopener noreferrer">
           Learn more about OCM role permissions
         </a>
       </Content>
