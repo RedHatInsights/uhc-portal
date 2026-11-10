@@ -27,6 +27,9 @@ const addMinMaxError = (
   }
 };
 
+const mergeErrors = (...objs: Record<string, unknown>[]) =>
+  objs.reduce((acc, o) => (Object.keys(o).length ? { ...acc, ...o } : acc), {});
+
 const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | number) => {
   const autoScaler = values[FieldId.ClusterAutoscaling];
   const validateLogForwarding =
@@ -44,13 +47,7 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
     : {};
 
   if (!autoScaler) {
-    if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
-      return {};
-    }
-    return {
-      ...spotInterruptionErrors,
-      ...logForwardingErrors,
-    };
+    return mergeErrors(spotInterruptionErrors, logForwardingErrors);
   }
 
   const { cores, memory } = autoScaler.resource_limits;
@@ -60,13 +57,7 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
   addMinMaxError(resourceLimitErrors, memory, 'memory');
 
   if (Object.keys(resourceLimitErrors).length === 0) {
-    if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
-      return {};
-    }
-    return {
-      ...spotInterruptionErrors,
-      ...logForwardingErrors,
-    };
+    return mergeErrors(spotInterruptionErrors, logForwardingErrors);
   }
 
   const autoscalingErrors = {
@@ -75,15 +66,7 @@ const rosaWizardFormValidator = (values: FormikValues, activeStepId?: string | n
     },
   };
 
-  if (!Object.keys(logForwardingErrors).length && !Object.keys(spotInterruptionErrors).length) {
-    return autoscalingErrors;
-  }
-
-  return {
-    ...autoscalingErrors,
-    ...spotInterruptionErrors,
-    ...logForwardingErrors,
-  };
+  return mergeErrors(autoscalingErrors, spotInterruptionErrors, logForwardingErrors);
 };
 
-export { rosaWizardFormValidator };
+export { mergeErrors, rosaWizardFormValidator };
