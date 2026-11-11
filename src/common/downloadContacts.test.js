@@ -1,5 +1,16 @@
 import contacts from './downloadContacts.json';
-import { tools } from './installLinks.mjs';
+import { tools, urls } from './installLinks.mjs';
+
+const collectUrls = (node, out = []) => {
+  if (typeof node === 'string') {
+    out.push(node);
+    return out;
+  }
+  if (node && typeof node === 'object') {
+    Object.values(node).forEach((value) => collectUrls(value, out));
+  }
+  return out;
+};
 
 describe('downloadContacts', () => {
   const contactsByKey = new Map(contacts.map((entry) => [entry.key, entry]));
@@ -27,6 +38,20 @@ describe('downloadContacts', () => {
       const entry = contactsByKey.get(key);
       expect(entry.deprecated).toBe(true);
       expect(entry.slackChannels).toEqual([]);
+    });
+  });
+
+  it('maps every installLinks URL to the matching contact key', () => {
+    const compiled = contacts.map((entry) => ({
+      ...entry,
+      urlRegex: new RegExp(entry.urlPattern),
+    }));
+
+    Object.values(tools).forEach((toolId) => {
+      collectUrls(urls[toolId] || {}).forEach((url) => {
+        const match = compiled.find((entry) => entry.urlRegex.test(url));
+        expect(match?.key).toBe(toolId);
+      });
     });
   });
 });
