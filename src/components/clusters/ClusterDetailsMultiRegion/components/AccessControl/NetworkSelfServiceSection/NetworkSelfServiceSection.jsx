@@ -29,6 +29,7 @@ import {
 } from '@patternfly/react-table';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
+import installLinks from '~/common/installLinks.mjs';
 import { LoadingSkeletonCard } from '~/components/clusters/common/LoadingSkeletonCard/LoadingSkeletonCard';
 import ExternalLink from '~/components/common/ExternalLink';
 import { useAddGrant } from '~/queries/ClusterDetailsQueries/AccessControlTab/NetworkSelfServiceQueries/useAddGrant';
@@ -202,7 +203,7 @@ const NetworkSelfServiceSection = ({
   }
 
   const loginAWSLink = (
-    <ExternalLink href="https://console.aws.amazon.com/console/home">
+    <ExternalLink href={installLinks.AWS_CONSOLE_INFRA_ACCESS_HOME}>
       Log in to your aws account.
     </ExternalLink>
   );

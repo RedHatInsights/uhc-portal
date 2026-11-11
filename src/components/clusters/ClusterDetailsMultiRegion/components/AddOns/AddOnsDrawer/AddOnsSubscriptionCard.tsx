@@ -12,6 +12,7 @@ import {
   SelectOption,
 } from '@patternfly/react-core';
 
+import installLinks from '~/common/installLinks.mjs';
 import { BillingQuotaCloudAccounts } from '~/components/clusters/common/quotaModel';
 import ExternalLink from '~/components/common/ExternalLink';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
@@ -28,7 +29,7 @@ const marketplaceLinks: {
   };
 } = {
   'managed-odh': {
-    aws: 'https://aws.amazon.com/marketplace/search/results?searchTerms=OpenShift+Data+Science+enables',
+    aws: installLinks.AWS_MARKETPLACE_OPENSHIFT_AI,
   },
 };
 

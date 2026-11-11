@@ -14,6 +14,7 @@ import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFiel
 
 import docLinks from '../../../../common/docLinks.mjs';
 import getClusterName from '../../../../common/getClusterName';
+import installLinks from '../../../../common/installLinks.mjs';
 import { normalizedProducts } from '../../../../common/subscriptionTypes';
 import { useUpgradeClusterFromTrial } from '../../../../queries/ClusterActionsQueries/useUpgradeClusterFromTrial';
 import { useFetchMachineOrNodePools } from '../../../../queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
@@ -143,7 +144,7 @@ const UpgradeTrialClusterDialog = ({ onClose }) => {
   const getPrimaryButtonProps = (availableQuotaValue) => {
     const button = {
       primaryText: 'Contact sales',
-      onPrimaryClick: () => buttonLinkClick('https://cloud.redhat.com/products/dedicated/contact/'),
+      onPrimaryClick: () => buttonLinkClick(installLinks.OSD_CONTACT_SALES),
     };
 
     if (availableQuotaValue) {
