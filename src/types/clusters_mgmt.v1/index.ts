@@ -11136,7 +11136,10 @@ export interface paths {
     };
     get: {
       parameters: {
-        query?: never;
+        query?: {
+          /** @description Whether to include support access validation in WIF config status verification. */
+          check_support_access?: boolean;
+        };
         header?: never;
         path: {
           wif_config_id: string;
