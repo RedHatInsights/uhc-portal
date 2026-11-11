@@ -49,6 +49,10 @@ const COLOR = {
   YELLOW: '\x1b[33m',
   RESET: '\x1b[0m',
 };
+const STATUS_MARKER = {
+  knownFalsePositive: '🟡',
+  actionable: '🔴',
+};
 
 // Rate-limiting configuration
 const MAX_CONCURRENT_GLOBAL = 15;
@@ -99,7 +103,7 @@ function getKnownFalsePositiveNoteForBrokenLink(url, redirectUrl) {
  * @returns {string} 🟡 for known false positives, 🔴 for actionable errors
  */
 function errorMarker(note) {
-  return note ? '🟡' : '🔴';
+  return note ? STATUS_MARKER.knownFalsePositive : STATUS_MARKER.actionable;
 }
 
 // ======================================================================
@@ -1101,7 +1105,7 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     redirectErrorCount + clientErrors.length + serverErrors.length + errors.length;
   const knownFalsePositives = countKnownFalsePositives(categories, testedRedirects);
   const actionableErrors = totalErrors - knownFalsePositives;
-  const statusCounts = `(${knownFalsePositives} known false positives 🟡, ${actionableErrors} actionable 🔴)`;
+  const statusCounts = `(${knownFalsePositives} known false positives ${STATUS_MARKER.knownFalsePositive}, ${actionableErrors} actionable ${STATUS_MARKER.actionable})`;
   const statusLine =
     actionableErrors > 0 ? `👎 Issues found ${statusCounts}` : `👍 All clear ${statusCounts}`;
 
@@ -1120,8 +1124,8 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     '---------------------------------- ------',
     `Total URLs checked                ${count(totalChecked)}`,
     `Total errors                      ${count(totalErrors, true)}`,
-    `Known false positives             ${count(knownFalsePositives)}  🟡`,
-    `Actionable errors                 ${count(actionableErrors, true)}  🔴`,
+    `Known false positives             ${count(knownFalsePositives)}  ${STATUS_MARKER.knownFalsePositive}`,
+    `Actionable errors                 ${count(actionableErrors, true)}  ${STATUS_MARKER.actionable}`,
   ];
 
   if (includeBrokenLinks && totalErrors > 0) {
@@ -1233,13 +1237,7 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
     success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
   const grandTotal = totalChecked + skipped.length;
 
-  // Count redirect errors
-  let redirectErrorCount = 0;
-  testedRedirects.forEach((item) => {
-    if (item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300))) {
-      redirectErrorCount += 1;
-    }
-  });
+  const redirectErrorCount = testedRedirects.filter(isRedirectTestError).length;
 
   // In --summary mode, print only the summary table and broken links
   if (summaryMode) {
