@@ -13,10 +13,13 @@ export const useFetchGcpDnsZone = (id: string, isGcp: boolean) => {
     enabled: !!id && isGcp,
   });
 
+  // Always return a single zone (or undefined), including on error
+  const dnsZone = data?.data?.items?.[0];
+
   if (isError) {
     const formattedError = formatErrorData(isLoading, isError, error);
     return {
-      data: data?.data?.items,
+      data: dnsZone,
       isLoading,
       isError,
       error: formattedError.error,
@@ -24,7 +27,7 @@ export const useFetchGcpDnsZone = (id: string, isGcp: boolean) => {
   }
 
   return {
-    data: data?.data?.items?.[0],
+    data: dnsZone,
     isLoading,
     isError,
     error,

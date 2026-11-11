@@ -9,7 +9,7 @@ export const refetchGetClusterRouters = () => {
   queryClient.invalidateQueries({ queryKey: ['clusterRouters'] });
 };
 
-export const useGetClusterRouters = (clusterID: string, isManaged: boolean, region?: string) => {
+export const useGetClusterRouters = (clusterID: string, region?: string) => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY, 'clusterRouters'],
     queryFn: async () => {
@@ -22,7 +22,7 @@ export const useGetClusterRouters = (clusterID: string, isManaged: boolean, regi
       const response = clusterService.getIngresses(clusterID);
       return response;
     },
-    enabled: isManaged,
+    enabled: !!clusterID,
   });
 
   if (isError) {
