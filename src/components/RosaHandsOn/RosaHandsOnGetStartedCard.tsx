@@ -32,8 +32,7 @@ import RosaHandsOnIcon from './RosaHandsOnIcons/RosaHandsOnIcon';
 import { AugmentedDemoExperience } from './augmentedModelTypes';
 import { MAX_DURATION, rosaHandsOnLinks } from './constants';
 import { DemoExperienceStatusEnum } from './DemoExperienceModels';
-
-const cardId = 'rosa-handson-main-card';
+import { RosaHandsOnCustomerSuccessLink } from './RosaHandsOnContactLinks';
 
 const CheckListItem = ({
   children,
@@ -57,14 +56,13 @@ const CheckListItem = ({
       {popoverContent && (
         <>
           &nbsp;
-          <Popover
-            bodyContent={popoverContent}
-            headerContent={popoverHeader}
-            maxWidth="40rem"
-            // append to inner element instead of body, to enable Contact support to open intercom
-            appendTo={() => document.getElementById(cardId) as HTMLElement}
-          >
-            <Button icon={<HelpIcon />} variant="link" isInline />
+          <Popover bodyContent={popoverContent} headerContent={popoverHeader} maxWidth="40rem">
+            <Button
+              icon={<HelpIcon />}
+              variant="link"
+              isInline
+              aria-label={typeof popoverHeader === 'string' ? `${popoverHeader} help` : 'Help'}
+            />
           </Popover>
         </>
       )}
@@ -73,7 +71,7 @@ const CheckListItem = ({
 );
 
 const DefaultCardBody = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => (
-  <List isPlain id={cardId}>
+  <List isPlain>
     <CheckListItem
       popoverContent={
         <>
@@ -81,8 +79,8 @@ const DefaultCardBody = ({ demoExperience }: { demoExperience: AugmentedDemoExpe
           you have questions, you can join the{' '}
           <ExternalLink href={rosaHandsOnLinks.slackChannel}>
             ROSA community Slack channel
-          </ExternalLink>
-          .
+          </ExternalLink>{' '}
+          or reach out to the <RosaHandsOnCustomerSuccessLink linkText="customer success team" />.
         </>
       }
       popoverHeader="What to expect"
