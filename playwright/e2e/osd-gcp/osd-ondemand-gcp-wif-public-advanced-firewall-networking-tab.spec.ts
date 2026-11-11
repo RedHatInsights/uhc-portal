@@ -2,25 +2,33 @@ import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
-const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-sharedvpc-dns-cluster-creation.spec.json');
+const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
 
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-const SHARED_VPC_INFRA =
-  QE_INFRA_GCP['SHARED_VPC_INFRA'] || JSON.parse(process.env.SHARED_VPC_INFRA || '{}');
 const FIREWALL_RULES_NAME =
-  SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
+  QE_INFRA_GCP['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
 
 /**
- * Day-2 Networking tab validation for a ready OSD GCP WIF Shared VPC cluster that was
- * created with BYO firewall rules (ROSAENG-72666).
+ * Day-2 Networking tab validation for a ready OSD GCP WIF cluster that was created with
+ * BYO firewall rules against QE_INFRA_GCP.VPC_NAME (ROSAENG-72666).
  *
- * Pair with osd-ondemand-gcp-wif-sharedvpc-dns-cluster-creation (or curated sharedvpc PSC)
- * after the cluster is ready. Prefer CLUSTER_NAME for a known ready cluster.
+ * Pair with osd-ondemand-gcp-wif-public-advanced-cluster-creation after the cluster is
+ * ready. Prefer CLUSTER_NAME for a known ready cluster.
  */
 test.describe.serial(
-  'OSD Marketplace GCP WIF Shared VPC firewall rules - Networking tab validation',
+  'OSD On-Demand GCP WIF public advanced firewall rules - Networking tab validation',
   {
-    tag: ['@day2', '@osd', '@gcp', '@wif', '@sharedvpc', '@firewall', '@networking', '@advanced'],
+    tag: [
+      '@day2',
+      '@osd',
+      '@gcp',
+      '@wif',
+      '@ondemand',
+      '@public',
+      '@firewall',
+      '@networking',
+      '@advanced',
+    ],
   },
   () => {
     const clusterName =
@@ -29,7 +37,7 @@ test.describe.serial(
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       if (!FIREWALL_RULES_NAME?.trim()) {
         throw new Error(
-          'FIREWALL_RULES_NAME must be set via QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME',
+          'FIREWALL_RULES_NAME must be set via QE_INFRA_GCP.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME',
         );
       }
       await navigateTo(CLUSTER_LIST_ROUTE);
