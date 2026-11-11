@@ -17,7 +17,6 @@
     "@patternfly/react-styles": "6.6.1",
     "@patternfly/react-table": "6.6.1",
     "@patternfly/react-tokens": "6.6.1",
-    "@react-hook/resize-observer": "^2.0.0",
     "@redhat-cloud-services/frontend-components": "^7.3.1",
     "@redhat-cloud-services/frontend-components-config-utilities": "^4.13.5",
     "@redhat-cloud-services/frontend-components-notifications": "^6.5.1",
