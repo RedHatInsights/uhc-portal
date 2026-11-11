@@ -369,6 +369,45 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await options.first().click();
   }
 
+  createFirewallRulesToggle(): Locator {
+    return this.page.getByRole('button', { name: 'Create firewall rules' });
+  }
+
+  createFirewallRulesCommand(): Locator {
+    return this.page.getByLabel('Copyable create firewall rules command');
+  }
+
+  firewallRulesDropdown(): Locator {
+    // FuzzySelect toggles share aria-label "Options menu". The DNS zone dropdown on
+    // this step is another match, so target the firewall rules placeholder text.
+    return this.page.getByRole('button', { name: 'Options menu' }).filter({
+      hasText:
+        /Select firewall rules|Loading\.\.\.|No firewall rules found|Error loading firewall rules/,
+    });
+  }
+
+  firewallRulesFilterInput(): Locator {
+    return this.page.getByLabel('Filter by firewall rule name');
+  }
+
+  async selectFirewallRules(
+    firewallRulesName: string,
+    partialMatch: boolean = false,
+  ): Promise<void> {
+    const firewallRulesDropdown = this.firewallRulesDropdown();
+    await expect(firewallRulesDropdown).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
+    await expect(firewallRulesDropdown).toBeEnabled({ timeout: DEFAULT_ACTION_TIMEOUT });
+    await firewallRulesDropdown.click();
+    await this.firewallRulesFilterInput().clear();
+    await this.firewallRulesFilterInput().fill(firewallRulesName);
+    const escapedName = this.escapeRegExp(firewallRulesName);
+    const options = partialMatch
+      ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedName}`) })
+      : this.page.getByRole('option', { name: firewallRulesName });
+    await expect(options.first()).toBeVisible({ timeout: DEFAULT_ACTION_TIMEOUT });
+    await options.first().click();
+  }
+
   installIntoExistingVpcCheckBox(): Locator {
     return this.page.getByRole('checkbox', { name: 'Install into an existing VPC' });
   }
@@ -518,6 +557,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   dnsZoneValue(): Locator {
     return this.page.getByTestId('DNS-zone').locator('div');
+  }
+
+  firewallRulesValue(): Locator {
+    return this.page.getByTestId('Firewall-rules').locator('div');
   }
 
   vpcSubnetSettingsValue(): Locator {

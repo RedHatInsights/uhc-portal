@@ -12,10 +12,12 @@ const QE_GCP_KEY_RING_LOCATION = process.env.QE_GCP_KEY_RING_LOCATION || '';
 const QE_GCP_KEY_RING = process.env.QE_GCP_KEY_RING || '';
 const QE_GCP_KEY_NAME = process.env.QE_GCP_KEY_NAME || '';
 const QE_GCP_KMS_SERVICE_ACCOUNT = process.env.QE_GCP_KMS_SERVICE_ACCOUNT || '';
+const FIREWALL_RULES_NAME =
+  QE_INFRA_GCP['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
 
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced cluster creation',
-  { tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced'] },
+  { tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced', '@firewall'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
@@ -188,6 +190,21 @@ test.describe.serial(
       await createOSDWizardPage.selectGcpVPC(QE_INFRA_GCP.VPC_NAME);
       await createOSDWizardPage.selectControlPlaneSubnetName(QE_INFRA_GCP.CONTROLPLANE_SUBNET);
       await createOSDWizardPage.selectComputeSubnetName(QE_INFRA_GCP.COMPUTE_SUBNET);
+
+      // BYO firewall rules (ROSAENG-72666): exercised when FIREWALL_RULES_NAME /
+      // QE_GCP_FIREWALL_RULES_NAME is set. Requires OpenShift >= 4.21 and a
+      // pre-created rule matching this WIF / QE_INFRA_GCP.VPC_NAME / public profile.
+      if (FIREWALL_RULES_NAME) {
+        await createOSDWizardPage.createFirewallRulesToggle().click();
+        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+          /ocm gcp create firewall-rules/,
+        );
+        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+          new RegExp(`--vpc-name=${QE_INFRA_GCP.VPC_NAME}`),
+        );
+        await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME, true);
+      }
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -276,6 +293,9 @@ test.describe.serial(
       await expect(createOSDWizardPage.installIntoExistingVpcValue()).toContainText(
         clusterProperties.InstallIntoExistingVPC,
       );
+      if (FIREWALL_RULES_NAME) {
+        await expect(createOSDWizardPage.firewallRulesValue()).toContainText(FIREWALL_RULES_NAME);
+      }
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         QE_INFRA_GCP.VPC_NAME,
       );
