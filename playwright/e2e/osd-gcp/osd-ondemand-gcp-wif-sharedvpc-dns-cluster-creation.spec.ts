@@ -1,16 +1,19 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-sharedvpc-dns-cluster-creation.spec.json');
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
 // Environment variables
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-const SHARED_VPC_INFRA = QE_INFRA_GCP['SHARED_VPC_INFRA'] || {};
+const SHARED_VPC_INFRA =
+  QE_INFRA_GCP['SHARED_VPC_INFRA'] || JSON.parse(process.env.SHARED_VPC_INFRA || '{}');
 const region = SHARED_VPC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
+const FIREWALL_RULES_NAME =
+  SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
 
 test.describe.serial(
   'OSD Marketplace GCP WIF Shared VPC DNS cluster creation tests',
-  { tag: ['@smoke', '@osd', '@wif', '@sharedvpc', '@dns'] },
+  { tag: ['@smoke', '@osd', '@wif', '@sharedvpc', '@dns', '@firewall'] },
   () => {
     let clusterSubmitted = false;
 
@@ -113,6 +116,24 @@ test.describe.serial(
         .controlPlaneSubnetInput()
         .fill(SHARED_VPC_INFRA['CONTROLPLANE_SUBNET'] || '');
       await createOSDWizardPage.computeSubnetInput().fill(SHARED_VPC_INFRA['COMPUTE_SUBNET'] || '');
+
+      // BYO firewall rules (ROSAENG-72666): exercised when FIREWALL_RULES_NAME /
+      // QE_GCP_FIREWALL_RULES_NAME is set. Requires OpenShift >= 4.21 and a
+      // pre-created rule matching this WIF/project/VPC/public profile.
+      if (FIREWALL_RULES_NAME) {
+        await createOSDWizardPage.createFirewallRulesToggle().click();
+        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+          /ocm gcp create firewall-rules/,
+        );
+        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+          new RegExp(`--project-id=${SHARED_VPC_INFRA['HOST_PROJECT_ID']}`),
+        );
+        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+          new RegExp(`--vpc-name=${SHARED_VPC_INFRA['VPC_NAME']}`),
+        );
+        await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME, true);
+      }
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -208,6 +229,9 @@ test.describe.serial(
       await expect(createOSDWizardPage.dnsZoneValue()).toContainText(
         clusterProperties.DomainPrefix,
       );
+      if (FIREWALL_RULES_NAME) {
+        await expect(createOSDWizardPage.firewallRulesValue()).toContainText(FIREWALL_RULES_NAME);
+      }
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         SHARED_VPC_INFRA['VPC_NAME'] || '',
       );
