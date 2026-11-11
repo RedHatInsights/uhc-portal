@@ -5,8 +5,7 @@ const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-sh
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-const SHARED_VPC_INFRA =
-  QE_INFRA_GCP['SHARED_VPC_INFRA'] || JSON.parse(process.env.SHARED_VPC_INFRA || '{}');
+const SHARED_VPC_INFRA = QE_INFRA_GCP['SHARED_VPC_INFRA'] || {};
 const region = SHARED_VPC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
 
 test.describe.serial(
