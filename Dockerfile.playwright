@@ -1,0 +1,288 @@
+# Playwright E2E image for OpenShift CI / local cloud-backed test runs.
+#
+# Multi-stage:
+#   deps    — npm ci + strip unused packages; fail if @playwright/test does not
+#             match the official Playwright image version
+#             (/ms-playwright/.docker-info.driverVersion)
+#   runtime — slim Node + Chromium/Firefox/WebKit + cloud CLIs + pruned deps
+#             + app sources from the build context (PR checkout in ci-operator)
+#
+# Size: all three Playwright browsers + trimmed gcloud + pruned node_modules,
+# minimal src COPY, COPY --chown (no fat chown -R layer). Target ~3.1–3.5 GB.
+#
+# No ENTRYPOINT / CMD that starts tests — pass an explicit playwright invocation
+# (avoids accidental full-suite runs with CI retries/workers).
+# Do not bake secrets; Prow mounts credentials at runtime.
+#
+# Architectures: linux/amd64, linux/arm64.
+#
+# Prow / ci-operator: mirror external base images via supplementalCIImages
+# (ci-operator only accepts namespace/name:tag). See:
+# https://docs.ci.openshift.org/how-tos/external-images/
+
+ARG PLAYWRIGHT_IMAGE=mcr.microsoft.com/playwright:v1.64.1-noble
+ARG NODE_IMAGE=node:26-bookworm-slim
+
+# ---------------------------------------------------------------------------
+# Stage: deps — install and trim node_modules. npm cache / /tmp never copy out.
+# ---------------------------------------------------------------------------
+FROM ${PLAYWRIGHT_IMAGE} AS deps
+
+SHELL ["/bin/bash", "-c"]
+
+USER root
+WORKDIR /app
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false
+
+COPY package.json package-lock.json ./
+# --ignore-scripts: skips husky/ts-patch postinstall. Current Playwright imports
+# are relative .ts/.mjs (not tsconfig "~/*" paths), so ts-patch is not required
+# for the suite today. Revisit if specs start relying on patched path mapping.
+RUN npm ci --ignore-scripts \
+    && installed="$(node -p "require('./node_modules/@playwright/test/package.json').version")" \
+    && expected="$(node -p "JSON.parse(require('fs').readFileSync('/ms-playwright/.docker-info','utf8')).driverVersion")" \
+    && if [[ -z "${expected}" ]]; then \
+         echo "ERROR: could not read Playwright driverVersion from /ms-playwright/.docker-info" >&2; \
+         exit 1; \
+       fi \
+    && if [[ "${installed}" != "${expected}" ]]; then \
+         echo "ERROR: @playwright/test@${installed} does not match Playwright image version ${expected}. Bump PLAYWRIGHT_IMAGE and @playwright/test together." >&2; \
+         exit 1; \
+       fi \
+    && echo "OK: @playwright/test@${installed} matches Playwright image v${expected}" \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /root/.npm \
+    && rm -rf node_modules/@storybook \
+              node_modules/storybook \
+              node_modules/@chromatic-com \
+              node_modules/monaco-editor \
+              node_modules/monaco-editor-webpack-plugin \
+              node_modules/monaco-yaml \
+              node_modules/@babel \
+              node_modules/@jest \
+              node_modules/jest \
+              node_modules/jest-* \
+              node_modules/babel-jest \
+              node_modules/ts-jest \
+              node_modules/@swc \
+              node_modules/@types \
+              node_modules/typescript \
+              node_modules/webpack \
+              node_modules/webpack-* \
+              node_modules/css-loader \
+              node_modules/style-loader \
+              node_modules/sass \
+              node_modules/sass-loader \
+              node_modules/html-webpack-plugin \
+              node_modules/mini-css-extract-plugin \
+              node_modules/@pmmmwh \
+              node_modules/fork-ts-checker-webpack-plugin \
+              node_modules/ts-loader \
+              node_modules/ts-patch \
+              node_modules/tsconfig-paths-webpack-plugin \
+              node_modules/eslint \
+              node_modules/eslint-* \
+              node_modules/@eslint \
+              node_modules/prettier \
+              node_modules/husky \
+              node_modules/lint-staged \
+              node_modules/madge \
+              node_modules/nyc \
+              node_modules/openapi-typescript \
+              node_modules/@redocly \
+              node_modules/@testing-library \
+              node_modules/@patternfly \
+              node_modules/@redhat-cloud-services \
+              node_modules/@openshift-assisted \
+              node_modules/@mui \
+              node_modules/@sentry \
+              node_modules/@sentry-internal \
+              node_modules/react-docgen \
+              node_modules/react-docgen-typescript \
+              node_modules/precinct \
+              node_modules/filing-cabinet \
+              node_modules/dependency-tree \
+              node_modules/@vue \
+              node_modules/date-fns
+
+# ---------------------------------------------------------------------------
+# Stage: runtime — slim Node + Chromium/Firefox/WebKit + CLIs + pruned deps + sources.
+# ---------------------------------------------------------------------------
+FROM ${NODE_IMAGE} AS runtime
+
+SHELL ["/bin/bash", "-c"]
+
+USER root
+WORKDIR /app
+
+ARG TARGETARCH
+# Default "latest" = resolve current stable at build time (GitHub releases API /
+# unversioned AWS zip / gcloud rapid "latest"). Override with --build-arg to pin
+# (e.g. blocker workaround): --build-arg OCM_VERSION=1.0.17
+ARG OCM_VERSION=latest
+ARG ROSA_VERSION=latest
+ARG AWSCLI_VERSION=latest
+ARG GCLOUD_VERSION=latest
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_FUND=false \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    CLOUDSDK_PYTHON=/usr/bin/python3 \
+    CLOUDSDK_CORE_DISABLE_PROMPTS=1 \
+    CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK=true
+
+# ---------------------------------------------------------------------------
+# 1. Host packages, pwuser, Chromium + Firefox + WebKit (+ OS deps).
+# ---------------------------------------------------------------------------
+COPY package.json package-lock.json ./
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      jq \
+      python3 \
+      tar \
+      unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && adduser --disabled-password --gecos '' pwuser \
+    && PW_VER="$(node -p "require('./package.json').devDependencies['@playwright/test']")" \
+    && echo "Installing Playwright Chromium/Firefox/WebKit browsers for v${PW_VER}" \
+    && npx --yes "playwright@${PW_VER}" install --with-deps chromium firefox webkit \
+    && chmod -R 777 /ms-playwright \
+    && rm -rf /root/.npm /tmp/* \
+    && echo "Playwright browser dirs:" \
+    && du -sh /ms-playwright/* 2>/dev/null | sort -hr || true
+
+# ---------------------------------------------------------------------------
+# 2. Cloud CLIs — OCM, ROSA, AWS, Google Cloud (trimmed).
+#    Failed version checks fail the build (pipefail + explicit verifies).
+# ---------------------------------------------------------------------------
+RUN set -euxo pipefail; \
+    arch="${TARGETARCH:-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')}"; \
+    echo "Installing CLIs for ${arch}"; \
+    # --- resolve "latest" to a concrete release (URLs do not accept /vlatest/) -- \
+    ocm_ver="${OCM_VERSION}"; \
+    if [[ "${ocm_ver}" == "latest" ]]; then \
+      ocm_ver="$(curl -fsSL https://api.github.com/repos/openshift-online/ocm-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')"; \
+      echo "Resolved OCM_VERSION=latest -> ${ocm_ver}"; \
+    fi; \
+    rosa_ver="${ROSA_VERSION}"; \
+    if [[ "${rosa_ver}" == "latest" ]]; then \
+      rosa_ver="$(curl -fsSL https://api.github.com/repos/openshift/rosa/releases/latest | jq -r '.tag_name' | sed 's/^v//')"; \
+      echo "Resolved ROSA_VERSION=latest -> ${rosa_ver}"; \
+    fi; \
+    aws_ver="${AWSCLI_VERSION}"; \
+    gcloud_ver="${GCLOUD_VERSION}"; \
+    # --- OCM CLI ------------------------------------------------------------ \
+    echo "Installing OCM CLI v${ocm_ver}"; \
+    curl -fsSL -o "/tmp/ocm-linux-${arch}" \
+      "https://github.com/openshift-online/ocm-cli/releases/download/v${ocm_ver}/ocm-linux-${arch}"; \
+    curl -fsSL -o "/tmp/ocm-linux-${arch}.sha256" \
+      "https://github.com/openshift-online/ocm-cli/releases/download/v${ocm_ver}/ocm-linux-${arch}.sha256"; \
+    (cd /tmp && sha256sum -c "ocm-linux-${arch}.sha256"); \
+    install -m 0755 "/tmp/ocm-linux-${arch}" /usr/local/bin/ocm; \
+    rm -f "/tmp/ocm-linux-${arch}" "/tmp/ocm-linux-${arch}.sha256"; \
+    # --- ROSA CLI ----------------------------------------------------------- \
+    echo "Installing ROSA CLI v${rosa_ver}"; \
+    case "${arch}" in \
+      amd64) ROSA_TGZ=rosa-linux.tar.gz ;; \
+      arm64) ROSA_TGZ=rosa-linux-arm64.tar.gz ;; \
+      *) echo "unsupported architecture for ROSA: ${arch}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL -o "/tmp/${ROSA_TGZ}" \
+      "https://github.com/openshift/rosa/releases/download/v${rosa_ver}/${ROSA_TGZ}"; \
+    curl -fsSL -o /tmp/ROSA_SHA256SUMS \
+      "https://github.com/openshift/rosa/releases/download/v${rosa_ver}/rosa_${rosa_ver}_SHA256SUMS"; \
+    (cd /tmp && grep -E "  ${ROSA_TGZ}\$" ROSA_SHA256SUMS | sha256sum -c); \
+    tar -xzf "/tmp/${ROSA_TGZ}" -C /tmp; \
+    install -m 0755 /tmp/rosa /usr/local/bin/rosa; \
+    rm -f "/tmp/${ROSA_TGZ}" /tmp/rosa /tmp/ROSA_SHA256SUMS; \
+    # --- AWS CLI ------------------------------------------------------------ \
+    echo "Installing AWS CLI (${aws_ver})"; \
+    case "${arch}" in amd64) AWS_ARCH=x86_64;; arm64) AWS_ARCH=aarch64;; \
+      *) echo "unsupported architecture for AWS CLI: ${arch}" >&2; exit 1 ;; esac; \
+    if [[ "${aws_ver}" == "latest" ]]; then \
+      curl -fsSL -o /tmp/awscliv2.zip \
+        "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip"; \
+    else \
+      curl -fsSL -o /tmp/awscliv2.zip \
+        "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${aws_ver}.zip"; \
+    fi; \
+    unzip -q /tmp/awscliv2.zip -d /tmp; \
+    /tmp/aws/install; \
+    rm -rf /tmp/awscliv2.zip /tmp/aws; \
+    # --- Google Cloud CLI --------------------------------------------------- \
+    echo "Installing Google Cloud CLI (${gcloud_ver})"; \
+    case "${arch}" in amd64) GCLOUD_ARCH=x86_64;; arm64) GCLOUD_ARCH=arm;; \
+      *) echo "unsupported architecture for gcloud: ${arch}" >&2; exit 1 ;; esac; \
+    if [[ "${gcloud_ver}" == "latest" ]]; then \
+      curl -fsSL -o /tmp/gcloud.tar.gz \
+        "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-${GCLOUD_ARCH}.tar.gz"; \
+    else \
+      curl -fsSL -o /tmp/gcloud.tar.gz \
+        "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${gcloud_ver}-linux-${GCLOUD_ARCH}.tar.gz"; \
+    fi; \
+    tar -xzf /tmp/gcloud.tar.gz -C /opt; \
+    ln -sf /opt/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud; \
+    ln -sf /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil; \
+    # Keep platform/gsutil for the gsutil launcher; drop unused SDK bulk. \
+    rm -rf /tmp/gcloud.tar.gz \
+           /opt/google-cloud-sdk/deb \
+           /opt/google-cloud-sdk/rpm \
+           /opt/google-cloud-sdk/install* \
+           /opt/google-cloud-sdk/.install \
+           /opt/google-cloud-sdk/data \
+           /opt/google-cloud-sdk/doc \
+           /opt/google-cloud-sdk/platform/bq \
+           /opt/google-cloud-sdk/platform/bundledpythonunix \
+           /opt/google-cloud-sdk/bin/anthoscli* \
+           /opt/google-cloud-sdk/bin/bq \
+           /opt/google-cloud-sdk/bin/docker-credential-gcloud \
+           /opt/google-cloud-sdk/bin/git-credential-gcloud.sh \
+           /opt/google-cloud-sdk/bin/java_dev_appserver.sh \
+           /opt/google-cloud-sdk/bin/dev_appserver.py; \
+    find /opt/google-cloud-sdk -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true; \
+    # --- Verify (must fail the build if any CLI is broken) ----------------- \
+    ocm version; \
+    rosa version; \
+    aws --version; \
+    gcloud --version; \
+    gsutil version
+
+# ---------------------------------------------------------------------------
+# 3–4. Pruned node_modules + sources from build context (PR commit in Prow).
+# ---------------------------------------------------------------------------
+COPY --chown=pwuser:0 --from=deps /app/node_modules ./node_modules
+COPY --chown=pwuser:0 playwright.config.ts tsconfig.json ./
+COPY --chown=pwuser:0 playwright ./playwright
+COPY --chown=pwuser:0 qe-helper-scripts ./qe-helper-scripts
+COPY --chown=pwuser:0 src/common ./src/common
+COPY --chown=pwuser:0 src/queries/featureGates/featureConstants.ts ./src/queries/featureGates/featureConstants.ts
+COPY --chown=pwuser:0 src/components/clusters/common/machinePools/constants.ts ./src/components/clusters/common/machinePools/constants.ts
+
+RUN chmod +x qe-helper-scripts/*.sh \
+    && mkdir -p /app/playwright-artifacts \
+    && chown pwuser:0 /app/playwright-artifacts \
+    && chmod -R g=u /app/playwright-artifacts
+
+USER pwuser
+
+# Do not set CI=true or BROWSER here — the job / playwright.env.json chooses
+# retries, workers, and browser project. This image installs only chromium,
+# firefox, and webkit; pin one of those (or pass --project=...) so runs do not
+# select branded chrome / Microsoft Edge from playwright.config.ts.
+# Use the home created by adduser so ocm/gcloud/rosa can write config under
+# ~/.config (HOME=/app is not writable — COPY --chown does not chown /app itself).
+ENV HOME=/home/pwuser
+
+# Credentials: never COPY secrets (.dockerignore excludes playwright.env.json).
+# Prow: step credentials: mounts; local: bind-mount playwright.env.json.
+#
+#   docker run --rm -v "$PWD/playwright.env.json:/app/playwright.env.json:ro" \
+#     -e BROWSER=chromium \
+#     uhc-portal-playwright:slim \
+#     npx playwright test --grep @ci --workers=2
+#   # installed projects: chromium | firefox | webkit
+#   # (BROWSER=all / unset also enables chrome + Edge in config — not installed here)
