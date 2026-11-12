@@ -63,6 +63,7 @@ const EditLabelsSection = () => {
                         index={index}
                         onRemove={remove}
                         onPush={() => push({ key: '', value: '' })}
+                        ariaLabel="Remove label"
                       />
                     </GridItem>
                   </React.Fragment>

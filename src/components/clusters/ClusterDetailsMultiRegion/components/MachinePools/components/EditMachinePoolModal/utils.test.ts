@@ -144,6 +144,18 @@ describe('buildNodePoolRequest', () => {
       expect(nodePool.auto_repair).toEqual(true);
     });
 
+    it('adds all AWS tags', () => {
+      const nodePool = buildNodePoolRequest(
+        { ...defaultValues, awsTags: [{ key: 'env', value: 'prod' }] },
+        {
+          isEdit: false,
+          isMultiZoneMachinePool: false,
+        },
+      );
+
+      expect(nodePool.aws_node_pool?.tags).toEqual({ env: 'prod' });
+    });
+
     it('add diskSize for ROSA Hypershift clusters', () => {
       const nodePool = buildNodePoolRequest(defaultValues, {
         isEdit: false,
@@ -273,6 +285,95 @@ describe('buildNodePoolRequest', () => {
       const badPool = nodePool as MachinePool;
       expect(badPool.root_volume).toBeFalsy();
       expect(badPool.aws).toBeFalsy();
+    });
+
+    describe('AWS tags', () => {
+      const editValues = {
+        ...defaultValues,
+        awsTags: [
+          { key: 'env', value: 'prod' },
+          { key: 'team', value: 'new-team' },
+          { key: 'cost-center', value: '42' },
+        ],
+      };
+      const initialAwsTags = { env: 'prod', team: 'old-team', owner: 'alice' };
+
+      it('sends only changed tags, with null for removed tags, when tags can be edited', () => {
+        const nodePool = buildNodePoolRequest(editValues, {
+          isEdit: true,
+          isMultiZoneMachinePool: false,
+          canEditAwsTags: true,
+          initialAwsTags,
+        });
+
+        expect(nodePool.aws_node_pool?.tags).toEqual({
+          team: 'new-team',
+          'cost-center': '42',
+          owner: null,
+        });
+      });
+
+      it('sends an overridden inherited tag and omits unchanged inherited tags', () => {
+        const nodePool = buildNodePoolRequest(
+          {
+            ...defaultValues,
+            awsTags: [
+              { key: 'team', value: 'billing', inheritedValue: 'payments' },
+              { key: 'region', value: 'emea', inheritedValue: 'emea' },
+            ],
+          },
+          {
+            isEdit: true,
+            isMultiZoneMachinePool: false,
+            canEditAwsTags: true,
+            initialAwsTags: {},
+          },
+        );
+
+        expect(nodePool.aws_node_pool?.tags).toEqual({ team: 'billing' });
+      });
+
+      it('sends null to remove an override that was reset to the cluster value', () => {
+        const nodePool = buildNodePoolRequest(
+          {
+            ...defaultValues,
+            awsTags: [{ key: 'team', value: 'payments', inheritedValue: 'payments' }],
+          },
+          {
+            isEdit: true,
+            isMultiZoneMachinePool: false,
+            canEditAwsTags: true,
+            initialAwsTags: { team: 'billing' },
+          },
+        );
+
+        expect(nodePool.aws_node_pool?.tags).toEqual({ team: null });
+      });
+
+      it('omits tags when they have not changed', () => {
+        const nodePool = buildNodePoolRequest(
+          { ...defaultValues, awsTags: [{ key: 'env', value: 'prod' }] },
+          {
+            isEdit: true,
+            isMultiZoneMachinePool: false,
+            canEditAwsTags: true,
+            initialAwsTags: { env: 'prod' },
+          },
+        );
+
+        expect(nodePool.aws_node_pool?.tags).toBeUndefined();
+      });
+
+      it('omits tags when they cannot be edited', () => {
+        const nodePool = buildNodePoolRequest(editValues, {
+          isEdit: true,
+          isMultiZoneMachinePool: false,
+          canEditAwsTags: false,
+          initialAwsTags,
+        });
+
+        expect(nodePool.aws_node_pool?.tags).toBeUndefined();
+      });
     });
   });
 });

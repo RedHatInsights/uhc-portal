@@ -12,6 +12,7 @@ import {
   mockUseFeatureGate,
   render,
   screen,
+  waitFor,
   within,
 } from '~/testUtils';
 
@@ -2299,6 +2300,93 @@ describe('<DetailsRight />', () => {
       expect(
         screen.getByRole('heading', { name: 'Spot interruption handling settings' }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('AWS tags', () => {
+    const awsTagsClusterFixture = {
+      ...fixtures.ROSAHypershiftClusterDetails.cluster,
+      openshift_version: '4.20.0',
+      canUpdateClusterResource: true,
+      state: 'ready',
+      aws: {
+        ...fixtures.ROSAHypershiftClusterDetails.cluster.aws,
+        tags: { env: 'prod', 'red-hat-managed': 'true' },
+      },
+    };
+
+    beforeEach(() => {
+      useFetchMachineOrNodePools.mockReturnValue({ data: [] });
+    });
+
+    it('shows user tags and hides system tags for hypershift clusters', () => {
+      render(<DetailsRight {...defaultProps} cluster={awsTagsClusterFixture} />);
+
+      expect(screen.getByText('AWS tags')).toBeInTheDocument();
+      expect(screen.getByText('env=prod')).toBeInTheDocument();
+      expect(screen.queryByText('red-hat-managed=true')).not.toBeInTheDocument();
+      expect(screen.getByTestId('editAwsTagsButton')).not.toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('shows "None" when the cluster has no user tags', () => {
+      render(
+        <DetailsRight
+          {...defaultProps}
+          cluster={{
+            ...awsTagsClusterFixture,
+            aws: { ...awsTagsClusterFixture.aws, tags: { 'red-hat-managed': 'true' } },
+          }}
+        />,
+      );
+
+      expect(screen.getByTestId('awsTags')).toHaveTextContent('None');
+    });
+
+    it('hides the section for non hypershift clusters', () => {
+      render(<DetailsRight {...defaultProps} cluster={fixtures.ROSAClusterDetails.cluster} />);
+
+      expect(screen.queryByText('AWS tags')).not.toBeInTheDocument();
+    });
+
+    it.each([
+      [{ canUpdateClusterResource: false }, 'You do not have permission to edit AWS tags.'],
+      [
+        { openshift_version: '4.19.5' },
+        'Editing AWS tags requires OpenShift version 4.20.0 or above.',
+      ],
+      [{ state: 'installing' }, 'AWS tags can only be edited when the cluster is ready.'],
+    ])('disables editing when cluster is %p', async (clusterOverrides, reason) => {
+      const { user } = render(
+        <DetailsRight
+          {...defaultProps}
+          cluster={{ ...awsTagsClusterFixture, ...clusterOverrides }}
+        />,
+      );
+
+      const editButton = screen.getByTestId('editAwsTagsButton');
+      expect(editButton).toHaveAttribute('aria-disabled', 'true');
+      await user.hover(editButton);
+      expect(await screen.findByText(reason)).toBeInTheDocument();
+    });
+
+    it('opens edit modal when clicking the AWS tags edit button', async () => {
+      const { user } = render(<DetailsRight {...defaultProps} cluster={awsTagsClusterFixture} />);
+
+      await user.click(screen.getByTestId('editAwsTagsButton'));
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Edit cluster AWS tags' })).toBeInTheDocument();
+    });
+
+    it('closes the edit modal when Cancel is clicked', async () => {
+      const { user } = render(<DetailsRight {...defaultProps} cluster={awsTagsClusterFixture} />);
+
+      await user.click(screen.getByTestId('editAwsTagsButton'));
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     });
   });
 

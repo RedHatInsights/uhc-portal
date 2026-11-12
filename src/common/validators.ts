@@ -638,17 +638,17 @@ const awsTagKeyValidations = (value: string | undefined): Validations => [
   { validated: !!value && value.trim().length > 0, text: 'Required' },
   {
     validated: !!value && AWS_TAG_KEY_VALUE_REGEX.test(value),
-    text: "A valid AWS Tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS tag key must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {
     validated: !!value && value.length <= AWS_TAG_KEY_MAX_LENGTH,
-    text: `A valid AWS Tag key must be ${AWS_TAG_KEY_MAX_LENGTH} characters or less`,
+    text: `A valid AWS tag key must be ${AWS_TAG_KEY_MAX_LENGTH} characters or less`,
   },
 
   {
     validated: !!value && !value.toLowerCase().startsWith('aws'),
-    text: 'AWS Tag keys cannot start with "aws"',
+    text: 'AWS tag keys cannot start with "aws"',
   },
 ];
 
@@ -667,16 +667,16 @@ const awsTagValueValidations = (
   },
   {
     validated: !value || value.trim().length > 0,
-    text: 'AWS Tag value cannot consist of only spaces',
+    text: 'AWS tag value cannot consist of only spaces',
   },
   {
     validated: !value || (!!value && AWS_TAG_KEY_VALUE_REGEX.test(value)),
-    text: "A valid AWS Tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
+    text: "A valid AWS tag value must consist of alphanumeric characters, spaces, or any of the following: '_', '.', ':', '/', '=', '+', '-', '@'",
   },
 
   {
     validated: !value || (!!value && value.length <= AWS_TAG_VALUE_MAX_LENGTH),
-    text: `A valid AWS Tag key must be ${AWS_TAG_VALUE_MAX_LENGTH} characters or less`,
+    text: `A valid AWS tag value must be ${AWS_TAG_VALUE_MAX_LENGTH} characters or less`,
   },
 ];
 
