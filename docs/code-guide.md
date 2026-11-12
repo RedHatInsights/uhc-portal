@@ -165,6 +165,8 @@ We still use Redux for data fetching and state management in multiple areas, but
 
 We switched to [TanStack Query](https://tanstack.com/query/latest) for data-fetching and async state management.
 
+Query keys must follow the domain query key factory pattern. See [TanStack Query key conventions](react-query-keys.md).
+
 ### Lodash
 
 Only use lodash when it's needed. Avoid it when it's possible to achieve the same result with plain TS/JS. A common example is `lodash/get`, you can replace it with optional chaining and nullish coalescing.
