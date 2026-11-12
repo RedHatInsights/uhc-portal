@@ -1,7 +1,4 @@
-import {
-  hasAllowOcp5InstallCapability,
-  hasAllowOcp5UpgradeCapability,
-} from '~/common/subscriptionCapabilities';
+import { hasCapabilityValue, organizationCapabilities } from '~/common/capabilities';
 import {
   isAWS,
   isHypershiftCluster,
@@ -22,15 +19,17 @@ interface ShowUpgradeToV5WarningParams extends Ocp5MigrationWarningOrgParams {
 
 const isOcp5InstallWarningEnabledForOrg = ({
   isOcp5SupportEnabled,
-  organizationCapabilities,
+  organizationCapabilities: orgCapabilities,
 }: Ocp5MigrationWarningOrgParams): boolean =>
-  isOcp5SupportEnabled && !hasAllowOcp5InstallCapability(organizationCapabilities);
+  isOcp5SupportEnabled &&
+  !hasCapabilityValue(orgCapabilities, organizationCapabilities.ROSA_OSD_ALLOW_OCP_5_INSTALL);
 
 const isOcp5UpgradeWarningEnabledForOrg = ({
   isOcp5SupportEnabled,
-  organizationCapabilities,
+  organizationCapabilities: orgCapabilities,
 }: Ocp5MigrationWarningOrgParams): boolean =>
-  isOcp5SupportEnabled && !hasAllowOcp5UpgradeCapability(organizationCapabilities);
+  isOcp5SupportEnabled &&
+  !hasCapabilityValue(orgCapabilities, organizationCapabilities.ROSA_OSD_ALLOW_OCP_5_UPGRADE);
 
 const shouldShowUpgradeToV5Warning = ({
   cluster,
