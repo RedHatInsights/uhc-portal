@@ -2,7 +2,7 @@ import { SpotInterruptionMode } from '~/components/clusters/common/SpotInterrupt
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 import { validateLogForwardingFields } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation';
 
-import { rosaWizardFormValidator } from './formValidators';
+import { mergeErrors, rosaWizardFormValidator } from './formValidators';
 import { stepId } from './rosaWizardConstants';
 
 jest.mock('~/components/clusters/wizards/rosa/LogForwarding/logForwardingValidation');
@@ -30,6 +30,50 @@ const validAutoscaling = {
 };
 
 const logForwardingStep = stepId.CLUSTER_ADDITIONAL_SETTINGS__LOG_FORWARDING;
+
+describe('mergeErrors', () => {
+  it('returns an empty object when called with no arguments', () => {
+    expect(mergeErrors()).toEqual({});
+  });
+
+  it('returns an empty object when all inputs are empty', () => {
+    expect(mergeErrors({}, {}, {})).toEqual({});
+  });
+
+  it('returns a single non-empty object when other inputs are empty', () => {
+    expect(mergeErrors({}, { a: 'error' }, {})).toEqual({ a: 'error' });
+  });
+
+  it('merges multiple non-empty objects, with later keys winning', () => {
+    expect(mergeErrors({ a: 'first', b: 'keep' }, { a: 'second', c: 'added' })).toEqual({
+      a: 'second',
+      b: 'keep',
+      c: 'added',
+    });
+  });
+
+  it('preserves nested error objects without deep merging', () => {
+    const coresAutoscalingErrors = {
+      cluster_autoscaling: {
+        resource_limits: { cores: { min: 'error', max: 'error' } },
+      },
+    };
+    const memoryAutoscalingErrors = {
+      cluster_autoscaling: {
+        resource_limits: { memory: { min: 'error', max: 'error' } },
+      },
+    };
+
+    // Same top-level key: shallow merge replaces the whole nested object (later wins).
+    expect(mergeErrors(coresAutoscalingErrors, memoryAutoscalingErrors)).toEqual(
+      memoryAutoscalingErrors,
+    );
+  });
+
+  it('skips empty objects between non-empty ones', () => {
+    expect(mergeErrors({ a: 1 }, {}, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+});
 
 describe('rosaWizardFormValidator', () => {
   beforeEach(() => {
@@ -216,6 +260,43 @@ describe('rosaWizardFormValidator', () => {
           },
         },
       },
+      [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
+    });
+  });
+
+  it('merges autoscaling, spot interruption, and log forwarding errors on the review step', () => {
+    mockValidateLogForwardingFields.mockReturnValue({
+      [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
+    });
+
+    const result = rosaWizardFormValidator(
+      {
+        [FieldId.ClusterAutoscaling]: {
+          resource_limits: {
+            cores: { min: 2, max: 1 },
+            memory: { min: 0, max: 50 },
+          },
+        },
+        [FieldId.ClusterVersion]: { raw_id: '4.22.0' },
+        [FieldId.SpotInterruptionHandling]: SpotInterruptionMode.Enhanced,
+        [FieldId.SpotTerminationHandlerQueueUrl]: '',
+        [FieldId.LogForwardingS3Enabled]: true,
+        [FieldId.LogForwardingCloudWatchEnabled]: false,
+        ...rosaHcpLogForwardingContext,
+      },
+      stepId.REVIEW_AND_CREATE,
+    );
+
+    expect(result).toEqual({
+      cluster_autoscaling: {
+        resource_limits: {
+          cores: {
+            min: 'The minimum cannot be above the maximum value.',
+            max: 'The minimum cannot be above the maximum value.',
+          },
+        },
+      },
+      [FieldId.SpotTerminationHandlerQueueUrl]: 'SQS queue URL is required.',
       [FieldId.LogForwardingS3BucketName]: 'Bucket name is required.',
     });
   });
