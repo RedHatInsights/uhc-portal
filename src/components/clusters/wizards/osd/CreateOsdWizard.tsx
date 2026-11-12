@@ -72,6 +72,8 @@ import {
 } from './Networking';
 import { ReviewAndCreate } from './ReviewAndCreate';
 
+import './CreateOsdWizard.scss';
+
 interface CreateOsdWizardProps {
   product?: string;
   isOSDFromGoogleCloud?: boolean;
@@ -199,6 +201,8 @@ const CreateOsdWizardInternal = () => {
   return (
     <Wizard
       id="osd-wizard"
+      className="osd-wizard"
+      height="auto"
       onClose={onClose}
       onStepChange={onStepChange}
       footer={

@@ -1,0 +1,16 @@
+// Use visible so Chrome doesn't force Y back to auto.
+.pf-v6-c-wizard.osd-wizard {
+  height: auto;
+  min-height: 0;
+  .pf-v6-c-wizard__outer-wrap,
+  .pf-v6-c-wizard__inner-wrap {
+    flex-grow: 0;
+    min-height: auto;
+    overflow: visible;
+  }
+  .pf-v6-c-wizard__main {
+    flex-grow: 0;
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+}
