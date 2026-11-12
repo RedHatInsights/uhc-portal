@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 import type { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import type { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -31,17 +31,17 @@ const mockGCPCluster = {
     capabilities: [
       {
         inherited: true,
-        name: subscriptionCapabilities.ENABLE_ACCESS_PROTECTION,
+        name: organizationCapabilities.HIBERNATE_CLUSTER,
         value: 'true',
       },
       {
         inherited: true,
-        name: subscriptionCapabilities.SUBSCRIBED_OCP,
+        name: clusterCapabilities.SUBSCRIBED_OCP,
         value: 'true',
       },
       {
         inherited: true,
-        name: subscriptionCapabilities.AUTOSCALE_CLUSTERS,
+        name: clusterCapabilities.AUTOSCALE_CLUSTERS,
         value: 'true',
       },
     ],
