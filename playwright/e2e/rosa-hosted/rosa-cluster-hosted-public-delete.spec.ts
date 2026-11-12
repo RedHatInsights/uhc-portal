@@ -1,10 +1,10 @@
 import { test } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfile = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
-const clusterNamePrefix =
-  process.env.CLUSTER_NAME ||
-  clusterProfile['rosa-hosted-public-advanced']['day1-profile'].ClusterName;
+const day1ClusterName = clusterProfile['rosa-hosted-public-advanced']['day1-profile'].ClusterName;
+const clusterNamePrefix = process.env.CLUSTER_NAME || `${day1ClusterName}-${getUsernameSuffix()}`;
 
 test.describe.serial(
   'ROSA hosted cluster - Delete public cluster',
@@ -23,7 +23,7 @@ test.describe.serial(
       await clusterListPage.filterTxtField().clear();
       await clusterListPage.filterTxtField().fill(clusterNamePrefix);
       await clusterListPage.waitForDataReady();
-      await clusterListPage.openClusterDefinition(clusterNamePrefix, 'startsWith');
+      await clusterListPage.openClusterDefinition(clusterNamePrefix);
       clusterName = await clusterDetailsPage.clusterNameTitle().innerText();
     });
 

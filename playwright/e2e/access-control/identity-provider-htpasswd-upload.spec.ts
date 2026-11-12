@@ -2,12 +2,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect, test } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
 } = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const htpasswdProfile = require('../../fixtures/access-control/identity-provider-htpasswd.json');
-const clusterName = process.env.CLUSTER_NAME || clusterProfile['day1-profile'].ClusterName;
+const day1Profile = clusterProfile['day1-profile'];
+const clusterName = process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
 const invalidFixtures = htpasswdProfile.Htpasswd.Upload.InvalidFixtures;
 
 // Per-run suffix prevents IDP name collisions across retries or shared clusters.

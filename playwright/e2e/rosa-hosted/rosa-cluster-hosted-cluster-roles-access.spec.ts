@@ -1,10 +1,12 @@
 import { expect, test } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 
 const clusterProperties = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'];
-const clusterName = process.env.CLUSTER_NAME || clusterProperties.ClusterName;
+const clusterName =
+  process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
 
 test.describe.serial(
   'ROSA HCP Cluster Roles and Access tests(OCP-29399)',
