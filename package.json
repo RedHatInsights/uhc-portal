@@ -78,7 +78,7 @@
     "url": "^0.11.0",
     "uuid": "^14.0.3",
     "victory-area": "^37.3.6 ",
-    "victory-axis": "^37.3.6 ",
+    "victory-axis": "^38.0.0",
     "victory-bar": "^37.3.6 ",
     "victory-box-plot": "^37.3.6 ",
     "victory-chart": "^37.3.6 ",
