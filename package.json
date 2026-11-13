@@ -88,7 +88,7 @@
     "victory-group": "^37.3.6 ",
     "victory-legend": "^37.3.6 ",
     "victory-line": "^37.3.6 ",
-    "victory-pie": "^37.3.6 ",
+    "victory-pie": "^38.0.0",
     "victory-scatter": "^37.3.6 ",
     "victory-stack": "^37.3.6 ",
     "victory-tooltip": "^37.3.6 ",
