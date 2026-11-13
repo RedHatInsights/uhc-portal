@@ -83,7 +83,7 @@
     "victory-box-plot": "^37.3.6 ",
     "victory-chart": "^37.3.6 ",
     "victory-core": "^37.3.6 ",
-    "victory-create-container": "^37.3.6 ",
+    "victory-create-container": "^38.0.0",
     "victory-cursor-container": "^37.3.6 ",
     "victory-group": "^37.3.6 ",
     "victory-legend": "^37.3.6 ",
