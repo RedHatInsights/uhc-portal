@@ -79,7 +79,7 @@
     "uuid": "^14.0.3",
     "victory-area": "^37.3.6 ",
     "victory-axis": "^37.3.6 ",
-    "victory-bar": "^37.3.6 ",
+    "victory-bar": "^38.0.0",
     "victory-box-plot": "^37.3.6 ",
     "victory-chart": "^37.3.6 ",
     "victory-core": "^37.3.6 ",
