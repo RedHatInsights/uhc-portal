@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
@@ -10,13 +10,12 @@ const authType = `${clusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 
 // Dedicated WIF for private/PSC BYO firewall (1 WIF : 1 firewall-rules set).
-const QE_GCP_WIF_CONFIG_PRIVATE =
-  process.env.QE_GCP_WIF_CONFIG_PRIVATE?.trim() || process.env.QE_GCP_WIF_CONFIG?.trim() || '';
+// Do not fall back to QE_GCP_WIF_CONFIG — that is the public WIF and filters out private FW rules.
+const QE_GCP_WIF_CONFIG_PRIVATE = process.env.QE_GCP_WIF_CONFIG_PRIVATE?.trim() || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
 const region = PSC_INFRA['REGION'];
-const FIREWALL_RULES_NAME_PRIVATE =
-  PSC_INFRA['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME_PRIVATE || '';
+const FIREWALL_RULES_NAME_PRIVATE = PSC_INFRA['FIREWALL_RULES_NAME'] || '';
 
 test.describe.serial(
   'OSD GCP CCS WIF private PSC advanced cluster creation tests',
@@ -38,12 +37,12 @@ test.describe.serial(
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG_PRIVATE) {
         throw new Error(
-          'QE_GCP_WIF_CONFIG_PRIVATE (or QE_GCP_WIF_CONFIG fallback) must be set for private PSC BYO firewall tests',
+          'QE_GCP_WIF_CONFIG_PRIVATE must be set for private PSC BYO firewall tests (do not reuse QE_GCP_WIF_CONFIG)',
         );
       }
       if (!FIREWALL_RULES_NAME_PRIVATE?.trim()) {
         throw new Error(
-          'QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME_PRIVATE must be set for private PSC BYO firewall coverage',
+          'QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME must be set for private PSC BYO firewall coverage',
         );
       }
       if (
@@ -308,9 +307,11 @@ test.describe.serial(
       if (await excludedNamespacesMoreButton.isVisible()) {
         await excludedNamespacesMoreButton.click();
       }
-      for (const namespace of clusterProperties.ExcludedNamespaces.Values.split(',')) {
-        await expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim());
-      }
+      await Promise.all(
+        clusterProperties.ExcludedNamespaces.Values.split(',').map((namespace: string) =>
+          expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim()),
+        ),
+      );
       await expect(createOSDWizardPage.wildcardPolicyValue()).toContainText(
         clusterProperties.WildcardPolicy,
       );

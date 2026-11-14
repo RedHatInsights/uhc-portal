@@ -3,16 +3,13 @@ const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-s
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
 // Dedicated WIF for shared-VPC BYO firewall (1 WIF : 1 firewall-rules set).
-const QE_GCP_WIF_CONFIG_SHARED_VPC =
-  process.env.QE_GCP_WIF_CONFIG_SHARED_VPC?.trim() || process.env.QE_GCP_WIF_CONFIG?.trim() || '';
+// Do not fall back to QE_GCP_WIF_CONFIG — that is the public WIF and filters out shared FW rules.
+const QE_GCP_WIF_CONFIG_SHARED_VPC = process.env.QE_GCP_WIF_CONFIG_SHARED_VPC?.trim() || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const SHARED_VPC_INFRA =
   QE_INFRA_GCP['SHARED_VPC_INFRA'] || JSON.parse(process.env.SHARED_VPC_INFRA || '{}');
 const region = SHARED_VPC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
-const FIREWALL_RULES_NAME_SHARED_VPC =
-  SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] ||
-  process.env.QE_GCP_FIREWALL_RULES_NAME_SHARED_VPC ||
-  '';
+const FIREWALL_RULES_NAME_SHARED_VPC = SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] || '';
 
 test.describe.serial(
   'OSD Marketplace GCP WIF Shared VPC DNS cluster creation tests',
@@ -23,12 +20,12 @@ test.describe.serial(
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG_SHARED_VPC) {
         throw new Error(
-          'QE_GCP_WIF_CONFIG_SHARED_VPC (or QE_GCP_WIF_CONFIG fallback) must be set for Shared VPC BYO firewall tests',
+          'QE_GCP_WIF_CONFIG_SHARED_VPC must be set for Shared VPC BYO firewall tests (do not reuse QE_GCP_WIF_CONFIG)',
         );
       }
       if (!FIREWALL_RULES_NAME_SHARED_VPC?.trim()) {
         throw new Error(
-          'SHARED_VPC_INFRA.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME_SHARED_VPC must be set for Shared VPC BYO firewall coverage',
+          'QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME must be set for Shared VPC BYO firewall coverage',
         );
       }
       await navigateTo('create');

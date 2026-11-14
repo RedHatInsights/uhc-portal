@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
@@ -6,8 +6,7 @@ const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-
 const day2Fixture = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-networking-tab.spec.json');
 
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
-const FIREWALL_RULES_NAME =
-  QE_INFRA_GCP['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
+const FIREWALL_RULES_NAME = QE_INFRA_GCP['FIREWALL_RULES_NAME'] || '';
 
 /**
  * Day-2 Networking tab validation for the OSD On-Demand GCP WIF public advanced cluster
@@ -44,9 +43,7 @@ test.describe.serial(
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       if (!FIREWALL_RULES_NAME?.trim()) {
-        throw new Error(
-          'QE_INFRA_GCP.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME must be set for Day 2 firewall coverage',
-        );
+        throw new Error('QE_INFRA_GCP.FIREWALL_RULES_NAME must be set for Day 2 firewall coverage');
       }
       await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
