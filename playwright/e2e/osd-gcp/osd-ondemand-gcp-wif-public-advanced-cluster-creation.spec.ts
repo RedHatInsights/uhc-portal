@@ -43,6 +43,11 @@ test.describe.serial(
           'QE_GCP_KEY_RING_LOCATION, QE_GCP_KEY_RING, QE_GCP_KEY_NAME, and QE_GCP_KMS_SERVICE_ACCOUNT must be set in playwright.env.json',
         );
       }
+      if (!FIREWALL_RULES_NAME?.trim()) {
+        throw new Error(
+          'QE_INFRA_GCP.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME must be set for public BYO firewall coverage',
+        );
+      }
       await navigateTo('create');
     });
 
@@ -191,19 +196,19 @@ test.describe.serial(
       await createOSDWizardPage.selectControlPlaneSubnetName(QE_INFRA_GCP.CONTROLPLANE_SUBNET);
       await createOSDWizardPage.selectComputeSubnetName(QE_INFRA_GCP.COMPUTE_SUBNET);
 
-      // BYO firewall rules (ROSAENG-72666): exercised when FIREWALL_RULES_NAME /
-      // QE_GCP_FIREWALL_RULES_NAME is set. Requires OpenShift >= 4.21 and a
+      // BYO firewall rules (ROSAENG-72666). Requires OpenShift >= 4.21 and a
       // pre-created rule matching this WIF / QE_INFRA_GCP.VPC_NAME / public profile.
-      if (FIREWALL_RULES_NAME) {
-        await createOSDWizardPage.createFirewallRulesToggle().click();
-        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
-          /ocm gcp create firewall-rules/,
-        );
-        await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
-          new RegExp(`--vpc-name=${QE_INFRA_GCP.VPC_NAME}`),
-        );
-        await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME, true);
-      }
+      await createOSDWizardPage.createFirewallRulesToggle().click();
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /ocm gcp create firewall-rules/,
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        new RegExp(`--vpc-name=${QE_INFRA_GCP.VPC_NAME}`),
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).not.toHaveValue(
+        /--profile=private/,
+      );
+      await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME);
 
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -293,9 +298,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.installIntoExistingVpcValue()).toContainText(
         clusterProperties.InstallIntoExistingVPC,
       );
-      if (FIREWALL_RULES_NAME) {
-        await expect(createOSDWizardPage.firewallRulesValue()).toContainText(FIREWALL_RULES_NAME);
-      }
+      await expect(createOSDWizardPage.firewallRulesValue()).toHaveText(FIREWALL_RULES_NAME);
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         QE_INFRA_GCP.VPC_NAME,
       );

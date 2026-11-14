@@ -463,12 +463,10 @@ export class NetworkingPage extends BasePage {
   async expectFirewallRulesValue(firewallRulesName: string): Promise<void> {
     await expect(this.vpcDetailsCardTitle()).toBeVisible({ timeout: 30000 });
     await expect(this.firewallRulesTerm()).toBeVisible();
-    await expect(
-      this.networkingTabPanel()
-        .getByRole('definition')
-        .filter({ hasText: new RegExp(this.escapeRegExp(firewallRulesName)) })
-        .first(),
-    ).toContainText(firewallRulesName);
+    // Pair the Firewall rules term with its sibling definition in the DescriptionListGroup.
+    await expect(this.firewallRulesTerm().locator('..').getByRole('definition')).toHaveText(
+      firewallRulesName,
+    );
   }
 
   async openEditClusterIngressModal(): Promise<void> {
