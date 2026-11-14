@@ -12,8 +12,7 @@ const QE_GCP_KEY_RING_LOCATION = process.env.QE_GCP_KEY_RING_LOCATION || '';
 const QE_GCP_KEY_RING = process.env.QE_GCP_KEY_RING || '';
 const QE_GCP_KEY_NAME = process.env.QE_GCP_KEY_NAME || '';
 const QE_GCP_KMS_SERVICE_ACCOUNT = process.env.QE_GCP_KMS_SERVICE_ACCOUNT || '';
-const FIREWALL_RULES_NAME =
-  QE_INFRA_GCP['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
+const FIREWALL_RULES_NAME = QE_INFRA_GCP['FIREWALL_RULES_NAME'] || '';
 
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced cluster creation',
@@ -45,7 +44,7 @@ test.describe.serial(
       }
       if (!FIREWALL_RULES_NAME?.trim()) {
         throw new Error(
-          'QE_INFRA_GCP.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME must be set for public BYO firewall coverage',
+          'QE_INFRA_GCP.FIREWALL_RULES_NAME must be set for public BYO firewall coverage',
         );
       }
       await navigateTo('create');
@@ -201,6 +200,10 @@ test.describe.serial(
       await createOSDWizardPage.createFirewallRulesToggle().click();
       await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
         /ocm gcp create firewall-rules/,
+      );
+      // CLI emits WIF config id (not display name / QE_GCP_WIF_CONFIG).
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /--wif-config=[^\s<]+/,
       );
       await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
         new RegExp(`--vpc-name=${QE_INFRA_GCP.VPC_NAME}`),
