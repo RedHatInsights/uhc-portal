@@ -5,6 +5,10 @@ import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
 const day2Fixture = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-networking-tab.spec.json');
 
+const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const FIREWALL_RULES_NAME =
+  QE_INFRA_GCP['FIREWALL_RULES_NAME'] || process.env.QE_GCP_FIREWALL_RULES_NAME || '';
+
 /**
  * Day-2 Networking tab validation for the OSD On-Demand GCP WIF public advanced cluster
  * created by osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.ts.
@@ -12,7 +16,17 @@ const day2Fixture = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced - Networking tab validation',
   {
-    tag: ['@day2', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced', '@networking'],
+    tag: [
+      '@day2',
+      '@osd',
+      '@gcp',
+      '@wif',
+      '@ondemand',
+      '@public',
+      '@advanced',
+      '@networking',
+      '@firewall',
+    ],
   },
   () => {
     const clusterName =
@@ -29,6 +43,11 @@ test.describe.serial(
     };
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+      if (!FIREWALL_RULES_NAME?.trim()) {
+        throw new Error(
+          'QE_INFRA_GCP.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME must be set for Day 2 firewall coverage',
+        );
+      }
       await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
@@ -56,6 +75,13 @@ test.describe.serial(
         PodCIDR: day1Profile.PodCIDR,
         Hostprefix: day1Profile.HostPrefix,
       });
+    });
+
+    test('verifies Firewall rules are shown under VPC details when set', async ({
+      networkingPage,
+    }) => {
+      await expect(networkingPage.vpcDetailsCardTitle()).toBeVisible();
+      await networkingPage.expectFirewallRulesValue(FIREWALL_RULES_NAME);
     });
 
     test('verifies Application ingress card shows Day-1 custom settings', async ({

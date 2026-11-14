@@ -2,22 +2,34 @@ import { expect, test } from '../../fixtures/pages';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-sharedvpc-dns-cluster-creation.spec.json');
 const clusterName = `${clusterProperties.ClusterName}-${Math.random().toString(36).substring(7)}`;
 
-// Environment variables
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
+// Dedicated WIF for shared-VPC BYO firewall (1 WIF : 1 firewall-rules set).
+const QE_GCP_WIF_CONFIG_SHARED_VPC =
+  process.env.QE_GCP_WIF_CONFIG_SHARED_VPC?.trim() || process.env.QE_GCP_WIF_CONFIG?.trim() || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const SHARED_VPC_INFRA =
   QE_INFRA_GCP['SHARED_VPC_INFRA'] || JSON.parse(process.env.SHARED_VPC_INFRA || '{}');
 const region = SHARED_VPC_INFRA['REGION'] || clusterProperties.Region.split(',')[0];
+const FIREWALL_RULES_NAME_SHARED_VPC =
+  SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] ||
+  process.env.QE_GCP_FIREWALL_RULES_NAME_SHARED_VPC ||
+  '';
 
 test.describe.serial(
   'OSD Marketplace GCP WIF Shared VPC DNS cluster creation tests',
-  { tag: ['@smoke', '@osd', '@wif', '@sharedvpc', '@dns'] },
+  { tag: ['@smoke', '@osd', '@wif', '@sharedvpc', '@dns', '@firewall'] },
   () => {
     let clusterSubmitted = false;
 
     test.beforeAll(async ({ navigateTo }) => {
-      if (!QE_GCP_WIF_CONFIG?.trim()) {
-        throw new Error('QE_GCP_WIF_CONFIG must be set for GCP WIF Shared VPC DNS tests');
+      if (!QE_GCP_WIF_CONFIG_SHARED_VPC) {
+        throw new Error(
+          'QE_GCP_WIF_CONFIG_SHARED_VPC (or QE_GCP_WIF_CONFIG fallback) must be set for Shared VPC BYO firewall tests',
+        );
+      }
+      if (!FIREWALL_RULES_NAME_SHARED_VPC?.trim()) {
+        throw new Error(
+          'SHARED_VPC_INFRA.FIREWALL_RULES_NAME or QE_GCP_FIREWALL_RULES_NAME_SHARED_VPC must be set for Shared VPC BYO firewall coverage',
+        );
       }
       await navigateTo('create');
     });
@@ -44,7 +56,7 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.workloadIdentityFederationButton().click();
-      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG);
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG_SHARED_VPC);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await page.locator(createOSDWizardPage.primaryButton).click();
     });
@@ -114,6 +126,23 @@ test.describe.serial(
         .controlPlaneSubnetInput()
         .fill(SHARED_VPC_INFRA['CONTROLPLANE_SUBNET'] || '');
       await createOSDWizardPage.computeSubnetInput().fill(SHARED_VPC_INFRA['COMPUTE_SUBNET'] || '');
+
+      // BYO firewall rules (ROSAENG-72666): host project + shared VPC / public profile.
+      await createOSDWizardPage.createFirewallRulesToggle().click();
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /ocm gcp create firewall-rules/,
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        new RegExp(`--project-id=${SHARED_VPC_INFRA['HOST_PROJECT_ID']}`),
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        new RegExp(`--vpc-name=${SHARED_VPC_INFRA['VPC_NAME']}`),
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).not.toHaveValue(
+        /--profile=private/,
+      );
+      await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME_SHARED_VPC);
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -165,7 +194,9 @@ test.describe.serial(
         clusterProperties.AuthenticationType,
       );
       if (clusterProperties.AuthenticationType.includes('Workload Identity Federation')) {
-        await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG);
+        await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(
+          QE_GCP_WIF_CONFIG_SHARED_VPC,
+        );
       }
 
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
@@ -208,6 +239,9 @@ test.describe.serial(
       );
       await expect(createOSDWizardPage.dnsZoneValue()).toContainText(
         clusterProperties.DomainPrefix,
+      );
+      await expect(createOSDWizardPage.firewallRulesValue()).toHaveText(
+        FIREWALL_RULES_NAME_SHARED_VPC,
       );
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         SHARED_VPC_INFRA['VPC_NAME'] || '',
@@ -297,7 +331,7 @@ test.describe.serial(
 
       if (clusterProperties.AuthenticationType.includes('Workload Identity Federation')) {
         await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-          QE_GCP_WIF_CONFIG,
+          QE_GCP_WIF_CONFIG_SHARED_VPC,
         );
       }
     });
