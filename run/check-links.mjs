@@ -10,11 +10,20 @@
  * - Reports HTTP status codes (2xx, 3xx, 4xx, 5xx)
  * - Tests redirect destinations
  * - Color-coded output for easy identification of issues
- * - Multiple output modes (default, verbose, redirects-only, summary)
+ * - Multiple output modes (default, verbose, redirects-only, summary, slack draft)
  */
+import { stdin as input, stdout as output } from 'node:process';
+import readline from 'node:readline/promises';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
+import {
+  findContactByKey,
+  findContactForUrl,
+  getDownloadContacts,
+  updateSlackChannels,
+} from '../src/common/downloadContacts.mjs';
+import { parseSlackSelection } from '../src/common/parseSlackSelection.mjs';
 import { getAllExternalLinks } from '../src/common/urlUtils.mjs';
 
 // ======================================================================
@@ -27,6 +36,10 @@ const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
 const summaryMode = args.includes('--summary');
+const slackMode = args.includes('--slack');
+const listChannelsMode = args.includes('-l') || args.includes('--list-channels');
+const updateChannelIndex = args.indexOf('--update-channel');
+const updateChannelMode = updateChannelIndex !== -1;
 
 // Constants
 const LINE_LENGTH = 80;
@@ -146,6 +159,13 @@ Options:
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
   --summary      Print summary table and broken links only
+  --slack        List real 4xx broken links (false positives excluded),
+                 then draft copy/paste Slack messages for selected URLs
+  -l, --list-channels
+                 Print downloadContacts.json entries (key, name, channels)
+  --update-channel <key> <channel(s)>
+                 Overwrite slackChannels for <key> and write downloadContacts.json.
+                 Quote channels (e.g. "#forum-rosa-eng"). Multiple: "#a,#b"
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -193,6 +213,88 @@ HTTP Status Codes:
 if (helpMode) {
   displayHelp();
   process.exit(0);
+}
+
+/**
+ * Prints every downloadContacts.json entry: key, display name, Slack channel(s).
+ */
+function listDownloadChannels() {
+  const contacts = getDownloadContacts();
+  const keyWidth = Math.max('KEY'.length, ...contacts.map((entry) => entry.key.length));
+  const nameWidth = Math.max(
+    'DISPLAY NAME'.length,
+    ...contacts.map((entry) => entry.displayName.length),
+  );
+
+  console.log(`${'KEY'.padEnd(keyWidth)}  ${'DISPLAY NAME'.padEnd(nameWidth)}  SLACK CHANNEL(S)`);
+
+  contacts.forEach((entry) => {
+    const channels = entry.slackChannels.length > 0 ? entry.slackChannels.join(', ') : '(none)';
+    console.log(
+      `${entry.key.padEnd(keyWidth)}  ${entry.displayName.padEnd(nameWidth)}  ${channels}`,
+    );
+  });
+}
+
+/**
+ * Overwrites slackChannels for --update-channel <key> <channel(s)>.
+ * @returns {boolean} Whether the update succeeded
+ */
+function applyChannelUpdate() {
+  const key = args[updateChannelIndex + 1];
+  const channelsRaw = args[updateChannelIndex + 2];
+
+  if (!key || !channelsRaw || channelsRaw.startsWith('-')) {
+    console.error('Usage: node check-links.mjs --update-channel <key> <channel(s)>');
+    return false;
+  }
+
+  if (!findContactByKey(key)) {
+    console.error(`Unknown key "${key}". Valid keys:`);
+    getDownloadContacts().forEach((entry) => {
+      console.error(`  ${entry.key}`);
+    });
+    return false;
+  }
+
+  const slackChannels = channelsRaw
+    .split(',')
+    .map((channel) => channel.trim())
+    .filter(Boolean);
+
+  if (slackChannels.length === 0) {
+    console.error('Error: at least one channel is required. Use "#channel" format.');
+    return false;
+  }
+
+  const updated = updateSlackChannels(key, slackChannels);
+
+  if (updated.noChange) {
+    console.log(
+      `${key} slackChannels already set to ${JSON.stringify(updated.slackChannels)}; no file changes.`,
+    );
+    return true;
+  }
+
+  console.log(`Updated ${key} slackChannels to ${JSON.stringify(updated.slackChannels)}`);
+  console.log('');
+  console.log('This command does not commit, push, or open a PR.');
+  console.log('Next steps:');
+  console.log('  git diff src/common/downloadContacts.json');
+  console.log('  git checkout -b <branch>');
+  console.log('  git add src/common/downloadContacts.json && git commit');
+  console.log('  # push and open a PR');
+  return true;
+}
+
+if (listChannelsMode) {
+  listDownloadChannels();
+  process.exit(0);
+}
+
+if (updateChannelMode) {
+  const succeeded = applyChannelUpdate();
+  process.exit(succeeded ? 0 : 1);
 }
 
 // ======================================================================
@@ -792,9 +894,11 @@ function displayUsageNotes(verbose) {
       '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
     );
     console.log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   } else {
     console.log('\nNote: Run with -r or --redirects to see ONLY redirected URLs with targets');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   }
 }
@@ -1087,6 +1191,134 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   displayUsageNotes(verbose);
 }
 
+/**
+ * 4xx errors + failed redirects that are not known false positives
+ * @param {Object} categories - Categorized results
+ * @param {Array} testedRedirects - Results of testRedirectUrls
+ * @returns {Array<{url: string, status: number|string}>}
+ */
+function getSlackDraftCandidates(categories, testedRedirects) {
+  // Direct 4xx errors
+  const directErrors = categories.clientErrors.filter(({ url }) => !getKnownFalsePositiveNote(url));
+
+  // Failed redirects
+  const failedRedirects = testedRedirects
+    .filter((item) => {
+      const isBroken =
+        item.error || (item.finalStatus && item.finalStatus >= 400 && item.finalStatus < 500);
+      // Skip false positives on redirect URL
+      return (
+        isBroken &&
+        !getKnownFalsePositiveNote(item.originalUrl) &&
+        !getKnownFalsePositiveNote(item.redirectUrl)
+      );
+    })
+    .map((item) => ({
+      url: item.originalUrl,
+      redirectUrl: item.redirectUrl,
+      status: item.error ? `redirect error` : `${item.status} → ${item.finalStatus}`,
+    }));
+
+  return [...directErrors, ...failedRedirects];
+}
+
+/**
+ * @param {number} count
+ * @returns {Promise<number[]>}
+ */
+async function promptSlackSelection(count) {
+  if (!input.isTTY) {
+    console.log('\nNo TTY detected; skipping Slack draft selection.');
+    return [];
+  }
+
+  const rl = readline.createInterface({ input, output });
+  const prompt =
+    'Select which to draft a Slack message for (e.g. "1,2" or "all"), Enter to skip:\n> ';
+  try {
+    let parsed;
+    do {
+      // eslint-disable-next-line no-await-in-loop -- re-prompt until selection is valid or skipped
+      const answer = await rl.question(prompt);
+      parsed = parseSlackSelection(answer, count);
+      if (parsed.status === 'invalid') {
+        console.log(`  ${parsed.message}`);
+      }
+    } while (parsed.status === 'invalid');
+    return parsed.status === 'skip' ? [] : parsed.indices;
+  } finally {
+    rl.close();
+  }
+}
+
+/**
+ * Prints a copy/paste Slack draft, or a fallback notice when unmapped/deprecated.
+ * @param {number} displayNumber
+ * @param {{url: string, status: number}} item
+ * @param {Object|null} contact
+ */
+function printSlackDraft(displayNumber, item, contact) {
+  if (!contact) {
+    console.log(`\n[${displayNumber}] ${item.url}`);
+    console.log('  no owner mapped');
+    return;
+  }
+
+  if (contact.deprecated || contact.slackChannels.length === 0) {
+    console.log(`\n[${displayNumber}] ${item.url}`);
+    console.log('  no active owner (deprecated)');
+    return;
+  }
+
+  const divider = '─'.repeat(LINE_LENGTH);
+  const channels = contact.slackChannels.join(', ');
+  console.log(`\n${divider}`);
+  console.log(`[${displayNumber}] Post to: ${channels}   (${contact.displayName})`);
+  console.log(divider);
+  console.log('Hey team 👋 — our weekly link checker found a broken');
+  console.log('download link served by OCM UI (console.redhat.com/openshift).');
+  console.log(`Broken URL (${item.status}):`);
+  console.log(item.url);
+  if (item.redirectUrl) {
+    console.log(`  ↳ redirects to: ${item.redirectUrl}`);
+  }
+  console.log(divider);
+  console.log(
+    `Wrong channel? Execute: node check-links.mjs --update-channel ${contact.key} "#new-channel"`,
+  );
+}
+
+/**
+ * --slack flow: numbered 4xx list → user selection → Slack drafts (never posts).
+ * @param {Object} categories
+ * @param {Array} testedRedirects
+ */
+async function runSlackDraftFlow(categories, testedRedirects = []) {
+  const broken = getSlackDraftCandidates(categories, testedRedirects);
+
+  console.log('\nBroken links (4xx, false positives excluded):');
+  if (broken.length === 0) {
+    console.log('  None');
+    return;
+  }
+
+  broken.forEach((item, index) => {
+    console.log(`  [${index + 1}] ${item.status}  ${item.url}`);
+  });
+  console.log('');
+
+  const selected = await promptSlackSelection(broken.length);
+  if (selected.length === 0) {
+    return;
+  }
+
+  const contacts = getDownloadContacts();
+  selected.forEach((index) => {
+    const item = broken[index];
+    printSlackDraft(index + 1, item, findContactForUrl(item.url, contacts));
+  });
+}
+
 // ======================================================================
 // URL PROCESSING FUNCTIONS
 // ======================================================================
@@ -1144,6 +1376,11 @@ async function main() {
 
   // Gather redirect URLs for testing
   const redirectItems = await testRedirectUrls(statusByUrl);
+
+  if (slackMode) {
+    await runSlackDraftFlow(categorizeResults(statusByUrl), redirectItems);
+    return;
+  }
 
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);
