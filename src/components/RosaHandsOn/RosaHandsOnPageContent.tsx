@@ -96,14 +96,14 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
       const alertTitle =
         demoExperience.unavailable_reason === UNAUTHORIZED ? (
           <>
-            Let&apos;s get you access to the Hands-on Experience. To continue, you can{' '}
-            <RosaHandsOnCustomerSuccessLink linkText="email support" />.
-          </>
-        ) : (
-          <>
             You must be logged in with your business email account to access the experience. If you
             are logged in with a business email and still cannot request, we will review your
             request when we have additional capacity.
+          </>
+        ) : (
+          <>
+            The demo system is currently unavailable. If this issue persists, you can{' '}
+            <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
           </>
         );
       alert = <Alert component="span" title={alertTitle} variant="danger" isInline />;

@@ -19,11 +19,31 @@ const createDemoExperience = (
 });
 
 describe('<StatusAlert />', () => {
-  it('shows the business email capacity message when the experience is unavailable', async () => {
+  it('shows a contact support mailto link when the experience is unavailable', async () => {
     const { container } = render(
       <StatusAlert
         demoExperience={createDemoExperience({
           status: DemoExperienceStatusEnum.Unavailable,
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByText(/The demo system is currently unavailable. If this issue persists, you can/),
+    ).toBeInTheDocument();
+
+    const link = screen.getByRole('link', { name: 'contact support' });
+    expect(link).toHaveAttribute('href', rosaHandsOnLinks.customerSuccess);
+
+    await checkAccessibility(container);
+  });
+
+  it('shows the business email capacity message when the experience is unauthorized', async () => {
+    const { container } = render(
+      <StatusAlert
+        demoExperience={createDemoExperience({
+          status: DemoExperienceStatusEnum.Unavailable,
+          unavailable_reason: UNAUTHORIZED,
         })}
       />,
     );
@@ -38,21 +58,22 @@ describe('<StatusAlert />', () => {
     await checkAccessibility(container);
   });
 
-  it('shows an email support mailto link when the experience is unauthorized', async () => {
+  it('shows a contact support mailto link when the experience failed', async () => {
     const { container } = render(
       <StatusAlert
         demoExperience={createDemoExperience({
-          status: DemoExperienceStatusEnum.Unavailable,
-          unavailable_reason: UNAUTHORIZED,
+          status: DemoExperienceStatusEnum.Failed,
         })}
       />,
     );
 
     expect(
-      screen.getByText(/Let's get you access to the Hands-on Experience. To continue, you can/),
+      screen.getByText(
+        /We're experiencing an error on our end. This does not affect your quota. Try again and if this issue persists/,
+      ),
     ).toBeInTheDocument();
 
-    const link = screen.getByRole('link', { name: 'email support' });
+    const link = screen.getByRole('link', { name: 'contact support' });
     expect(link).toHaveAttribute('href', rosaHandsOnLinks.customerSuccess);
 
     await checkAccessibility(container);
@@ -81,6 +102,23 @@ describe('<StatusAlert />', () => {
     expect(link).toHaveAttribute('href', rosaHandsOnLinks.customerSuccess);
 
     await checkAccessibility(container);
+  });
+
+  it('does not show a remaining launches alert when no launches have been used', () => {
+    const { container } = render(
+      <StatusAlert
+        demoExperience={createDemoExperience({
+          status: DemoExperienceStatusEnum.Available,
+          quota: {
+            current: 0,
+            limit: 3,
+          },
+        })}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('uses singular launch wording when one launch remains', async () => {

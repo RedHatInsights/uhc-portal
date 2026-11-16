@@ -50,4 +50,31 @@ describe('<RosaHandsOnGetStartedCard />', () => {
     const slackLink = screen.getByRole('link', { name: /ROSA community Slack channel/ });
     expect(slackLink).toHaveAttribute('href', rosaHandsOnLinks.slackChannel);
   });
+
+  it('shows the Create a ROSA cluster CTA when quota is exceeded', async () => {
+    const { container } = render(
+      <RosaHandsOnGetStartedCard
+        demoExperience={createDemoExperience({
+          status: 'quota-exceeded',
+          quota: {
+            current: 3,
+            limit: 3,
+          },
+        })}
+        onRequestCluster={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Take the next step. Create your own ROSA Cluster!' }),
+    ).toBeInTheDocument();
+
+    const createClusterLink = screen.getByRole('link', { name: 'Create a ROSA cluster' });
+    expect(createClusterLink).toHaveAttribute(
+      'href',
+      expect.stringMatching(new RegExp(`${rosaHandsOnLinks.getStarted}$`)),
+    );
+
+    await checkAccessibility(container);
+  });
 });
