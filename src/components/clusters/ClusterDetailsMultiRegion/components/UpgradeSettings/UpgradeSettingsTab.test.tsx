@@ -835,5 +835,17 @@ describe('<UpgradeSettingsTab>', () => {
 
       expect(screen.getByText("Can't schedule upgrade")).toBeInTheDocument();
     });
+
+    it('shows the schedule error when the failed request has no error details', () => {
+      usePostScheduleMock.mockReturnValue({
+        ...mockHookResponse,
+        isError: true,
+        error: null,
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByText("Can't schedule upgrade")).toBeInTheDocument();
+    });
   });
 });

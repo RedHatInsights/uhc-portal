@@ -928,5 +928,22 @@ describe('<UpdateAllMachinePools />', () => {
       const link = screen.getByText('Learn more about updates');
       expect(link).toHaveAttribute('href', docLinks.ROSA_UPGRADES);
     });
+
+    it('omits the version number when the control plane version cannot be parsed', async () => {
+      const { user } = withState(defaultStore).render(
+        <UpdateAllMachinePools
+          isMachinePoolError={false}
+          isHypershift
+          controlPlaneVersion="not-a-version"
+          controlPlaneRawVersion={clusterVersionRawID}
+          clusterId={clusterId}
+          machinePoolData={[machinePoolBehind1]}
+        />,
+      );
+
+      await user.click(screen.getByLabelText('Warning alert details'));
+
+      expect(screen.getByText(/current control plane version/)).not.toHaveTextContent(/\d+\.\d+/);
+    });
   });
 });

@@ -91,19 +91,11 @@ const MinorVersionUpgradeAlert = ({
   };
 
   return error ? (
-    <Alert
-      variant="danger"
-      className="automatic-cluster-updates-alert"
-      isInline
-      title={error}
-      role="alert"
-      data-testid="alert-error"
-    />
+    <Alert variant="danger" isInline title={error} role="alert" data-testid="alert-error" />
   ) : (
     <Alert
       isExpandable
       isInline
-      className="automatic-cluster-updates-alert"
       customIcon={<ArrowCircleUpIcon />}
       title={
         isMinorVersionUpgradesEnabled
