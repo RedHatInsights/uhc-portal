@@ -2,7 +2,6 @@ import React from 'react';
 
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import { rosaHandsOnLinks } from './constants';
 import { RosaHandsOnCustomerSuccessLink } from './RosaHandsOnContactLinks';
 
 describe('<RosaHandsOnCustomerSuccessLink />', () => {
@@ -11,7 +10,7 @@ describe('<RosaHandsOnCustomerSuccessLink />', () => {
 
     const link = screen.getByRole('link', { name: 'contact support' });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', rosaHandsOnLinks.customerSuccess);
+    expect(link).toHaveAttribute('href', 'mailto:openshift-rosa@redhat.com');
     expect(link).not.toHaveAttribute('target');
 
     await checkAccessibility(container);
