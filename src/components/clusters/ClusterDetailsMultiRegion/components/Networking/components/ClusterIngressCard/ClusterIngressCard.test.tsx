@@ -131,6 +131,93 @@ describe('<ClusterIngressCard />', () => {
     });
   });
 
+  describe('Console URL pending alert', () => {
+    const alertTitle =
+      'The Cluster console URL may take a few moments to update after you change the Console hostname.';
+
+    it('shows an info alert when Console hostname does not match Cluster console URL', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          console: { url: 'https://console-openshift-console.apps.example.com' },
+        } as AugmentedCluster,
+        clusterRoutersData: [
+          {
+            ...clusterRouters[0],
+            component_routes: {
+              console: {
+                hostname: 'console.example.com',
+                tls_secret_ref: 'console-tls',
+              },
+            },
+          },
+        ] as Ingress[],
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.getByText(alertTitle)).toBeInTheDocument();
+    });
+
+    it('hides the alert when Console hostname matches Cluster console URL', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          console: { url: 'https://console.example.com' },
+        } as AugmentedCluster,
+        clusterRoutersData: [
+          {
+            ...clusterRouters[0],
+            component_routes: {
+              console: {
+                hostname: 'console.example.com',
+                tls_secret_ref: 'console-tls',
+              },
+            },
+          },
+        ] as Ingress[],
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+
+    it('hides the alert when Console hostname is not configured', () => {
+      render(<ClusterIngressCard {...defaultProps} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+
+    it('hides the alert on Classic even when Console hostname does not match', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          hypershift: { enabled: false },
+          console: { url: 'https://console-openshift-console.apps.example.com' },
+        } as AugmentedCluster,
+        clusterRoutersData: [
+          {
+            ...clusterRouters[0],
+            component_routes: {
+              console: {
+                hostname: 'console.example.com',
+                tls_secret_ref: 'console-tls',
+              },
+            },
+          },
+        ] as Ingress[],
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+  });
+
   describe('OSD GCP WIF cluster', () => {
     it('disables editing cluster ingress', async () => {
       const props = {

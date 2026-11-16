@@ -117,6 +117,10 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
     isWildcardPolicyAllowed: isDefaultIngressWildcardPolicyAllowed,
     isNamespaceOwnershipPolicyStrict: isDefaultRouterNamespaceOwnershipPolicyStrict,
     hostname: clusterRoutesHostname,
+    consoleHostname,
+    consoleTlsSecretRef,
+    downloadsHostname,
+    downloadsTlsSecretRef,
   } = clusterRouters.default || {};
   const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
   const region = cluster.subscription?.rh_region_id;
@@ -128,7 +132,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
     canEdit: !!canEdit,
     isReadOnly,
     clusterHibernating,
-    hasSufficientIngressEditVersion,
+    hasSufficientIngressEditVersion: hasSufficientIngressEditVersion || isHypershift,
     canEditLoadBalancer,
   });
 
@@ -160,6 +164,30 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
               </Content>
             </Content>
           </FormGroup>
+
+          {isHypershift && (
+            <>
+              <FormGroup fieldId="consoleHostname" label="Console hostname" isStack>
+                <TextInput id="consoleHostname" value={consoleHostname ?? ''} isDisabled />
+              </FormGroup>
+
+              <FormGroup fieldId="consoleTlsSecretRef" label="Console TLS secret name" isStack>
+                <TextInput id="consoleTlsSecretRef" value={consoleTlsSecretRef ?? ''} isDisabled />
+              </FormGroup>
+
+              <FormGroup fieldId="downloadsHostname" label="Downloads hostname" isStack>
+                <TextInput id="downloadsHostname" value={downloadsHostname ?? ''} isDisabled />
+              </FormGroup>
+
+              <FormGroup fieldId="downloadsTlsSecretRef" label="Downloads TLS secret name" isStack>
+                <TextInput
+                  id="downloadsTlsSecretRef"
+                  value={downloadsTlsSecretRef ?? ''}
+                  isDisabled
+                />
+              </FormGroup>
+            </>
+          )}
 
           {hasSufficientIngressEditVersion && (
             <>
