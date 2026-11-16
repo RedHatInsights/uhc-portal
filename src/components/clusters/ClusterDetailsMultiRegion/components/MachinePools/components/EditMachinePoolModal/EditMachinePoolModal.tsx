@@ -275,9 +275,9 @@ const EditMachinePoolModal = ({
     (!machineTypesError && machineTypesLoading) ||
     (isEdit && machineTypesResponse && machinePoolsResponse && !currentMachinePool);
 
-  const awsAccountId = cluster.subscription?.cloud_account_id;
+  const cloudAccountId = cluster.subscription?.cloud_account_id;
   const shouldCheckOCMRole =
-    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!awsAccountId;
+    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!cloudAccountId;
 
   return (
     <Formik<EditMachinePoolValues>
@@ -347,7 +347,7 @@ const EditMachinePoolModal = ({
               </div>
             ) : null}
 
-            {shouldCheckOCMRole ? <MissingOCMRoleAlert awsAccountId={awsAccountId!} /> : null}
+            {shouldCheckOCMRole ? <MissingOCMRoleAlert awsAccountId={cloudAccountId!} /> : null}
 
             {!isPending && (machinePoolsError || machineTypesError) ? (
               <ErrorBox

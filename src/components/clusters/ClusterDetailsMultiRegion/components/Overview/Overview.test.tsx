@@ -1,9 +1,7 @@
 import React from 'react';
 
 import { useGlobalState } from '~/redux/hooks';
-import type { State as CloudProvidersState } from '~/redux/reducers/cloudProvidersReducer';
 import { render, screen } from '~/testUtils';
-import type { AugmentedCluster } from '~/types/types';
 
 import fixtures from '../../__tests__/ClusterDetails.fixtures';
 
@@ -53,11 +51,11 @@ const rosaSTSCluster = {
     organization_id: CLUSTER_ORG_ID,
     cloud_account_id: '123456789012',
   },
-} as unknown as AugmentedCluster;
+};
 
 const defaultProps = {
   cluster: rosaSTSCluster,
-  cloudProviders: fixtures.cloudProviders as unknown as CloudProvidersState,
+  cloudProviders: fixtures.cloudProviders,
   refresh: jest.fn(),
   insightsData: undefined,
   userAccess: { fulfilled: false, data: false },
