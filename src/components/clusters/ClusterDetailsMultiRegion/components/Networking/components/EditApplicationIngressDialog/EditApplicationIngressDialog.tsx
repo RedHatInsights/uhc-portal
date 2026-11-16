@@ -104,6 +104,15 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
       }
     : undefined;
 
+  const componentRouteProps = isHypershiftCluster
+    ? {
+        consoleHostname: clusterRouters.default?.consoleHostname || '',
+        consoleTlsSecretRef: clusterRouters.default?.consoleTlsSecretRef || '',
+        downloadsHostname: clusterRouters.default?.downloadsHostname || '',
+        downloadsTlsSecretRef: clusterRouters.default?.downloadsTlsSecretRef || '',
+      }
+    : undefined;
+
   return (
     <Formik
       initialValues={{
@@ -111,6 +120,7 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
         is_nlb_load_balancer: clusterRouters.default?.loadBalancer === LoadBalancerFlavor.nlb,
         default_router_address: clusterRouters.default?.address,
         ...ingressProps,
+        ...componentRouteProps,
       }}
       onSubmit={(values) => {
         const currentData = {

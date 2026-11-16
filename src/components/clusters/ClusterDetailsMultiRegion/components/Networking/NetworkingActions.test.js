@@ -461,6 +461,80 @@ describe('createDefaultRouterRequest', () => {
       excluded_namespace_selectors: [{ key: 'env', values: ['staging'] }],
     });
   });
+
+  test('sets component_routes for console and downloads', () => {
+    const newData = {
+      consoleHostname: 'console.example.com',
+      consoleTlsSecretRef: 'console-tls',
+      downloadsHostname: 'downloads.example.com',
+      downloadsTlsSecretRef: 'downloads-tls',
+    };
+    const currentData = { default: { routerID: 'router-id' } };
+
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+      component_routes: {
+        console: {
+          hostname: 'console.example.com',
+          tls_secret_ref: 'console-tls',
+        },
+        downloads: {
+          hostname: 'downloads.example.com',
+          tls_secret_ref: 'downloads-tls',
+        },
+      },
+    });
+  });
+
+  test('does not send component_routes when unchanged', () => {
+    const newData = {
+      consoleHostname: 'console.example.com',
+      consoleTlsSecretRef: 'console-tls',
+      downloadsHostname: 'downloads.example.com',
+      downloadsTlsSecretRef: 'downloads-tls',
+    };
+    const currentData = {
+      default: {
+        routerID: 'router-id',
+        consoleHostname: 'console.example.com',
+        consoleTlsSecretRef: 'console-tls',
+        downloadsHostname: 'downloads.example.com',
+        downloadsTlsSecretRef: 'downloads-tls',
+      },
+    };
+
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+    });
+  });
+
+  test('clears component_routes with empty pairs', () => {
+    const newData = {
+      consoleHostname: '',
+      consoleTlsSecretRef: '',
+      downloadsHostname: 'downloads.example.com',
+      downloadsTlsSecretRef: 'downloads-tls',
+    };
+    const currentData = {
+      default: {
+        routerID: 'router-id',
+        consoleHostname: 'console.example.com',
+        consoleTlsSecretRef: 'console-tls',
+        downloadsHostname: 'downloads.example.com',
+        downloadsTlsSecretRef: 'downloads-tls',
+      },
+    };
+
+    expect(createDefaultRouterRequest(newData, currentData)).toEqual({
+      id: 'router-id',
+      component_routes: {
+        console: {
+          hostname: '',
+          tls_secret_ref: '',
+        },
+      },
+    });
+  });
 });
 
 const success = {

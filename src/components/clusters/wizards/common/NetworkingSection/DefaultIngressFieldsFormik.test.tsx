@@ -104,3 +104,41 @@ describe('DefaultIngressFieldsFormik – Exclude namespace selectors', () => {
     });
   });
 });
+
+describe('DefaultIngressFieldsFormik – HCP component routes', () => {
+  const hcpFormikValues = {
+    ...defaultFormikValues,
+    consoleHostname: '',
+    consoleTlsSecretRef: '',
+    downloadsHostname: '',
+    downloadsTlsSecretRef: '',
+  };
+
+  it('renders Console and Downloads hostname/TLS fields for Hypershift day-2', async () => {
+    render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Console hostname' })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('textbox', { name: 'Console TLS secret name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Downloads hostname' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Downloads TLS secret name' })).toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields for Classic', () => {
+    render(
+      <Formik initialValues={defaultFormikValues} onSubmit={() => {}}>
+        <DefaultIngressFieldsFormik isDay2 hasSufficientIngressEditVersion />
+      </Formik>,
+    );
+
+    expect(screen.queryByRole('textbox', { name: 'Console hostname' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Downloads TLS secret name' }),
+    ).not.toBeInTheDocument();
+  });
+});

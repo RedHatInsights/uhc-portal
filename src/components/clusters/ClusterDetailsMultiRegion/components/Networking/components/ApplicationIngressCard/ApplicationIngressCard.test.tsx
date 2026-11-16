@@ -131,3 +131,73 @@ describe('<ApplicationIngressCard /> – Exclude namespace selectors', () => {
     expect(screen.queryByText('Exclude namespace selectors')).not.toBeInTheDocument();
   });
 });
+
+describe('<ApplicationIngressCard /> – HCP component routes', () => {
+  const hcpCluster: ClusterWithPermissions = {
+    ...baseCluster,
+    hypershift: { enabled: true },
+    cloud_provider: { id: 'aws' },
+  };
+
+  const hcpRouters: Ingress[] = [
+    {
+      default: true,
+      dns_name: 'apps.hcp.example.com',
+      id: 'ingress-1',
+      kind: 'Ingress',
+      listening: 'external',
+      component_routes: {
+        console: {
+          hostname: 'console.example.com',
+          tls_secret_ref: 'console-tls',
+        },
+        downloads: {
+          hostname: 'downloads.example.com',
+          tls_secret_ref: 'downloads-tls',
+        },
+      },
+    },
+  ];
+
+  it('renders Console and Downloads hostname/TLS fields for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.getByText('Console hostname')).toBeInTheDocument();
+    expect(screen.getByText('Console TLS secret name')).toBeInTheDocument();
+    expect(screen.getByText('Downloads hostname')).toBeInTheDocument();
+    expect(screen.getByText('Downloads TLS secret name')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('console.example.com')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('console-tls')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('downloads.example.com')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('downloads-tls')).toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields for Classic', () => {
+    render(<ApplicationIngressCard {...defaultProps} />);
+
+    expect(screen.queryByText('Console hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('Downloads TLS secret name')).not.toBeInTheDocument();
+  });
+
+  it('does not render Classic managed-ingress fields for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.queryByText('Route selector')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('TLS Secret name')).not.toBeInTheDocument();
+  });
+});

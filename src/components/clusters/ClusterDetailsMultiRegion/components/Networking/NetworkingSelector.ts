@@ -60,6 +60,10 @@ export type ClusterRouter = {
   isWildcardPolicyAllowed: boolean;
   tlsSecretRef?: string;
   hostname?: string;
+  consoleHostname?: string;
+  consoleTlsSecretRef?: string;
+  downloadsHostname?: string;
+  downloadsTlsSecretRef?: string;
 };
 
 export type ClusterRouters = {
@@ -85,6 +89,10 @@ const NetworkingSelector = (clusterRouters: Ingress[]): ClusterRouters => {
       isWildcardPolicyAllowed: r.route_wildcard_policy === WildcardPolicy.WildcardsAllowed,
       tlsSecretRef: r.cluster_routes_tls_secret_ref,
       hostname: r.cluster_routes_hostname,
+      consoleHostname: r.component_routes?.console?.hostname,
+      consoleTlsSecretRef: r.component_routes?.console?.tls_secret_ref,
+      downloadsHostname: r.component_routes?.downloads?.hostname,
+      downloadsTlsSecretRef: r.component_routes?.downloads?.tls_secret_ref,
     };
 
     if (router.isDefault) {

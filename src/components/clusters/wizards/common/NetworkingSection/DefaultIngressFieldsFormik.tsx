@@ -220,6 +220,90 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
         </>
       )}
 
+      {isDay2 && isHypershiftCluster && (
+        <>
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="consoleHostname"
+              type="text"
+              label="Console hostname"
+              aria-label="Console hostname"
+              validate={(value: string) =>
+                validateTlsHostname(value, {
+                  clusterRoutesHostname: values?.consoleHostname,
+                  clusterRoutesTlsSecretRef: values?.consoleTlsSecretRef,
+                })
+              }
+              helpText="Custom hostname for the OpenShift web console."
+              showHelpTextOnError={false}
+              input={getFieldProps('consoleHostname')}
+              meta={getFieldMeta('consoleHostname')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="consoleTlsSecretRef"
+              type="text"
+              label="Console TLS secret name"
+              aria-label="Console TLS secret name"
+              validate={(value: string) =>
+                validateTlsSecretName(value, {
+                  clusterRoutesHostname: values?.consoleHostname,
+                  clusterRoutesTlsSecretRef: values?.consoleTlsSecretRef,
+                })
+              }
+              helpText="Name of a TLS secret in the openshift-config namespace."
+              showHelpTextOnError={false}
+              input={getFieldProps('consoleTlsSecretRef')}
+              meta={getFieldMeta('consoleTlsSecretRef')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="downloadsHostname"
+              type="text"
+              label="Downloads hostname"
+              aria-label="Downloads hostname"
+              validate={(value: string) =>
+                validateTlsHostname(value, {
+                  clusterRoutesHostname: values?.downloadsHostname,
+                  clusterRoutesTlsSecretRef: values?.downloadsTlsSecretRef,
+                })
+              }
+              helpText="Custom hostname for the downloads route."
+              showHelpTextOnError={false}
+              input={getFieldProps('downloadsHostname')}
+              meta={getFieldMeta('downloadsHostname')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="downloadsTlsSecretRef"
+              type="text"
+              label="Downloads TLS secret name"
+              aria-label="Downloads TLS secret name"
+              validate={(value: string) =>
+                validateTlsSecretName(value, {
+                  clusterRoutesHostname: values?.downloadsHostname,
+                  clusterRoutesTlsSecretRef: values?.downloadsTlsSecretRef,
+                })
+              }
+              helpText="Name of a TLS secret in the openshift-config namespace."
+              showHelpTextOnError={false}
+              input={getFieldProps('downloadsTlsSecretRef')}
+              meta={getFieldMeta('downloadsTlsSecretRef')}
+            />
+          </FormGroup>
+        </>
+      )}
+
       {hasSufficientIngressEditVersion && !isHypershiftCluster && (
         <FormGroup
           className={className}
