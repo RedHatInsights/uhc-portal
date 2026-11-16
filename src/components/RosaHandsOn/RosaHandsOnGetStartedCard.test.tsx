@@ -51,6 +51,32 @@ describe('<RosaHandsOnGetStartedCard />', () => {
     expect(slackLink).toHaveAttribute('href', rosaHandsOnLinks.slackChannel);
   });
 
+  it('disables Request experience when the experience is unavailable', () => {
+    render(
+      <RosaHandsOnGetStartedCard
+        demoExperience={createDemoExperience({
+          status: DemoExperienceStatusEnum.Unavailable,
+        })}
+        onRequestCluster={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Request experience' })).toBeDisabled();
+  });
+
+  it('keeps Request experience enabled when the experience failed', () => {
+    render(
+      <RosaHandsOnGetStartedCard
+        demoExperience={createDemoExperience({
+          status: DemoExperienceStatusEnum.Failed,
+        })}
+        onRequestCluster={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Request experience' })).toBeEnabled();
+  });
+
   it('shows the Create a ROSA cluster CTA when quota is exceeded', async () => {
     const { container } = render(
       <RosaHandsOnGetStartedCard

@@ -5,7 +5,7 @@ import { checkAccessibility, render, screen } from '~/testUtils';
 import { AugmentedDemoExperience } from './augmentedModelTypes';
 import { rosaHandsOnLinks, UNAUTHORIZED } from './constants';
 import { DemoExperienceStatusEnum } from './DemoExperienceModels';
-import { StatusAlert } from './RosaHandsOnPageContent';
+import RosaHandsOnPageContent, { StatusAlert } from './RosaHandsOnPageContent';
 
 const createDemoExperience = (
   overrides: Partial<AugmentedDemoExperience> = {},
@@ -16,6 +16,23 @@ const createDemoExperience = (
   },
   status: DemoExperienceStatusEnum.Available,
   ...overrides,
+});
+
+describe('<RosaHandsOnPageContent />', () => {
+  it('shows the request error message when requesting an experience fails', () => {
+    render(
+      <RosaHandsOnPageContent
+        error={null}
+        requestError={new Error('Request failed with status 503')}
+        loading={false}
+        demoExperience={createDemoExperience()}
+        onRequestCluster={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Failed to request an experience')).toBeInTheDocument();
+    expect(screen.getByText('Request failed with status 503')).toBeInTheDocument();
+  });
 });
 
 describe('<StatusAlert />', () => {

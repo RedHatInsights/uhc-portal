@@ -161,7 +161,7 @@ const RosaHandsOnPageContent = ({
           {requestError ? (
             <FlexItem>
               <Alert title="Failed to request an experience" variant="danger" isInline>
-                {getErrorMessage(error)}
+                {getErrorMessage(requestError)}
               </Alert>
             </FlexItem>
           ) : null}
