@@ -5,9 +5,15 @@
 # generates/applies ocm gcp create firewall-rules scripts, and optionally updates
 # playwright.env.json (QE_GCP_WIF_CONFIG*, QE_INFRA_GCP.*FIREWALL_RULES_NAME).
 #
+# WIF display names are seeded from playwright.env.json when CLI flags are omitted
+# (QE_GCP_WIF_CONFIG / _PRIVATE / _SHARED_VPC) so static QE WIFs are reused.
+#
 # Shared VPC firewalls are created in the host project against the existing shared VPC.
 # This script does not grant host-project IAM (Network/Security Admin) for WIF SAs;
 # that must be done by a host-project admin when Shared VPC create fails validation.
+#
+# Cleanup (--cleanup) deletes firewall rule sets and clears FIREWALL_RULES_NAME keys.
+# WIF configs are never deleted (they are scarce and meant to be reused).
 
 set -euo pipefail
 
@@ -38,6 +44,7 @@ CREATE_PRIVATE="${CREATE_PRIVATE:-true}"
 CREATE_SHARED="${CREATE_SHARED:-true}"
 UPDATE_PLAYWRIGHT_ENV="${UPDATE_PLAYWRIGHT_ENV:-true}"
 APPLY_SCRIPTS="${APPLY_SCRIPTS:-true}"
+MODE=""
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -57,6 +64,76 @@ require_cmd() {
   fi
 }
 
+# Read a string key from playwright.env.json (empty if missing/invalid).
+read_env_string() {
+  local jq_path=$1
+  if [[ ! -f "${PLAYWRIGHT_ENV_FILE}" ]]; then
+    return 0
+  fi
+  if ! jq empty "${PLAYWRIGHT_ENV_FILE}" >/dev/null 2>&1; then
+    return 0
+  fi
+  jq -r "${jq_path} // empty" "${PLAYWRIGHT_ENV_FILE}" 2>/dev/null || true
+}
+
+# Prefer CLI WIF names; otherwise reuse static names already in playwright.env.json.
+seed_wif_names_from_env() {
+  if [[ -z "${WIF_PUBLIC}" ]]; then
+    WIF_PUBLIC="$(read_env_string '.QE_GCP_WIF_CONFIG')"
+    [[ -n "${WIF_PUBLIC}" ]] && print_found "Reusing QE_GCP_WIF_CONFIG from playwright.env.json: ${WIF_PUBLIC}"
+  fi
+  if [[ -z "${WIF_PRIVATE}" ]]; then
+    WIF_PRIVATE="$(read_env_string '.QE_GCP_WIF_CONFIG_PRIVATE')"
+    [[ -n "${WIF_PRIVATE}" ]] && print_found "Reusing QE_GCP_WIF_CONFIG_PRIVATE from playwright.env.json: ${WIF_PRIVATE}"
+  fi
+  if [[ -z "${WIF_SHARED}" ]]; then
+    WIF_SHARED="$(read_env_string '.QE_GCP_WIF_CONFIG_SHARED_VPC')"
+    [[ -n "${WIF_SHARED}" ]] && print_found "Reusing QE_GCP_WIF_CONFIG_SHARED_VPC from playwright.env.json: ${WIF_SHARED}"
+  fi
+}
+
+# Create: always PREFIX-public|psc|shared.
+# Cleanup: prefer FIREWALL_RULES_NAME from playwright.env.json, else PREFIX-*.
+seed_firewall_names() {
+  local prefer_env=${1:-false}
+  local env_public env_private env_shared
+
+  FW_NAME_PUBLIC="${FW_PREFIX}-public"
+  FW_NAME_PRIVATE="${FW_PREFIX}-psc"
+  FW_NAME_SHARED="${FW_PREFIX}-shared"
+
+  if [[ "${prefer_env}" != "true" ]]; then
+    return 0
+  fi
+
+  env_public="$(read_env_string '.QE_INFRA_GCP.FIREWALL_RULES_NAME')"
+  env_private="$(read_env_string '.QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME')"
+  env_shared="$(read_env_string '.QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME')"
+
+  [[ -n "${env_public}" ]] && FW_NAME_PUBLIC="${env_public}"
+  [[ -n "${env_private}" ]] && FW_NAME_PRIVATE="${env_private}"
+  [[ -n "${env_shared}" ]] && FW_NAME_SHARED="${env_shared}"
+}
+
+seed_shared_vpc_from_env() {
+  local host vpc
+  host="$(read_env_string '.QE_INFRA_GCP.SHARED_VPC_INFRA.HOST_PROJECT_ID')"
+  vpc="$(read_env_string '.QE_INFRA_GCP.SHARED_VPC_INFRA.VPC_NAME')"
+  if [[ -n "${host}" && "${SHARED_HOST_PROJECT_ID}" == "ocm-ui-dev-shared-vpc" ]]; then
+    SHARED_HOST_PROJECT_ID="${host}"
+  fi
+  if [[ -n "${vpc}" && "${SHARED_VPC_NAME}" == "ocmui-osd-shared-vpc" ]]; then
+    SHARED_VPC_NAME="${vpc}"
+  fi
+}
+
+seed_vpc_from_env() {
+  if [[ -z "${VPC_NAME}" ]]; then
+    VPC_NAME="$(read_env_string '.QE_INFRA_GCP.VPC_NAME')"
+    [[ -n "${VPC_NAME}" ]] && print_found "Reusing QE_INFRA_GCP.VPC_NAME from playwright.env.json: ${VPC_NAME}"
+  fi
+}
+
 check_prereqs() {
   require_cmd ocm
   require_cmd gcloud
@@ -67,50 +144,59 @@ check_prereqs() {
     exit 1
   fi
 
-  if [[ -z "${VPC_NAME}" ]]; then
-    print_error "VPC name is required. Pass --vpc-name NAME (non-PSC / public VPC)."
-    exit 1
-  fi
-
-  if [[ -z "${WIF_PUBLIC}" || -z "${WIF_PRIVATE}" || -z "${WIF_SHARED}" ]]; then
-    print_error "WIF display names are required: --wif-public, --wif-private, --wif-shared"
-    exit 1
-  fi
-
-  if [[ "${FIREWALL_MODE}" != "manual" && "${FIREWALL_MODE}" != "auto" ]]; then
-    print_error "--mode must be manual or auto"
-    exit 1
-  fi
-
-  # --mode auto needs an ocm-cli that advertises it (available in 1.0.17+).
-  if [[ "${FIREWALL_MODE}" == "auto" ]]; then
-    if ! ocm gcp create firewall-rules --help 2>&1 | grep -Eq 'auto \(default\)|^[[:space:]]*auto[[:space:]]'; then
-      print_error "--mode auto requires ocm-cli that supports 'ocm gcp create firewall-rules --mode auto' (1.0.17+). Upgrade ocm-cli or use --mode manual."
+  if [[ "${MODE}" != "cleanup" ]]; then
+    if [[ -z "${VPC_NAME}" ]]; then
+      print_error "VPC name is required. Pass --vpc-name NAME or set QE_INFRA_GCP.VPC_NAME in playwright.env.json."
       exit 1
     fi
-  fi
 
-  print_status "Using GCP project: ${PROJECT_ID}"
-  print_status "Public VPC: ${VPC_NAME}"
-  print_status "PSC VPC: ${PSC_VPC_NAME}"
-  print_status "Shared VPC host: ${SHARED_HOST_PROJECT_ID} / ${SHARED_VPC_NAME}"
+    if [[ -z "${WIF_PUBLIC}" || -z "${WIF_PRIVATE}" || -z "${WIF_SHARED}" ]]; then
+      print_error "WIF display names are required (CLI --wif-* or playwright.env.json QE_GCP_WIF_CONFIG*)."
+      exit 1
+    fi
+
+    if [[ "${FIREWALL_MODE}" != "manual" && "${FIREWALL_MODE}" != "auto" ]]; then
+      print_error "--mode must be manual or auto"
+      exit 1
+    fi
+
+    # --mode auto needs an ocm-cli that advertises it (available in 1.0.17+).
+    if [[ "${FIREWALL_MODE}" == "auto" ]]; then
+      if ! ocm gcp create firewall-rules --help 2>&1 | grep -Eq 'auto \(default\)|^[[:space:]]*auto[[:space:]]'; then
+        print_error "--mode auto requires ocm-cli that supports 'ocm gcp create firewall-rules --mode auto' (1.0.17+). Upgrade ocm-cli or use --mode manual."
+        exit 1
+      fi
+    fi
+
+    print_status "Using GCP project: ${PROJECT_ID}"
+    print_status "Public VPC: ${VPC_NAME}"
+    print_status "PSC VPC: ${PSC_VPC_NAME}"
+    print_status "Shared VPC host: ${SHARED_HOST_PROJECT_ID} / ${SHARED_VPC_NAME}"
+  else
+    print_status "Cleanup mode — project: ${PROJECT_ID}"
+  fi
 }
 
 derive_resource_names() {
   # Match create-gcp-infrastructure.sh: test-vpc -> test-psc-vpc
   # Preserve an exported PSC_VPC_NAME override for the private firewall target.
   if [[ -z "${PSC_VPC_NAME:-}" ]]; then
-    if [[ "${VPC_NAME}" == *-* ]]; then
-      PSC_VPC_NAME="${VPC_NAME%%-*}-psc-${VPC_NAME#*-}"
+    if [[ -n "${VPC_NAME}" ]]; then
+      if [[ "${VPC_NAME}" == *-* ]]; then
+        PSC_VPC_NAME="${VPC_NAME%%-*}-psc-${VPC_NAME#*-}"
+      else
+        PSC_VPC_NAME="${VPC_NAME}-psc"
+      fi
     else
-      PSC_VPC_NAME="${VPC_NAME}-psc"
+      PSC_VPC_NAME="$(read_env_string '.QE_INFRA_GCP.PSC_INFRA.VPC_NAME')"
     fi
   fi
 
-  # Names are always derived from --fw-prefix: <prefix>-public|psc|shared
-  FW_NAME_PUBLIC="${FW_PREFIX}-public"
-  FW_NAME_PRIVATE="${FW_PREFIX}-psc"
-  FW_NAME_SHARED="${FW_PREFIX}-shared"
+  if [[ "${MODE}" == "cleanup" ]]; then
+    seed_firewall_names true
+  else
+    seed_firewall_names false
+  fi
 }
 
 # Returns 0 if a wif-config with this exact display_name exists.
@@ -140,6 +226,33 @@ resolve_wif_id() {
       matched="${id}"
     fi
   done < <(ocm gcp list wif-configs --columns id,display_name --no-headers 2>/dev/null)
+
+  if [[ -z "${matched}" ]]; then
+    return 1
+  fi
+  printf '%s\n' "${matched}"
+}
+
+# Resolve firewall-rules ID from exact display/name column.
+resolve_firewall_id() {
+  local name=$1
+  local line id display
+  local matched=""
+
+  while IFS= read -r line; do
+    [[ -z "${line}" ]] && continue
+    id=$(awk '{print $1}' <<< "${line}")
+    display=$(awk '{print $2}' <<< "${line}")
+    if [[ "${display}" == "${name}" || "${id}" == "${name}" ]]; then
+      if [[ -n "${matched}" && "${matched}" != "${id}" ]]; then
+        print_error "Multiple firewall-rules found matching '${name}'"
+        return 1
+      fi
+      matched="${id}"
+    fi
+  done < <(ocm gcp list firewall-rules --columns id,name --no-headers 2>/dev/null \
+    || ocm gcp list firewall-rules --columns id,display_name --no-headers 2>/dev/null \
+    || true)
 
   if [[ -z "${matched}" ]]; then
     return 1
@@ -220,6 +333,40 @@ create_and_apply_firewall() {
   fi
 }
 
+delete_firewall_by_name() {
+  local fw_name=$1
+  local fw_id script_path
+
+  if [[ -z "${fw_name}" ]]; then
+    return 0
+  fi
+
+  if ! fw_id=$(resolve_firewall_id "${fw_name}"); then
+    print_warning "Firewall rules '${fw_name}' not found; skipping delete"
+    return 0
+  fi
+
+  script_path=$(mktemp "${TMPDIR:-/tmp}/deleteFW-${fw_name}.XXXXXX.sh")
+  print_status "Deleting firewall rules '${fw_name}' (id=${fw_id})..."
+  if ! ocm gcp delete firewall-rules "${fw_id}" --output-file="${script_path}"; then
+    rm -f "${script_path}"
+    print_error "Failed to generate delete script for firewall '${fw_name}'"
+    exit 1
+  fi
+  chmod +x "${script_path}"
+  if [[ "${APPLY_SCRIPTS}" == "true" ]]; then
+    if ! bash -euo pipefail "${script_path}"; then
+      rm -f "${script_path}"
+      print_error "Firewall delete script failed for '${fw_name}'"
+      exit 1
+    fi
+    rm -f "${script_path}"
+    print_status "Deleted firewall rules '${fw_name}'"
+  else
+    print_warning "Skipping apply (--skip-apply). Delete script left at: ${script_path}"
+  fi
+}
+
 replace_file_from_stdout() {
   local dest=$1
   shift
@@ -289,6 +436,35 @@ update_playwright_env() {
   print_status "Updated ${PLAYWRIGHT_ENV_FILE}"
 }
 
+clear_firewall_names_from_env() {
+  if [[ "${UPDATE_PLAYWRIGHT_ENV}" != "true" ]]; then
+    print_warning "Skipping playwright.env.json FIREWALL_RULES_NAME clear (--skip-env-update)"
+    return 0
+  fi
+  if [[ ! -f "${PLAYWRIGHT_ENV_FILE}" ]]; then
+    return 0
+  fi
+  if ! jq empty "${PLAYWRIGHT_ENV_FILE}" >/dev/null 2>&1; then
+    print_warning "Could not parse ${PLAYWRIGHT_ENV_FILE}; skip FIREWALL_RULES_NAME clear"
+    return 0
+  fi
+
+  cp "${PLAYWRIGHT_ENV_FILE}" "${PLAYWRIGHT_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+  print_status "Clearing FIREWALL_RULES_NAME keys from ${PLAYWRIGHT_ENV_FILE} (WIF keys left intact)"
+  if ! replace_file_from_stdout "${PLAYWRIGHT_ENV_FILE}" \
+    jq '
+      if .QE_INFRA_GCP then
+        del(.QE_INFRA_GCP.FIREWALL_RULES_NAME)
+        | if .QE_INFRA_GCP.PSC_INFRA then del(.QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME) else . end
+        | if .QE_INFRA_GCP.SHARED_VPC_INFRA then del(.QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME) else . end
+      else .
+      end
+    ' "${PLAYWRIGHT_ENV_FILE}"; then
+    print_error "Failed to clear FIREWALL_RULES_NAME from ${PLAYWRIGHT_ENV_FILE}"
+    exit 1
+  fi
+}
+
 print_summary() {
   cat <<EOF
 
@@ -320,41 +496,52 @@ Ensure WIF configs exist and create BYO firewall rule sets for OSD GCP E2E:
   - Private / PSC (--profile=private on PSC VPC)
   - Shared VPC (host project + existing shared VPC)
 
+WIF names: CLI --wif-* wins; otherwise reuse QE_GCP_WIF_CONFIG* from playwright.env.json.
+Create names firewalls as PREFIX-public|psc|shared. Cleanup prefers env FIREWALL_RULES_NAME.
+
 Configuration (CLI or env):
   --project PROJECT_ID            Service / WIF GCP project (default: gcloud config project)
-  --vpc-name NAME                 Non-PSC (public) VPC name (required)
+  --vpc-name NAME                 Non-PSC (public) VPC name (or QE_INFRA_GCP.VPC_NAME)
                                   PSC VPC is derived like create-gcp-infrastructure.sh
                                   (test-vpc -> test-psc-vpc) unless PSC_VPC_NAME is set
   --machine-cidr CIDR             Machine CIDR (default: 10.0.0.0/16)
-  --wif-public NAME               Public WIF display name (required)
-  --wif-private NAME              Private/PSC WIF display name (required)
-  --wif-shared NAME               Shared VPC WIF display name (required)
+  --wif-public NAME               Public WIF display name (or QE_GCP_WIF_CONFIG)
+  --wif-private NAME              Private/PSC WIF display name (or QE_GCP_WIF_CONFIG_PRIVATE)
+  --wif-shared NAME               Shared VPC WIF display name (or QE_GCP_WIF_CONFIG_SHARED_VPC)
   --fw-prefix PREFIX              Firewall name prefix (default: test-firewall)
                                   Creates: PREFIX-public, PREFIX-psc, PREFIX-shared
-  --shared-host-project ID        Shared VPC host project (default: ocm-ui-dev-shared-vpc)
-  --shared-vpc-name NAME          Shared VPC name (default: ocmui-osd-shared-vpc)
+                                  Cleanup prefers env FIREWALL_RULES_NAME when set
+  --shared-host-project ID        Shared VPC host project (default: ocm-ui-dev-shared-vpc or env)
+  --shared-vpc-name NAME          Shared VPC name (default: ocmui-osd-shared-vpc or env)
   --mode manual|auto              Firewall create mode (default: manual)
                                   auto requires ocm-cli 1.0.17+ (firewall-rules --mode auto)
   --update-wif                    Run ocm gcp update wif-config when WIF already exists
-  --skip-public                   Do not create public firewall rules
-  --skip-private                  Do not create private/PSC firewall rules
-  --skip-shared                   Do not create Shared VPC firewall rules
+  --skip-public                   Do not create/delete public firewall rules
+  --skip-private                  Do not create/delete private/PSC firewall rules
+  --skip-shared                   Do not create/delete Shared VPC firewall rules
   --skip-apply                    In manual mode, generate scripts but do not run them
   --skip-env-update               Do not update playwright.env.json
+  --cleanup                       Delete firewall rule sets and clear FIREWALL_RULES_NAME
+                                  (does not delete WIF configs)
   --help                          Show this help
 
 Examples:
+  # Reuse WIF names already in playwright.env.json
+  $0 --project ocm-ui-dev --vpc-name test-vpc --fw-prefix test-firewall
+
   $0 --project ocm-ui-dev --vpc-name test-vpc \\
      --wif-public test-wif-1 --wif-private test-wif-1-private --wif-shared test-wif-1-shared-vpc \\
      --fw-prefix test-firewall
 
-  $0 --project ocm-ui-dev --vpc-name test-vpc \\
-     --wif-public test-wif-1 --wif-private test-wif-1-private --wif-shared test-wif-1-shared-vpc \\
-     --fw-prefix test-firewall --mode auto --skip-shared
+  $0 --cleanup --fw-prefix test-firewall
+  $0 --cleanup   # uses FIREWALL_RULES_NAME values from playwright.env.json when present
 EOF
 }
 
 main() {
+  seed_wif_names_from_env
+  seed_vpc_from_env
+  seed_shared_vpc_from_env
   derive_resource_names
   check_prereqs
 
@@ -388,6 +575,34 @@ main() {
 
   update_playwright_env
   print_summary
+}
+
+cleanup_firewall_rules() {
+  seed_vpc_from_env
+  seed_shared_vpc_from_env
+  derive_resource_names
+  check_prereqs
+
+  print_warning "Deleting BYO firewall rule sets (WIF configs are left in place)."
+
+  if [[ "${CREATE_PUBLIC}" == "true" ]]; then
+    delete_firewall_by_name "${FW_NAME_PUBLIC}"
+  else
+    print_warning "Skipping public firewall delete (--skip-public)"
+  fi
+  if [[ "${CREATE_PRIVATE}" == "true" ]]; then
+    delete_firewall_by_name "${FW_NAME_PRIVATE}"
+  else
+    print_warning "Skipping private/PSC firewall delete (--skip-private)"
+  fi
+  if [[ "${CREATE_SHARED}" == "true" ]]; then
+    delete_firewall_by_name "${FW_NAME_SHARED}"
+  else
+    print_warning "Skipping Shared VPC firewall delete (--skip-shared)"
+  fi
+
+  clear_firewall_names_from_env
+  print_status "Firewall cleanup completed"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -456,6 +671,10 @@ while [[ $# -gt 0 ]]; do
       UPDATE_PLAYWRIGHT_ENV="false"
       shift
       ;;
+    --cleanup)
+      MODE="cleanup"
+      shift
+      ;;
     --help|-h)
       show_usage
       exit 0
@@ -468,4 +687,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-main
+case "${MODE}" in
+  cleanup) cleanup_firewall_rules ;;
+  *)       main ;;
+esac
