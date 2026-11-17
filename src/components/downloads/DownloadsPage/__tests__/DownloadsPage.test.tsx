@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 import accountsService from '~/services/accountsService';
 import { checkAccessibility, mockRestrictedEnv, render, screen, waitFor } from '~/testUtils';
 
@@ -80,17 +80,17 @@ describe('<DownloadsPage>', () => {
           capabilities: [
             {
               inherited: false,
-              name: subscriptionCapabilities.ENABLE_DATA_SOVEREIGN_REGIONS,
+              name: organizationCapabilities.HIBERNATE_CLUSTER,
               value: 'true',
             },
             {
               inherited: false,
-              name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
+              name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS,
               value: 'true',
             },
             {
               inherited: false,
-              name: subscriptionCapabilities.SUBSCRIBED_OCP,
+              name: clusterCapabilities.SUBSCRIBED_OCP,
               value: 'true',
             },
           ],

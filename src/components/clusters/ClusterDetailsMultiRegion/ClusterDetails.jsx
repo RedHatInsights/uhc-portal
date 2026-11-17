@@ -67,7 +67,6 @@ import {
   isAssistedInstallCluster,
   isUninstalledAICluster,
 } from '../../../common/isAssistedInstallerCluster';
-import { hasCapability, subscriptionCapabilities } from '../../../common/subscriptionCapabilities';
 import { userActions } from '../../../redux/actions';
 import { getUserAccess } from '../../../redux/actions/costActions';
 import { clearGlobalError, setGlobalError } from '../../../redux/actions/globalErrorActions';
@@ -377,8 +376,7 @@ const ClusterDetails = (props) => {
     'getAddHostsTabState',
   );
 
-  // organization.details is required by canCreateGCPNonCCSCluster below
-  // and must be loaded so the Networking tab displays properly
+  // organization.details is required by ClusterDetailsTop below
   if (isClusterDetailsLoading || (!organization.fulfilled && !error && !isError)) {
     return (
       <AppPage title={PAGE_TITLE}>
@@ -437,11 +435,6 @@ const ClusterDetails = (props) => {
   const isClusterReady = cluster.state === clusterStates.ready;
   const isClusterUpdating = cluster.state === clusterStates.updating;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const canCreateGCPNonCCSCluster = hasCapability(
-    organization.details,
-    subscriptionCapabilities.CREATE_GCP_NON_CCS_CLUSTER,
-  );
   const displayAddOnsTab =
     !isClusterInstalling &&
     !isClusterPending &&

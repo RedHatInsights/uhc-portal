@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { organizationCapabilities } from '~/common/capabilities';
 import { CLI_SSO_AUTHORIZATION } from '~/queries/featureGates/featureConstants';
 import accountsService from '~/services/accountsService';
 import { mockRestrictedEnv, mockUseChrome, mockUseFeatureGate, render, screen } from '~/testUtils';
@@ -18,7 +18,7 @@ describe('<StepCreateAWSAccountRoles />', () => {
         organization: {
           capabilities: [
             {
-              name: subscriptionCapabilities.RESTRICT_OFFLINE_TOKENS,
+              name: organizationCapabilities.RESTRICT_OFFLINE_TOKENS,
               value: 'false',
             },
           ],

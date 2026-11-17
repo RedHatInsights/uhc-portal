@@ -2,14 +2,15 @@ import { GlobalState } from '~/redux/stateTypes';
 import { ClusterFromSubscription, ClusterWithPermissions } from '~/types/types';
 
 import {
-  hasCapability,
-  subscriptionCapabilities,
-} from '../../../../../common/subscriptionCapabilities';
+  clusterCapabilities,
+  hasCapabilityValue,
+  haveCapabilities,
+} from '../../../../../common/capabilities';
 
 const canTransferClusterOwnershipSelector = (state: GlobalState) =>
-  hasCapability(
-    state.clusters?.details?.cluster?.subscription,
-    subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
+  hasCapabilityValue(
+    state.clusters?.details?.cluster?.subscription?.capabilities,
+    clusterCapabilities.RELEASE_OCP_CLUSTERS,
   );
 
 /**
@@ -18,19 +19,10 @@ const canTransferClusterOwnershipSelector = (state: GlobalState) =>
  * @returns list of capabbilities
  */
 const canTransferClusterOwnershipMultiRegion = (cluster: ClusterFromSubscription) =>
-  hasCapability(cluster?.subscription, subscriptionCapabilities.RELEASE_OCP_CLUSTERS);
+  hasCapabilityValue(cluster?.subscription?.capabilities, clusterCapabilities.RELEASE_OCP_CLUSTERS);
 
 const canTransferClusterOwnershipListFromClusters = (clusters: ClusterWithPermissions[] = []) =>
-  clusters.reduce(
-    (acc, cluster) => ({
-      ...acc,
-      [`${cluster.id}`]: hasCapability(
-        cluster.subscription,
-        subscriptionCapabilities.RELEASE_OCP_CLUSTERS,
-      ),
-    }),
-    {},
-  );
+  haveCapabilities(clusters, clusterCapabilities.RELEASE_OCP_CLUSTERS);
 
 export {
   canTransferClusterOwnershipMultiRegion,
