@@ -200,4 +200,44 @@ describe('<ApplicationIngressCard /> – HCP component routes', () => {
     expect(screen.queryByText('Hostname')).not.toBeInTheDocument();
     expect(screen.queryByText('TLS Secret name')).not.toBeInTheDocument();
   });
+
+  it('renders empty HCP component route fields when not configured', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={[
+          {
+            default: true,
+            dns_name: 'apps.hcp.example.com',
+            id: 'ingress-1',
+            kind: 'Ingress',
+            listening: 'external',
+          },
+        ]}
+        provider="aws"
+      />,
+    );
+
+    expect(document.getElementById('consoleHostname')).toHaveValue('');
+    expect(document.getElementById('consoleTlsSecretRef')).toHaveValue('');
+    expect(document.getElementById('downloadsHostname')).toHaveValue('');
+    expect(document.getElementById('downloadsTlsSecretRef')).toHaveValue('');
+  });
+
+  it('enables Edit application ingress for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Edit application ingress' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+  });
 });

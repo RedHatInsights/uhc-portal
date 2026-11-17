@@ -141,4 +141,76 @@ describe('DefaultIngressFieldsFormik – HCP component routes', () => {
       screen.queryByRole('textbox', { name: 'Downloads TLS secret name' }),
     ).not.toBeInTheDocument();
   });
+
+  it('shows pair validation when only Console hostname is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Console hostname' }),
+      'console.example.com',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Console TLS secret name is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Console TLS secret name' }),
+      'console-tls',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Downloads hostname is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Downloads hostname' }),
+      'downloads.example.com',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Downloads TLS secret name is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Downloads TLS secret name' }),
+      'downloads-tls',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
 });
