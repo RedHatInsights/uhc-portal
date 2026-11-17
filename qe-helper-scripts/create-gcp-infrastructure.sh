@@ -5,12 +5,17 @@
 #          Cloud KMS key ring + crypto key + KMS service account (optional)
 # Default region: asia-south2; KMS key ring location follows that region unless overridden
 # Optionally updates playwright.env.json (QE_INFRA_GCP, PSC_INFRA, QE_GCP_KEY_*)
+#
+# Optional --with-firewall orchestrates create-wif-and-firewall-rules.sh after VPC/KMS
+# (keeps WIF/FW logic in a separate script). Infra --cleanup also deletes FW rules when
+# FIREWALL_RULES_NAME keys are present in playwright.env.json.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PLAYWRIGHT_ENV_FILE="$REPO_ROOT/playwright.env.json"
+WIF_FIREWALL_SCRIPT="${SCRIPT_DIR}/create-wif-and-firewall-rules.sh"
 
 # Configuration (override via CLI flags or env vars)
 PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
@@ -35,6 +40,20 @@ CREATE_CLOUD_NAT="${CREATE_CLOUD_NAT:-true}"
 CREATE_PSC="${CREATE_PSC:-true}"
 CREATE_KMS="${CREATE_KMS:-true}"
 UPDATE_PLAYWRIGHT_ENV="${UPDATE_PLAYWRIGHT_ENV:-true}"
+
+# Optional BYO firewall orchestration (create-wif-and-firewall-rules.sh)
+WITH_FIREWALL="${WITH_FIREWALL:-false}"
+WIF_PUBLIC="${WIF_PUBLIC:-}"
+WIF_PRIVATE="${WIF_PRIVATE:-}"
+WIF_SHARED="${WIF_SHARED:-}"
+FW_PREFIX="${FW_PREFIX:-test-firewall}"
+FIREWALL_MODE="${FIREWALL_MODE:-manual}"
+UPDATE_WIF="${UPDATE_WIF:-false}"
+FW_SKIP_PUBLIC="${FW_SKIP_PUBLIC:-false}"
+FW_SKIP_PRIVATE="${FW_SKIP_PRIVATE:-false}"
+FW_SKIP_SHARED="${FW_SKIP_SHARED:-false}"
+SHARED_HOST_PROJECT_ID="${SHARED_HOST_PROJECT_ID:-}"
+SHARED_VPC_NAME_FLAG="${SHARED_VPC_NAME_FLAG:-}"
 
 # Cloud KMS names follow VPC_NAME unless set explicitly (default VPC: playwright-osd).
 # Key ring location follows REGION unless --key-ring-location is set.
@@ -893,6 +912,198 @@ cleanup_cloud_nat() {
   fi
 }
 
+# Match a full resource URL basename against VPC_NAME.
+network_url_matches_vpc() {
+  local network_url=$1
+  [[ "${network_url##*/}" == "${VPC_NAME}" ]]
+}
+
+# OSD installs leave VMs / IGs / forwarding rules that block subnet delete.
+cleanup_forwarding_rules_for_vpc() {
+  local name region network_url
+  while IFS=$'\t' read -r name region network_url; do
+    [[ -z "${name}" ]] && continue
+    if ! network_url_matches_vpc "${network_url}"; then
+      continue
+    fi
+    print_status "Deleting forwarding rule '${name}' (region=${region:-global})..."
+    if [[ -n "${region}" && "${region}" != "None" ]]; then
+      gcloud compute forwarding-rules delete "${name}" \
+        --project="${PROJECT_ID}" \
+        --region="${region}" \
+        --quiet
+    else
+      gcloud compute forwarding-rules delete "${name}" \
+        --project="${PROJECT_ID}" \
+        --global \
+        --quiet
+    fi
+  done < <(
+    gcloud compute forwarding-rules list \
+      --project="${PROJECT_ID}" \
+      --format='value(name,region.basename(),network)' 2>/dev/null || true
+  )
+}
+
+cleanup_instances_for_vpc() {
+  # Snapshot the instance list once, then batch-delete per zone in parallel.
+  # Scoped to this VPC only (leftover OSD masters/infra/workers that block subnet delete).
+  local name zone network_url
+  local -A zone_instances=()
+  local -a zones=()
+  local count=0
+  local z
+
+  while IFS=$'\t' read -r name zone network_url; do
+    [[ -z "${name}" || -z "${zone}" ]] && continue
+    if ! network_url_matches_vpc "${network_url}"; then
+      continue
+    fi
+    if [[ -z "${zone_instances[$zone]+x}" ]]; then
+      zones+=("${zone}")
+      zone_instances[$zone]="${name}"
+    else
+      zone_instances[$zone]="${zone_instances[$zone]} ${name}"
+    fi
+    count=$((count + 1))
+  done < <(
+    gcloud compute instances list \
+      --project="${PROJECT_ID}" \
+      --filter="networkInterfaces.network~/.*/${VPC_NAME}$" \
+      --format='value(name,zone,networkInterfaces[0].network)' 2>/dev/null || true
+  )
+
+  if [[ "${count}" -eq 0 ]]; then
+    print_status "No instances found on VPC '${VPC_NAME}'"
+    return 0
+  fi
+
+  print_status "Deleting ${count} instance(s) on VPC '${VPC_NAME}' (batched per zone, parallel)..."
+  for z in "${zones[@]}"; do
+    # shellcheck disable=SC2086
+    (
+      # Word-split intentional: names are space-separated instance names for this zone.
+      set -- ${zone_instances[$z]}
+      print_status "  zone ${z}: deleting $# instance(s): $*"
+      gcloud compute instances delete "$@" \
+        --project="${PROJECT_ID}" \
+        --zone="${z}" \
+        --delete-disks=all \
+        --quiet
+    ) &
+  done
+  wait
+  print_status "Finished deleting instances on VPC '${VPC_NAME}'"
+}
+
+cleanup_instance_groups_for_vpc() {
+  local name location network_url
+  # Unmanaged zonal IGs left by OpenShift (masters / k8s-ig-*).
+  while IFS=$'\t' read -r name location network_url; do
+    [[ -z "${name}" || -z "${location}" ]] && continue
+    if ! network_url_matches_vpc "${network_url}"; then
+      continue
+    fi
+    print_status "Deleting instance group '${name}' (zone=${location})..."
+    gcloud compute instance-groups unmanaged delete "${name}" \
+      --project="${PROJECT_ID}" \
+      --zone="${location}" \
+      --quiet 2>/dev/null \
+      || gcloud compute instance-groups delete "${name}" \
+        --project="${PROJECT_ID}" \
+        --zone="${location}" \
+        --quiet 2>/dev/null \
+      || print_warning "Could not delete instance group '${name}' in ${location}"
+  done < <(
+    gcloud compute instance-groups list \
+      --project="${PROJECT_ID}" \
+      --format='value(name,zone.basename(),network)' 2>/dev/null || true
+  )
+}
+
+cleanup_firewall_rules_for_vpc() {
+  local name network_url
+  while IFS=$'\t' read -r name network_url; do
+    [[ -z "${name}" ]] && continue
+    if ! network_url_matches_vpc "${network_url}"; then
+      continue
+    fi
+    print_status "Deleting VPC firewall rule '${name}'..."
+    gcloud compute firewall-rules delete "${name}" \
+      --project="${PROJECT_ID}" \
+      --quiet
+  done < <(
+    gcloud compute firewall-rules list \
+      --project="${PROJECT_ID}" \
+      --format='value(name,network)' 2>/dev/null || true
+  )
+}
+
+cleanup_addresses_for_vpc() {
+  # Internal/API addresses often linger after forwarding-rule delete.
+  local name region status users
+  while IFS=$'\t' read -r name region status users; do
+    [[ -z "${name}" || -z "${region}" ]] && continue
+    # Only delete unused addresses whose name looks cluster-related or was freed.
+    if [[ "${status}" != "RESERVED" ]]; then
+      continue
+    fi
+    if [[ -n "${users}" && "${users}" != "None" ]]; then
+      continue
+    fi
+    print_status "Deleting unused address '${name}' (region=${region})..."
+    gcloud compute addresses delete "${name}" \
+      --project="${PROJECT_ID}" \
+      --region="${region}" \
+      --quiet || print_warning "Could not delete address '${name}'"
+  done < <(
+    gcloud compute addresses list \
+      --project="${PROJECT_ID}" \
+      --filter="region:(${REGION})" \
+      --format='value(name,region.basename(),status,users.list())' 2>/dev/null || true
+  )
+}
+
+# PSC producer subnets cannot be deleted while a Service Attachment still
+# references them as NAT subnets (left behind by OSD PSC cluster installs).
+cleanup_service_attachments_for_subnet() {
+  local subnet=$1
+  local sa_name nat_urls
+  local subnet_suffix="/regions/${REGION}/subnetworks/${subnet}"
+
+  [[ -z "${subnet}" ]] && return 0
+
+  while IFS=$'\t' read -r sa_name nat_urls; do
+    [[ -z "${sa_name}" ]] && continue
+    if [[ "${nat_urls}" != *"${subnet_suffix}"* ]]; then
+      continue
+    fi
+    print_status "Deleting Service Attachment '${sa_name}' (attached to PSC subnet '${subnet}')..."
+    gcloud compute service-attachments delete "${sa_name}" \
+      --project="${PROJECT_ID}" \
+      --region="${REGION}" \
+      --quiet
+  done < <(
+    gcloud compute service-attachments list \
+      --project="${PROJECT_ID}" \
+      --regions="${REGION}" \
+      --format='value(name,natSubnets.list())' 2>/dev/null || true
+  )
+}
+
+# Tear down OSD leftovers that hold VPC subnets before subnet/VPC delete.
+cleanup_vpc_dependents() {
+  print_status "Cleaning compute dependents for VPC '${VPC_NAME}'..."
+  cleanup_forwarding_rules_for_vpc
+  cleanup_instances_for_vpc
+  cleanup_instance_groups_for_vpc
+  cleanup_firewall_rules_for_vpc
+  if [[ -n "${PSC_SUBNET}" ]]; then
+    cleanup_service_attachments_for_subnet "${PSC_SUBNET}"
+  fi
+  cleanup_addresses_for_vpc
+}
+
 cleanup_subnets() {
   local subnet attrs network
   for subnet in "${PSC_SUBNET}" "${COMPUTE_SUBNET}" "${CONTROLPLANE_SUBNET}"; do
@@ -904,6 +1115,10 @@ cleanup_subnets() {
     if [[ "${network}" != "${VPC_NAME}" ]]; then
       print_warning "Subnet '${subnet}' belongs to VPC '${network:-unknown}', not '${VPC_NAME}'; leaving it in place"
       continue
+    fi
+    # Only the PRIVATE_SERVICE_CONNECT subnet is used by Service Attachments.
+    if [[ "${subnet}" == "${PSC_SUBNET}" ]]; then
+      cleanup_service_attachments_for_subnet "${subnet}"
     fi
     print_status "Deleting subnet '${subnet}'..."
     gcloud compute networks subnets delete "${subnet}" \
@@ -966,6 +1181,7 @@ cleanup_named_vpc() {
   PSC_SUBNET=$6
 
   if network_exists; then
+    cleanup_vpc_dependents
     cleanup_cloud_nat
     cleanup_subnets
     cleanup_vpc
@@ -981,13 +1197,70 @@ cleanup_named_vpc() {
   PSC_SUBNET="${saved_psc}"
 }
 
+# True when playwright.env.json has any nested FIREWALL_RULES_NAME.
+has_firewall_names_in_env() {
+  if [[ ! -f "${PLAYWRIGHT_ENV_FILE}" ]]; then
+    return 1
+  fi
+  if ! jq empty "${PLAYWRIGHT_ENV_FILE}" >/dev/null 2>&1; then
+    return 1
+  fi
+  local found
+  found=$(jq -r '
+    [
+      (.QE_INFRA_GCP.FIREWALL_RULES_NAME // ""),
+      (.QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME // ""),
+      (.QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME // "")
+    ] | map(select(length > 0)) | length
+  ' "${PLAYWRIGHT_ENV_FILE}" 2>/dev/null || echo 0)
+  [[ "${found}" != "0" ]]
+}
+
+run_wif_firewall_helper() {
+  local action=${1:-create}
+  local -a args
+
+  if [[ ! -f "${WIF_FIREWALL_SCRIPT}" ]]; then
+    print_error "WIF/firewall helper not found: ${WIF_FIREWALL_SCRIPT}"
+    exit 1
+  fi
+
+  args=(--project "${PROJECT_ID}" --fw-prefix "${FW_PREFIX}")
+  if [[ "${action}" == "cleanup" ]]; then
+    args+=(--cleanup)
+  else
+    args+=(--vpc-name "${NON_PSC_VPC_NAME}" --machine-cidr "${MACHINE_CIDR}" --mode "${FIREWALL_MODE}")
+  fi
+
+  [[ -n "${WIF_PUBLIC}" ]] && args+=(--wif-public "${WIF_PUBLIC}")
+  [[ -n "${WIF_PRIVATE}" ]] && args+=(--wif-private "${WIF_PRIVATE}")
+  [[ -n "${WIF_SHARED}" ]] && args+=(--wif-shared "${WIF_SHARED}")
+  [[ -n "${SHARED_HOST_PROJECT_ID}" ]] && args+=(--shared-host-project "${SHARED_HOST_PROJECT_ID}")
+  [[ -n "${SHARED_VPC_NAME_FLAG}" ]] && args+=(--shared-vpc-name "${SHARED_VPC_NAME_FLAG}")
+  [[ "${UPDATE_WIF}" == "true" && "${action}" != "cleanup" ]] && args+=(--update-wif)
+  [[ "${FW_SKIP_PUBLIC}" == "true" ]] && args+=(--skip-public)
+  [[ "${FW_SKIP_PRIVATE}" == "true" ]] && args+=(--skip-private)
+  [[ "${FW_SKIP_SHARED}" == "true" ]] && args+=(--skip-shared)
+  [[ "${UPDATE_PLAYWRIGHT_ENV}" != "true" ]] && args+=(--skip-env-update)
+
+  print_status "Running ${WIF_FIREWALL_SCRIPT} (${action})..."
+  bash "${WIF_FIREWALL_SCRIPT}" "${args[@]}"
+}
+
 cleanup_infrastructure() {
   local targets="'${NON_PSC_VPC_NAME}'"
   if [[ "${CREATE_PSC}" == "true" ]]; then
     targets="'${NON_PSC_VPC_NAME}' and PSC VPC '${PSC_VPC_NAME}'"
   fi
-  print_warning "This will DELETE VPC ${targets} (and related subnets/NAT) in ${REGION} (${PROJECT_ID}). KMS keys and QE_GCP_KEY_* values are left in place."
+  print_warning "This will DELETE VPC ${targets} (and related VMs/IGs/forwarding rules/subnets/NAT/Service Attachments) in ${REGION} (${PROJECT_ID}). KMS keys and QE_GCP_KEY_* values are left in place."
   check_prereqs
+
+  # Delete BYO firewall rules before tearing down VPCs they reference.
+  if has_firewall_names_in_env || [[ "${WITH_FIREWALL}" == "true" ]]; then
+    run_wif_firewall_helper cleanup
+  else
+    print_status "No FIREWALL_RULES_NAME keys in playwright.env.json; skipping firewall cleanup"
+  fi
 
   if [[ "${CREATE_PSC}" == "true" ]]; then
     cleanup_named_vpc "${PSC_VPC_NAME}" "${ROUTER_NAME}" "${NAT_NAME}" \
@@ -1020,6 +1293,9 @@ main() {
   if validate_resources; then
     print_summary
     update_playwright_env
+    if [[ "${WITH_FIREWALL}" == "true" ]]; then
+      run_wif_firewall_helper create
+    fi
   else
     print_error "Validation failed"
     exit 1
@@ -1049,6 +1325,7 @@ Creates:
   - PSC VPC (default: playwright-psc-osd) with control plane, compute, and PSC subnets
   - Cloud Router + Cloud NAT on each VPC (outbound internet; recommended for OSD)
   - Cloud KMS key ring + crypto key + service account (for OSD custom encryption; default on)
+  - Optional (--with-firewall): WIF configs + BYO firewall rule sets via create-wif-and-firewall-rules.sh
 
 Configuration (CLI or env):
   --project PROJECT_ID          GCP project (default: gcloud config project)
@@ -1071,15 +1348,31 @@ Configuration (CLI or env):
   --kms-service-account EMAIL   Use existing SA email (do not create another account)
   --skip-env-update             Do not update playwright.env.json
 
+BYO firewall (optional; runs create-wif-and-firewall-rules.sh):
+  --with-firewall               After VPC/KMS, ensure WIFs + create public/PSC/shared FW
+  --wif-public NAME             Public WIF (or reuse QE_GCP_WIF_CONFIG from env)
+  --wif-private NAME            Private WIF (or reuse QE_GCP_WIF_CONFIG_PRIVATE)
+  --wif-shared NAME             Shared VPC WIF (or reuse QE_GCP_WIF_CONFIG_SHARED_VPC)
+  --fw-prefix PREFIX            Firewall name prefix (default: test-firewall)
+  --firewall-mode manual|auto   Firewall create mode (default: manual)
+  --update-wif                  Update existing WIF configs before creating FW
+  --skip-fw-public              Skip public firewall create/cleanup
+  --skip-fw-private             Skip private/PSC firewall create/cleanup
+  --skip-fw-shared              Skip Shared VPC firewall create/cleanup
+  --shared-host-project ID      Shared VPC host project for FW helper
+  --shared-vpc-name NAME        Shared VPC name for FW helper
+
 Modes:
   --validate-only               Validate existing resources only
-  --cleanup                     Delete created resources (DESTRUCTIVE)
+  --cleanup                     Delete VPC/NAT and BYO firewall rules when present (DESTRUCTIVE)
   --help                        Show this help
 
 Examples:
   $0 --project my-gcp-project
   $0 --project my-gcp-project --vpc-name jaya-osd-psc-vpc
   $0 --project my-gcp-project --psc false
+  $0 --project my-gcp-project --vpc-name test-vpc --region us-west1 --with-firewall \\
+     --wif-public test-wif-1 --wif-private test-wif-1-private --wif-shared test-wif-1-shared-vpc
   $0 --project my-gcp-project --validate-only
   $0 --project my-gcp-project --vpc-name jaya-osd-psc-vpc --cleanup
 EOF
@@ -1169,6 +1462,54 @@ while [[ $# -gt 0 ]]; do
     --skip-env-update)
       UPDATE_PLAYWRIGHT_ENV="false"
       shift
+      ;;
+    --with-firewall)
+      WITH_FIREWALL="true"
+      shift
+      ;;
+    --wif-public)
+      WIF_PUBLIC="$2"
+      shift 2
+      ;;
+    --wif-private)
+      WIF_PRIVATE="$2"
+      shift 2
+      ;;
+    --wif-shared)
+      WIF_SHARED="$2"
+      shift 2
+      ;;
+    --fw-prefix)
+      FW_PREFIX="$2"
+      shift 2
+      ;;
+    --firewall-mode)
+      FIREWALL_MODE="$2"
+      shift 2
+      ;;
+    --update-wif)
+      UPDATE_WIF="true"
+      shift
+      ;;
+    --skip-fw-public)
+      FW_SKIP_PUBLIC="true"
+      shift
+      ;;
+    --skip-fw-private)
+      FW_SKIP_PRIVATE="true"
+      shift
+      ;;
+    --skip-fw-shared)
+      FW_SKIP_SHARED="true"
+      shift
+      ;;
+    --shared-host-project)
+      SHARED_HOST_PROJECT_ID="$2"
+      shift 2
+      ;;
+    --shared-vpc-name)
+      SHARED_VPC_NAME_FLAG="$2"
+      shift 2
       ;;
     --validate-only)
       MODE="validate"
