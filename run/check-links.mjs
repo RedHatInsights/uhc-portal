@@ -23,6 +23,16 @@ import {
   getDownloadContacts,
   updateSlackChannels,
 } from '../src/common/downloadContacts.mjs';
+import {
+  countKnownFalsePositives,
+  errorMarker,
+  formatSummaryStatusLine,
+  getActionableErrorCount,
+  getKnownFalsePositiveNote,
+  getKnownFalsePositiveNoteForBrokenLink,
+  isRedirectTestError,
+  STATUS_MARKER,
+} from '../src/common/knownFalsePositives.mjs';
 import { parseSlackSelection } from '../src/common/parseSlackSelection.mjs';
 import { getAllExternalLinks } from '../src/common/urlUtils.mjs';
 
@@ -49,10 +59,6 @@ const COLOR = {
   YELLOW: '\x1b[33m',
   RESET: '\x1b[0m',
 };
-const STATUS_MARKER = {
-  knownFalsePositive: '🟡',
-  actionable: '🔴',
-};
 
 // Rate-limiting configuration
 const MAX_CONCURRENT_GLOBAL = 15;
@@ -61,50 +67,6 @@ const MAX_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1500;
 const RETRYABLE_STATUSES = new Set([403, 429, 503]);
 const INTER_REQUEST_DELAY_MS = 200;
-
-/**
- * Known URL patterns that produce expected (non-actionable) errors.
- * Each entry maps a regex to a short explanation shown in the output.
- */
-const KNOWN_FALSE_POSITIVES = [
-  {
-    pattern: /join\.slack\.com\/.*shared_invite/,
-    reason: 'Slack invite links block programmatic access (expected 403)',
-  },
-  {
-    pattern: /console\.cloud\.google\.com/,
-    reason: 'Google Cloud Console returns oversized headers that exceed node-fetch limits',
-  },
-];
-
-/**
- * Returns a contextual note if a URL matches a known false-positive pattern.
- * @param {string} url - The URL to check
- * @returns {string|null} Explanation string or null
- */
-function getKnownFalsePositiveNote(url) {
-  const match = KNOWN_FALSE_POSITIVES.find(({ pattern }) => pattern.test(url));
-  return match ? match.reason : null;
-}
-
-/**
- * Classifies a broken result using the URL that matches KNOWN_FALSE_POSITIVES
- * (redirect destination when present, original URL otherwise).
- * @param {string} url - Original URL
- * @param {string} [redirectUrl] - Redirect destination, if it is a redirect failure
- * @returns {string|null} Explanation string or null
- */
-function getKnownFalsePositiveNoteForBrokenLink(url, redirectUrl) {
-  return (redirectUrl && getKnownFalsePositiveNote(redirectUrl)) || getKnownFalsePositiveNote(url);
-}
-
-/**
- * @param {string|null} note - Known false positive reason
- * @returns {string} 🟡 for known false positives, 🔴 for actionable errors
- */
-function errorMarker(note) {
-  return note ? STATUS_MARKER.knownFalsePositive : STATUS_MARKER.actionable;
-}
 
 // ======================================================================
 // CONCURRENCY CONTROL
@@ -938,45 +900,6 @@ function formatPlainCount(count) {
 }
 
 /**
- * @param {Object} item - Redirect test result
- * @returns {boolean} Whether the redirect destination failed
- */
-function isRedirectTestError(item) {
-  return Boolean(
-    item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300)),
-  );
-}
-
-/**
- * Counts broken results whose URL matches KNOWN_FALSE_POSITIVES.
- * Redirect failures are classified using the matching URL.
- * @param {Object} categories - Categorized results
- * @param {Array} testedRedirects - Redirect test results
- * @returns {number}
- */
-function countKnownFalsePositives(categories, testedRedirects) {
-  const { clientErrors, serverErrors, errors } = categories;
-  let count = 0;
-
-  [...clientErrors, ...serverErrors, ...errors].forEach(({ url }) => {
-    if (getKnownFalsePositiveNote(url)) {
-      count += 1;
-    }
-  });
-
-  testedRedirects.forEach((item) => {
-    if (
-      isRedirectTestError(item) &&
-      getKnownFalsePositiveNoteForBrokenLink(item.originalUrl, item.redirectUrl)
-    ) {
-      count += 1;
-    }
-  });
-
-  return count;
-}
-
-/**
  * Prefixes a broken-link entry with 🟡/🔴 and appends the false positive reason when present.
  * @param {'simple'|'redirect'} kind
  * @param {string[]} lines - Body lines; first line is the URL (no indent)
@@ -1104,10 +1027,8 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
   const totalErrors =
     redirectErrorCount + clientErrors.length + serverErrors.length + errors.length;
   const knownFalsePositives = countKnownFalsePositives(categories, testedRedirects);
-  const actionableErrors = totalErrors - knownFalsePositives;
-  const statusCounts = `(${knownFalsePositives} known false positives ${STATUS_MARKER.knownFalsePositive}, ${actionableErrors} actionable ${STATUS_MARKER.actionable})`;
-  const statusLine =
-    actionableErrors > 0 ? `👎 Issues found ${statusCounts}` : `👍 All clear ${statusCounts}`;
+  const actionableErrors = getActionableErrorCount(totalErrors, knownFalsePositives);
+  const statusLine = formatSummaryStatusLine(knownFalsePositives, actionableErrors);
 
   const lines = [
     statusLine,
