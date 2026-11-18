@@ -51,6 +51,7 @@ export const HCP_SPOT_INSTANCES = 'ocmui-hcp-spot-instance-support';
 export const OCP5_SUPPORT = 'ocmui-ocp5-support';
 export const ROVS_REGISTRATION = 'ocmui-rovs-registration';
 export const HCP_OVN_IP4_SUBNETS = 'ocmui-hcp-ovn-ip4-subnets';
+export const HCP_CUSTOM_COMPONENT_ROUTES = 'ocmui-hcp-custom-component-routes';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -90,4 +91,5 @@ export default {
   OCP5_SUPPORT,
   ROVS_REGISTRATION,
   HCP_OVN_IP4_SUBNETS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
 } as const;

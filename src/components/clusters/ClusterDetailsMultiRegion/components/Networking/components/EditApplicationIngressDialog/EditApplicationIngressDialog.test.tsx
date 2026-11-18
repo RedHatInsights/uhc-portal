@@ -4,7 +4,8 @@ import * as reactRedux from 'react-redux';
 
 import modals from '~/components/common/Modal/modals';
 import * as useEditClusterIngressModule from '~/queries/ClusterDetailsQueries/NetworkingTab/useEditClusterIngress';
-import { screen, withState } from '~/testUtils';
+import { HCP_CUSTOM_COMPONENT_ROUTES } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate, screen, withState } from '~/testUtils';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 
 import EditApplicationIngressDialog from './EditApplicationIngressDialog';
@@ -64,6 +65,7 @@ describe('<EditApplicationIngressDialog />', () => {
 
   beforeEach(() => {
     useDispatchMock.mockReturnValue(mockedDispatch);
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
     mockedUseEditClusterIngressMutation.mockReturnValue({
       isPending: false,
       isSuccess: false,
@@ -185,5 +187,22 @@ describe('<EditApplicationIngressDialog />', () => {
       }),
       expect.any(Object),
     );
+  });
+
+  it('does not submit HCP component route fields when feature gate is off', async () => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+    const { user } = withState(defaultReduxState).render(
+      <EditApplicationIngressDialog {...defaultProps} isHypershiftCluster />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Make dirty' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const [{ formData }] = mutate.mock.calls[0];
+    expect(formData).not.toHaveProperty('consoleHostname');
+    expect(formData).not.toHaveProperty('consoleTlsSecretRef');
+    expect(formData).not.toHaveProperty('downloadsHostname');
+    expect(formData).not.toHaveProperty('downloadsTlsSecretRef');
   });
 });

@@ -2,7 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { getRandomID } from '~/common/helpers';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { DefaultIngressFieldsFormik } from './DefaultIngressFieldsFormik';
@@ -114,6 +117,10 @@ describe('DefaultIngressFieldsFormik – HCP component routes', () => {
     downloadsTlsSecretRef: '',
   };
 
+  beforeEach(() => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
+  });
+
   it('renders Console and Downloads hostname/TLS fields for Hypershift day-2', async () => {
     render(
       <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
@@ -133,6 +140,21 @@ describe('DefaultIngressFieldsFormik – HCP component routes', () => {
     render(
       <Formik initialValues={defaultFormikValues} onSubmit={() => {}}>
         <DefaultIngressFieldsFormik isDay2 hasSufficientIngressEditVersion />
+      </Formik>,
+    );
+
+    expect(screen.queryByRole('textbox', { name: 'Console hostname' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Downloads TLS secret name' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields when feature gate is off', () => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+    render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
       </Formik>,
     );
 
