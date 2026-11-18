@@ -51,9 +51,8 @@ const errorMarker = (note) => (note ? STATUS_MARKER.knownFalsePositive : STATUS_
  * @param {number} knownFalsePositives
  * @returns {number}
  */
-const getActionableErrorCount = (totalErrors, knownFalsePositives) => {
-  return totalErrors - knownFalsePositives;
-};
+const getActionableErrorCount = (totalErrors, knownFalsePositives) =>
+  totalErrors - knownFalsePositives;
 
 /**
  * @param {number} knownFalsePositives
