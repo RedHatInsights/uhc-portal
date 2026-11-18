@@ -42,7 +42,10 @@ import {
   ReduxCheckbox,
   ReduxVerticalFormGroup,
 } from '~/components/common/ReduxFormComponents_deprecated';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 
@@ -76,8 +79,11 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
     getFieldMeta, // Access: error, touched for a <Field>, useful for mapping to a field
   } = useFormState();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
   const isGCP = provider === CloudProviderType.Gcp;
   const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
+  const canShowHcpComponentRoutes =
+    isDay2 && isHypershiftCluster && isHcpCustomComponentRoutesEnabled;
 
   return (
     <>
@@ -220,7 +226,7 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
         </>
       )}
 
-      {isDay2 && isHypershiftCluster && (
+      {canShowHcpComponentRoutes && (
         <>
           <FormGroup className={className}>
             <Field

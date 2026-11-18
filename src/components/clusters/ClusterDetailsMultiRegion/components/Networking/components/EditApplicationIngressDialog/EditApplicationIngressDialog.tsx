@@ -22,6 +22,8 @@ import modals from '~/components/common/Modal/modals';
 import shouldShowModal from '~/components/common/Modal/ModalSelectors';
 import useAnalytics from '~/hooks/useAnalytics';
 import { useEditClusterIngressMutation } from '~/queries/ClusterDetailsQueries/NetworkingTab/useEditClusterIngress';
+import { HCP_CUSTOM_COMPONENT_ROUTES } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 import { ErrorState } from '~/types/types';
@@ -64,6 +66,7 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
   } = useEditClusterIngressMutation(clusterID, region);
   const dispatch = useDispatch();
   const track = useAnalytics();
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
   const isOpen = useGlobalState((state) => shouldShowModal(state, modals.EDIT_APPLICATION_INGRESS));
 
   if (!isOpen) {
@@ -104,14 +107,15 @@ const EditApplicationIngressDialog: React.FC<EditApplicationIngressDialogProps> 
       }
     : undefined;
 
-  const componentRouteProps = isHypershiftCluster
-    ? {
-        consoleHostname: clusterRouters.default?.consoleHostname || '',
-        consoleTlsSecretRef: clusterRouters.default?.consoleTlsSecretRef || '',
-        downloadsHostname: clusterRouters.default?.downloadsHostname || '',
-        downloadsTlsSecretRef: clusterRouters.default?.downloadsTlsSecretRef || '',
-      }
-    : undefined;
+  const componentRouteProps =
+    isHypershiftCluster && isHcpCustomComponentRoutesEnabled
+      ? {
+          consoleHostname: clusterRouters.default?.consoleHostname || '',
+          consoleTlsSecretRef: clusterRouters.default?.consoleTlsSecretRef || '',
+          downloadsHostname: clusterRouters.default?.downloadsHostname || '',
+          downloadsTlsSecretRef: clusterRouters.default?.downloadsTlsSecretRef || '',
+        }
+      : undefined;
 
   return (
     <Formik

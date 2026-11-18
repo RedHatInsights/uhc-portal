@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { mockUseChrome, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { Ingress } from '~/types/clusters_mgmt.v1';
 import { ClusterWithPermissions } from '~/types/types';
@@ -139,6 +142,10 @@ describe('<ApplicationIngressCard /> – HCP component routes', () => {
     cloud_provider: { id: 'aws' },
   };
 
+  beforeEach(() => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
+  });
+
   const hcpRouters: Ingress[] = [
     {
       default: true,
@@ -181,6 +188,22 @@ describe('<ApplicationIngressCard /> – HCP component routes', () => {
 
   it('does not render HCP component route fields for Classic', () => {
     render(<ApplicationIngressCard {...defaultProps} />);
+
+    expect(screen.queryByText('Console hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('Downloads TLS secret name')).not.toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields when feature gate is off', () => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
 
     expect(screen.queryByText('Console hostname')).not.toBeInTheDocument();
     expect(screen.queryByText('Downloads TLS secret name')).not.toBeInTheDocument();
