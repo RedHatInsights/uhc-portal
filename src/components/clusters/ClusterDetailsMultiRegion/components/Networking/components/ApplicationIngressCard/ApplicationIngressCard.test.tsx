@@ -19,7 +19,7 @@ const baseCluster: ClusterWithPermissions = {
   openshift_version: '4.13.4',
   cloud_provider: { id: 'gcp' },
   console: { url: 'consoleURL' },
-  canEdit: true,
+  canUpdateSubscription: true,
   status: { configuration_mode: 'full' },
   aws: { sts: { enabled: false } },
   state: 'ready',

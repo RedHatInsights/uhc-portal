@@ -111,7 +111,7 @@ const UsersSection = (props) => {
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
   const canNotEditReason =
-    !cluster.canEdit &&
+    !cluster.canUpdateSubscription &&
     'You do not have permission to add a user. Only cluster owners, cluster editors, and Organization Administrators can add users.';
   const disableReason = readOnlyReason || hibernatingReason || canNotEditReason;
 

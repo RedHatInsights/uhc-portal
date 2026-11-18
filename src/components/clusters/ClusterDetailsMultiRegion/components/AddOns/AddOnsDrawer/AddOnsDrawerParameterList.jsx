@@ -47,7 +47,7 @@ function AddOnsParameterList(props) {
             aria-label="edit configuration"
             ouiaId={`update-addon-${activeCardID}`}
             variant="link"
-            isDisabled={!cluster.canEdit}
+            isDisabled={!cluster.canUpdateSubscription}
             icon={<PencilAltIcon className="ocm-addons-tab--configuration-title-icon" />}
             onClick={() =>
               dispatch(

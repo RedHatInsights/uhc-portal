@@ -94,7 +94,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
   const dispatch = useDispatch();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
 
-  const { canEdit } = cluster;
+  const { canUpdateSubscription } = cluster;
   const isHypershift = isHypershiftCluster(cluster);
   const isGCP = provider === CloudProviderType.Gcp;
   const isAWS = provider === CloudProviderType.Aws;
@@ -125,7 +125,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
   const isNLB = loadBalancer === LoadBalancerFlavor.nlb;
 
   const disableEditReason = resolveDisableEditReason({
-    canEdit: !!canEdit,
+    canEdit: !!canUpdateSubscription,
     isReadOnly,
     clusterHibernating,
     hasSufficientIngressEditVersion,

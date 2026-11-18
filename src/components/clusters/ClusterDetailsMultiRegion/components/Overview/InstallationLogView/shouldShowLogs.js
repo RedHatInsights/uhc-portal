@@ -2,7 +2,7 @@ import clusterStates from '../../../../common/clusterStates';
 
 const shouldShowLogs = (cluster) =>
   cluster.managed &&
-  cluster.canEdit &&
+  cluster.canUpdateSubscription &&
   (cluster.state === clusterStates.waiting ||
     cluster.state === clusterStates.pending ||
     cluster.state === clusterStates.installing ||

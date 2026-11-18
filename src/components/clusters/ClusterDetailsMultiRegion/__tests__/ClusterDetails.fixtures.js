@@ -420,7 +420,7 @@ const clusterDetails = {
       cloud_provider_id: 'aws',
       region_id: 'us-east-1',
     },
-    canEdit: true,
+    canUpdateSubscription: true,
     idpActions: {
       get: false,
       list: false,
@@ -532,7 +532,7 @@ const RHMIClusterDetails = produce(CCSClusterDetails, (draft) => {
 
 const AIClusterDetails = produce(CCSClusterDetails, (draft) => {
   draft.cluster.aiCluster = { id: clusterDetails.cluster.id };
-  draft.cluster.canEdit = false;
+  draft.cluster.canUpdateSubscription = false;
   draft.cluster.subscription.plan = {
     id: normalizedProducts.OCP_AssistedInstall,
     type: normalizedProducts.OCP,
@@ -699,7 +699,7 @@ const OCPClusterDetails = {
       id: 'openshift-v4.0-latest',
       href: '/api/clusters_mgmt/v1/versions/openshift-v4.0-latest',
     },
-    canEdit: true,
+    canUpdateSubscription: true,
     canDelete: true,
     subscription: {
       id: '1msoogsgTLQ4PePjrTOt3UqvMzX',
@@ -851,7 +851,7 @@ const AROClusterDetails = {
       id: 'openshift-v4.0-latest',
       href: '/api/clusters_mgmt/v1/versions/openshift-v4.0-latest',
     },
-    canEdit: true,
+    canUpdateSubscription: true,
     canDelete: true,
     subscription: {
       id: '1msoogsgTLQ4PePjrTOt3UqvMzX',

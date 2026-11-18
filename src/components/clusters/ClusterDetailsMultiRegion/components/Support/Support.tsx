@@ -44,7 +44,7 @@ const Support = ({
           </div>
           {!isDisabled && (
             <AddNotificationContactButton
-              canEdit={cluster.canEdit}
+              canEdit={cluster.canUpdateSubscription}
               openModal={(modalId) => dispatch(openModal(modalId))}
             />
           )}
@@ -54,7 +54,7 @@ const Support = ({
               isAddNotificationContactPending={isAddNotificationContactSuccess}
               isAddNotificationContactSuccess={isAddNotificationContactPending}
               subscriptionID={cluster.subscription?.id}
-              isDisabled={!cluster.canEdit || isDisabled}
+              isDisabled={!cluster.canUpdateSubscription || isDisabled}
             />
           ) : null}
         </CardBody>

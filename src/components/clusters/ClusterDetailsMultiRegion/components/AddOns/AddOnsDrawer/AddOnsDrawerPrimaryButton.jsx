@@ -71,7 +71,7 @@ function AddOnsPrimaryButton(props) {
   };
 
   const canNotEditReason =
-    !cluster.canEdit &&
+    !cluster.canUpdateSubscription &&
     'You do not have permission to install add ons. Only cluster owners, cluster editors, and Organization Administrators can install add ons.';
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
   const readOnlyReason = isReadOnly && 'This operation is not available during maintenance';

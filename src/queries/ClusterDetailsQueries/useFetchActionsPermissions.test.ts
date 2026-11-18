@@ -38,7 +38,7 @@ describe('useGetInflightChecks hook', () => {
     await waitFor(() => {
       expect(result.current.isActionQueriesLoading).toBe(false);
     });
-    expect(result.current.canEdit).toBe(true);
+    expect(result.current.canUpdateSubscription).toBe(true);
     expect(result.current.canEditClusterAutoscaler).toBe(true);
     expect(result.current.canEditOCMRoles).toBe(true);
     expect(result.current.canViewOCMRoles).toBe(true);

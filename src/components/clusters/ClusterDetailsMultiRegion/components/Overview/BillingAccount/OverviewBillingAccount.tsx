@@ -27,9 +27,10 @@ export function OverviewBillingAccount() {
 
   const hasFeatureGate = useFeatureGate(EDIT_BILLING_ACCOUNT);
   const isHypershift = isHypershiftCluster(cluster);
-  const showEditableBillingAccount = cluster?.canEdit && hasFeatureGate && isHypershift;
+  const showEditableBillingAccount =
+    cluster?.canUpdateSubscription && hasFeatureGate && isHypershift;
   const disableChangeReason =
-    !cluster?.canEdit && 'You do not have permission to change billing account.';
+    !cluster?.canUpdateSubscription && 'You do not have permission to change billing account.';
   const billingAccount =
     cluster?.aws?.billing_account_id || cluster?.subscription?.billing_marketplace_account || '';
 

@@ -42,7 +42,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
     isActionQueriesLoading,
     isError: isActionsError,
     error: actionsError,
-    canEdit,
+    canUpdateSubscription,
     canEditClusterAutoscaler,
     canEditOCMRoles,
     canViewOCMRoles,
@@ -179,7 +179,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
       cluster.data.upgradeGates = clusterUpgradeGatesResponse?.data.items || [];
       cluster.data.limitedSupportReasons = limitedSupportReasonsResponse?.data.items || [];
       cluster.data.inflight_checks = inflightChecksResponse?.data.items || [];
-      cluster.data.canEdit = canEdit;
+      cluster.data.canUpdateSubscription = canUpdateSubscription;
       cluster.data.canEditOCMRoles = canEditOCMRoles;
       cluster.data.canViewOCMRoles = canViewOCMRoles;
       cluster.data.canUpdateClusterResource = canUpdateClusterResource;
@@ -201,7 +201,7 @@ export const useFetchClusterDetails = (subscriptionID: string) => {
 
     if (aiClusterResponse) {
       const aiCluster = { ...aiClusterResponse };
-      aiCluster.canEdit = canEdit;
+      aiCluster.canUpdateSubscription = canUpdateSubscription;
       aiCluster.canEditOCMRoles = canEditOCMRoles;
       aiCluster.canViewOCMRoles = canViewOCMRoles;
       aiCluster.canDelete = false; // OCP clusters can't be deleted

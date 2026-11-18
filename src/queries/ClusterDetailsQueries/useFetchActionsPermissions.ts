@@ -70,12 +70,12 @@ export const useFetchActionsPermissions = (
           SelfAccessReviewResourceType.Subscription,
         ],
         queryFn: async () => {
-          const canEdit = fetchPermissions({
+          const canUpdateSubscription = fetchPermissions({
             action: SelfAccessReviewAction.update,
             resource_type: SelfAccessReviewResourceType.Subscription,
             subscription_id: subscriptionID,
           });
-          return canEdit;
+          return canUpdateSubscription;
         },
         enabled: subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned,
       },
@@ -218,7 +218,7 @@ export const useFetchActionsPermissions = (
     // silently assign the wrong permission to the wrong variable.
     combine: useCallback((results: UseQueryResult[]) => {
       const [
-        canEdit,
+        canUpdateSubscription,
         canEditClusterAutoscaler,
         canEditOCMRoles,
         canViewOCMRoles,
@@ -234,7 +234,7 @@ export const useFetchActionsPermissions = (
         error: results.map((result: UseQueryResult) => result.error),
         isFetching: results.some((result: UseQueryResult) => result.isFetching),
         data: {
-          canEdit,
+          canUpdateSubscription,
           canEditClusterAutoscaler,
           canEditOCMRoles,
           canViewOCMRoles,
@@ -252,7 +252,7 @@ export const useFetchActionsPermissions = (
     isError,
     isFetching,
     error,
-    canEdit: !!data?.canEdit.data,
+    canUpdateSubscription: !!data?.canUpdateSubscription.data,
     canEditClusterAutoscaler: !!data?.canEditClusterAutoscaler.data,
     canEditOCMRoles: !!data?.canEditOCMRoles.data,
     canViewOCMRoles: !!data?.canViewOCMRoles.data,

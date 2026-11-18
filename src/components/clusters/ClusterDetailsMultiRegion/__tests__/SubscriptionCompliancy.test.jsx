@@ -27,7 +27,7 @@ describe('<SubscriptionCompliancy />', () => {
   });
 
   it('should warn during evaluation period', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.capabilities = [
       {
@@ -50,7 +50,7 @@ describe('<SubscriptionCompliancy />', () => {
   });
 
   it('should warn during evaluation period without an ability to edit', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.capabilities = [
       {
@@ -59,7 +59,7 @@ describe('<SubscriptionCompliancy />', () => {
         inherited: true,
       },
     ];
-    cluster.canEdit = false;
+    cluster.canUpdateSubscription = false;
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Warning alert:')).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('<SubscriptionCompliancy />', () => {
   });
 
   it('should show the support deadline when eval_expiration_date is present', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.eval_expiration_date = '2020-08-15T12:00:00Z';
     cluster.subscription.capabilities = [
@@ -94,7 +94,7 @@ describe('<SubscriptionCompliancy />', () => {
   });
 
   it('should not show Invalid Date when eval_expiration_date is missing', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.Eval;
     cluster.subscription.eval_expiration_date = undefined;
     cluster.subscription.capabilities = [
@@ -114,7 +114,7 @@ describe('<SubscriptionCompliancy />', () => {
   });
 
   it('should warn when evaluation is expired', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.None;
     cluster.subscription.capabilities = [];
     const newProps = { ...props, cluster };
@@ -130,10 +130,10 @@ describe('<SubscriptionCompliancy />', () => {
     await checkAccessibility(container);
   });
   it('should warn when evaluation is expired without an ability to edit', async () => {
-    const cluster = { ...OCPClusterDetails.cluster, canEdit: true };
+    const cluster = { ...OCPClusterDetails.cluster, canUpdateSubscription: true };
     cluster.subscription[SUPPORT_LEVEL] = SubscriptionCommonFieldsSupportLevel.None;
     cluster.subscription.capabilities = [];
-    cluster.canEdit = false;
+    cluster.canUpdateSubscription = false;
     const newProps = { ...props, cluster };
     const { container } = render(<SubscriptionCompliancy {...newProps} />);
     expect(screen.getByText('Danger alert:')).toBeInTheDocument();

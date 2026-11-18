@@ -120,7 +120,7 @@ const createMockCluster = (overrides = {}) => ({
   name: 'test-cluster',
   state: 'ready',
   status: { configuration_mode: 'full' },
-  canEdit: true,
+  canUpdateSubscription: true,
   canUpdateClusterResource: true,
   subscription: {
     id: 'test-subscription-id',

@@ -71,7 +71,7 @@ const mockCluster: AugmentedCluster = {
   name: 'my-cluster',
   state: 'ready',
   status: { configuration_mode: 'full' },
-  canEdit: true,
+  canUpdateSubscription: true,
   canUpdateClusterResource: true,
   subscription: {
     rh_region_id: 'us-east-1',
