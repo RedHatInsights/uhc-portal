@@ -137,7 +137,7 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
     canEdit: !!canEdit,
     isReadOnly,
     clusterHibernating,
-    hasSufficientIngressEditVersion: hasSufficientIngressEditVersion || isHypershift,
+    hasSufficientIngressEditVersion,
     canEditLoadBalancer,
   });
 
