@@ -1,12 +1,17 @@
-# DDR Template
+# OCMUI Design Document Template
 
-Replace the guidance text in each section with content for the feature. For any bullet where no supporting data is available from Jira tickets, backend DDRs, or PRDs, write "N/A" rather than speculating.
+Replace guidance with feature content. Where Jira / PRD / ADR data is missing, write
+`N/A` rather than speculating.
+
+**Draft-only note:** Working drafts may include an **Open Issues** section (from codebase
+/ source discrepancies). Resolve or move those before treating the DDR as review-ready.
+The official How guidance still says to avoid leaving open questions in a final DDR.
 
 ---
 
-## OCMUI DDR XXXX: \<Feature Title\>
+## OCMUI DDR \<KEY\>: \<Feature Title\>
 
-### *\<One-sentence summary, e.g., "How we propose to expose AutoNode configuration in console.redhat.com"\>*
+### *\<One-sentence summary, e.g., "How we would like to propose and agree on designs"\>*
 
 | Field | Value |
 | :--- | :--- |
@@ -22,100 +27,192 @@ Replace the guidance text in each section with content for the feature. For any 
 | **Other docs** | \<links\> |
 | **Slack Channel** (optional) | \<#channel\> |
 
+## Prerequisites (Before you start a DDR — omit from final published draft)
+
+Treat LLMs as a refinement tool, not an author. You own the content, structure, and
+accuracy of the DDR.
+
+**When writing**
+
+- Use an LLM to help refine, clarify, reorganize, or provide a final review of your DDR.
+- Do not let an LLM write the document end-to-end.
+- Keep only LLM output that is clear, accurate, and useful. Discard anything that is
+  sloppy, repetitive, padded, or confusing.
+- Keep DDRs concise and slop-free so reviewers can focus on the decision, not the prose.
+
+**When reviewing**
+
+- Immediately reject any DDR (or refinement) that reads as LLM-generated slop—filler,
+  repetition, vague abstractions, or unnecessary detail.
+
 ## What
 
-<!-- GUIDANCE: The "What" introduces the feature and scope. Structure as:
-1. Feature explanation (1-2 sentences) — what it is in domain terms
-2. UI scope — specific deliverables (dropdowns, toggles, tabs) and which areas are touched
-3. Pattern/CRUD model (if applicable) — e.g., "CLI creates, UI selects"
-Keep to 1-2 paragraphs. Do NOT include business justification (Why) or implementation details (How). -->
+<!-- GUIDANCE: Feature framing only (1–2 short paragraphs).
+Do NOT list “Primary UI use cases” here — put console scenarios in User Stories.
+Do NOT put “UI scope” / wizard-step inventories here (that is How).
+Do NOT put Why justification or API/implementation detail here. -->
 
-A short summary of what decision this document is reaching and what components it touches.
+Short summary of what decision this document is reaching and what capability it
+introduces for console users.
+
+\<Link to a document about how to review a DDR\>
+
+*Example: This design doc is proposing an implementation for BYO OIDC in ROSA.*
 
 ## User Stories
 
-Describe user stories for this change from the perspective of OCM UI end-users.
+<!-- GUIDANCE: This is the single place for console scenarios (formerly “use cases”).
+Prefer one persona group unless sources name others — do not invent roles. Avoid
+repeating “As a cluster administrator” on every line; heading once, then bullets. -->
 
-User stories provide context but do not replace business requirements. Business context belongs in the XCMSTRAT; architecture decisions belong in ADRs.
+Describe user stories for this change from Managed OpenShift / UI console personas.
 
-Keep user stories concise. If multiple stories share the same persona, state the persona once and use a grouped format:
+User stories provide context but do not replace business requirements (XCMSTRAT) or
+SD-wide architecture (ADRs).
+
+Keep concise. If multiple stories share a persona, state the persona once and group:
 
 *Example:*
-- *As a ROSA HCP cluster administrator using console.redhat.com, I want to:*
-  - *\<action 1\> so that \<outcome 1\>.*
-  - *\<action 2\> so that \<outcome 2\>.*
+- *As a ROSA HCP cluster admin using console.redhat.com, I want to:*
+  - *manage the existing htpasswd IDP so I can change users without recreating it.*
+  - *switch release channel to EUS so I stay compliant and still get critical updates.*
 
 ## Why
 
-<!-- GUIDANCE: Frame as customer outcomes, not technical explanations.
-Use only sub-headings where data exists. Write "N/A" for bullets with no supporting data. -->
+<!-- GUIDANCE: Concise. Do not restate What or User Stories. Render as a markdown
+table. Official guideline rows first; Pain points / demand LAST (extra context,
+not a classic template sub-heading). N/A when empty; do not pad. -->
 
-Why this feature is relevant for customers using the UI.
+Why this feature matters for customers using the UI, without repeating What / User
+Stories.
 
-Consider:
-- **Feature origin** — customer request (which/how many?), internal need, or catching up with OpenShift
-- **Reasoning** — how does this help the product? Frame as outcomes: "To make it easier for customers to..."
-- **Usage data** — do we have numbers? Related feature data?
-- **Competitor analysis** — do competitors offer this?
-- **Feature availability** — why should this live in the UI? Does it exist in other consoles?
+| Guideline | Content |
+| :--- | :--- |
+| **Feature origin** | Who asked? (customer / internal / catching up with OpenShift) |
+| **Reasoning** | How this helps the product (outcomes, not mechanisms) |
+| **Feature usage** | Numbers/data if any; else N/A |
+| **Competitor analysis** | If known; else N/A |
+| **Feature availability** | Why it belongs in the UI |
+| **Pain points / demand** | *(last)* What is hard today; what drove the request |
 
-For any bullet where no supporting data is available from Jira tickets, backend DDRs, or PRDs, write "N/A" rather than speculating.
+Provide only information collected from these questions. Do not copy/paste or link
+raw conversations inside this document.
 
 ## How
 
-<!-- GUIDANCE: This is the full technical proposal. Sub-sections:
-- Technical Background (optional) — explain backend mechanisms in plain language
-- UI specifics — components, display conditions, Day 1/Day 2, validation, error handling
-- API usage — endpoints, request/response shapes, filtering params (code snippets OK here)
-- Tracking — Segment/Amplitude telemetry plan
-Must pass the "Author Vacation Test." -->
+<!-- GUIDANCE: Proposal for reviewers — UI behavior + API contract.
+Day 1/Day 2 surfaces and control behavior live HERE (not in What as “UI scope”).
+DO NOT include file/path tables, component inventories, or story-level
+implementation detail (that belongs in Jira implementation stories).
+DO include ### API usage with one clearly separated block per API/operation.
+Each block: (1) short example call (method, path, key JSON fields), then
+(2) brief when/why/errors — not a wall of text; not a full OpenAPI dump.
+DO NOT put Tracking here — Tracking is the following top-level section only. -->
 
 Full overview of the proposed solution.
 
 Guidelines:
+
 - Concise and concrete; avoid opinions where possible
-- Impact on existing codebase — significant refactoring needed?
-- Impact on existing UX — significant changes needed?
+- Impact on existing UX — significant changes needed? (behavioral, not file lists)
 - Required roles/permissions
-- Error handling approach
-- API support and potential gaps
-- Testing strategy
-- FedRAMP impact and rollout plan (independent vs. synchronized release)
-- May include: diagrams, API specs, pseudo-code
-- Avoid: copy/pasted Slack/email/Jira conversations, open questions, unclear or contradicting solutions
+- **API usage (required)** — one subsection per API/operation the UI uses. For
+  each: example request first, then a short paragraph (when used, fields, errors /
+  gaps). Visually separate APIs. No full schema dump; no code-path tables.
+  Example shape:
 
-The DDR must pass the **"Author Vacation Test"** — any engineer with equivalent skill but no context must have enough information to implement the design by reading this document alone.
+  ### API usage
 
-Wireframes or lo-fi mockups are helpful to outline the design (what information is displayed and where). If UXD team involvement is required, state that here — wireframes are then not needed. Hi-fi mockups should be avoided at this stage.
+  #### Cluster create (`POST …/clusters`)
+  ```http
+  POST /api/clusters_mgmt/v1/clusters
+  { "nodes": { "compute": 0 } }
+  ```
+  When the user chooses fixed size 0 on eligible HCP create… (1 short paragraph)
 
-Wireframes should be hosted externally (e.g., as HTML files in `/mockups`) and linked here, not embedded directly.
+  #### Node pool update (`PATCH …/node_pools/{id}`)
+  ```http
+  PATCH /api/clusters_mgmt/v1/clusters/{id}/node_pools/{pool_id}
+  { "replicas": 0 }
+  ```
+  Day-2 scale-to-zero… (1 short paragraph)
+- Error handling (prefer surfacing API/CS errors when they own validation)
+- Testing approach (high level)
+- FedRAMP impact and rollout (independent vs synchronized release)
+- May include: diagrams; short API field/endpoint callouts
+- Avoid: copy/pasted Slack/email/Jira; unclear solutions; React/TS file maps;
+  “code touchpoints” tables
 
-### Tracking
+Ultimately, DDRs must pass the **"Author Vacation Test"** for **design and API
+contract** — implementers still break work into Jira stories for code-level detail.
 
-Metrics to track as part of this feature. We use Segment → Amplitude for feature usage tracking. Segment data is mandatory for all new features.
+If UXD involvement is required, state that in How. Do **not** add a standalone
+**Mockups** section — link mockups from **References** (first bullet) when available.
+
+## Tracking
+
+<!-- GUIDANCE: Only appearance of Tracking in the DDR. Do not also add ### Tracking
+under How. -->
+
+Metrics for this feature. Segment → Amplitude for usage tracking and telemetry.
+Segment data is **mandatory** for all new features and part of feature development.
 
 ## References
 
+<!-- GUIDANCE: Only materials NOT already in the header table (Other docs, OCM
+Epic(s), Governing STRAT(s)/ADR(s), etc.). Never link local draft_ddr_dir paths
+(refinement notes, local markdown) — the published DDR is a Google Doc. -->
+
+Related materials **not** already listed in the header, for example:
+
+- Link to Mockup if available *(first bullet when mockups exist)*
 - Follow-up Jira tickets
 - Impacted Jira tickets
-- Related design documents
-- External documentation
+- Related design documents (if not in Other docs)
+- External documentation providing context
 - Test plans
 
 ## Alternatives
 
-Potential alternative approaches investigated during design. Explain why the proposed solution in "How" is preferred over each alternative. Include the impact of not doing this work.
+Optional. Alternatives investigated during design. Defend why **How** is preferred.
+Explain impact of not doing the work / not taking the decision, if needed.
+
+## Open Issues
+
+<!-- DRAFT USE: Carry Phase 3 “discrepancies worth flagging” and other unresolved
+source conflicts here. Each item: what / why it matters for UI / proposed next step
+or owner. Resolve before review; use N/A if none remain. -->
+
+Unresolved items that block or shape the UI decision (API gaps, product-scope
+conflicts, parity questions with CLI/other clients, missing requirements).
 
 ## Acceptance Criteria
 
-Required only if the DDR affects more than one domain (OCM, HCC, ACM, etc.). List the domain areas and required acceptance from each domain owner.
+Required only if the DDR affects more than one domain (OCM, HCC, ACM, etc.). List
+domains and required acceptance from each domain owner. Sponsor may also list
+required actions, dependent designs, or groups to inform.
+
+Skip if only one domain is affected.
 
 ## Reviews
+
+As author, first assign **OCMUI Junior Staff** for review, then one person from
+**OCMUI Senior Staff** and one from any team member in the reviewer table, and
+`@` them so they are notified. Also post a Slack message to the reviewer list in
+the team channel.
+
+Anybody may review and provide feedback. Acceptance and rejection are reserved for
+stakeholders in Acceptance Criteria.
 
 | Reviewed by | Date | Notes |
 | :--- | :--- | :--- |
 | | | |
 
 **Review SLA:**
-- The DDR author assigns a comment to area owners, triggering a **72-hour SLA**. Re-reviews reset the SLA.
-- If the SLA is breached, the author escalates to management.
+
+- The DDR author assigns a comment to the appropriate area owners that triggers the
+  **72-hour SLA**. Re-reviews reset the SLA.
+- If the SLA is breached, the author escalates to management so the review is
+  prioritised.
+
+**Guidelines:** Multiple reviews from the same person go in different rows.
