@@ -1,6 +1,5 @@
 {
   "ClusterName": "ocmui-pw-osd-sharedvpc-fw-wif-gcp",
-  "DomainPrefix": "plyautos",
   "Type": "OSD",
   "CloudProvider": "Google Cloud",
   "SubscriptionType": "On-Demand: Flexible usage billed through Google Cloud Marketplace",
