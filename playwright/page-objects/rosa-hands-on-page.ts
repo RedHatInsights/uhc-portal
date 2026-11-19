@@ -249,8 +249,12 @@ export class RosaHandsOnPage extends BasePage {
     await this.page.unroute(DEMO_EXPERIENCE_ROUTE);
   }
 
-  async expectRequestExperienceFailureAlert(): Promise<void> {
+  async expectRequestExperienceFailureAlert(status = 503): Promise<void> {
     await expect(this.requestExperienceFailureAlert()).toBeVisible();
+    // Axios sets err.message from the status; getErrorMessage renders that in the alert body.
+    await expect(
+      this.page.getByText(`Request failed with status code ${status}`, { exact: true }),
+    ).toBeVisible();
     await expect(this.requestExperienceButton()).toBeEnabled();
   }
 
