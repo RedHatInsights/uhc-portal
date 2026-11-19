@@ -35,7 +35,14 @@ Leave empty initially. The user or UXD will attach mockup screenshots later.
 
 ### Acceptance Criteria
 
-Checklist of verifiable conditions:
+Checklist of verifiable conditions, written from the user's perspective. Each
+criterion should be verifiable by interacting with the UI — not by reading
+source code. Do not reference function names, file paths, or internal
+implementation here. Code belongs only in Implementation Details.
+
+Good: `User can scale worker nodes to 0 on a ROSA HCP 4.22+ cluster`
+Bad: `` `getMinReplicas(version)` returns `0` when `isHcp422` ``
+
 - User can \<perform action\>
 - If \<error condition\>, an error message is displayed: "\<message\>"
 - Field validation: \<rules\>
@@ -45,7 +52,9 @@ Checklist of verifiable conditions:
 
 ### Implementation Details
 
-No source code, but provide enough technical context for any team member to start:
+This is the only section where code references (file paths, function names,
+component names, snippets) should appear. Provide enough technical context for
+any team member to start:
 - Entry point file(s) or component(s) to modify
 - Existing pattern to follow (e.g., "mirrors the existing Excluded Namespaces field")
 - API endpoint(s) and payload shape

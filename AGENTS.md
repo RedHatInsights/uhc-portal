@@ -17,6 +17,7 @@ console-dot widgets:        console-dot-widgets.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
+AI skills / templates:      ai/skills/, ai/templates/   (see AI Skills below)
 ```
 
 For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
@@ -58,31 +59,33 @@ Procedural skills live in `docs/ai/skills/`. Each skill is a `SKILL.md` that def
 
 | Skill | Trigger phrases |
 | :--- | :--- |
-| `code-review` | "review PR", "code review", "check this PR" |
+| `ocmui-refinement` | "refine", "DDR", "feature refinement", "help me refine \<Jira ticket\>" |
 
-**Using skills:** When the user mentions a trigger phrase, read the corresponding `docs/ai/skills/<name>/SKILL.md` and follow its instructions.
+**Using skills:** When the user mentions a trigger phrase, read the corresponding `docs/ai/skills/<name>/SKILL.md` and follow its instructions. The `ocmui-refinement` skill is self-contained (includes its own `templates/` copy).
+
+**Portable requirements for `ocmui-refinement`:** Jira access via `$JIRA_EMAIL`/`$JIRA_TOKEN` **or** Atlassian MCP; a uhc-portal checkout for codebase analysis; a user-chosen output directory outside the repo for draft artifacts. Does **not** require personal Cursor rules, `gog`, or Slack MCP.
 
 **Auto-detection (Cursor):** Cursor auto-detects skills from `~/.cursor/skills/`. Developers who want auto-detection can symlink:
 
 ```bash
-ln -sf /path/to/uhc-portal/docs/ai/skills/code-review ~/.cursor/skills/code-review
+ln -sf /path/to/uhc-portal/docs/ai/skills/ocmui-refinement ~/.cursor/skills/ocmui-refinement
 ```
 
 ## Templates
 
-Reusable document templates live in `docs/ai/templates/`:
+Reusable document templates live in `docs/ai/templates/` (also bundled under `docs/ai/skills/ocmui-refinement/templates/` for the refinement skill):
 
 ```text
 docs/ai/templates/
-  ddr-template.md                    # DDR (Design Decision Record) for feature refinement
+  ddr-template.md           # DDR (Design Decision Record) for feature refinement
   jira/
-    epic-description.md              # Jira epic description structure
-    story-description.md             # Implementation story format
-    task-description.md              # Technical task format
-    bug-description.md               # Bug ticket format
+    epic-template.md        # Jira epic description structure
+    story-template.md       # Implementation story format
+    task-template.md        # Technical task format
+    bug-template.md         # Bug ticket format
 ```
 
-Skills reference these templates via relative paths. Read the relevant template before creating or updating Jira issues.
+Read the relevant template before creating or updating Jira issues / drafting a DDR.
 
 ## MCP Integrations (optional per developer)
 
