@@ -133,7 +133,14 @@ test.describe.serial(
       const capturePromise = rosaHandsOnPage.captureDemoExperience();
       await navigateTo(ROSA_HANDS_ON_ROUTE);
       experience = await capturePromise;
+      // Pin the first live payload so 5s polling cannot race assertions
+      // (e.g. deploying → started) while we still assert the captured status.
+      await rosaHandsOnPage.mockDemoExperience(experience.raw);
       await rosaHandsOnPage.isRosaHandsOnPage();
+    });
+
+    test.afterAll(async ({ rosaHandsOnPage }) => {
+      await rosaHandsOnPage.clearDemoExperienceMock();
     });
 
     test('adapts alert, CTA, and customer-success mailto to live demo status', async ({
