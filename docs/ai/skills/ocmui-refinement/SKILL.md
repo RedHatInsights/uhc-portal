@@ -171,8 +171,8 @@ Roadmap-gate reply (before Phase 1 starts):
 
 This skill must work for any teammate who has:
 
-1. This skill package (`SKILL.md` + `templates/`)
-2. A uhc-portal checkout (for Phase 3 `src/` reads)
+1. This skill (`docs/ai/skills/ocmui-refinement/SKILL.md`)
+2. A uhc-portal checkout (for `docs/templates/` and Phase 3 `src/` reads)
 3. Jira credentials as env vars **or** Atlassian MCP
 
 **Do not depend on** the author’s personal Cursor rules, `session-context`,
@@ -183,7 +183,7 @@ part of this skill’s contract.
 | Need | How (portable) |
 |---|---|
 | Jira | `$JIRA_EMAIL` + `$JIRA_TOKEN` via curl **or** Atlassian MCP |
-| DDR / Jira story structure | `templates/` **inside this skill directory only** |
+| DDR / Jira story structure | `docs/templates/` in the uhc-portal checkout |
 | Feature PRDs / Google Docs | Links from Jira + user excerpts in chat (no `gog` required) |
 | Outputs | User-supplied `draft_ddr_dir` outside uhc-portal |
 
@@ -196,7 +196,7 @@ skill** for refinement workflows.
 |---|---|---|
 | Jira access | Read feature hierarchy; create/update OCMUI / team UI tickets | Yes |
 | `gh` CLI | Optional lookups in `openshift-online/ocm-api-model` | Recommended |
-| uhc-portal workspace | Read-only codebase analysis (`src/`) | Yes for Phase 3 |
+| uhc-portal workspace | `docs/templates/` + read-only codebase analysis (`src/`) | Yes |
 | Draft DDR directory | All skill-written notes / mockups / draft DDR | Yes (user-supplied path) |
 
 **Jira access — MCP is optional, not required.** Either path works:
@@ -246,12 +246,13 @@ Phases 1–3.
 
 Base URL: `https://redhat.atlassian.net`
 
-## Templates (skill package)
+## Templates
 
-Read templates from this skill directory (sibling of `SKILL.md`), not from personal paths:
+Read team templates from the uhc-portal checkout — **not** from personal paths
+(`~/.cursor/ocmui-templates/`, etc.) and **not** from a copy under this skill:
 
 ```text
-templates/
+docs/templates/
 ├── ddr-template.md
 └── jira/
     ├── epic-template.md
@@ -693,7 +694,7 @@ Create **one** file under the draft DDR directory (no Google Doc workflow):
 Use the UI epic key when known (else the refine-spike key), e.g.
 `…/ROSAENG-69928_Draft_DDR.md`. **Overwrite** if it already exists from a prior run.
 
-**DDR structure SoT at draft time:** this skill’s `templates/ddr-template.md`.
+**DDR structure SoT at draft time:** `docs/templates/ddr-template.md`.
 Apply that file’s section guidelines when drafting (including How’s “Guidelines”
 list). Do **not** auto-fetch or auto-sync the live Google Doc on every run.
 
@@ -701,11 +702,11 @@ Official blank DDR template (human / maintainer reference — not required at
 runtime):
 https://docs.google.com/document/d/1QE1pgNfG-60Wve2ucAgefWShLFEZaB3mmj7U5d7-xjY/edit
 
-- **Maintainers** occasionally re-sync `templates/ddr-template.md` from that gDoc
-  when the team updates it (manual).
+- **Maintainers** occasionally re-sync `docs/templates/ddr-template.md` from that
+  gDoc when the team updates it (manual).
 - **Without `gog` (or similar):** the skill **cannot** read Google Docs. Drafting
-  still works from the packaged `templates/ddr-template.md`. If a *feature* PRD
-  is a Google Doc link the agent can’t open, ask the user for excerpts in chat.
+  still works from `docs/templates/ddr-template.md`. If a *feature* PRD is a
+  Google Doc link the agent can’t open, ask the user for excerpts in chat.
 
 Draft from **Phase 2 — UI Overview** + **Phase 3 — Codebase analysis** (+ mockups
 if Phase 4 already ran) + confirmed sources.
@@ -718,7 +719,7 @@ remain.
 **Rules:**
 
 - **Template outline only.** Use exactly the `##` sections from
-  `templates/ddr-template.md` (What, User Stories, Why, How, Tracking, References,
+  `docs/templates/ddr-template.md` (What, User Stories, Why, How, Tracking, References,
   Alternatives, Open Issues, Acceptance Criteria, Reviews). Do **not** invent extra
   top-level sections (e.g. Mockups). Do **not** invent persona/role sections that are
   not in the template. Under **How**, keep subheadings minimal and only for content
@@ -775,7 +776,7 @@ Keep mechanisms and API detail for **How**.
   (Feature origin, Reasoning, Feature usage, Competitor analysis, Feature
   availability). **Pain points / demand last**. `N/A` when empty; no rehash of
   What/User Stories.
-- **How** — Apply `templates/ddr-template.md` How guidelines: concise/concrete;
+- **How** — Apply `docs/templates/ddr-template.md` How guidelines: concise/concrete;
   UX impact; permissions; **API usage** as separate per-API blocks (example call
   first, then brief discussion); errors; testing; FedRAMP/rollout. No
   Mockups/Tracking under How.
@@ -794,8 +795,8 @@ If mockups were deferred, offer **Phase 4 — Mockups** after the draft checkpoi
 
 Only after the DDR is **accepted** (reviewers LGTM).
 
-1. Update the UI epic description using `templates/jira/epic-template.md`
-2. Create child stories using `templates/jira/story-template.md`
+1. Update the UI epic description using `docs/templates/jira/epic-template.md`
+2. Create child stories using `docs/templates/jira/story-template.md`
 3. Check for auto-created standard stories (post-merge testing, CI/E2E automation,
    feature flags) before duplicating — this is the **only** phase where that
    scaffolding is discussed

@@ -62,9 +62,9 @@ Procedural skills live in `docs/ai/skills/`. Each skill is a `SKILL.md` that def
 | :--- | :--- |
 | `ocmui-refinement` | "refine", "DDR", "feature refinement", "help me refine \<Jira ticket\>" |
 
-**Using skills:** When the user mentions a trigger phrase, read the corresponding `docs/ai/skills/<name>/SKILL.md` and follow its instructions. The `ocmui-refinement` skill is self-contained (includes its own `templates/` copy).
+**Using skills:** When the user mentions a trigger phrase, read the corresponding `docs/ai/skills/<name>/SKILL.md` and follow its instructions. The `ocmui-refinement` skill reads team templates from `docs/templates/`.
 
-**Portable requirements for `ocmui-refinement`:** Jira access via `$JIRA_EMAIL`/`$JIRA_TOKEN` **or** Atlassian MCP; a uhc-portal checkout for codebase analysis; a user-chosen output directory outside the repo for draft artifacts. Does **not** require personal Cursor rules, `gog`, or Slack MCP.
+**Portable requirements for `ocmui-refinement`:** Jira access via `$JIRA_EMAIL`/`$JIRA_TOKEN` **or** Atlassian MCP; a uhc-portal checkout for `docs/templates/` and codebase analysis; a user-chosen output directory outside the repo for draft artifacts. Does **not** require personal Cursor rules, `gog`, or Slack MCP.
 
 **Auto-detection (Cursor):** Cursor auto-detects skills from `~/.cursor/skills/`. Developers who want auto-detection can symlink:
 
@@ -75,9 +75,7 @@ ln -sf /path/to/uhc-portal/docs/ai/skills/ocmui-refinement ~/.cursor/skills/ocmu
 ## Templates
 
 Team DDR and Jira issue templates for any LLM / human use (not skill-specific). Live in
-`docs/templates/`. The `ocmui-refinement` skill also bundles a copy under
-`docs/ai/skills/ocmui-refinement/templates/` so the skill stays self-contained when
-symlinked.
+`docs/templates/`. Skills (including `ocmui-refinement`) read from this path.
 
 ```text
 docs/templates/
@@ -90,7 +88,7 @@ docs/templates/
 ```
 
 Canonical DDR outline for humans: [OCMUI-DDR-0000: Template](https://docs.google.com/document/d/1QE1pgNfG-60Wve2ucAgefWShLFEZaB3mmj7U5d7-xjY/edit?usp=sharing).
-Keep `docs/templates/ddr-template.md` (and the skill copy) in sync with that gDoc.
+Keep `docs/templates/ddr-template.md` in sync with that gDoc.
 
 Read the relevant template before creating or updating Jira issues / drafting a DDR.
 
