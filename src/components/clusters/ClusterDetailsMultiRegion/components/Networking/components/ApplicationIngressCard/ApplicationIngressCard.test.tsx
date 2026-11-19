@@ -242,10 +242,10 @@ describe('<ApplicationIngressCard /> – HCP component routes', () => {
       />,
     );
 
-    expect(document.getElementById('consoleHostname')).toHaveValue('');
-    expect(document.getElementById('consoleTlsSecretRef')).toHaveValue('');
-    expect(document.getElementById('downloadsHostname')).toHaveValue('');
-    expect(document.getElementById('downloadsTlsSecretRef')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Console hostname' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Console TLS secret name' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Downloads hostname' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Downloads TLS secret name' })).toHaveValue('');
   });
 
   it('enables Edit application ingress for HCP', () => {
