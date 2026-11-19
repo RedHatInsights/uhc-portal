@@ -948,23 +948,18 @@ cleanup_forwarding_rules_for_vpc() {
 cleanup_instances_for_vpc() {
   # Snapshot the instance list once, then batch-delete per zone in parallel.
   # Scoped to this VPC only (leftover OSD masters/infra/workers that block subnet delete).
+  # Bash 3.2-compatible (macOS /bin/bash): no associative arrays.
   local name zone network_url
-  local -A zone_instances=()
-  local -a zones=()
+  local entries=""
   local count=0
-  local z
+  local z names zones
 
   while IFS=$'\t' read -r name zone network_url; do
     [[ -z "${name}" || -z "${zone}" ]] && continue
     if ! network_url_matches_vpc "${network_url}"; then
       continue
     fi
-    if [[ -z "${zone_instances[$zone]+x}" ]]; then
-      zones+=("${zone}")
-      zone_instances[$zone]="${name}"
-    else
-      zone_instances[$zone]="${zone_instances[$zone]} ${name}"
-    fi
+    entries="${entries}${zone}"$'\t'"${name}"$'\n'
     count=$((count + 1))
   done < <(
     gcloud compute instances list \
@@ -979,11 +974,14 @@ cleanup_instances_for_vpc() {
   fi
 
   print_status "Deleting ${count} instance(s) on VPC '${VPC_NAME}' (batched per zone, parallel)..."
-  for z in "${zones[@]}"; do
+  zones=$(printf '%s' "${entries}" | cut -f1 | sort -u)
+  while IFS= read -r z; do
+    [[ -z "${z}" ]] && continue
+    names=$(printf '%s' "${entries}" | awk -F'\t' -v z="${z}" '$1 == z { print $2 }')
     # shellcheck disable=SC2086
     (
-      # Word-split intentional: names are space-separated instance names for this zone.
-      set -- ${zone_instances[$z]}
+      # Word-split intentional: names are newline/space-separated instance names for this zone.
+      set -- ${names}
       print_status "  zone ${z}: deleting $# instance(s): $*"
       gcloud compute instances delete "$@" \
         --project="${PROJECT_ID}" \
@@ -991,7 +989,7 @@ cleanup_instances_for_vpc() {
         --delete-disks=all \
         --quiet
     ) &
-  done
+  done <<< "${zones}"
   wait
   print_status "Finished deleting instances on VPC '${VPC_NAME}'"
 }
