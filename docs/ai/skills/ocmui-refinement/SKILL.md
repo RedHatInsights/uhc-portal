@@ -685,7 +685,8 @@ Do not treat “no existing mockups in Jira” as a Phase 1 gap — this phase c
 
 ### Phase 5: Draft DDR
 
-Create **one** file under the draft DDR directory (no Google Doc workflow):
+Create **one** file under the draft DDR directory (local markdown first; user
+pastes into the feature DDR gDoc afterward — see below):
 
 ```text
 <draft_ddr_dir>/<JiraID>_Draft_DDR.md
@@ -788,6 +789,23 @@ Present section-by-section for iterative review when helpful. For **What** /
 **User Stories** / **Why**, invite corrections before locking the draft.
 
 If mockups were deferred, offer **Phase 4 — Mockups** after the draft checkpoint.
+
+#### After the draft file is written (required)
+
+Tell the user how to get the markdown into their **feature DDR Google Doc**
+(the blank or WIP DDR linked from the UI epic / feature — not the template gDoc):
+
+```markdown
+**Next step — publish to the feature DDR gDoc:**
+1. Open `<draft_ddr_dir>/<JiraID>_Draft_DDR.md` and copy the markdown.
+2. Open your feature’s DDR Google Doc.
+3. Use **Paste as Markdown** (Docs add-on / extension) so headings, tables, and
+   lists keep their structure.
+```
+
+Do not attempt to write the Google Doc via `gog` or other automation unless the
+user explicitly asks. Wait for them to confirm the gDoc paste (and any review
+edits) before offering **Phase 6 — Stories**.
 
 ---
 
