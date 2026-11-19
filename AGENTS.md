@@ -17,7 +17,8 @@ console-dot widgets:        console-dot-widgets.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
-AI skills / templates:      ai/skills/, ai/templates/   (see AI Skills below)
+AI skills:                  ai/skills/   (see AI Skills below)
+templates:                  templates/   (DDR + Jira; see Templates below)
 ```
 
 For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
@@ -73,10 +74,13 @@ ln -sf /path/to/uhc-portal/docs/ai/skills/ocmui-refinement ~/.cursor/skills/ocmu
 
 ## Templates
 
-Reusable document templates live in `docs/ai/templates/` (also bundled under `docs/ai/skills/ocmui-refinement/templates/` for the refinement skill):
+Team DDR and Jira issue templates for any LLM / human use (not skill-specific). Live in
+`docs/templates/`. The `ocmui-refinement` skill also bundles a copy under
+`docs/ai/skills/ocmui-refinement/templates/` so the skill stays self-contained when
+symlinked.
 
 ```text
-docs/ai/templates/
+docs/templates/
   ddr-template.md           # DDR (Design Decision Record) for feature refinement
   jira/
     epic-template.md        # Jira epic description structure
@@ -84,6 +88,9 @@ docs/ai/templates/
     task-template.md        # Technical task format
     bug-template.md         # Bug ticket format
 ```
+
+Canonical DDR outline for humans: [OCMUI-DDR-0000: Template](https://docs.google.com/document/d/1QE1pgNfG-60Wve2ucAgefWShLFEZaB3mmj7U5d7-xjY/edit?usp=sharing).
+Keep `docs/templates/ddr-template.md` (and the skill copy) in sync with that gDoc.
 
 Read the relevant template before creating or updating Jira issues / drafting a DDR.
 

@@ -211,6 +211,20 @@ curl -s -u "$JIRA_EMAIL:$JIRA_TOKEN" \
   "https://redhat.atlassian.net/rest/api/3/issue/<ISSUE_KEY>?fields=summary,description,status,issuetype,parent,issuelinks,labels,components,attachment,comment"
 ```
 
+**If neither path works** (MCP missing / auth errors, and `$JIRA_EMAIL`/`$JIRA_TOKEN`
+unset or rejected): **stop Phase 1**. Do not invent ticket content. Tell the user to
+set up one of:
+
+- **Env vars (simplest):** create an Atlassian API token at
+  https://id.atlassian.com/manage-profile/security/api-tokens , then export
+  `JIRA_EMAIL` (Red Hat email) and `JIRA_TOKEN` in the shell Cursor inherits
+  (e.g. `~/.bashrc` / a sourced tokens file). Re-open the chat and retry.
+- **Atlassian MCP:** follow **AGENTS.md → MCP Integrations → Jira MCP** in this
+  repo (uv, wrapper script, `~/.cursor/mcp.json`), restart Cursor, then retry.
+
+Point them at that AGENTS section rather than pasting a full MCP install into chat.
+Wait for confirmation that access works before continuing Intake.
+
 **Requirement docs:** Prefer links discovered from Jira (remote links, descriptions,
 comments) or links the user provides in chat. Do not use a `support_docs/` folder.
 If a linked Google Doc cannot be read automatically, ask the user for access, a
