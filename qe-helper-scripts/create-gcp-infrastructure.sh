@@ -1039,19 +1039,40 @@ cleanup_firewall_rules_for_vpc() {
   )
 }
 
+# True when an address subnetwork URL belongs to one of this VPC's known subnets.
+address_belongs_to_vpc_subnets() {
+  local subnet_url=$1
+  local subnet_basename=${subnet_url##*/}
+  [[ -z "${subnet_basename}" || "${subnet_basename}" == "None" ]] && return 1
+
+  [[ -n "${CONTROLPLANE_SUBNET}" && "${subnet_basename}" == "${CONTROLPLANE_SUBNET}" ]] && return 0
+  [[ -n "${COMPUTE_SUBNET}" && "${subnet_basename}" == "${COMPUTE_SUBNET}" ]] && return 0
+  [[ -n "${PSC_SUBNET}" && "${subnet_basename}" == "${PSC_SUBNET}" ]] && return 0
+  return 1
+}
+
 cleanup_addresses_for_vpc() {
-  # Internal/API addresses often linger after forwarding-rule delete.
-  local name region status users
-  while IFS=$'\t' read -r name region status users; do
+  # Internal/API addresses can linger after forwarding-rule delete and block
+  # subnet removal. Only touch RESERVED addresses on THIS VPC's known subnets —
+  # never region-wide (shared projects host many suites/clusters).
+  local name region status users subnet_url purpose
+  while IFS=$'\t' read -r name region status users subnet_url purpose; do
     [[ -z "${name}" || -z "${region}" ]] && continue
-    # Only delete unused addresses whose name looks cluster-related or was freed.
     if [[ "${status}" != "RESERVED" ]]; then
       continue
     fi
     if [[ -n "${users}" && "${users}" != "None" ]]; then
       continue
     fi
-    print_status "Deleting unused address '${name}' (region=${region})..."
+    # Skip addresses with no subnet (global/external reserves) or other VPCs.
+    if ! address_belongs_to_vpc_subnets "${subnet_url}"; then
+      continue
+    fi
+    # Never delete Cloud NAT / DNS resolver addresses via this path.
+    if [[ "${purpose}" == "NAT_AUTO" || "${purpose}" == "DNS_RESOLVER" ]]; then
+      continue
+    fi
+    print_status "Deleting unused address '${name}' on VPC '${VPC_NAME}' subnet (region=${region})..."
     gcloud compute addresses delete "${name}" \
       --project="${PROJECT_ID}" \
       --region="${region}" \
@@ -1060,7 +1081,7 @@ cleanup_addresses_for_vpc() {
     gcloud compute addresses list \
       --project="${PROJECT_ID}" \
       --filter="region:(${REGION})" \
-      --format='value(name,region.basename(),status,users.list())' 2>/dev/null || true
+      --format='value(name,region.basename(),status,users.list(),subnetwork,purpose)' 2>/dev/null || true
   )
 }
 
