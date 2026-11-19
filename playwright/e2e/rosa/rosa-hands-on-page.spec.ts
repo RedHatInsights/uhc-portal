@@ -1,4 +1,3 @@
-import { DemoExperienceStatusEnum } from '../../../src/components/RosaHandsOn/DemoExperienceModels';
 import { expect, test } from '../../fixtures/pages';
 import {
   DemoExperienceApiPayload,
@@ -6,46 +5,11 @@ import {
 } from '../../page-objects/rosa-hands-on-page';
 import { ROSA_HANDS_ON_ROUTE } from '../../support/playwright-constants';
 
-const quota = (current: number, limit = 3) => ({ current, limit });
+const handsOnFixture = require('../../fixtures/rosa/rosa-hands-on-page.spec.json') as {
+  demoExperience: Record<string, DemoExperienceApiPayload>;
+};
 
-const payloads = {
-  availableUnused: {
-    status: DemoExperienceStatusEnum.Available,
-    quota: quota(0),
-  },
-  availableRemaining: {
-    status: DemoExperienceStatusEnum.Available,
-    quota: quota(1),
-  },
-  unavailable: {
-    status: DemoExperienceStatusEnum.Unavailable,
-    quota: quota(0),
-  },
-  unauthorized: {
-    status: DemoExperienceStatusEnum.Unavailable,
-    unavailable_reason: 'unauthorized',
-    quota: quota(0),
-  },
-  // API still returns unavailable; UI rewrites to quota-exceeded when current >= limit.
-  quotaExceeded: {
-    status: DemoExperienceStatusEnum.Unavailable,
-    quota: quota(3),
-  },
-  failed: {
-    status: DemoExperienceStatusEnum.Failed,
-    quota: quota(1),
-  },
-  started: {
-    status: DemoExperienceStatusEnum.Started,
-    quota: quota(1),
-    experience_url: 'https://example.com/rosa-hands-on',
-    scheduled_delete_timestamp: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-  },
-  deploying: {
-    status: DemoExperienceStatusEnum.Deploying,
-    quota: quota(1),
-  },
-} as const satisfies Record<string, DemoExperienceApiPayload>;
+const payloads = handsOnFixture.demoExperience;
 
 /**
  * Hands-on e2e (ROSAENG-75830)
@@ -54,11 +18,16 @@ const payloads = {
  * - @smoke live suite: adapts to whatever the environment's demo API returns
  * - @advanced mocked suite: started / deploying CTAs (covered lightly; deeper copy in unit tests)
  *
- * Does not click "Request experience" — side-effect free.
+ * Mock payloads and expected hrefs live in playwright/fixtures/rosa/rosa-hands-on-page.spec.json
+ * (not imported from src/) so expectations stay stable if app constants move.
+ *
+ * Does not click "Request experience" except the intentional POST-failure case — otherwise
+ * side-effect free.
  */
-test.describe.serial(
+// Plain describe: each mocked test reloads its own payload (independent).
+test.describe(
   'ROSA Hands-on Experience page — mocked mailto and chrome (ROSAENG-75830)',
-  { tag: ['@ci', '@smoke', '@rosa'] },
+  { tag: ['@ci', '@rosa'] },
   () => {
     test.beforeAll(async ({ navigateTo, rosaHandsOnPage }) => {
       await rosaHandsOnPage.mockDemoExperience(payloads.availableUnused);
@@ -81,7 +50,7 @@ test.describe.serial(
       rosaHandsOnPage,
     }) => {
       const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.availableUnused);
-      expect(experience.status).toBe(DemoExperienceStatusEnum.Available);
+      expect(experience.status).toBe('available');
       await rosaHandsOnPage.expectStatusSpecificUi(experience);
     });
 
@@ -119,10 +88,21 @@ test.describe.serial(
       const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.failed);
       await rosaHandsOnPage.expectStatusSpecificUi(experience);
     });
+
+    test('request experience POST failure — shows Failed to request an experience', async ({
+      rosaHandsOnPage,
+    }) => {
+      await rosaHandsOnPage.reloadWithMockedExperience(payloads.availableUnused);
+      await rosaHandsOnPage.mockRequestExperienceFailure(payloads.availableUnused, 503);
+      const postFailure = rosaHandsOnPage.waitForRequestExperienceFailure(503);
+      await rosaHandsOnPage.requestExperienceButton().click();
+      await postFailure;
+      await rosaHandsOnPage.expectRequestExperienceFailureAlert();
+    });
   },
 );
 
-test.describe.serial(
+test.describe(
   'ROSA Hands-on Experience page — live demo status (ROSAENG-75830)',
   { tag: ['@smoke', '@rosa'] },
   () => {
@@ -157,7 +137,7 @@ test.describe.serial(
   },
 );
 
-test.describe.serial(
+test.describe(
   'ROSA Hands-on Experience page — mocked provisioning states (ROSAENG-75830)',
   { tag: ['@advanced', '@rosa'] },
   () => {

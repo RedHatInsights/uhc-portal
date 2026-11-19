@@ -1,12 +1,21 @@
 import { expect, Locator, Page, Response } from '@playwright/test';
 
-import docLinks from '../../src/common/docLinks.mjs';
-import { rosaHandsOnLinks, UNAUTHORIZED } from '../../src/components/RosaHandsOn/constants';
-import { DemoExperienceStatusEnum } from '../../src/components/RosaHandsOn/DemoExperienceModels';
-
 import { BasePage } from './base-page';
 
 const DEMO_EXPERIENCE_ROUTE = '**/demoExperience/rosa-hands-on**';
+
+// E2E expectations live in the fixture (not src/) so they stay stable if app constants move.
+const { expected } = require('../fixtures/rosa/rosa-hands-on-page.spec.json') as {
+  expected: {
+    customerSuccessMailto: string;
+    slackChannel: string;
+    learnMoreAboutRosa: string;
+    getStartedPath: string;
+    statusAlertTestId: string;
+    unauthorizedReason: string;
+    recommendedContent: Array<{ title: string; label: string; href: string }>;
+  };
+};
 
 export type DemoExperienceApiPayload = {
   status: string;
@@ -17,7 +26,7 @@ export type DemoExperienceApiPayload = {
 };
 
 /** UI status after the same rewrite applied in demoExperienceService. */
-export type HandsOnUiStatus = DemoExperienceStatusEnum | 'quota-exceeded' | string;
+export type HandsOnUiStatus = string;
 
 export type ResolvedHandsOnExperience = {
   raw: DemoExperienceApiPayload;
@@ -37,7 +46,7 @@ export const resolveHandsOnUiStatus = (
   const quotaCurrent = payload.quota?.current ?? 0;
   const quotaLimit = payload.quota?.limit ?? 0;
   const status =
-    payload.status === DemoExperienceStatusEnum.Unavailable && quotaCurrent >= quotaLimit
+    payload.status === 'unavailable' && quotaCurrent >= quotaLimit
       ? 'quota-exceeded'
       : payload.status;
 
@@ -72,13 +81,12 @@ export class RosaHandsOnPage extends BasePage {
 
   /**
    * "contact support" mailto inside a StatusAlert banner.
-   *
-   * Prefer getByRole('alert') elsewhere in this repo, but Hands-on StatusAlert
-   * uses PF <Alert component="span" />, which does not expose role="alert" or
-   * role="status" in the a11y tree — only the .pf-v6-c-alert container.
+   * data-testid is required: PF <Alert component="span" /> has no role="alert".
    */
   alertContactSupportLink(): Locator {
-    return this.page.locator('.pf-v6-c-alert').getByRole('link', { name: 'contact support' });
+    return this.page
+      .getByTestId(expected.statusAlertTestId)
+      .getByRole('link', { name: 'contact support' });
   }
 
   customerSuccessTeamLink(): Locator {
@@ -87,6 +95,11 @@ export class RosaHandsOnPage extends BasePage {
 
   requestExperienceButton(): Locator {
     return this.page.getByRole('button', { name: 'Request experience' });
+  }
+
+  requestExperienceFailureAlert(): Locator {
+    // PF Alert titles are exposed as headings, e.g. "Danger alert: Failed to request an experience".
+    return this.page.getByRole('heading', { name: /Failed to request an experience/i });
   }
 
   createRosaClusterLink(): Locator {
@@ -127,45 +140,33 @@ export class RosaHandsOnPage extends BasePage {
    */
   async expectStaticChromeLinks(): Promise<void> {
     await expect(this.headerSlackCommunityLink()).toBeVisible();
-    await expect(this.headerSlackCommunityLink()).toHaveAttribute(
-      'href',
-      rosaHandsOnLinks.slackChannel,
-    );
+    await expect(this.headerSlackCommunityLink()).toHaveAttribute('href', expected.slackChannel);
 
     await this.learnMoreAboutRosaLink().scrollIntoViewIfNeeded();
     await expect(this.learnMoreAboutRosaLink()).toBeVisible();
-    await expect(this.learnMoreAboutRosaLink()).toHaveAttribute('href', rosaHandsOnLinks.learnMore);
+    await expect(this.learnMoreAboutRosaLink()).toHaveAttribute(
+      'href',
+      expected.learnMoreAboutRosa,
+    );
 
     await this.recommendedContentHeading().scrollIntoViewIfNeeded();
     await expect(this.recommendedContentHeading()).toBeVisible();
 
-    await this.expectRecommendedContentRow(
-      'Red Hat OpenShift Service on AWS learning hub',
-      'Documentation',
-      docLinks.RH_ROSA_LEARN,
-    );
-    await this.expectRecommendedContentRow(
-      'Red Hat OpenShift Service on AWS (ROSA) interactive walkthrough',
-      'Walkthrough',
-      docLinks.RH_ROSA_INSTALL,
-    );
-    await this.expectRecommendedContentRow(
-      'Watch our Red Hat OpenShift Service on AWS video series',
-      'Video',
-      docLinks.RH_ROSA_LIGHTBOARD,
-    );
+    await this.expectRecommendedContentRow(expected.recommendedContent[0]);
+    await this.expectRecommendedContentRow(expected.recommendedContent[1]);
+    await this.expectRecommendedContentRow(expected.recommendedContent[2]);
   }
 
-  private async expectRecommendedContentRow(
-    title: string,
-    label: string,
-    href: string,
-  ): Promise<void> {
-    const row = this.recommendedContentRow(title);
+  private async expectRecommendedContentRow(item: {
+    title: string;
+    label: string;
+    href: string;
+  }): Promise<void> {
+    const row = this.recommendedContentRow(item.title);
     await row.scrollIntoViewIfNeeded();
     await expect(row).toBeVisible();
-    await expect(row.getByText(label, { exact: true })).toBeVisible();
-    await expect(row.getByRole('link', { name: 'Learn more' })).toHaveAttribute('href', href);
+    await expect(row.getByText(item.label, { exact: true })).toBeVisible();
+    await expect(row.getByRole('link', { name: 'Learn more' })).toHaveAttribute('href', item.href);
   }
 
   /**
@@ -189,6 +190,10 @@ export class RosaHandsOnPage extends BasePage {
 
   async mockDemoExperience(payload: DemoExperienceApiPayload): Promise<void> {
     await this.page.route(DEMO_EXPERIENCE_ROUTE, async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.continue();
+        return;
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -197,8 +202,56 @@ export class RosaHandsOnPage extends BasePage {
     });
   }
 
+  /**
+   * Single route handler: fulfill GET with getPayload, fail POST with status.
+   * Replaces any existing demoExperience mock (avoids LIFO continue() bypassing GET mocks).
+   */
+  async mockRequestExperienceFailure(
+    getPayload: DemoExperienceApiPayload,
+    status = 503,
+  ): Promise<void> {
+    await this.clearDemoExperienceMock();
+    await this.page.route(DEMO_EXPERIENCE_ROUTE, async (route) => {
+      const method = route.request().method();
+      if (method === 'POST') {
+        await route.fulfill({
+          status,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            message: `Request failed with status code ${status}`,
+          }),
+        });
+        return;
+      }
+      if (method === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(getPayload),
+        });
+        return;
+      }
+      await route.continue();
+    });
+  }
+
+  waitForRequestExperienceFailure(status = 503): Promise<Response> {
+    return this.page.waitForResponse(
+      (res) =>
+        res.request().method() === 'POST' &&
+        res.url().includes('/demoExperience/rosa-hands-on') &&
+        res.status() === status,
+      { timeout: 60_000 },
+    );
+  }
+
   async clearDemoExperienceMock(): Promise<void> {
     await this.page.unroute(DEMO_EXPERIENCE_ROUTE);
+  }
+
+  async expectRequestExperienceFailureAlert(): Promise<void> {
+    await expect(this.requestExperienceFailureAlert()).toBeVisible();
+    await expect(this.requestExperienceButton()).toBeEnabled();
   }
 
   /**
@@ -218,7 +271,7 @@ export class RosaHandsOnPage extends BasePage {
 
   async expectCustomerSuccessMailto(link: Locator): Promise<void> {
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', rosaHandsOnLinks.customerSuccess);
+    await expect(link).toHaveAttribute('href', expected.customerSuccessMailto);
   }
 
   async expectWhatToExpectPopoverLinks(): Promise<void> {
@@ -226,7 +279,7 @@ export class RosaHandsOnPage extends BasePage {
     await expect(this.page.getByText('ROSA community Slack channel')).toBeVisible();
     await expect(
       this.page.getByRole('link', { name: 'ROSA community Slack channel' }),
-    ).toHaveAttribute('href', rosaHandsOnLinks.slackChannel);
+    ).toHaveAttribute('href', expected.slackChannel);
     await this.expectCustomerSuccessMailto(this.customerSuccessTeamLink());
     await this.page.keyboard.press('Escape');
   }
@@ -240,7 +293,7 @@ export class RosaHandsOnPage extends BasePage {
     const { status, unavailableReason, remainingQuota, quotaLimit } = experience;
 
     switch (status) {
-      case DemoExperienceStatusEnum.Available: {
+      case 'available': {
         if (experience.quotaCurrent > 0) {
           await expect(
             this.page.getByText(new RegExp(`You have ${remainingQuota} launch`, 'i')),
@@ -253,8 +306,8 @@ export class RosaHandsOnPage extends BasePage {
         await this.expectWhatToExpectPopoverLinks();
         break;
       }
-      case DemoExperienceStatusEnum.Unavailable: {
-        if (unavailableReason === UNAUTHORIZED) {
+      case 'unavailable': {
+        if (unavailableReason === expected.unauthorizedReason) {
           await expect(this.page.getByText(/business email account/i)).toBeVisible();
           await expect(this.alertContactSupportLink()).toHaveCount(0);
         } else {
@@ -271,26 +324,33 @@ export class RosaHandsOnPage extends BasePage {
         ).toBeVisible();
         await this.expectCustomerSuccessMailto(this.alertContactSupportLink());
         await expect(this.createRosaClusterLink()).toBeVisible();
+        // Router may prefix /openshift; fixture stores the app path suffix.
         await expect(this.createRosaClusterLink()).toHaveAttribute(
           'href',
-          /\/create\/rosa\/getstarted/,
+          expect.stringContaining(expected.getStartedPath),
         );
         break;
       }
-      case DemoExperienceStatusEnum.Failed: {
+      case 'failed': {
         await expect(this.page.getByText(/error on our end/i)).toBeVisible();
         await this.expectCustomerSuccessMailto(this.alertContactSupportLink());
         await expect(this.requestExperienceButton()).toBeEnabled();
         await this.expectWhatToExpectPopoverLinks();
         break;
       }
-      case DemoExperienceStatusEnum.Started: {
+      case 'started': {
         await expect(this.page.getByText(/current experience demo will end/i)).toBeVisible();
         await expect(this.accessExperienceLink()).toBeVisible();
+        if (experience.raw.experience_url) {
+          await expect(this.accessExperienceLink()).toHaveAttribute(
+            'href',
+            experience.raw.experience_url,
+          );
+        }
         break;
       }
-      case DemoExperienceStatusEnum.Deploying:
-      case DemoExperienceStatusEnum.Requested: {
+      case 'deploying':
+      case 'requested': {
         await expect(this.provisioningButton()).toBeVisible();
         break;
       }

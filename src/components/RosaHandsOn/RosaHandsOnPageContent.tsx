@@ -15,7 +15,7 @@ import {
 import ErrorBoundary from '../App/ErrorBoundary';
 
 import { AugmentedDemoExperience } from './augmentedModelTypes';
-import { UNAUTHORIZED } from './constants';
+import { ROSA_HANDS_ON_STATUS_ALERT_TEST_ID, UNAUTHORIZED } from './constants';
 import { DemoExperienceStatusEnum } from './DemoExperienceModels';
 import { RosaHandsOnCustomerSuccessLink } from './RosaHandsOnContactLinks';
 import RosaHandsOnErrorPage from './RosaHandsOnErrorPage';
@@ -44,6 +44,7 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
       alert = (
         <Alert
           component="span"
+          data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
           title={
             <>
               After {demoExperience.quota.limit} launches, you can create ROSA clusters using a
@@ -59,6 +60,7 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
     case DemoExperienceStatusEnum.Started:
       alert = (
         <Alert
+          data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
           title={
             <>
               Your current experience demo will end in{' '}
@@ -80,6 +82,7 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
       alert = (
         <Alert
           component="span"
+          data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
           title={
             <>
               We&apos;re experiencing an error on our end. This does not affect your quota. Try
@@ -106,7 +109,15 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
             <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
           </>
         );
-      alert = <Alert component="span" title={alertTitle} variant="danger" isInline />;
+      alert = (
+        <Alert
+          component="span"
+          data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
+          title={alertTitle}
+          variant="danger"
+          isInline
+        />
+      );
       break;
     }
     case DemoExperienceStatusEnum.Available:
@@ -114,6 +125,7 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
         demoExperience.quota.current > 0 ? (
           <Alert
             component="span"
+            data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
             variant="info"
             isInline
             title={
