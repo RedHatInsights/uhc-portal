@@ -5,7 +5,6 @@ import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-sharedvpc-firewall-cluster-creation.spec.json');
 const userSuffix = getUsernameSuffix();
 const clusterName = `${clusterProperties.ClusterName}-${userSuffix}`;
-const clusterDomainPrefix = clusterProperties.DomainPrefix;
 
 // Dedicated WIF for shared-VPC BYO firewall (1 WIF : 1 firewall-rules set).
 // Do not fall back to QE_GCP_WIF_CONFIG — that is the public WIF and filters out shared FW rules.
@@ -17,12 +16,12 @@ const FIREWALL_RULES_NAME_SHARED_VPC = SHARED_VPC_INFRA['FIREWALL_RULES_NAME'] |
 
 /**
  * Day-1 OSD GCP WIF Shared VPC BYO firewall rules (ROSAENG-72666).
- * Reference: osd-ondemand-gcp-wif-sharedvpc-dns-cluster-creation.spec.ts
+ * Shared VPC + firewall only — DNS zone coverage stays in the DNS smoke suite.
  */
 test.describe.serial(
   'OSD Marketplace GCP WIF Shared VPC firewall rules cluster creation',
   {
-    tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@sharedvpc', '@firewall', '@dns'],
+    tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@sharedvpc', '@firewall'],
   },
   () => {
     let clusterSubmitted = false;
@@ -80,10 +79,7 @@ test.describe.serial(
       createOSDWizardPage,
     }) => {
       await createOSDWizardPage.isClusterDetailsScreen();
-      await createOSDWizardPage.createCustomDomainPrefixCheckbox().check();
       await createOSDWizardPage.setClusterName(clusterName);
-      await createOSDWizardPage.closePopoverDialogs();
-      await createOSDWizardPage.setDomainPrefix(clusterDomainPrefix);
       await createOSDWizardPage.closePopoverDialogs();
       await createOSDWizardPage.selectRegion(region);
       await createOSDWizardPage.selectVersion(
@@ -128,11 +124,6 @@ test.describe.serial(
       await createOSDWizardPage
         .sharedHostProjectIdInput()
         .fill(SHARED_VPC_INFRA['HOST_PROJECT_ID'] || '');
-      await createOSDWizardPage.createDnsZoneToggle().click();
-      await expect(createOSDWizardPage.createDnsZoneCommand()).toHaveValue(
-        `ocm gcp create dns-zone --domain-prefix ${clusterDomainPrefix} --project-id <project-id> --network-project-id <network-project-id> --network-id <vpc-id>`,
-      );
-      await createOSDWizardPage.selectDnsZone(clusterDomainPrefix, true);
       await createOSDWizardPage.vpcNameInput().fill(SHARED_VPC_INFRA['VPC_NAME'] || '');
       await createOSDWizardPage
         .controlPlaneSubnetInput()
@@ -242,7 +233,6 @@ test.describe.serial(
       await expect(createOSDWizardPage.sharedHostProjectIdValue()).toContainText(
         SHARED_VPC_INFRA['HOST_PROJECT_ID'] || '',
       );
-      await expect(createOSDWizardPage.dnsZoneValue()).toContainText(clusterDomainPrefix);
       await expect(createOSDWizardPage.firewallRulesValue()).toHaveText(
         FIREWALL_RULES_NAME_SHARED_VPC,
       );
