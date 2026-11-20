@@ -670,21 +670,16 @@ mockups later (e.g. after the draft DDR).
 #### 4.1 Surface list (required before drawing)
 
 From **Phase 2 — UI Overview** + **Phase 3 — Codebase analysis** (and the draft
-DDR How if Phase 5 already ran), propose a short **surface list**, then wait for
-confirm/edit. Keep it product-generic — name console areas *this* feature
-touches (do not hardcode a feature-specific checklist).
+DDR How if Phase 5 already ran), propose a **short** surface list — only
+surfaces this feature **changes or adds**. Then wait for confirm/edit.
 
-Typical buckets (include only what applies):
-
-| Bucket | Examples |
-|---|---|
-| **Day 1 — create / register wizards** | ROSA / OSD / ODA wizard steps or sub-steps |
-| **Day 2 — cluster details** | Overview, Networking, Machine pools, Settings, Access control, … |
-| **Other console areas** | Cluster list, Downloads, Releases, Dashboards / HCC tiles, modals, drawers |
-
-For each surface, note **happy path** and **edge cases** worth drawing (hidden
-when gated, validation error, empty/absent API fields, unsupported product path,
-etc.).
+- Prefer lifecycle labels when useful (`day-1-…`, `day-2-…`), but do **not**
+  walk a fixed checklist of wizards, cluster-details tabs, or other console
+  areas looking for something to draw.
+- If Phase 2/3 named one wizard step and one Day 2 tab, the list is those two
+  (plus edge cases) — not Overview / Networking / Settings “for completeness.”
+- For each surface: **happy path** + **edge cases** worth drawing (gated/hidden,
+  validation error, empty API fields, unsupported product path, etc.).
 
 Optionally ask the user for **as-is screenshots** of those surfaces (current UI)
 to improve chrome/spacing fidelity. Screenshots are optional — the skill can
@@ -770,20 +765,26 @@ remain.
 
 #### Draft brevity
 
-Aim the **review-ready** draft at human-edited length. Prefer cutting scaffolding
-over cutting concrete How detail.
+Prefer **shorter** over longer. Cut scaffolding and cross-section repetition
+before cutting concrete How detail (controls, defaults, gates, API examples,
+real error rules).
 
-| Section | Target (review-ready) | Notes |
+Word counts below are **soft review-ready ceilings** (smell tests), **not**
+targets to hit and **not** hard limits. Do **not** pad to approach them. Do
+**not** delete needed How/API/error detail just to stay under them. Complex
+features may run longer; say so briefly if a section must exceed the ceiling.
+
+| Section | Soft ceiling (smell test) | Prefer |
 |---|---|---|
-| **What** | ~60 words / 1 short paragraph | No outs laundry list |
-| **User Stories** | ≤4 bullets, ~80 words | Persona once |
-| **Why** | ≤180 words; only rows with real content | Omit N/A guideline rows from published draft |
-| **How — Day 1 / Day 2** | ~150–200 words each | Concrete controls/defaults/gates |
-| **How — Errors** | ~200–300 when product-specific rules exist | Prefer upstream/API constraints over vague “validate” |
-| **How — API** | ~150–200 per operation | Example + 1 short paragraph (existing rule) |
-| **Tracking** | ≤40 words | |
-| **Alternatives** | ≤3 options, ~40 words each | Only real discards |
-| **Open Issues** | Draft ≤5 (≤40 words each); **0** when calling review-ready | Resolve into How before “Approved” |
+| **What** | ~1 short paragraph | Feature framing only — no outs laundry list |
+| **User Stories** | A handful of bullets | One persona; scenarios once |
+| **Why** | Short table; only rows with real content | Omit empty / N/A guideline rows from published draft |
+| **How — Day 1 / Day 2** | Concise but concrete | Controls / defaults / gates |
+| **How — Errors** | As long as the rules need | Upstream/API constraints over vague “validate” |
+| **How — API** | Short per operation | Example + 1 short paragraph (existing rule) |
+| **Tracking** | A few lines | |
+| **Alternatives** | Few real discards only | No strawmen |
+| **Open Issues** | Short while drafting; **empty** when review-ready | Resolve into How / Alternatives before “Approved” |
 
 Do **not** repeat the same decision across What + Why + How + Alternatives.
 
