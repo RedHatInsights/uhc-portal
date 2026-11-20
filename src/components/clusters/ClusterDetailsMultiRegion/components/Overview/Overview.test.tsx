@@ -13,11 +13,14 @@ jest.mock('~/redux/hooks', () => ({
 
 jest.mock('~/hooks/useAnalytics', () => () => jest.fn());
 
-jest.mock('./MissingOCMRoleAlert', () => ({
-  MissingOCMRoleAlert: ({ awsAccountId }: { awsAccountId: string }) => (
-    <div data-testid="missing-ocm-role-alert">OCM Role Alert {awsAccountId}</div>
-  ),
-}));
+jest.mock(
+  '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert',
+  () => ({
+    MissingOCMRoleAlert: ({ awsAccountId }: { awsAccountId: string }) => (
+      <div data-testid="missing-ocm-role-alert">OCM Role Alert {awsAccountId}</div>
+    ),
+  }),
+);
 
 jest.mock('./InsightsAdvisor/InsightsAdvisor', () => () => null);
 jest.mock('./CostBreakdownCard', () => () => null);
