@@ -1,0 +1,11 @@
+{
+  "tagKeyPrefix": "ocmui-e2e-tag",
+  "clusterTagValue": "cluster-value",
+  "machinePoolTagValue": "machine-pool-value",
+  "systemTagsReason": "Managed by Red Hat",
+  "systemTagsNote": "These tags are applied by Red Hat and cannot be edited or removed.",
+  "clusterTagsDescription": "Cluster AWS tags are applied to the AWS resources created for this cluster, including all machine pools.",
+  "requiredValueError": "Required",
+  "inheritedTagTooltip": "Inherited from the cluster. Change the value to override it for this machine pool.",
+  "inheritedTagRemoveReason": "Inherited tags can't be removed from a machine pool. Remove them from the cluster instead."
+}

@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
 
 import * as machinePoolUtils from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/machinePoolsHelper';
+import { AWS_TAGS_NEW_MP } from '~/queries/featureGates/featureConstants';
+import { mockUseFeatureGate } from '~/testUtils';
 
 import useMachinePoolFormik from './useMachinePoolFormik';
 import {
@@ -30,6 +32,7 @@ const mockUseOrganization = () => {
 describe('useMachinePoolFormik', () => {
   beforeEach(() => {
     mockUseOrganization();
+    mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
   });
 
   afterEach(() => {
@@ -744,7 +747,7 @@ describe('useMachinePoolFormik', () => {
     });
 
     describe('awsTags', () => {
-      it('skips tag validation when editing an existing pool (day-2 tags are not editable)', async () => {
+      it('skips tag validation when editing an existing pool on a version that cannot edit tags', async () => {
         const { validationSchema } = renderHook(() =>
           useMachinePoolFormik({
             cluster: hyperShiftCluster,
@@ -766,6 +769,81 @@ describe('useMachinePoolFormik', () => {
         await expect(validationSchema.validateAt('awsTags', values)).resolves.toEqual(
           values.awsTags,
         );
+      });
+
+      it('validates tags when editing an existing pool on 4.20 or above', async () => {
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: { ...hyperShiftCluster, openshift_version: '4.20.1' },
+            machinePool: { kind: 'NodePool', id: 'np-1', replicas: 2 },
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [{ key: 'env', value: '' }],
+        };
+
+        await expect(validationSchema.validateAt('awsTags[0].value', values)).rejects.toThrow(
+          'Required',
+        );
+      });
+
+      it('skips tag validation on 4.20 or above when the AWS tags section is hidden', async () => {
+        mockUseFeatureGate([[AWS_TAGS_NEW_MP, false]]);
+        const { validationSchema } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: { ...hyperShiftCluster, openshift_version: '4.20.1' },
+            machinePool: { kind: 'NodePool', id: 'np-1', replicas: 2 },
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        const values = {
+          ...defaultExpectedInitialValues,
+          awsTags: [{ key: 'bad,key', value: '' }],
+        };
+
+        await expect(validationSchema.validateAt('awsTags', values)).resolves.toEqual(
+          values.awsTags,
+        );
+      });
+
+      it('uses inherited, overridden and user node pool tags as initial values, without system tags', () => {
+        const { initialValues } = renderHook(() =>
+          useMachinePoolFormik({
+            cluster: {
+              ...hyperShiftCluster,
+              openshift_version: '4.20.1',
+              aws: { tags: { team: 'payments', owner: 'alice', 'red-hat-managed': 'true' } },
+            },
+            machinePool: {
+              kind: 'NodePool',
+              id: 'np-1',
+              replicas: 2,
+              aws_node_pool: {
+                tags: {
+                  env: 'prod',
+                  team: 'payments',
+                  owner: 'bob',
+                  'red-hat-managed': 'true',
+                  'api.openshift.com/id': 'abc',
+                },
+              },
+            },
+            machineTypes: defaultMachineTypes,
+            machinePools: defaultMachinePools,
+          }),
+        ).result.current;
+
+        expect(initialValues.awsTags).toEqual([
+          { key: 'team', value: 'payments', inheritedValue: 'payments' },
+          { key: 'owner', value: 'bob', inheritedValue: 'alice' },
+          { key: 'env', value: 'prod' },
+        ]);
       });
 
       it('rejects empty tag values when adding a new HCP machine pool', async () => {
@@ -832,7 +910,7 @@ describe('useMachinePoolFormik', () => {
               { key: 'env', value: 'two' },
             ],
           }),
-        ).rejects.toThrow('Each AWS Tag must have a different key.');
+        ).rejects.toThrow('Each AWS tag must have a different key.');
       });
 
       it('rejects a tag value without a key when adding a new machine pool', async () => {
@@ -850,7 +928,7 @@ describe('useMachinePoolFormik', () => {
             ...defaultExpectedInitialValues,
             awsTags: [{ key: '', value: 'orphan' }],
           }),
-        ).rejects.toThrow('AWS Tag key has to be defined');
+        ).rejects.toThrow('AWS tag key has to be defined');
       });
 
       it('accepts a valid tag key and value when adding a new HCP machine pool', async () => {

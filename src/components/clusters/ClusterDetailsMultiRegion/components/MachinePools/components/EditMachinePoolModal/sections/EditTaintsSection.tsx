@@ -109,6 +109,7 @@ const EditTaintsSection = ({
                             index={index}
                             onRemove={remove}
                             onPush={() => push({ key: '', value: '', effect: 'NoSchedule' })}
+                            ariaLabel="Remove taint"
                           />
                         </GridItem>
                       </React.Fragment>

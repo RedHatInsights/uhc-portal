@@ -51,8 +51,6 @@ export const HCP_SPOT_INSTANCES = 'ocmui-hcp-spot-instance-support';
 export const OCP5_SUPPORT = 'ocmui-ocp5-support';
 export const ROVS_REGISTRATION = 'ocmui-rovs-registration';
 
-export const ENABLE_AWS_TAGS_EDITING = false;
-
 export default {
   AUTO_CLUSTER_TRANSFER_OWNERSHIP,
   HYPERSHIFT_WIZARD_FEATURE,

@@ -13,6 +13,8 @@ import {
   Flex,
   HelperText,
   HelperTextItem,
+  Label,
+  LabelGroup,
   Timestamp,
   TimestampFormat,
 } from '@patternfly/react-core';
@@ -22,6 +24,11 @@ import { getQueryParam } from '~/common/queryHelpers';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { OverviewBillingAccount } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/BillingAccount/OverviewBillingAccount';
+import {
+  AWS_TAGS_EDIT_VERSION_REASON,
+  canEditAwsTagsForVersion,
+  splitAwsTags,
+} from '~/components/clusters/common/awsTags/awsTagsHelpers';
 import clusterStates, {
   canViewMachinePoolTab,
   isHypershiftCluster,
@@ -62,6 +69,7 @@ import { canUseSpotInstances } from '../../MachinePools/machinePoolsHelper';
 import SecurityGroupsDisplayByNode from '../../SecurityGroups/SecurityGroupsDetailDisplay';
 import ClusterNetwork from '../ClusterNetwork';
 import EditAutoNodeModal from '../EditAutoNodeModal/EditAutoNodeModal';
+import EditAwsTagsModal from '../EditAwsTagsModal/EditAwsTagsModal';
 import EditSpotInterruptionHandlingModal from '../EditSpotInterruptionHandlingModal/EditSpotInterruptionHandlingModal';
 
 import DeleteProtection from './DeleteProtection/DeleteProtection';
@@ -71,6 +79,7 @@ import LogForwardingConfiguration from './LogForwardingConfiguration';
 
 const AUTO_NODE_MIN_VERSION = '4.22.0';
 
+/** Right-hand column of the cluster Overview details card. */
 function DetailsRight({
   cluster,
   hasAutoscaleCluster,
@@ -114,6 +123,7 @@ function DetailsRight({
   const [isEditAutoNodeModalOpen, setIsEditAutoNodeModalOpen] = React.useState(false);
   const [isEditSpotInterruptionModalOpen, setIsEditSpotInterruptionModalOpen] =
     React.useState(false);
+  const [isEditAwsTagsModalOpen, setIsEditAwsTagsModalOpen] = React.useState(false);
 
   // Pause auto-refresh while the edit Autonode modal is open.
   const openEditAutoNodeModal = () => {
@@ -137,6 +147,16 @@ function DetailsRight({
     dispatch(closeModal());
   };
 
+  const openEditAwsTagsModal = () => {
+    setIsEditAwsTagsModalOpen(true);
+    dispatch(openModal(modals.EDIT_AWS_TAGS));
+  };
+
+  const closeEditAwsTagsModal = () => {
+    setIsEditAwsTagsModalOpen(false);
+    dispatch(closeModal());
+  };
+
   const clusterVersion = cluster?.openshift_version || cluster?.version?.raw_id || '';
 
   const coercedVersion = semver.coerce(clusterVersion);
@@ -145,6 +165,7 @@ function DetailsRight({
     : false;
 
   const isEnhancedSpotVersionValid = isEnhancedSpotVersionSupported(clusterVersion);
+  const canEditAwsTags = canEditAwsTagsForVersion(clusterVersion);
 
   const {
     hasMachinePoolWithAutoscaling,
@@ -221,6 +242,23 @@ function DetailsRight({
     isHypershift &&
     isEnhancedSpotVersionValid &&
     !isArchivedSubscription(cluster);
+
+  const showAwsTags = isAWS && isHypershift && !isArchivedSubscription(cluster);
+  const userAwsTags = Object.entries(splitAwsTags(cluster.aws?.tags, { isCluster: true }).editable);
+
+  const editAwsTagsButton = (
+    <EditButton
+      data-testid="editAwsTagsButton"
+      ariaLabel="Edit AWS tags"
+      disableReason={
+        (!cluster?.canUpdateClusterResource && 'You do not have permission to edit AWS tags.') ||
+        (!canEditAwsTags && AWS_TAGS_EDIT_VERSION_REASON) ||
+        (cluster?.state !== clusterStates.ready &&
+          'AWS tags can only be edited when the cluster is ready.')
+      }
+      onClick={openEditAwsTagsModal}
+    />
+  );
 
   const workerActualNodes = totalActualNodes === false ? '-' : totalActualNodes;
   const workerDesiredNodes = totalDesiredComputeNodes || '-';
@@ -606,6 +644,41 @@ function DetailsRight({
               {isSpotInterruptionEnhanced ? (
                 <div>SQS queue URL: {terminationHandlerQueueUrl}</div>
               ) : null}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </>
+      ) : null}
+      {/* AWS tags */}
+      {showAwsTags ? (
+        <>
+          {isEditAwsTagsModalOpen ? (
+            <EditAwsTagsModal cluster={cluster} region={region} onClose={closeEditAwsTagsModal} />
+          ) : null}
+          <DescriptionListGroup>
+            <DescriptionListTerm>AWS tags</DescriptionListTerm>
+            <DescriptionListDescription>
+              {userAwsTags.length > 0 ? (
+                // Rendered as the last item of the label group so it sits beside the last tag
+                <LabelGroup
+                  className="ocm-c-overview-aws-tags"
+                  numLabels={5}
+                  isCompact
+                  aria-label="AWS tags"
+                  data-testid="awsTags"
+                  addLabelControl={editAwsTagsButton}
+                >
+                  {userAwsTags.map(([key, value]) => (
+                    <Label key={key} isCompact>
+                      {key}={value}
+                    </Label>
+                  ))}
+                </LabelGroup>
+              ) : (
+                <>
+                  <span data-testid="awsTags">None</span>
+                  {editAwsTagsButton}
+                </>
+              )}
             </DescriptionListDescription>
           </DescriptionListGroup>
         </>

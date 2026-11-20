@@ -1773,4 +1773,104 @@ export class ClusterDetailsPage extends BasePage {
     await expect(this.clusterDomainPrefixLabelValue()).toBeVisible({ timeout: 30000 });
     return (await this.clusterDomainPrefixLabelValue().innerText()).trim();
   }
+
+  // ── Cluster AWS tags (ROSA HCP) ───────────────────────────────────────────
+
+  editAwsTagsButton(): Locator {
+    return this.page.getByRole('button', { name: 'Edit AWS tags' });
+  }
+
+  awsTagsOverviewList(): Locator {
+    return this.page.getByRole('list', { name: 'AWS tags', exact: true });
+  }
+
+  awsTagsOverviewLabel(key: string, value: string): Locator {
+    return this.awsTagsOverviewList().getByText(`${key}=${value}`, { exact: true });
+  }
+
+  editAwsTagsModal(): Locator {
+    return this.page.getByRole('dialog').filter({
+      has: this.page.getByRole('heading', { name: 'Edit cluster AWS tags', level: 1 }),
+    });
+  }
+
+  awsTagsReadOnlyList(reason: string): Locator {
+    return this.editAwsTagsModal().getByRole('list', { name: `${reason} AWS tags` });
+  }
+
+  saveAwsTagsButton(): Locator {
+    return this.editAwsTagsModal().getByRole('button', { name: 'Save' });
+  }
+
+  cancelAwsTagsButton(): Locator {
+    return this.editAwsTagsModal().getByRole('button', { name: 'Cancel' });
+  }
+
+  /** Opens the Edit cluster AWS tags modal from the Overview. */
+  async openEditAwsTagsModal(): Promise<void> {
+    await this.editAwsTagsButton().click();
+    await expect(this.editAwsTagsModal()).toBeVisible({ timeout: 30000 });
+  }
+
+  /** Closes the Edit cluster AWS tags modal without saving. */
+  async closeEditAwsTagsModal(): Promise<void> {
+    await this.cancelAwsTagsButton().click();
+    await expect(this.editAwsTagsModal()).toBeHidden({ timeout: 30000 });
+  }
+
+  /** Expands the Overview AWS tags label group when some tags are collapsed behind "N more". */
+  async showAllOverviewAwsTags(): Promise<void> {
+    const moreButton = this.awsTagsOverviewList().getByRole('button', { name: /more/ });
+    if (await moreButton.isVisible()) {
+      await moreButton.click();
+    }
+  }
+
+  /**
+   * Waits for a tag to appear on Overview after the cluster details refresh. Retries so the
+   * "N more" overflow control is expanded once it renders (e.g. when the new tag is the sixth).
+   */
+  async expectOverviewAwsTagVisible(key: string, value: string): Promise<void> {
+    await expect(async () => {
+      await this.showAllOverviewAwsTags();
+      await expect(this.awsTagsOverviewLabel(key, value)).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 30000 });
+  }
+
+  /** Saves the cluster AWS tags modal and returns the PATCH request body that was sent. */
+  async saveClusterAwsTags(): Promise<{ aws?: { tags?: Record<string, string | null> } }> {
+    const [request] = await Promise.all([
+      this.page.waitForRequest(
+        (req) =>
+          req.method() === 'PATCH' &&
+          /\/api\/clusters_mgmt\/v1\/clusters\/[^/?]+(\?|$)/.test(req.url()),
+        { timeout: 30000 },
+      ),
+      this.saveAwsTagsButton().click(),
+    ]);
+    await expect(this.editAwsTagsModal()).toBeHidden({ timeout: 30000 });
+    return request.postDataJSON();
+  }
+
+  /** Closes the Edit cluster AWS tags modal if it is open (e.g. after a failed test). */
+  async dismissEditAwsTagsModalIfOpen(): Promise<void> {
+    if (await this.editAwsTagsModal().isVisible()) {
+      await this.closeEditAwsTagsModal();
+    }
+  }
+
+  /** Removes a cluster AWS tag from the Overview, if present; used to restore shared clusters. */
+  async removeClusterAwsTagIfPresent(key: string): Promise<void> {
+    // An open modal hides the rest of the page from role-based locators such as the Overview tab
+    await this.dismissEditAwsTagsModalIfOpen();
+    await this.overviewTab().click();
+    await this.openEditAwsTagsModal();
+    const index = await this.awsTagRowIndex(this.editAwsTagsModal(), key);
+    if (index === -1) {
+      await this.closeEditAwsTagsModal();
+      return;
+    }
+    await this.awsTagRemoveButton(this.editAwsTagsModal(), index).click();
+    await this.saveClusterAwsTags();
+  }
 }

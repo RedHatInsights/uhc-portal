@@ -602,6 +602,61 @@ export class MachinePoolsPage extends BasePage {
     await expect(expanded.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
   }
 
+  // ── Machine pool AWS tags (ROSA HCP) ─────────────────────────────────────
+
+  awsTagsReadOnlyList(reason: string): Locator {
+    return this.machinePoolModal().getByRole('list', { name: `${reason} AWS tags` });
+  }
+
+  awsTagTooltip(text: string): Locator {
+    return this.page.getByRole('tooltip', { name: text });
+  }
+
+  /** Opens the edit modal for a machine pool on its labels, taints and AWS tags tab. */
+  async openMachinePoolAwsTags(id: string): Promise<void> {
+    await this.editMachinePool(id);
+    await this.labelsAndTaintsTab().click();
+    await expect(
+      this.machinePoolModal().getByRole('button', { name: 'Add AWS tag' }),
+    ).toBeVisible();
+  }
+
+  /** Saves an edited node pool and returns the PATCH request body that was sent. */
+  async saveMachinePoolAndGetPatchBody(
+    id: string,
+  ): Promise<{ aws_node_pool?: { tags?: Record<string, string | null> } }> {
+    await expect(this.addMachinePoolSubmitButton()).toBeEnabled();
+    const [request] = await Promise.all([
+      this.page.waitForRequest(
+        (req) => req.method() === 'PATCH' && req.url().includes(`/node_pools/${id}`),
+        { timeout: 30000 },
+      ),
+      this.addMachinePoolSubmitButton().click(),
+    ]);
+    await expect(this.machinePoolModal()).toBeHidden({ timeout: 60000 });
+    return request.postDataJSON();
+  }
+
+  /**
+   * Removes a machine pool's own AWS tag, or the override of a cluster tag. Inherited cluster tags
+   * cannot be removed from a machine pool (their remove button is disabled) and are left untouched.
+   */
+  async removeMachinePoolAwsTagIfPresent(id: string, key: string): Promise<void> {
+    await this.openMachinePoolAwsTags(id);
+    const modal = this.machinePoolModal();
+    const index = await this.awsTagRowIndex(modal, key);
+    const canRemove =
+      index !== -1 &&
+      (await this.awsTagRemoveButton(modal, index).getAttribute('aria-disabled')) !== 'true';
+    if (!canRemove) {
+      await this.cancelMachinePoolModalButton().click();
+      await expect(modal).toBeHidden({ timeout: 15000 });
+      return;
+    }
+    await this.awsTagRemoveButton(modal, index).click();
+    await this.saveMachinePoolAndGetPatchBody(id);
+  }
+
   async verifyTaints(id: string, key: string, value: string, effect: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: 'Taints' })).toBeVisible();
