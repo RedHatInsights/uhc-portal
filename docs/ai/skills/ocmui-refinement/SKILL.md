@@ -50,7 +50,7 @@ Sure! I can help refine <ISSUE_KEY>. Here are the steps we'll go through:
 - **Phase 5 — Draft DDR:** Write `<JiraID>_Draft_DDR.md` under `draft_ddr_dir`.
 - **Phase 6 — Stories:** After DDR acceptance, update the epic and create child stories.
 
-After Phase 3 you can choose: mockups before DDR, DDR before mockups, or skip mockups.
+After Phase 3: **Do mockups next?** `Y` / `N` (`N` → Phase 5 — Draft DDR).
 
 **Draft DDR directory (`draft_ddr_dir`):** Where should I create notes, mockups, and
 the draft DDR? Reply with an absolute path **outside** the uhc-portal repo, e.g.
@@ -157,8 +157,8 @@ End every reply with a footer. Use **words**, not empty checkbox glyphs:
 **Waiting on:** <one line — e.g. confirm sources / review UI Overview / approve Jira creates>
 ```
 
-If the user skips or reorders mockups/DDR, keep the phase **names** stable and note the
-chosen order in **Waiting on** (e.g. `DDR first; mockups deferred`).
+If the user skips or defers mockups, keep the phase **names** stable and note that in
+**Waiting on** (e.g. `Do mockups next? Y/N` or `mockups deferred; drafting DDR`).
 
 Roadmap-gate reply (before Phase 1 starts):
 
@@ -651,35 +651,86 @@ Carry every discrepancy forward: in **Phase 5** they become draft DDR
 **Open Issues** (what / why it matters for UI / next step). Do not drop them after
 Phase 3.
 
-**Checkpoint — choose Phase 4 / 5 order:**
+**Checkpoint — Phase 4 / 5:**
 
 ```markdown
-Phase 3 is done. Next you can:
-1. **Phase 4 — Mockups first**, then **Phase 5 — Draft DDR** (good if you want to "see" the UI before writing)
-2. **Phase 5 — Draft DDR first**, then **Phase 4 — Mockups**
-3. **Skip mockups** → go straight to **Phase 5 — Draft DDR**
+Phase 3 is done. **Do mockups next?** Reply `Y` / `N`
+(`N` → **Phase 5 — Draft DDR**; mockups can still be done after the draft if you want)
 ```
 
-Wait for the user’s choice before continuing. Default roadmap order is mockups then
-DDR, but never force mockups.
+Wait for the user’s reply before continuing. Never force mockups.
 
 ---
 
 ### Phase 4: Mockups
 
-Optional. Run when the user chose mockups-first, DDR-then-mockups, or asks for them.
+Optional. Run when the user answers **Y** to “Do mockups next?”, or asks for
+mockups later (e.g. after the draft DDR).
 
-- HTML files under `<draft_ddr_dir>/mockups/` per view
-  (e.g. `day-1-wizard.html`, `day-2-machine-pools.html`)
-- PatternFly look and feel; happy path + edge cases
-- PatternFly AI guidance: https://github.com/patternfly/ai-helpers/blob/main/docs/guidelines/ai-prompt-guidance.md
+#### 4.1 Surface list (required before drawing)
 
-If mockups run **before** the DDR, keep them lo-fi and treat them as design input for
-Phase 5. When the draft DDR is written, link mockups only from **References**
-(first bullet) — never as a How/Mockups section. Prefer a shareable URL if the user
-has one; do not paste local `draft_ddr_dir` filesystem paths into the DDR.
+From **Phase 2 — UI Overview** + **Phase 3 — Codebase analysis** (and the draft
+DDR How if Phase 5 already ran), propose a short **surface list**, then wait for
+confirm/edit. Keep it product-generic — name console areas *this* feature
+touches (do not hardcode a feature-specific checklist).
 
-Do not treat “no existing mockups in Jira” as a Phase 1 gap — this phase creates them.
+Typical buckets (include only what applies):
+
+| Bucket | Examples |
+|---|---|
+| **Day 1 — create / register wizards** | ROSA / OSD / ODA wizard steps or sub-steps |
+| **Day 2 — cluster details** | Overview, Networking, Machine pools, Settings, Access control, … |
+| **Other console areas** | Cluster list, Downloads, Releases, Dashboards / HCC tiles, modals, drawers |
+
+For each surface, note **happy path** and **edge cases** worth drawing (hidden
+when gated, validation error, empty/absent API fields, unsupported product path,
+etc.).
+
+Optionally ask the user for **as-is screenshots** of those surfaces (current UI)
+to improve chrome/spacing fidelity. Screenshots are optional — the skill can
+still produce lo-fi PatternFly HTML from the DDR + codebase map alone.
+
+Checkpoint before drawing:
+
+```markdown
+Proposed mockup surfaces:
+1. …
+2. …
+
+Optional: attach as-is screenshots of any of the above for fidelity.
+
+**Use this surface list?** Reply `Y` / edit the list / skip mockups.
+```
+
+Do **not** proceed to HTML until the user confirms the surface list (or
+explicitly says to use the proposed list / skip).
+
+#### 4.2 Output
+
+- HTML files under `<draft_ddr_dir>/mockups/` — **one file per surface** (or one
+  file per surface with clearly labeled happy/edge scenarios inside)
+- Naming: prefer lifecycle + area, e.g. `day-1-wizard-<step>.html`,
+  `day-2-networking.html`, `day-2-overview.html`, `downloads.html`
+- PatternFly look and feel; happy path + the confirmed edge cases
+- PatternFly AI guidance:
+  https://github.com/patternfly/ai-helpers/blob/main/docs/guidelines/ai-prompt-guidance.md
+
+**Design choices:** Pick the **single best** UX that fits the DDR + existing
+console patterns (labels, titles, step placement). Do **not** generate catalogs
+of title/layout alternatives unless the user asks for variants. Prefer current
+UI copy/structure when extending an existing surface.
+
+**Stay inside the decision:** Do not invent alternate navigation or page
+structure the sources/DDR already rejected (e.g. a new wizard step when How says
+extend an existing step). If mockups run **before** the DDR, stay lo-fi and
+avoid locking controversial layout; treat mockups as input to Phase 5.
+
+#### 4.3 After mockups exist
+
+If mockups run **before** the DDR, keep them lo-fi and treat them as design input
+for Phase 5. When the draft DDR is written, link mockups only from **References**
+(first bullet) — never as a How/Mockups section. Prefer a shareable URL if the
+user has one; do not paste local `draft_ddr_dir` filesystem paths into the DDR.
 
 ---
 
@@ -716,6 +767,29 @@ if Phase 4 already ran) + confirmed sources.
 any still-open parity/API questions that shape UI) into **Open Issues**. Each item:
 what / why it matters for UI / proposed next step or owner. Use `N/A` only if none
 remain.
+
+#### Draft brevity
+
+Aim the **review-ready** draft at human-edited length. Prefer cutting scaffolding
+over cutting concrete How detail.
+
+| Section | Target (review-ready) | Notes |
+|---|---|---|
+| **What** | ~60 words / 1 short paragraph | No outs laundry list |
+| **User Stories** | ≤4 bullets, ~80 words | Persona once |
+| **Why** | ≤180 words; only rows with real content | Omit N/A guideline rows from published draft |
+| **How — Day 1 / Day 2** | ~150–200 words each | Concrete controls/defaults/gates |
+| **How — Errors** | ~200–300 when product-specific rules exist | Prefer upstream/API constraints over vague “validate” |
+| **How — API** | ~150–200 per operation | Example + 1 short paragraph (existing rule) |
+| **Tracking** | ≤40 words | |
+| **Alternatives** | ≤3 options, ~40 words each | Only real discards |
+| **Open Issues** | Draft ≤5 (≤40 words each); **0** when calling review-ready | Resolve into How before “Approved” |
+
+Do **not** repeat the same decision across What + Why + How + Alternatives.
+
+**Open Issues → How:** While drafting, open questions are fine. Before the user
+treats the DDR as review-ready / Approved, resolve or drop Open Issues into
+**How** (or Alternatives). Do not ship a long parking lot in the final draft.
 
 **Rules:**
 
@@ -780,7 +854,9 @@ Keep mechanisms and API detail for **How**.
 - **How** — Apply `docs/templates/ddr-template.md` How guidelines: concise/concrete;
   UX impact; permissions; **API usage** as separate per-API blocks (example call
   first, then brief discussion); errors; testing; FedRAMP/rollout. No
-  Mockups/Tracking under How.
+  Mockups/Tracking under How. When OpenAPI, `ocm-api-model`, or sibling CLI/CS
+  docs state concrete constraints (prefix lengths, equality bans, version gates),
+  put those in **How — Errors** rather than leaving them only as Open Issues.
 - **Tracking** — **Once**, as `## Tracking` only.
 - **Open Issues / References / Alternatives / Acceptance Criteria / Reviews** —
   per template only
