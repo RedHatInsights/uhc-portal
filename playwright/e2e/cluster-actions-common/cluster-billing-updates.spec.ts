@@ -1,11 +1,11 @@
 import { expect, test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const rosaHostedFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const day1ClusterName =
   rosaHostedFixture['rosa-hosted-public-advanced']['day1-profile'].ClusterName;
-const clusterName = process.env.CLUSTER_NAME || `${day1ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(day1ClusterName);
 const awsBillingAccountId = process.env.QE_AWS_BILLING_ID || '';
 const secondaryAWSBillingAccountId = process.env.QE_AWS_SECONDARY_BILLING_ID || '';
 

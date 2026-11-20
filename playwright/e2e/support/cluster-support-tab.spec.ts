@@ -1,11 +1,11 @@
 import { expect, test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const supportData = require('../../fixtures/support/cluster-support-tab.spec.json');
 
 const day1ClusterName = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'].ClusterName;
-const clusterName = process.env.CLUSTER_NAME || `${day1ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(day1ClusterName);
 const notificationContact = supportData['NotificationContact'];
 const supportCases = supportData['SupportCases'];
 

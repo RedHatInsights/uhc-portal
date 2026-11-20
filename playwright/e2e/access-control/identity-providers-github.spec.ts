@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
@@ -10,9 +10,7 @@ test.describe.serial(
   'GitHub Identity Provider - Access Control (OCP-23708, OCP-32006)',
   { tag: ['@day2', '@access-control', '@rosa-hosted', '@hcp', '@idp'] },
   () => {
-    const clusterName =
-      process.env.CLUSTER_NAME ||
-      `${clusterProfile['day1-profile'].ClusterName}-${getUsernameSuffix()}`;
+    const clusterName = resolveClusterName(clusterProfile['day1-profile'].ClusterName);
     const clientId = process.env.GITHUB_CLIENT_ID || testData.ClientId;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET || testData.ClientSecret;
     const testOrg = process.env.GITHUB_TEST_ORG || testData.Organization;

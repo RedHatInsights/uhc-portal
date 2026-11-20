@@ -1,6 +1,6 @@
 import docLinks from '../../../src/common/docLinks.mjs';
 import { test, expect } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -9,8 +9,7 @@ const costSavings =
   clusterProfiles['rosa-hosted-public-advanced']['day2-profile'].MachinePools.CostSavings;
 const validationFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-wizard-validation.spec.json');
 const spot = validationFixture.ClusterSettings.Machinepool.SpotInterruption;
-const clusterName =
-  process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(clusterProperties.ClusterName);
 const region = clusterProperties.Region.split(',')[0];
 const qeInfrastructure = JSON.parse(process.env.QE_INFRA_REGIONS || '{}')[region]?.[0] || {};
 const zones = qeInfrastructure.SUBNETS?.ZONES;

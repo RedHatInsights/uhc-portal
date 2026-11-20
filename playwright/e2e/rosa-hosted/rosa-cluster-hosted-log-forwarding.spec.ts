@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -12,8 +12,7 @@ test.describe.serial(
   'ROSA HCP Day2 - Control plane log forwarding management',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@hcp', '@log-forwarding', '@advanced'] },
   () => {
-    const clusterName =
-      process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
+    const clusterName = resolveClusterName(clusterProperties.ClusterName);
     const s3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const s3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';
     const cwRoleArn = process.env.QE_LOG_FORWARDING_CLOUDWATCH_ROLE_ARN || '';

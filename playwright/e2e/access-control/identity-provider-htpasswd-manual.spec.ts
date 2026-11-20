@@ -1,6 +1,6 @@
 import { expect, test } from '../../fixtures/pages';
 import { ClusterIdentityProviderPage } from '../../page-objects/cluster-identity-provider-page';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 
 const {
   'rosa-hosted-public-advanced': clusterProfile,
@@ -8,7 +8,7 @@ const {
 const htpasswdProfile = require('../../fixtures/access-control/identity-provider-htpasswd.json');
 
 const day1Profile = clusterProfile['day1-profile'];
-const clusterName = process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(day1Profile.ClusterName);
 const commonIdpName = htpasswdProfile.Htpasswd.Common.IDPName;
 const manualProfile = htpasswdProfile.Htpasswd.Manual;
 

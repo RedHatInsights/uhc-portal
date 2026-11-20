@@ -1,10 +1,9 @@
 import { test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-ccs-gcp-private-wif-psc-cluster-creation-advanced.spec.json');
-const clusterName =
-  process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(clusterProperties.ClusterName);
 
 test.describe.serial(
   'OSD GCP CCS WIF private PSC cluster delete tests',
