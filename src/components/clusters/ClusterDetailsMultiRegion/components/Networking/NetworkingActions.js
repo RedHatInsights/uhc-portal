@@ -127,6 +127,43 @@ const createDefaultRouterRequest = (newData, currentData) => {
     requestDefaultRouter.cluster_routes_tls_secret_ref = newData.clusterRoutesTlsSecretRef;
   }
 
+  const componentRoutes = {};
+  const nextConsoleHostname = newData.consoleHostname ?? '';
+  const nextConsoleTlsSecretRef = newData.consoleTlsSecretRef ?? '';
+  const currentConsoleHostname = currentData.default.consoleHostname || '';
+  const currentConsoleTlsSecretRef = currentData.default.consoleTlsSecretRef || '';
+  if (
+    newData.consoleHostname !== undefined &&
+    newData.consoleTlsSecretRef !== undefined &&
+    (nextConsoleHostname !== currentConsoleHostname ||
+      nextConsoleTlsSecretRef !== currentConsoleTlsSecretRef)
+  ) {
+    componentRoutes.console = {
+      hostname: nextConsoleHostname,
+      tls_secret_ref: nextConsoleTlsSecretRef,
+    };
+  }
+
+  const nextDownloadsHostname = newData.downloadsHostname ?? '';
+  const nextDownloadsTlsSecretRef = newData.downloadsTlsSecretRef ?? '';
+  const currentDownloadsHostname = currentData.default.downloadsHostname || '';
+  const currentDownloadsTlsSecretRef = currentData.default.downloadsTlsSecretRef || '';
+  if (
+    newData.downloadsHostname !== undefined &&
+    newData.downloadsTlsSecretRef !== undefined &&
+    (nextDownloadsHostname !== currentDownloadsHostname ||
+      nextDownloadsTlsSecretRef !== currentDownloadsTlsSecretRef)
+  ) {
+    componentRoutes.downloads = {
+      hostname: nextDownloadsHostname,
+      tls_secret_ref: nextDownloadsTlsSecretRef,
+    };
+  }
+
+  if (Object.keys(componentRoutes).length > 0) {
+    requestDefaultRouter.component_routes = componentRoutes;
+  }
+
   return requestDefaultRouter;
 };
 

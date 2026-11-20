@@ -2,7 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import { getRandomID } from '~/common/helpers';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
 
 import { DefaultIngressFieldsFormik } from './DefaultIngressFieldsFormik';
@@ -102,5 +105,134 @@ describe('DefaultIngressFieldsFormik – Exclude namespace selectors', () => {
     await waitFor(() => {
       expect(screen.getByText(protectedNamespaceSelectorValidationMessage)).toBeInTheDocument();
     });
+  });
+});
+
+describe('DefaultIngressFieldsFormik – HCP component routes', () => {
+  const hcpFormikValues = {
+    ...defaultFormikValues,
+    consoleHostname: '',
+    consoleTlsSecretRef: '',
+    downloadsHostname: '',
+    downloadsTlsSecretRef: '',
+  };
+
+  beforeEach(() => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
+  });
+
+  it('renders Console and Downloads hostname/TLS fields for Hypershift day-2', async () => {
+    render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Console hostname' })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('textbox', { name: 'Console TLS secret name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Downloads hostname' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Downloads TLS secret name' })).toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields for Classic', () => {
+    render(
+      <Formik initialValues={defaultFormikValues} onSubmit={() => {}}>
+        <DefaultIngressFieldsFormik isDay2 hasSufficientIngressEditVersion />
+      </Formik>,
+    );
+
+    expect(screen.queryByRole('textbox', { name: 'Console hostname' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Downloads TLS secret name' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields when feature gate is off', () => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+    render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    expect(screen.queryByRole('textbox', { name: 'Console hostname' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Downloads TLS secret name' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Console hostname is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Console hostname' }),
+      'console.example.com',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Console TLS secret name is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Console TLS secret name' }),
+      'console-tls',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Downloads hostname is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Downloads hostname' }),
+      'downloads.example.com',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows pair validation when only Downloads TLS secret name is set', async () => {
+    const { user } = render(
+      <Formik initialValues={hcpFormikValues} onSubmit={() => {}}>
+        {({ values }) => <DefaultIngressFieldsFormik isDay2 isHypershiftCluster values={values} />}
+      </Formik>,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Downloads TLS secret name' }),
+      'downloads-tls',
+    );
+    await user.tab();
+
+    expect(
+      await screen.findByText('You cannot provide only one of TLS secret name and Hostname'),
+    ).toBeInTheDocument();
   });
 });
