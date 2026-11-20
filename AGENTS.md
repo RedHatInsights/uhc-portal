@@ -17,6 +17,7 @@ console-dot widgets:        console-dot-widgets.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
+react-query keys:           react-query-keys.md
 ```
 
 For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
