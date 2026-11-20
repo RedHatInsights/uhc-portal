@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { organizationCapabilities } from '~/common/capabilities';
 import useOrganization from '~/components/CLILoginPage/useOrganization';
 import { OCM_ROLE_NO_CONSOLE_PROFILE } from '~/components/clusters/wizards/rosa/rosaConstants';
 import { refetchGetOCMRole, useFetchGetOCMRole } from '~/queries/common/useFetchGetOCMRole';
@@ -484,7 +484,7 @@ describe('<ReviewClusterScreen />', () => {
           organization: {
             capabilities: [
               {
-                name: subscriptionCapabilities.HCP_ALLOW_EXTERNAL_AUTHENTICATION,
+                name: organizationCapabilities.HCP_ALLOW_EXTERNAL_AUTHENTICATION,
                 value: 'true',
                 inherited: false,
               },

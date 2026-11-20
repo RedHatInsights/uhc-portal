@@ -397,6 +397,98 @@ describe('<NetworkSelfServiceSection />', () => {
     });
   });
 
+  it('shows only the new role success notification when an older grant for the same ARN is already ready', () => {
+    const userArn = 'fake-arn';
+
+    useAddGrantMock.mockReturnValue({
+      data: { data: { id: 'new-grant', user_arn: userArn } },
+    });
+    useFetchRolesMock.mockReturnValue({
+      data: [
+        { id: 'read-only', displayName: 'Read Only' },
+        { id: 'network-mgmt', displayName: 'Network Management' },
+      ],
+    });
+    useFetchGrantsMock.mockReturnValue({
+      data: [
+        {
+          id: 'old-grant',
+          user_arn: userArn,
+          state: 'ready',
+          role: { id: 'read-only' },
+          console_url: 'http://example.com',
+        },
+        {
+          id: 'new-grant',
+          user_arn: userArn,
+          state: 'ready',
+          role: { id: 'network-mgmt' },
+          console_url: 'http://example.com',
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<NetworkSelfServiceSection {...props} />);
+
+    expect(mockedAddNotification).toHaveBeenCalledTimes(1);
+    expect(mockedAddNotification).toHaveBeenCalledWith({
+      variant: 'success',
+      title: 'Network Management role successfully created for fake-arn',
+      dismissDelay: 8000,
+      dismissable: false,
+    });
+  });
+
+  it('does not show the success notification again when the grants list refreshes while another grant is pending', () => {
+    const userArn = 'fake-arn';
+    const newGrant = {
+      id: 'new-grant',
+      user_arn: userArn,
+      state: 'ready',
+      role: { id: 'network-mgmt' },
+      console_url: 'http://example.com',
+    };
+    const pendingGrant = {
+      id: 'pending-grant',
+      user_arn: 'other-arn',
+      state: 'pending',
+      role: { id: 'read-only' },
+      console_url: 'http://example.com',
+    };
+
+    useAddGrantMock.mockReturnValue({
+      data: { data: { id: 'new-grant', user_arn: userArn } },
+    });
+    useFetchRolesMock.mockReturnValue({
+      data: [
+        { id: 'read-only', displayName: 'Read Only' },
+        { id: 'network-mgmt', displayName: 'Network Management' },
+      ],
+    });
+    useFetchGrantsMock.mockReturnValue({
+      data: [newGrant, pendingGrant],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    const { rerender } = render(<NetworkSelfServiceSection {...props} />);
+    expect(mockedAddNotification).toHaveBeenCalledTimes(1);
+
+    useFetchGrantsMock.mockReturnValue({
+      data: [{ ...newGrant }, { ...pendingGrant }],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    rerender(<NetworkSelfServiceSection {...props} />);
+
+    expect(mockedAddNotification).toHaveBeenCalledTimes(1);
+  });
+
   it('should disable add button when canEdit is false', () => {
     useFetchGrantsMock.mockReturnValue({
       data: fakeGrants,

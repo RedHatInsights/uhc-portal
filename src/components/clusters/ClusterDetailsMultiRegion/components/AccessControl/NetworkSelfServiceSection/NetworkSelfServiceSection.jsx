@@ -57,6 +57,7 @@ const NetworkSelfServiceSection = ({
 }) => {
   const dispatch = useDispatch();
   const addNotification = useAddNotification();
+  const notifiedGrantKey = React.useRef(undefined);
   const [deletedRowIndex, setDeletedRowIndex] = React.useState(undefined);
   const [refetchInterval, setRefetchInterval] = React.useState(false);
 
@@ -104,35 +105,39 @@ const NetworkSelfServiceSection = ({
   }, [setRefetchInterval, grants]);
 
   React.useEffect(() => {
-    grants?.data?.forEach((grant) => {
-      if (addGrantsData && grant.user_arn === addGrantsData?.data?.user_arn) {
-        switch (grant.state) {
-          case 'failed':
-            addNotification({
-              variant: 'danger',
-              title: `Role creation failed for ${grant.user_arn}`,
-              description: grant.state_description,
-              dismissDelay: 8000,
-              dismissable: false,
-            });
+    const createdGrantId = addGrantsData?.data?.id;
+    const grant = grants?.data?.find((item) => item.id === createdGrantId);
+    if (!grant) {
+      return;
+    }
 
-            break;
-          case 'ready':
-            addNotification({
-              variant: 'success',
-              title: `${grant.roleName} role successfully created for ${grant.user_arn}`,
-              dismissDelay: 8000,
-              dismissable: false,
-            });
+    if (grant.state !== 'ready' && grant.state !== 'failed') {
+      refetchGrants();
+      return;
+    }
 
-            break;
-          case 'deleting':
-          case 'pending':
-          default:
-            refetchGrants();
-            break;
-        }
-      }
+    const notificationKey = `${grant.id}:${grant.state}`;
+    if (notifiedGrantKey.current === notificationKey) {
+      return;
+    }
+    notifiedGrantKey.current = notificationKey;
+
+    if (grant.state === 'failed') {
+      addNotification({
+        variant: 'danger',
+        title: `Role creation failed for ${grant.user_arn}`,
+        description: grant.state_description,
+        dismissDelay: 8000,
+        dismissable: false,
+      });
+      return;
+    }
+
+    addNotification({
+      variant: 'success',
+      title: `${grant.roleName} role successfully created for ${grant.user_arn}`,
+      dismissDelay: 8000,
+      dismissable: false,
     });
     // Adding grants as dependency results in infinite API call loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
