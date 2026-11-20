@@ -34,8 +34,11 @@ accuracy of the DDR.
 
 **When writing**
 
-- Use an LLM to help refine, clarify, reorganize, or provide a final review of your DDR.
-- Do not let an LLM write the document end-to-end.
+- Use an LLM to help refine, clarify, reorganize, draft, or provide a final review of
+  your DDR. An assistant-written **first draft** is allowed; you still own the content.
+- Do not treat an LLM draft as finished: review and edit before publishing or marking
+  the DDR review-ready. Do not let an LLM complete the document end-to-end **without**
+  that author review.
 - Keep only LLM output that is clear, accurate, and useful. Discard anything that is
   sloppy, repetitive, padded, or confusing.
 - Keep DDRs concise and slop-free so reviewers can focus on the decision, not the prose.

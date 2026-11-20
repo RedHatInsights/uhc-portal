@@ -69,6 +69,7 @@ Procedural skills live in `docs/ai/skills/`. Each skill is a `SKILL.md` that def
 **Auto-detection (Cursor):** Cursor auto-detects skills from `~/.cursor/skills/`. Developers who want auto-detection can symlink:
 
 ```bash
+mkdir -p ~/.cursor/skills
 ln -sf /path/to/uhc-portal/docs/ai/skills/ocmui-refinement ~/.cursor/skills/ocmui-refinement
 ```
 
@@ -116,6 +117,12 @@ export JIRA_USERNAME="you@redhat.com"
 export JIRA_API_TOKEN="<your-token>"
 
 exec uvx mcp-atlassian
+```
+
+Then make it executable and owner-only (the script holds a token in plain text):
+
+```bash
+chmod 700 ~/.local/share/mcp-atlassian/run-mcp-atlassian.sh
 ```
 
 4. Register in `~/.cursor/mcp.json`:

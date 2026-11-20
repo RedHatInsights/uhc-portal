@@ -76,24 +76,39 @@ I'll use this `draft_ddr_dir` layout:
 **Use this `draft_ddr_dir`?** Reply `Y` / `yes` to create it (if needed) and start
 **Phase 1 — Intake**. Reply `N` to give a different path.
 
+If the path **already exists and is non-empty**, also warn clearly before any wipe:
+
+```markdown
+⚠️ This directory already has files. Confirming will **delete all contents**
+(including unrelated files), then start a fresh run.
+
+Reply `wipe` to clear it and continue, `preserve` to keep existing files, or
+`N` to choose a different (preferably empty) path.
+```
+
 Substitute real `<FeatureOrKey>` / `<JiraID>` guesses from the ticket when known;
 otherwise keep placeholders and note they will be finalized in Phase 1.
 
-Footer Waiting on: `confirm draft_ddr_dir Y/N`
+Footer Waiting on: `confirm draft_ddr_dir Y/N` (or `wipe` / `preserve` if non-empty)
 
-#### A.3 On `Y` — prepare `draft_ddr_dir` and start Phase 1
+#### A.3 On confirm — prepare `draft_ddr_dir` and start Phase 1
 
-Only after `Y` / `yes`:
+Only after an explicit confirm:
 
 1. **If `draft_ddr_dir` does not exist** — create it (and `mockups/`).
-2. **If `draft_ddr_dir` already exists** — reuse that path, but treat this as a
-   **fresh run**: delete/clear its contents (notes, draft DDR, `mockups/`, and any
-   other files left from a prior run) so Phase 1 starts clean. Briefly tell the
-   user you wiped the directory for a new run.
-3. Remember the path as `<draft_ddr_dir>` for the session.
-4. Begin **Phase 1 — Intake** (there is no Phase 0).
+2. **If `draft_ddr_dir` exists and is empty** — reuse it; create `mockups/` if needed.
+3. **If `draft_ddr_dir` exists and is non-empty:**
+   - On `wipe` (or equivalent explicit clear confirm) — delete/clear **all**
+     contents, then continue. Briefly tell the user you wiped it for a new run.
+   - On `preserve` — **do not** delete anything; skip the fresh-run wipe (see
+     Fresh run policy for how Phase 2/5 write files).
+   - On bare `Y` alone when non-empty — **do not wipe**; re-ask for `wipe` /
+     `preserve` / new path.
+4. Remember the path as `<draft_ddr_dir>` for the session.
+5. Begin **Phase 1 — Intake** (there is no Phase 0).
 
 On `N`, ask for a new path and repeat A.2. Never default to the uhc-portal workspace.
+Prefer an empty directory when starting fresh.
 
 ### Step B — Narrated status while working (every discovery/analysis turn)
 
@@ -309,16 +324,23 @@ Do **not** create or mention a `support_docs/` folder.
 
 ### Fresh run — clean `draft_ddr_dir`
 
-Each time the user confirms `draft_ddr_dir` with `Y` for a refinement run:
+Default is a clean slate, but **never wipe without an explicit confirm** when the
+directory is non-empty (see A.2 / A.3).
 
 | Situation | Action |
 |---|---|
 | Directory missing | **Create** it (+ `mockups/`) |
-| Directory exists | **Reuse** the path, but **erase all contents** first, then continue |
+| Directory empty | **Reuse** as-is (+ `mockups/` if needed) |
+| Directory non-empty + user said `wipe` | **Erase all contents**, then continue |
+| Directory non-empty + user said `preserve` / diff | **Do not wipe**; keep existing files |
 
-Do not merge or resume prior notes/drafts/mockups. Say briefly that the directory
-was cleared for a new run. Only skip the wipe if the user explicitly asks to
-preserve or diff against existing files.
+On a normal wiped fresh run: do not merge prior notes/drafts/mockups; say briefly
+that the directory was cleared.
+
+**Preserve / diff mode:** When the user asked to preserve or diff, Phase 2 and
+Phase 5 must **not** silently overwrite existing
+`*_Refinement_Notes.md` / `*_Draft_DDR.md`. Ask before replacing, or write a new
+filename (e.g. `…_Draft_DDR_v2.md`). Do not invent a full versioning scheme.
 
 ---
 
@@ -500,9 +522,10 @@ mockups or the DDR.
 
 Write working notes to
 `<draft_ddr_dir>/<FeatureOrKey>_Refinement_Notes.md`, derived from the feature
-title or Jira key. **Overwrite** if it already exists (Fresh run policy).
-**Never** name this file `DDR_Refinement.md` or write it into uhc-portal.
-Scratch analysis only — not DDR-template content.
+title or Jira key. On a wiped fresh run, **overwrite** if it already exists.
+If the user chose **preserve** / diff, ask before replacing or use a new
+filename (Fresh run policy). **Never** name this file `DDR_Refinement.md` or
+write it into uhc-portal. Scratch analysis only — not DDR-template content.
 
 Prefer the terms **UI Overview** and **UI impact** — avoid “teach-in.”
 
@@ -723,9 +746,22 @@ avoid locking controversial layout; treat mockups as input to Phase 5.
 #### 4.3 After mockups exist
 
 If mockups run **before** the DDR, keep them lo-fi and treat them as design input
-for Phase 5. When the draft DDR is written, link mockups only from **References**
-(first bullet) — never as a How/Mockups section. Prefer a shareable URL if the
-user has one; do not paste local `draft_ddr_dir` filesystem paths into the DDR.
+for Phase 5.
+
+When linking mockups from the draft DDR (**References**, first bullet only —
+never a How/Mockups section):
+
+- Prefer a **shareable URL** if the user has one.
+- **Never** paste local `draft_ddr_dir` filesystem paths into the DDR.
+- If mockups are only local HTML and there is no URL yet: ask the user to publish
+  and provide a link, **or** put a short References placeholder
+  (`Mockups — shareable link TBD`) / omit until a link exists. Do **not** block
+  drafting the rest of the DDR on hosting.
+
+**If Phase 4 runs after Phase 5** (user answered `N` to mockups-next, then later
+asked for mockups): update the existing draft DDR **References** with the mockup
+link/placeholder, and remind the user to re-Paste as Markdown into the feature
+DDR gDoc if they already published.
 
 ---
 
@@ -739,7 +775,15 @@ pastes into the feature DDR gDoc afterward — see below):
 ```
 
 Use the UI epic key when known (else the refine-spike key), e.g.
-`…/ROSAENG-69928_Draft_DDR.md`. **Overwrite** if it already exists from a prior run.
+`…/ROSAENG-69928_Draft_DDR.md`. On a wiped fresh run, **overwrite** if it already
+exists. If the user chose **preserve** / diff, ask before replacing or use a new
+filename (Fresh run policy).
+
+**Authorship:** The assistant may produce a **complete first draft** under
+`draft_ddr_dir`. The human author still owns accuracy and must review/edit before
+the feature DDR gDoc is treated as review-ready (aligns with
+`docs/templates/ddr-template.md` Prerequisites). Do not publish or mark Approved
+without that author pass.
 
 **DDR structure SoT at draft time:** `docs/templates/ddr-template.md`.
 Apply that file’s section guidelines when drafting (including How’s “Guidelines”
@@ -784,13 +828,21 @@ features may run longer; say so briefly if a section must exceed the ceiling.
 | **How — API** | Short per operation | Example + 1 short paragraph (existing rule) |
 | **Tracking** | A few lines | |
 | **Alternatives** | Few real discards only | No strawmen |
-| **Open Issues** | Short while drafting; **empty** when review-ready | Resolve into How / Alternatives before “Approved” |
+| **Open Issues** | Short while drafting; **empty** when review-ready | Only after real decisions — see below |
 
 Do **not** repeat the same decision across What + Why + How + Alternatives.
 
-**Open Issues → How:** While drafting, open questions are fine. Before the user
-treats the DDR as review-ready / Approved, resolve or drop Open Issues into
-**How** (or Alternatives). Do not ship a long parking lot in the final draft.
+**Open Issues → How:** While drafting, open questions are fine. Before calling the
+DDR review-ready / Approved:
+
+- **Decided** items → fold the decision into **How** (or **Alternatives**) and
+  remove from Open Issues.
+- **Still unresolved** (especially API/product discrepancies that block UI) →
+  **keep them in Open Issues**. Moving text into How/Alternatives without a
+  decision does **not** count as resolved and must not be used to force an empty
+  Open Issues list.
+- Do not ship a long unresolved parking lot as if the DDR were done; either get
+  decisions or leave the blockers visible.
 
 **Rules:**
 
@@ -936,11 +988,12 @@ For a prompt like `Help me refine <spike-url>`:
 
 **After user sends a path (still no Phase 1 tools):**
 1. Print the `draft_ddr_dir/` tree with `#` one-line comments (real path filled in)
-2. Ask **Use this `draft_ddr_dir`?** `Y` / `N`
-3. Footer: Waiting on: `confirm draft_ddr_dir Y/N`
+2. Ask **Use this `draft_ddr_dir`?** `Y` / `N` (if non-empty: warn + ask `wipe` /
+   `preserve` / new path)
+3. Footer: Waiting on: `confirm draft_ddr_dir Y/N` (or wipe/preserve)
 
-**On `Y` → Phase 1 — Intake:**
-1. Create `draft_ddr_dir` if missing, or wipe existing contents for a fresh run
+**On confirm → Phase 1 — Intake:**
+1. Create `draft_ddr_dir` if missing; wipe only after explicit `wipe` when non-empty
 2. Narrated status while fetching
 3. `## Phase 1 — Intake: hierarchy & source discovery`
 4. ASCII hierarchy map + discovered sources
