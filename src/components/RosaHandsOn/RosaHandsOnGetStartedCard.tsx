@@ -70,40 +70,45 @@ const CheckListItem = ({
   </ListItem>
 );
 
-const DefaultCardBody = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => (
-  <List isPlain>
-    <CheckListItem
-      popoverContent={
-        <>
-          You may launch a demo up to <strong>{demoExperience.quota.limit} times</strong> total. If
-          you have questions, you can join the{' '}
-          <ExternalLink href={rosaHandsOnLinks.slackChannel}>
-            ROSA community Slack channel
-          </ExternalLink>{' '}
-          or reach out to the <RosaHandsOnCustomerSuccessLink linkText="customer success team" />.
-        </>
-      }
-      popoverHeader="What to expect"
-    >
-      Access to a free hands-on experience of ROSA that will last for {MAX_DURATION} hours.
-    </CheckListItem>
-    <CheckListItem
-      popoverContent="Your time will not start until after the cluster is provisioned."
-      popoverHeader="Getting started"
-    >
-      One-click deployment of a ROSA cluster in a demo environment.
-    </CheckListItem>
-    <CheckListItem>
-      A view into a fully managed turnkey application platform with integrated services and tools,
-      <br />
-      fully backed by a global team of site reliability engineers (SREs).
-    </CheckListItem>
-    <CheckListItem>
-      Step-by-step guided content on how to get started and build, deploy and scale an application
-      on ROSA.
-    </CheckListItem>
-  </List>
-);
+const DefaultCardBody = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => {
+  // Guardrail: incomplete API/override payloads may omit quota (service also normalizes).
+  const quotaLimit = demoExperience.quota?.limit ?? 0;
+
+  return (
+    <List isPlain>
+      <CheckListItem
+        popoverContent={
+          <>
+            You may launch a demo up to <strong>{quotaLimit} times</strong> total. If you have
+            questions, you can join the{' '}
+            <ExternalLink href={rosaHandsOnLinks.slackChannel}>
+              ROSA community Slack channel
+            </ExternalLink>{' '}
+            or reach out to the <RosaHandsOnCustomerSuccessLink linkText="customer success team" />.
+          </>
+        }
+        popoverHeader="What to expect"
+      >
+        Access to a free hands-on experience of ROSA that will last for {MAX_DURATION} hours.
+      </CheckListItem>
+      <CheckListItem
+        popoverContent="Your time will not start until after the cluster is provisioned."
+        popoverHeader="Getting started"
+      >
+        One-click deployment of a ROSA cluster in a demo environment.
+      </CheckListItem>
+      <CheckListItem>
+        A view into a fully managed turnkey application platform with integrated services and tools,
+        <br />
+        fully backed by a global team of site reliability engineers (SREs).
+      </CheckListItem>
+      <CheckListItem>
+        Step-by-step guided content on how to get started and build, deploy and scale an application
+        on ROSA.
+      </CheckListItem>
+    </List>
+  );
+};
 
 const CreateRosaClusterLink = (props: any) => <Link {...props} to={rosaHandsOnLinks.getStarted} />;
 

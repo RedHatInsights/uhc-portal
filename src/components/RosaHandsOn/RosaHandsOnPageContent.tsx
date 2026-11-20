@@ -36,7 +36,10 @@ const getErrorMessage = (error: unknown): string => {
 export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoExperience }) => {
   const remainingTime =
     new Date(demoExperience.scheduled_delete_timestamp || '').getTime() - Date.now();
-  const remainingQuota = demoExperience.quota.limit - demoExperience.quota.current;
+  // Guardrail: incomplete API/override payloads may omit quota (service also normalizes).
+  const quotaCurrent = demoExperience.quota?.current ?? 0;
+  const quotaLimit = demoExperience.quota?.limit ?? 0;
+  const remainingQuota = quotaLimit - quotaCurrent;
   const launchLabel = remainingQuota === 1 ? 'launch' : 'launches';
   let alert;
   switch (demoExperience.status) {
@@ -47,8 +50,8 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
           data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
           title={
             <>
-              After {demoExperience.quota.limit} launches, you can create ROSA clusters using a
-              pay-as-you-go option. If you have any questions, you can{' '}
+              After {quotaLimit} launches, you can create ROSA clusters using a pay-as-you-go
+              option. If you have any questions, you can{' '}
               <RosaHandsOnCustomerSuccessLink linkText="contact support" />.
             </>
           }
@@ -122,7 +125,7 @@ export const StatusAlert = ({ demoExperience }: { demoExperience: AugmentedDemoE
     }
     case DemoExperienceStatusEnum.Available:
       alert =
-        demoExperience.quota.current > 0 ? (
+        quotaCurrent > 0 ? (
           <Alert
             component="span"
             data-testid={ROSA_HANDS_ON_STATUS_ALERT_TEST_ID}
