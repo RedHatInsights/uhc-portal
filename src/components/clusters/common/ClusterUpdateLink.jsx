@@ -46,7 +46,10 @@ const ClusterUpdateLink = ({ cluster, hideOSDUpdates }) => {
   // Only show Update tooltip/link for OSD clusters when the feature toggle is enabled
   // or OCP clusters that have available updates
   const cannotUpgrade =
-    !cluster.canEdit || !osdUpgradeAvailable || isHibernating(cluster) || isStale;
+    !(cluster.canUpdateSubscription ?? cluster.canEdit) ||
+    !osdUpgradeAvailable ||
+    isHibernating(cluster) ||
+    isStale;
   if ((cluster.managed && cannotUpgrade) || (!cluster.managed && (!upgrade.available || isStale))) {
     return null;
   }

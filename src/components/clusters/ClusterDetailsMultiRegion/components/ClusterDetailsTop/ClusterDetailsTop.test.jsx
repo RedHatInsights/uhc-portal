@@ -71,7 +71,7 @@ describe('<ClusterDetailsTop />', () => {
   const defaultCluster = {
     console: { url: 'https:myConsoleURL.com' },
     subscription: { status: SubscriptionCommonFieldsStatus.Active },
-    canEdit: true,
+    canUpdateSubscription: true,
     managed: true,
   };
 
@@ -288,7 +288,7 @@ describe('<ClusterDetailsTop />', () => {
         ...defaultCluster,
         ccs: { enabled: true },
         aiCluster: { id: 'myClusterId' },
-        canEdit: false,
+        canUpdateSubscription: false,
         subscription: {
           ...defaultCluster.subscription,
           plan: { id: normalizedProducts.OCP_AssistedInstall, type: normalizedProducts.OCP },

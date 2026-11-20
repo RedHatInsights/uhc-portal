@@ -341,7 +341,7 @@ const mockGCPCluster = {
   },
   upgradeGates: [],
   limitedSupportReasons: [],
-  canEdit: true,
+  canUpdateSubscription: true,
   canEditOCMRoles: true,
   canViewOCMRoles: true,
   canUpdateClusterResource: true,

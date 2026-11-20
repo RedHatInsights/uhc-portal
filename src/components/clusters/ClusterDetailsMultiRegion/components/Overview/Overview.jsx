@@ -92,7 +92,7 @@ const Overview = (props) => {
     get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Disconnected;
   const metricsAvailable =
     hasResourceUsageMetrics(cluster) &&
-    (cluster.canEdit ||
+    (cluster.canUpdateSubscription ||
       ![clusterStates.waiting, clusterStates.pending, clusterStates.installing].includes(
         cluster.state,
       ));
@@ -251,7 +251,7 @@ const Overview = (props) => {
           {showSubscriptionSettings && (
             <SubscriptionSettings
               subscription={subscription}
-              canEdit={cluster.canEdit}
+              canEdit={cluster.canUpdateSubscription}
               canSubscribeOCP={canSubscribeOCP}
               isLoading={isSubscriptionSettingsRequestPending || clusterDetailsLoading}
             />

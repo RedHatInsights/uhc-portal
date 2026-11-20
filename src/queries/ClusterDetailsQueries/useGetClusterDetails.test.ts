@@ -64,7 +64,7 @@ describe('useClusterDetails hook', () => {
     const useFetchActionsPermissionsMock = jest.requireMock('./useFetchActionsPermissions');
     useFetchActionsPermissionsMock.useFetchActionsPermissions.mockReturnValue({
       isLoading: false,
-      canEdit: true,
+      canUpdateSubscription: true,
       canEditClusterAutoscaler: true,
       canEditOCMRoles: true,
       canViewOCMRoles: true,
@@ -92,7 +92,7 @@ describe('useClusterDetails hook', () => {
     });
 
     expect(result.current.cluster?.id).toBe(mockedClusterResponse.data.id);
-    expect(result.current.cluster?.canEdit).toBe(true);
+    expect(result.current.cluster?.canUpdateSubscription).toBe(true);
     expect(result.current.cluster?.canUpdateClusterResource).toBe(true);
   });
 
@@ -118,7 +118,7 @@ describe('useClusterDetails hook', () => {
     const useFetchActionsPermissionsMock = jest.requireMock('./useFetchActionsPermissions');
     useFetchActionsPermissionsMock.useFetchActionsPermissions.mockReturnValue({
       isLoading: false,
-      canEdit: true,
+      canUpdateSubscription: true,
       canEditClusterAutoscaler: true,
       canEditOCMRoles: true,
       canViewOCMRoles: true,

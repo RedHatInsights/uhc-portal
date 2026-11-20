@@ -39,7 +39,7 @@ describe('<AddOnsPrimaryButton />', () => {
     addClusterAddOn,
     addClusterAddOnResponse,
     cluster: {
-      canEdit: true,
+      canUpdateSubscription: true,
       id: 'fake id',
       state: 'ready',
       console: { url: 'https://example.com/veryfakeconsole' },
@@ -114,7 +114,7 @@ describe('<AddOnsPrimaryButton />', () => {
       ...props,
       installedAddOn: null,
       cluster: {
-        canEdit: true,
+        canUpdateSubscription: true,
         id: 'fake id',
         state: 'installing',
         console: { url: 'https://example.com/veryfakeconsole' },
@@ -134,7 +134,7 @@ describe('<AddOnsPrimaryButton />', () => {
       ...props,
       installedAddOn: null,
       cluster: {
-        canEdit: false,
+        canUpdateSubscription: false,
         id: 'fake id',
         state: 'ready',
         console: { url: 'https://example.com/veryfakeconsole' },
@@ -155,7 +155,7 @@ describe('<AddOnsPrimaryButton />', () => {
       isAddClusterAddOnPending: true,
       installedAddOn: null,
       cluster: {
-        canEdit: true,
+        canUpdateSubscription: true,
         id: 'fake id',
         state: 'ready',
         console: { url: 'https://example.com/veryfakeconsole' },
@@ -176,7 +176,7 @@ describe('<AddOnsPrimaryButton />', () => {
       addClusterAddOnResponse: {},
       activeCardRequirementsFulfilled: false,
       cluster: {
-        canEdit: true,
+        canUpdateSubscription: true,
         id: 'fake id',
         state: 'ready',
         console: { url: 'https://example.com/veryfakeconsole' },
@@ -198,7 +198,7 @@ describe('<AddOnsPrimaryButton />', () => {
       addClusterAddOnResponse: { pending: false },
       activeCardRequirementsFulfilled: true,
       cluster: {
-        canEdit: true,
+        canUpdateSubscription: true,
         id: 'fake id',
         state: 'ready',
         console: { url: 'https://example.com/veryfakeconsole' },

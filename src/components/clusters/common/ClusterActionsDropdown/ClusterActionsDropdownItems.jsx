@@ -335,28 +335,31 @@ function actionResolver(
   };
 
   const showDelete = cluster.canDelete && cluster.managed;
-  const showScale = cluster.canEdit && cluster.managed && !cluster.ccs?.enabled;
+  const canUpdateSubscription = cluster.canUpdateSubscription ?? cluster.canEdit;
+  const showScale = canUpdateSubscription && cluster.managed && !cluster.ccs?.enabled;
   const showHibernateCluster =
-    cluster.canEdit &&
+    canUpdateSubscription &&
     cluster.managed &&
     canHibernateCluster &&
     !isProductOSDTrial &&
     !isHypershiftCluster(cluster);
-  const showEditMachinePool = cluster.canEdit && cluster.managed;
+  const showEditMachinePool = canUpdateSubscription && cluster.managed;
   const subscriptionStatus = get(cluster, 'subscription.status');
   const isArchived = subscriptionStatus === SubscriptionCommonFieldsStatus.Archived;
-  const showArchive = cluster.canEdit && !cluster.managed && cluster.subscription && !isArchived;
-  const showUnarchive = cluster.canEdit && !cluster.managed && cluster.subscription && isArchived;
+  const showArchive =
+    canUpdateSubscription && !cluster.managed && cluster.subscription && !isArchived;
+  const showUnarchive =
+    canUpdateSubscription && !cluster.managed && cluster.subscription && isArchived;
   const showEditURL =
     !cluster.managed &&
-    cluster.canEdit &&
+    canUpdateSubscription &&
     (showConsoleButton || consoleURL) &&
     !isAssistedInstallCluster(cluster);
   const product = get(cluster, 'subscription.plan.type', '');
   const showEditSubscriptionSettings =
-    product === normalizedProducts.OCP && cluster.canEdit && canSubscribeOCP;
+    product === normalizedProducts.OCP && canUpdateSubscription && canSubscribeOCP;
   // const showEditSubscriptionSettings =
-  //   product === normalizedProducts.OCP && cluster.canEdit && canSubscribeOCP;
+  //   product === normalizedProducts.OCP && canUpdateSubscription && canSubscribeOCP;
   const isAllowedProducts = [
     normalizedProducts.OCP,
     normalizedProducts.ARO,
@@ -364,18 +367,18 @@ function actionResolver(
     normalizedProducts.ROVS,
   ].includes(product);
   const showTransferClusterOwnership =
-    cluster.canEdit &&
+    canUpdateSubscription &&
     canTransferClusterOwnership &&
     cluster.subscription &&
     (isAllowedProducts ||
       (allowAutoTransferClusterOwnership && isClusterOwner && isClusterReady)) &&
     subscriptionStatus !== SubscriptionCommonFieldsStatus.Archived &&
     subscriptionStatus !== SubscriptionCommonFieldsStatus.Deprovisioned;
-  const showUpgradeTrialCluster = isClusterReady && cluster.canEdit && isProductOSDTrial;
+  const showUpgradeTrialCluster = isClusterReady && canUpdateSubscription && isProductOSDTrial;
 
   return [
     showConsoleButton && getAdminConsoleProps(),
-    cluster.canEdit && getEditDisplayNameProps(),
+    canUpdateSubscription && getEditDisplayNameProps(),
     showEditURL && getEditConsoleURLProps(),
     showScale && getScaleClusterProps(),
     showHibernateCluster && getHibernateClusterProps(),

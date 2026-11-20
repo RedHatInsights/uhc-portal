@@ -7,7 +7,7 @@ import { screen, withState } from '~/testUtils';
 import AccessControl from './AccessControl';
 
 const buildCluster = ({ clusterProps, subscriptionProps, consoleUrl, apiUrl }) => ({
-  canEdit: true,
+  canUpdateSubscription: true,
   id: 'clusterId',
   cloud_provider: { id: 'azure' },
   subscription: {

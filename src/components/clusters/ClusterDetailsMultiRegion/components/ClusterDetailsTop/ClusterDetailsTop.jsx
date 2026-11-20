@@ -203,7 +203,7 @@ function ClusterDetailsTop(props) {
     !clusterIdentityProvidersError &&
     !hasIdentityProviders;
 
-  const canUpgradeTrial = cluster.state === clusterStates.ready && cluster.canEdit;
+  const canUpgradeTrial = cluster.state === clusterStates.ready && cluster.canUpdateSubscription;
   const trialExpirationUpgradeProps = canUpgradeTrial
     ? {
         trialExpiration: true,
@@ -243,7 +243,7 @@ function ClusterDetailsTop(props) {
         Open console
       </Button>
     );
-  } else if (cluster.canEdit && !isUninstalledAICluster(cluster)) {
+  } else if (cluster.canUpdateSubscription && !isUninstalledAICluster(cluster)) {
     launchConsole = (
       <Button variant="primary" onClick={() => addConsoleURLModal()}>
         Add console URL
@@ -254,7 +254,7 @@ function ClusterDetailsTop(props) {
   // TODO: Required until actions menu story is done
   const actions = !isUninstalledAICluster(cluster) && (
     <ClusterActionsDropdown
-      disabled={!cluster.canEdit && !cluster.canDelete}
+      disabled={!cluster.canUpdateSubscription && !cluster.canDelete}
       cluster={cluster}
       organization={organization.details}
       showConsoleButton={false}
@@ -283,7 +283,7 @@ function ClusterDetailsTop(props) {
   const trialEndDate = isProductOSDTrial && get(cluster, 'subscription.trial_end_date');
 
   const canNotEditReason =
-    !cluster.canEdit && 'You do not have permissions to unarchive this cluster';
+    !cluster.canUpdateSubscription && 'You do not have permissions to unarchive this cluster';
 
   const unarchiveBtn = (
     <ButtonWithTooltip
@@ -361,7 +361,8 @@ function ClusterDetailsTop(props) {
     !isDeprovisioned &&
     (supportLevel === SubscriptionCommonFieldsSupportLevel.Eval ||
       supportLevel === SubscriptionCommonFieldsSupportLevel.None);
-  const hasClusterNonEditableAlert = !cluster.canEdit && isAvailableAssistedInstallCluster(cluster);
+  const hasClusterNonEditableAlert =
+    !cluster.canUpdateSubscription && isAvailableAssistedInstallCluster(cluster);
   const hasReccomendedOperatorsAlert = showRecommendedOperatorsAlert;
   const [hasTermsAlert, setHasTermsAlert] = React.useState(false);
   const [hasTransferClusterOwnershipAlert, setHasTransferClusterOwnershipAlert] =
@@ -508,7 +509,7 @@ function ClusterDetailsTop(props) {
               openModal={openModal}
               canSubscribeOCP={canSubscribeOCP}
             />
-            {!cluster.canEdit && isAvailableAssistedInstallCluster(cluster) && (
+            {!cluster.canUpdateSubscription && isAvailableAssistedInstallCluster(cluster) && (
               <ClusterNonEditableAlert />
             )}
             <TransferClusterOwnershipInfo

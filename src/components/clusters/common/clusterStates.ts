@@ -234,7 +234,7 @@ const isOffline = <E extends ClusterFromSubscription>(cluster: E): boolean =>
   isHibernating(cluster) || cluster.state === ClusterState.uninstalling;
 
 const getClusterAIPermissions = (cluster: ClusterWithPermissions) => ({
-  canEdit: cluster.canEdit,
+  canEdit: cluster.canUpdateSubscription,
 });
 
 /**

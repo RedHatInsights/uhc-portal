@@ -173,7 +173,7 @@ function AccessControl({
           >
             <NetworkSelfServiceSection
               clusterID={get(cluster, 'id')}
-              canEdit={cluster.canEdit}
+              canEdit={cluster.canUpdateSubscription}
               clusterHibernating={isHibernating(cluster)}
               isReadOnly={isReadOnly}
               region={region}
@@ -199,7 +199,7 @@ function AccessControl({
             isHidden={transferOwnershipIsHidden}
           >
             <ClusterTransferSection
-              canEdit={cluster?.canEdit}
+              canEdit={cluster?.canUpdateSubscription}
               clusterExternalID={cluster.subscription?.external_cluster_id}
               subscription={cluster.subscription}
             />

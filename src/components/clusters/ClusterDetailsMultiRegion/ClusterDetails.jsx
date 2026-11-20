@@ -467,7 +467,7 @@ const ClusterDetails = (props) => {
       cluster.external_id === undefined;
   const displaySupportTab = !hideSupportTab && !isOSDTrial;
   const displayUpgradeSettingsTab =
-    cluster.managed && !isAROCluster && cluster.canEdit && !isArchived;
+    cluster.managed && !isAROCluster && cluster.canUpdateSubscription && !isArchived;
 
   const accessRequestsTabVisible = accessProtection?.enabled;
 

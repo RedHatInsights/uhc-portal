@@ -115,7 +115,7 @@ describe('Overview BillingAccount Component', () => {
     useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
       cluster: {
         ...fixtures.clusterDetails.cluster,
-        canEdit: true,
+        canUpdateSubscription: true,
         aws: {
           billing_account_id: '123456',
         },

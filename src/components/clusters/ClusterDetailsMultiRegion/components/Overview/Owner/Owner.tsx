@@ -29,13 +29,13 @@ export function Owner() {
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const showOwnershipTransfer =
-    cluster?.canEdit &&
+    cluster?.canUpdateSubscription &&
     cluster?.state === clusterStates.ready &&
     cluster?.subscription?.creator?.username === username &&
     hasFeatureGate &&
     isCompatibleFeature(SupportedFeature.AUTO_CLUSTER_TRANSFER_OWNERSHIP, cluster);
   const disableChangeReason =
-    !cluster?.canEdit && 'You do not have permission to transfer ownership.';
+    !cluster?.canUpdateSubscription && 'You do not have permission to transfer ownership.';
   const owner =
     cluster?.subscription?.creator?.name || cluster?.subscription?.creator?.username || 'N/A';
   const OwnerTransferButton = (

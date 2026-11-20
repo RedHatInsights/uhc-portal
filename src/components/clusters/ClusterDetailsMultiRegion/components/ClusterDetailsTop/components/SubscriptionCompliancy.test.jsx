@@ -24,7 +24,7 @@ d.setDate(d.getDate() - 5);
 const defaultProps = {
   cluster: {
     creation_timestamp: d.toLocaleString(),
-    canEdit: true,
+    canUpdateSubscription: true,
     subscription: {
       plan: { type: normalizedProducts.OCP },
       support_level: SubscriptionCommonFieldsSupportLevel.Eval,

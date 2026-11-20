@@ -103,7 +103,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
         {lastChecked}
         <p>
           Your cluster is not supported and you may stop receiving updates.{' '}
-          {cluster.canEdit ? (
+          {cluster.canUpdateSubscription ? (
             <>
               {textForUsersCanEdit}{' '}
               <Button variant="link" isInline onClick={handleArchiveCluster}>
@@ -140,7 +140,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
             .
           </>
         )}{' '}
-        {cluster.canEdit ? textForUsersCanEdit : textForUsersCanNotEdit}
+        {cluster.canUpdateSubscription ? textForUsersCanEdit : textForUsersCanNotEdit}
       </p>
     </Alert>
   );
@@ -149,7 +149,7 @@ function SubscriptionCompliancy({ cluster, openModal, canSubscribeOCP = false })
 SubscriptionCompliancy.propTypes = {
   cluster: PropTypes.shape({
     creation_timestamp: PropTypes.string,
-    canEdit: PropTypes.bool,
+    canUpdateSubscription: PropTypes.bool,
   }),
   openModal: PropTypes.func.isRequired,
   canSubscribeOCP: PropTypes.bool.isRequired,
