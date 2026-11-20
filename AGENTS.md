@@ -17,6 +17,8 @@ console-dot widgets:        console-dot-widgets.md
 unit-testing:               unit-testing.md
 e2e-testing:                Playwright-e2e-test-automation-guidelines.md
 e2e-testing FAQ:            Playwright-e2e-test-automation-faq.md
+AI skills:                  ai/skills/   (see AI Skills below)
+templates:                  templates/   (DDR + Jira; see Templates below)
 ```
 
 For information about the generation of TS models from OpenAPI specs, check the `/openapi/README.md` doc.
@@ -49,6 +51,121 @@ playwright/     # Playwright E2E tests
 mockdata/       # Mock API data for local development
 __mocks__/      # Jest module mocks
 ```
+
+## AI Skills
+
+Procedural skills live in `docs/ai/skills/`. Each skill is a `SKILL.md` that defines a multi-step workflow an AI agent can follow.
+
+**Available skills:**
+
+| Skill | Trigger phrases |
+| :--- | :--- |
+| `ocmui-refinement` | "refine", "DDR", "feature refinement", "help me refine \<Jira ticket\>" |
+
+**Using skills:** When the user mentions a trigger phrase, read the corresponding `docs/ai/skills/<name>/SKILL.md` and follow its instructions. The `ocmui-refinement` skill reads team templates from `docs/templates/`.
+
+**Portable requirements for `ocmui-refinement`:** Jira access via `$JIRA_EMAIL`/`$JIRA_TOKEN` **or** Atlassian MCP; a uhc-portal checkout for `docs/templates/` and codebase analysis; a user-chosen output directory outside the repo for draft artifacts. Does **not** require personal Cursor rules, `gog`, or Slack MCP.
+
+**Auto-detection (Cursor):** Cursor auto-detects skills from `~/.cursor/skills/`. Developers who want auto-detection can symlink:
+
+```bash
+mkdir -p ~/.cursor/skills
+ln -sf /path/to/uhc-portal/docs/ai/skills/ocmui-refinement ~/.cursor/skills/ocmui-refinement
+```
+
+## Templates
+
+Team DDR and Jira issue templates for any LLM / human use (not skill-specific). Live in
+`docs/templates/`. Skills (including `ocmui-refinement`) read from this path.
+
+```text
+docs/templates/
+  ddr-template.md           # DDR (Design Decision Record) for feature refinement
+  jira/
+    epic-template.md        # Jira epic description structure
+    story-template.md       # Implementation story format
+    task-template.md        # Technical task format
+    bug-template.md         # Bug ticket format
+```
+
+Canonical DDR outline for humans: [OCMUI-DDR-0000: Template](https://docs.google.com/document/d/1QE1pgNfG-60Wve2ucAgefWShLFEZaB3mmj7U5d7-xjY/edit?usp=sharing).
+Keep `docs/templates/ddr-template.md` in sync with that gDoc.
+
+Read the relevant template before creating or updating Jira issues / drafting a DDR.
+
+## MCP Integrations (optional per developer)
+
+Model Context Protocol servers extend AI agents with access to external services. These are configured per-developer in `~/.cursor/mcp.json`.
+
+### Jira MCP (`mcp-atlassian`)
+
+Provides full CRUD access to Jira Cloud (`redhat.atlassian.net`). Useful for fetching tickets, creating stories, and updating epics from AI workflows.
+
+**Setup:**
+
+1. Install `uv` (provides `uvx`): `brew install uv`
+2. Generate a Jira API token at: https://id.atlassian.com/manage-profile/security/api-tokens
+3. Create a wrapper script (e.g., `~/.local/share/mcp-atlassian/run-mcp-atlassian.sh`):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Source your credentials (however you manage secrets locally)
+export JIRA_URL="https://redhat.atlassian.net"
+export JIRA_USERNAME="you@redhat.com"
+export JIRA_API_TOKEN="<your-token>"
+
+exec uvx mcp-atlassian
+```
+
+Then make it executable and owner-only (the script holds a token in plain text):
+
+```bash
+chmod 700 ~/.local/share/mcp-atlassian/run-mcp-atlassian.sh
+```
+
+4. Register in `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "mcp-atlassian": {
+      "command": "/Users/you/.local/share/mcp-atlassian/run-mcp-atlassian.sh",
+      "args": []
+    }
+  }
+}
+```
+
+5. Verify: restart Cursor, open a new chat, and ask "Fetch Jira ticket OCMUI-4891"
+
+### Slack MCP (`redhat-community-ai-tools/slack-mcp`)
+
+Search messages, post comments, and browse channels in Red Hat Slack. Uses session tokens (no admin approval required).
+
+**Setup:**
+
+1. Run the setup script: `python3 <(curl -fsSL https://raw.githubusercontent.com/redhat-community-ai-tools/slack-mcp/main/scripts/setup-slack-mcp.py)`
+2. Follow the prompts to log in and extract session tokens
+3. Register in `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "slack-mcp": {
+      "command": "/path/to/run-slack-mcp.sh",
+      "args": []
+    }
+  }
+}
+```
+
+Requires `podman` installed locally.
+
+### PatternFly MCP
+
+Built-in Cursor plugin (`plugin-pf-mcp-patternfly`). Provides `searchPatternFlyDocs` and `usePatternFlyDocs` for searching PatternFly component documentation. No setup required — enabled by default.
 
 ## PR and Commit Conventions
 
