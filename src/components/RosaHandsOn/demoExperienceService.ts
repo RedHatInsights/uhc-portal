@@ -19,17 +19,17 @@ const normalizeQuota = (quota?: Partial<DemoExperienceQuota>): DemoExperienceQuo
 const getAugmentedDemoExperienceStatus = (
   demoExperience: DemoExperience,
 ): AugmentedDemoExperienceStatus => {
-  const quota = demoExperience.quota;
+  const { quota, status } = demoExperience;
   // Require a real quota object before rewriting — missing quota must not become
   // quota-exceeded via 0 >= 0 after normalization.
   if (
-    demoExperience.status === DemoExperienceStatusEnum.Unavailable &&
+    status === DemoExperienceStatusEnum.Unavailable &&
     quota != null &&
     quota.current >= quota.limit
   ) {
     return 'quota-exceeded';
   }
-  return demoExperience.status;
+  return status;
 };
 
 const URL = '/demoExperience/rosa-hands-on';
