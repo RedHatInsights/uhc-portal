@@ -131,7 +131,11 @@ export class RosaHandsOnPage extends BasePage {
   }
 
   recommendedContentRow(title: string): Locator {
-    return this.page.locator('tr', { has: this.page.getByText(title, { exact: true }) });
+    // PF Table exposes role="grid", not "table".
+    return this.page
+      .getByRole('grid', { name: 'Recommended content table' })
+      .getByRole('row')
+      .filter({ has: this.page.getByText(title, { exact: true }) });
   }
 
   /**

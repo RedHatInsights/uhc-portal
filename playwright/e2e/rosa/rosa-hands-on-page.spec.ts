@@ -14,9 +14,9 @@ const payloads = handsOnFixture.demoExperience;
 /**
  * Hands-on e2e (ROSAENG-75830)
  *
- * - @ci mocked suite: static chrome + mailto/CTA states (deterministic, no demo API dependency)
+ * - @ci mocked suite: static chrome + mailto/CTA states including started/deploying
+ *   (deterministic, no demo API dependency)
  * - @smoke live suite: adapts to whatever the environment's demo API returns
- * - @advanced mocked suite: started / deploying CTAs (covered lightly; deeper copy in unit tests)
  *
  * Mock payloads and expected hrefs live in playwright/fixtures/rosa/rosa-hands-on-page.spec.json
  * (not imported from src/) so expectations stay stable if app constants move.
@@ -89,6 +89,16 @@ test.describe(
       await rosaHandsOnPage.expectStatusSpecificUi(experience);
     });
 
+    test('started — Access experience CTA', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.started);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('deploying — Provisioning cluster CTA', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.deploying);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
     test('request experience POST failure — shows Failed to request an experience', async ({
       rosaHandsOnPage,
     }) => {
@@ -132,32 +142,6 @@ test.describe(
           experience.unavailableReason ? ` reason=${experience.unavailableReason}` : ''
         }`,
       });
-      await rosaHandsOnPage.expectStatusSpecificUi(experience);
-    });
-  },
-);
-
-test.describe(
-  'ROSA Hands-on Experience page — mocked provisioning states (ROSAENG-75830)',
-  { tag: ['@advanced', '@rosa'] },
-  () => {
-    test.beforeAll(async ({ navigateTo, rosaHandsOnPage }) => {
-      await rosaHandsOnPage.mockDemoExperience(payloads.started);
-      await navigateTo(ROSA_HANDS_ON_ROUTE);
-      await rosaHandsOnPage.isRosaHandsOnPage();
-    });
-
-    test.afterAll(async ({ rosaHandsOnPage }) => {
-      await rosaHandsOnPage.clearDemoExperienceMock();
-    });
-
-    test('started — Access experience CTA', async ({ rosaHandsOnPage }) => {
-      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.started);
-      await rosaHandsOnPage.expectStatusSpecificUi(experience);
-    });
-
-    test('deploying — Provisioning cluster CTA', async ({ rosaHandsOnPage }) => {
-      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.deploying);
       await rosaHandsOnPage.expectStatusSpecificUi(experience);
     });
   },
