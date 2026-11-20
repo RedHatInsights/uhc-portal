@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfile = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -18,7 +19,8 @@ test.describe.serial(
   'ROSA Hosted (Hypershift) cluster - Windows License Included feature validation',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@windows-license', '@advanced'] },
   () => {
-    const clusterName = process.env.CLUSTER_NAME || day1Profile.ClusterName;
+    const clusterName =
+      process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
     const machinePoolName = `win-li-${Math.random().toString(36).slice(2, 7)}`;
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {

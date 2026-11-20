@@ -5,7 +5,7 @@
       "ControlPlaneType": "Hosted architecture",
       "Type": "ROSA",
       "DomainPrefix": "rosahcpad",
-      "ClusterName": "ply-rosa-hosted-public-advanced",
+      "ClusterName": "ocmui-rosa-hosted-public-advanced",
       "Region": "us-west-2, US West, Oregon",
       "Availability": "Multi-zone",
       "AdditionalEncryption": "Disabled",

@@ -37,7 +37,7 @@ export class MachinePoolsPage extends BasePage {
   }
 
   capacityReservationIdInput(): Locator {
-    return this.page.getByLabel('Reservation Id');
+    return this.machinePoolModal().getByRole('textbox', { name: 'Reservation Id' });
   }
 
   capacityReservationHintButton(): Locator {

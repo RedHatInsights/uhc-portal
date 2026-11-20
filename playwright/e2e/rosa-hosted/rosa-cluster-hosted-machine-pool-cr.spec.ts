@@ -1,9 +1,11 @@
 import { test, expect } from '../../fixtures/pages';
+import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
 const clusterProperties = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'];
-const clusterName = process.env.CLUSTER_NAME || clusterProperties.ClusterName;
+const clusterName =
+  process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
 const region = clusterProperties.Region.split(',')[0];
 const qeInfrastructure = JSON.parse(process.env.QE_INFRA_REGIONS || '{}')[region]?.[0] || {};
 
@@ -37,10 +39,11 @@ test.describe.serial(
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       if (
         !qeInfrastructure.CAPACITY_RESERVATION?.AvailabilityZone ||
-        !qeInfrastructure.CAPACITY_RESERVATION?.ID
+        !qeInfrastructure.CAPACITY_RESERVATION?.ID ||
+        !qeInfrastructure.CAPACITY_RESERVATION?.InstanceType
       ) {
         throw new Error(
-          `CAPACITY_RESERVATION.AvailabilityZone/ID is not defined in QE_INFRA_REGIONS for region "${region}"`,
+          `CAPACITY_RESERVATION.AvailabilityZone/ID/InstanceType is not defined in QE_INFRA_REGIONS for region "${region}"`,
         );
       }
       const az = qeInfrastructure.CAPACITY_RESERVATION.AvailabilityZone;
@@ -111,6 +114,9 @@ test.describe.serial(
       }) => {
         await machinePoolsPage.openAddMachinePoolModal();
         await machinePoolsPage.machinePoolIdInput().fill(mp.id);
+        await machinePoolsPage.selectInstanceType(
+          qeInfrastructure.CAPACITY_RESERVATION.InstanceType,
+        );
         await machinePoolsPage.selectPrivateSubnet(
           qeInfrastructure.SUBNETS.ZONES[qeInfrastructure.CAPACITY_RESERVATION.AvailabilityZone]
             .PRIVATE_SUBNET_NAME,
