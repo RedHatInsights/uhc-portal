@@ -447,6 +447,28 @@ export class NetworkingPage extends BasePage {
     await expect(panel.getByText(cidr.Hostprefix, { exact: true })).toBeVisible();
   }
 
+  vpcDetailsCardTitle(): Locator {
+    return this.networkingTabPanel().getByRole('heading', {
+      name: 'Virtual Private Cloud (VPC)',
+      exact: true,
+    });
+  }
+
+  firewallRulesTerm(): Locator {
+    return this.networkingTabPanel()
+      .getByRole('term')
+      .filter({ hasText: /^Firewall rules$/ });
+  }
+
+  async expectFirewallRulesValue(firewallRulesName: string): Promise<void> {
+    await expect(this.vpcDetailsCardTitle()).toBeVisible({ timeout: 30000 });
+    await expect(this.firewallRulesTerm()).toBeVisible();
+    // Pair the Firewall rules term with its sibling definition in the DescriptionListGroup.
+    await expect(this.firewallRulesTerm().locator('..').getByRole('definition')).toHaveText(
+      firewallRulesName,
+    );
+  }
+
   async openEditClusterIngressModal(): Promise<void> {
     await this.editClusterIngressButton().click();
     await expect(this.editClusterIngressModal()).toBeVisible({ timeout: 30000 });
