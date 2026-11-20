@@ -1,32 +1,34 @@
 import {
-  test as base,
-  expect as baseExpect,
   BrowserContext,
+  expect as baseExpect,
   Locator,
   Page,
+  test as base,
 } from '@playwright/test';
+
+import { AwsInfrastructureAccessPage } from '../page-objects/aws-infrastructure-access-page';
 import { ClusterDetailsPage } from '../page-objects/cluster-details-page';
-import { MachinePoolsPage } from '../page-objects/machine-pools-page';
-import { NetworkingPage } from '../page-objects/networking-page';
+import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
 import { ClusterListPage } from '../page-objects/cluster-list-page';
 import { ClusterRequestsPage } from '../page-objects/cluster-requests-page';
-import { ClusterTypesPage } from '../page-objects/cluster-types-page';
-import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
-import { CreateClusterPage } from '../page-objects/create-cluster-page';
-import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
-import { DownloadsPage } from '../page-objects/downloads-page';
 import { ClusterRolesAndAccessPage } from '../page-objects/cluster-roles-access-page';
 import { ClusterSupportPage } from '../page-objects/cluster-support-page';
+import { ClusterTypesPage } from '../page-objects/cluster-types-page';
+import { CreateClusterPage } from '../page-objects/create-cluster-page';
+import { CreateOSDWizardPage } from '../page-objects/create-osd-wizard-page';
+import { CreateRosaWizardPage } from '../page-objects/create-rosa-wizard-page';
+import { DownloadsPage } from '../page-objects/downloads-page';
+import { MachinePoolsPage } from '../page-objects/machine-pools-page';
+import { NetworkingPage } from '../page-objects/networking-page';
 import { OCMRolesAndAccessPage } from '../page-objects/ocm-roles-access-page';
 import { OsdProductPage } from '../page-objects/osd-product-page';
 import { OverviewPage } from '../page-objects/overview-page';
 import { RegisterClusterPage } from '../page-objects/register-cluster-page';
 import { ReleasesPage } from '../page-objects/releases-page';
 import { RosaGetStartedPage } from '../page-objects/rosa-getstarted-page';
+import { RosaHandsOnPage } from '../page-objects/rosa-hands-on-page';
 import { SubscriptionsPage } from '../page-objects/subscriptions-page';
 import { TokensPage } from '../page-objects/tokens-page';
-import { ClusterIdentityProviderPage } from '../page-objects/cluster-identity-provider-page';
-import { AwsInfrastructureAccessPage } from '../page-objects/aws-infrastructure-access-page';
 import { TransferOwnershipPage } from '../page-objects/transfer-ownership-page';
 import { CustomCommands } from '../support/custom-commands';
 import { STORAGE_STATE_PATH } from '../support/playwright-constants';
@@ -59,6 +61,7 @@ type WorkerFixtures = {
   registerClusterPage: RegisterClusterPage;
   releasesPage: ReleasesPage;
   rosaGetStartedPage: RosaGetStartedPage;
+  rosaHandsOnPage: RosaHandsOnPage;
   subscriptionsPage: SubscriptionsPage;
   tokensPage: TokensPage;
   customCommands: CustomCommands;
@@ -297,6 +300,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   rosaGetStartedPage: [
     async ({ authenticatedPage }, use) => {
       const pageObject = new RosaGetStartedPage(authenticatedPage);
+      await use(pageObject);
+    },
+    { scope: 'worker' },
+  ],
+
+  // Worker-scoped: RosaHandsOnPage instance - created once, reused across all tests in suite
+  rosaHandsOnPage: [
+    async ({ authenticatedPage }, use) => {
+      const pageObject = new RosaHandsOnPage(authenticatedPage);
       await use(pageObject);
     },
     { scope: 'worker' },
