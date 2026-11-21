@@ -10,7 +10,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PLAYWRIGHT_ENV_FILE="$REPO_ROOT/playwright.env.json"
+
+# Configuration file location (repo root by default; override for CI work copies)
+PLAYWRIGHT_ENV_FILE="${PLAYWRIGHT_ENV_FILE:-$REPO_ROOT/playwright.env.json}"
 
 # Configuration (override via CLI flags or env vars)
 PROJECT_ID="${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
