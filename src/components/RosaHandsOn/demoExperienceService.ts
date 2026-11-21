@@ -12,19 +12,21 @@ import {
 
 /** Safe defaults when API/override payloads omit quota (avoids render crashes). */
 const normalizeQuota = (quota?: Partial<DemoExperienceQuota>): DemoExperienceQuota => ({
-  current: quota?.current ?? 0,
-  limit: quota?.limit ?? 0,
+  current: Number.isFinite(quota?.current) ? Number(quota?.current) : 0,
+  limit: Number.isFinite(quota?.limit) ? Number(quota?.limit) : 0,
 });
 
 const getAugmentedDemoExperienceStatus = (
   demoExperience: DemoExperience,
 ): AugmentedDemoExperienceStatus => {
   const { quota, status } = demoExperience;
-  // Require a real quota object before rewriting — missing quota must not become
-  // quota-exceeded via 0 >= 0 after normalization.
+  // Require finite current/limit before rewriting — null >= null is true in JS and
+  // must not become quota-exceeded; missing quota must not become 0 >= 0 either.
   if (
     status === DemoExperienceStatusEnum.Unavailable &&
     quota != null &&
+    Number.isFinite(quota.current) &&
+    Number.isFinite(quota.limit) &&
     quota.current >= quota.limit
   ) {
     return 'quota-exceeded';

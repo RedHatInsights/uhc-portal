@@ -29,4 +29,14 @@ describe('deserializeDemoExperience', () => {
     expect(result.status).toBe(DemoExperienceStatusEnum.Unavailable);
     expect(result.quota).toEqual({ current: 0, limit: 0 });
   });
+
+  it('does not treat null current/limit as quota-exceeded (null >= null is true in JS)', () => {
+    const result = deserializeDemoExperience({
+      status: DemoExperienceStatusEnum.Unavailable,
+      quota: { current: null, limit: null },
+    } as unknown as Parameters<typeof deserializeDemoExperience>[0]);
+
+    expect(result.status).toBe(DemoExperienceStatusEnum.Unavailable);
+    expect(result.quota).toEqual({ current: 0, limit: 0 });
+  });
 });

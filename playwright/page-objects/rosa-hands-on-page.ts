@@ -43,10 +43,14 @@ export type ResolvedHandsOnExperience = {
 export const resolveHandsOnUiStatus = (
   payload: DemoExperienceApiPayload,
 ): ResolvedHandsOnExperience => {
-  const quotaCurrent = payload.quota?.current ?? 0;
-  const quotaLimit = payload.quota?.limit ?? 0;
+  const rawCurrent = payload.quota?.current;
+  const rawLimit = payload.quota?.limit;
+  const hasFiniteQuota = Number.isFinite(rawCurrent) && Number.isFinite(rawLimit);
+  // Mirror demoExperienceService: do not rewrite on null/undefined (null >= null is true).
+  const quotaCurrent = hasFiniteQuota ? Number(rawCurrent) : 0;
+  const quotaLimit = hasFiniteQuota ? Number(rawLimit) : 0;
   const status =
-    payload.status === 'unavailable' && quotaCurrent >= quotaLimit
+    payload.status === 'unavailable' && hasFiniteQuota && quotaCurrent >= quotaLimit
       ? 'quota-exceeded'
       : payload.status;
 
