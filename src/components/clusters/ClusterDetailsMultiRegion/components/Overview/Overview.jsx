@@ -17,9 +17,8 @@ import { getOCMResourceType, trackEvents } from '~/common/analytics';
 import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConstants';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import AIDetailCard from '~/components/AIComponents/AIDetailCard';
-import { MissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/MissingOCMRoleAlert';
+import { ClusterMissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/ClusterMissingOCMRoleAlert';
 import useAnalytics from '~/hooks/useAnalytics';
-import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
@@ -30,7 +29,6 @@ import isAssistedInstallSubscription, {
 import clusterStates, {
   hasInflightEgressErrors,
   isHibernating,
-  isROSA,
 } from '../../../common/clusterStates';
 import { metricsStatusMessages } from '../../../common/ResourceUsage/constants';
 import ResourceUsage from '../../../common/ResourceUsage/ResourceUsage';
@@ -141,12 +139,6 @@ const Overview = (props) => {
   const showAssistedInstallerDetailCard = isAvailableAssistedInstallCluster(cluster);
   const showDetailsCard = !cluster.aiCluster || !isUninstalledAICluster(cluster);
   const showSubscriptionSettings = !isDeprovisioned && !isArchived;
-  const awsAccountId = cluster.subscription?.cloud_account_id;
-  const userOrgId = useGlobalState((state) => state.userProfile.organization.details?.id);
-  const isUserInClusterOrg = !!userOrgId && userOrgId === cluster.subscription?.organization_id;
-  const shouldCheckOCMRole =
-    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!awsAccountId && isUserInClusterOrg;
-
   const resourceUsage = (
     <Card className="ocm-c-overview-resource-usage__card" data-testid="resource-usage">
       <CardTitle className="ocm-c-overview-resource-usage__card--header">
@@ -179,7 +171,7 @@ const Overview = (props) => {
           {showInstallSuccessAlert && (
             <Alert variant="success" isInline title="Cluster installed successfully" />
           )}
-          {shouldCheckOCMRole && <MissingOCMRoleAlert awsAccountId={awsAccountId} />}
+          <ClusterMissingOCMRoleAlert cluster={cluster} />
           {showInflightErrorIsFixed && (
             <Alert
               variant="success"
