@@ -9,7 +9,7 @@ jest.mock('./demoExperienceService', () => ({
 
 describe('useDemoExperiencePolling', () => {
   const mockDemoExperience = {
-    quota: {},
+    quota: { current: 0, limit: 0 },
   };
 
   const mockError = new Error('Mock error');
@@ -56,7 +56,7 @@ describe('useDemoExperiencePolling', () => {
 
   it('should restart polling with new demoExperience', async () => {
     const newDemoExperience = {
-      quota: {},
+      quota: { current: 0, limit: 0 },
     };
 
     const { result } = renderHook(() => useDemoExperiencePolling(), {
