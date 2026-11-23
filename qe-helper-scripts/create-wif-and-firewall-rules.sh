@@ -113,6 +113,8 @@ seed_firewall_names() {
   [[ -n "${env_public}" ]] && FW_NAME_PUBLIC="${env_public}"
   [[ -n "${env_private}" ]] && FW_NAME_PRIVATE="${env_private}"
   [[ -n "${env_shared}" ]] && FW_NAME_SHARED="${env_shared}"
+  # Explicit success: a missing env_* makes the last [[ ... ]] && return 1 under set -e.
+  return 0
 }
 
 seed_shared_vpc_from_env() {
@@ -234,10 +236,22 @@ resolve_wif_id() {
 }
 
 # Resolve firewall-rules ID from exact display/name column.
+# Returns 0 + prints id on match, 1 when list succeeds with no match, 2 on list/lookup error.
 resolve_firewall_id() {
   local name=$1
-  local line id display
+  local line id display list_out
   local matched=""
+  local list_rc=0
+
+  list_out=$(ocm gcp list firewall-rules --columns id,name --no-headers 2>/dev/null) || list_rc=$?
+  if [[ "${list_rc}" -ne 0 ]]; then
+    list_rc=0
+    list_out=$(ocm gcp list firewall-rules --columns id,display_name --no-headers 2>/dev/null) || list_rc=$?
+  fi
+  if [[ "${list_rc}" -ne 0 ]]; then
+    print_error "Failed to list firewall-rules while resolving '${name}'"
+    return 2
+  fi
 
   while IFS= read -r line; do
     [[ -z "${line}" ]] && continue
@@ -246,13 +260,11 @@ resolve_firewall_id() {
     if [[ "${display}" == "${name}" || "${id}" == "${name}" ]]; then
       if [[ -n "${matched}" && "${matched}" != "${id}" ]]; then
         print_error "Multiple firewall-rules found matching '${name}'"
-        return 1
+        return 2
       fi
       matched="${id}"
     fi
-  done < <(ocm gcp list firewall-rules --columns id,name --no-headers 2>/dev/null \
-    || ocm gcp list firewall-rules --columns id,display_name --no-headers 2>/dev/null \
-    || true)
+  done <<< "${list_out}"
 
   if [[ -z "${matched}" ]]; then
     return 1
@@ -336,14 +348,20 @@ create_and_apply_firewall() {
 delete_firewall_by_name() {
   local fw_name=$1
   local fw_id script_path
+  local resolve_rc=0
 
   if [[ -z "${fw_name}" ]]; then
     return 0
   fi
 
-  if ! fw_id=$(resolve_firewall_id "${fw_name}"); then
+  fw_id=$(resolve_firewall_id "${fw_name}") || resolve_rc=$?
+  if [[ "${resolve_rc}" -eq 1 ]]; then
     print_warning "Firewall rules '${fw_name}' not found; skipping delete"
     return 0
+  fi
+  if [[ "${resolve_rc}" -ne 0 ]]; then
+    print_error "Firewall-rules lookup failed for '${fw_name}'; aborting cleanup before clearing env names"
+    return "${resolve_rc}"
   fi
 
   script_path=$(mktemp "${TMPDIR:-/tmp}/deleteFW-${fw_name}.XXXXXX.sh")
@@ -449,17 +467,27 @@ clear_firewall_names_from_env() {
     return 0
   fi
 
+  # Only clear keys for profiles whose delete ran (CREATE_*=true). Preserve names
+  # for --skip-public / --skip-private / --skip-shared so skipped rule sets stay configured.
   cp "${PLAYWRIGHT_ENV_FILE}" "${PLAYWRIGHT_ENV_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
-  print_status "Clearing FIREWALL_RULES_NAME keys from ${PLAYWRIGHT_ENV_FILE} (WIF keys left intact)"
+  print_status "Clearing FIREWALL_RULES_NAME keys for deleted firewall profiles in ${PLAYWRIGHT_ENV_FILE}"
   if ! replace_file_from_stdout "${PLAYWRIGHT_ENV_FILE}" \
-    jq '
+    jq \
+      --arg clear_public "${CREATE_PUBLIC}" \
+      --arg clear_private "${CREATE_PRIVATE}" \
+      --arg clear_shared "${CREATE_SHARED}" \
+      '
       if .QE_INFRA_GCP then
-        del(.QE_INFRA_GCP.FIREWALL_RULES_NAME)
-        | if .QE_INFRA_GCP.PSC_INFRA then del(.QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME) else . end
-        | if .QE_INFRA_GCP.SHARED_VPC_INFRA then del(.QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME) else . end
+        (if $clear_public == "true" then del(.QE_INFRA_GCP.FIREWALL_RULES_NAME) else . end)
+        | (if $clear_private == "true" and (.QE_INFRA_GCP.PSC_INFRA // null) != null then
+             del(.QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME)
+           else . end)
+        | (if $clear_shared == "true" and (.QE_INFRA_GCP.SHARED_VPC_INFRA // null) != null then
+             del(.QE_INFRA_GCP.SHARED_VPC_INFRA.FIREWALL_RULES_NAME)
+           else . end)
       else .
       end
-    ' "${PLAYWRIGHT_ENV_FILE}"; then
+      ' "${PLAYWRIGHT_ENV_FILE}"; then
     print_error "Failed to clear FIREWALL_RULES_NAME from ${PLAYWRIGHT_ENV_FILE}"
     exit 1
   fi
@@ -585,6 +613,8 @@ cleanup_firewall_rules() {
 
   print_warning "Deleting BYO firewall rule sets (WIF configs are left in place)."
 
+  # Lookup errors from delete_firewall_by_name must stop cleanup before env clear
+  # (set -e). Successful empty matches remain skips.
   if [[ "${CREATE_PUBLIC}" == "true" ]]; then
     delete_firewall_by_name "${FW_NAME_PUBLIC}"
   else

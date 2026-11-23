@@ -912,10 +912,12 @@ cleanup_cloud_nat() {
   fi
 }
 
-# Match a full resource URL basename against VPC_NAME.
+# Match a network selfLink/URL to THIS project's VPC only.
+# Basename-only matching would also hit a same-named Shared VPC in another project.
 network_url_matches_vpc() {
   local network_url=$1
-  [[ "${network_url##*/}" == "${VPC_NAME}" ]]
+  local expected="/projects/${PROJECT_ID}/global/networks/${VPC_NAME}"
+  [[ "${network_url}" == *"${expected}" ]]
 }
 
 # OSD installs leave VMs / IGs / forwarding rules that block subnet delete.
@@ -964,7 +966,7 @@ cleanup_instances_for_vpc() {
   done < <(
     gcloud compute instances list \
       --project="${PROJECT_ID}" \
-      --filter="networkInterfaces.network~/.*/${VPC_NAME}$" \
+      --filter="networkInterfaces.network~projects/${PROJECT_ID}/global/networks/${VPC_NAME}$" \
       --format='value(name,zone,networkInterfaces[0].network)' 2>/dev/null || true
   )
 
@@ -1053,13 +1055,26 @@ cleanup_addresses_for_vpc() {
   # Internal/API addresses can linger after forwarding-rule delete and block
   # subnet removal. Only touch RESERVED addresses on THIS VPC's known subnets —
   # never region-wide (shared projects host many suites/clusters).
-  local name region status users subnet_url purpose
-  while IFS=$'\t' read -r name region status users subnet_url purpose; do
+  #
+  # Parse JSON (not tab-separated value()): bash IFS tab-splitting collapses
+  # empty fields, so a blank users column would shift subnetwork/purpose and
+  # incorrectly treat unused addresses as in-use (or mis-classify purpose).
+  local name region status users subnet_url purpose row
+  while IFS= read -r row; do
+    [[ -z "${row}" ]] && continue
+    name=$(jq -r '.name // empty' <<<"${row}")
+    region=$(jq -r '(.region // "") | split("/") | last' <<<"${row}")
+    status=$(jq -r '.status // empty' <<<"${row}")
+    users=$(jq -r '(.users // []) | join(",")' <<<"${row}")
+    subnet_url=$(jq -r '.subnetwork // empty' <<<"${row}")
+    purpose=$(jq -r '.purpose // empty' <<<"${row}")
+
     [[ -z "${name}" || -z "${region}" ]] && continue
     if [[ "${status}" != "RESERVED" ]]; then
       continue
     fi
-    if [[ -n "${users}" && "${users}" != "None" ]]; then
+    # Keep exclusion for addresses that still have users attached.
+    if [[ -n "${users}" ]]; then
       continue
     fi
     # Skip addresses with no subnet (global/external reserves) or other VPCs.
@@ -1079,7 +1094,8 @@ cleanup_addresses_for_vpc() {
     gcloud compute addresses list \
       --project="${PROJECT_ID}" \
       --filter="region:(${REGION})" \
-      --format='value(name,region.basename(),status,users.list(),subnetwork,purpose)' 2>/dev/null || true
+      --format=json 2>/dev/null \
+      | jq -c '.[]?' 2>/dev/null || true
   )
 }
 
@@ -1087,14 +1103,21 @@ cleanup_addresses_for_vpc() {
 # references them as NAT subnets (left behind by OSD PSC cluster installs).
 cleanup_service_attachments_for_subnet() {
   local subnet=$1
-  local sa_name nat_urls
-  local subnet_suffix="/regions/${REGION}/subnetworks/${subnet}"
+  local sa_name row
+  # Full project/region/name identity — avoid substring hits on longer names
+  # (e.g. foo vs foo-extra) or same-named subnets in other projects.
+  local expected_suffix="/projects/${PROJECT_ID}/regions/${REGION}/subnetworks/${subnet}"
 
   [[ -z "${subnet}" ]] && return 0
 
-  while IFS=$'\t' read -r sa_name nat_urls; do
+  while IFS= read -r row; do
+    [[ -z "${row}" ]] && continue
+    sa_name=$(jq -r '.name // empty' <<<"${row}")
     [[ -z "${sa_name}" ]] && continue
-    if [[ "${nat_urls}" != *"${subnet_suffix}"* ]]; then
+    # Delete only when an individual natSubnets entry is the exact target subnet.
+    if ! jq -e --arg suffix "${expected_suffix}" \
+      'any(.natSubnets[]?; type == "string" and endswith($suffix))' \
+      <<<"${row}" >/dev/null 2>&1; then
       continue
     fi
     print_status "Deleting Service Attachment '${sa_name}' (attached to PSC subnet '${subnet}')..."
@@ -1106,20 +1129,34 @@ cleanup_service_attachments_for_subnet() {
     gcloud compute service-attachments list \
       --project="${PROJECT_ID}" \
       --regions="${REGION}" \
-      --format='value(name,natSubnets.list())' 2>/dev/null || true
+      --format=json 2>/dev/null \
+      | jq -c '.[]?' 2>/dev/null || true
   )
 }
 
 # Tear down OSD leftovers that hold VPC subnets before subnet/VPC delete.
 cleanup_vpc_dependents() {
+  local psc_attrs psc_network
   print_status "Cleaning compute dependents for VPC '${VPC_NAME}'..."
+  # Producer Service Attachments reference the PSC forwarding rule + nat subnet;
+  # delete them before forwarding-rule cleanup (subnet delete still retries below).
+  # Resolve PSC_SUBNET and require it belongs to this VPC before deleting SAs.
+  if [[ -n "${PSC_SUBNET}" ]]; then
+    if psc_attrs=$(subnet_attributes "${PSC_SUBNET}"); then
+      IFS=$'\t' read -r psc_network _ _ <<< "${psc_attrs}"
+      if [[ "${psc_network}" == "${VPC_NAME}" ]]; then
+        cleanup_service_attachments_for_subnet "${PSC_SUBNET}"
+      else
+        print_warning "PSC subnet '${PSC_SUBNET}' belongs to VPC '${psc_network:-unknown}', not '${VPC_NAME}'; skipping Service Attachment cleanup"
+      fi
+    else
+      print_warning "PSC subnet '${PSC_SUBNET}' not found; skipping Service Attachment cleanup"
+    fi
+  fi
   cleanup_forwarding_rules_for_vpc
   cleanup_instances_for_vpc
   cleanup_instance_groups_for_vpc
   cleanup_firewall_rules_for_vpc
-  if [[ -n "${PSC_SUBNET}" ]]; then
-    cleanup_service_attachments_for_subnet "${PSC_SUBNET}"
-  fi
   cleanup_addresses_for_vpc
 }
 
@@ -1258,7 +1295,12 @@ run_wif_firewall_helper() {
   [[ -n "${SHARED_VPC_NAME_FLAG}" ]] && args+=(--shared-vpc-name "${SHARED_VPC_NAME_FLAG}")
   [[ "${UPDATE_WIF}" == "true" && "${action}" != "cleanup" ]] && args+=(--update-wif)
   [[ "${FW_SKIP_PUBLIC}" == "true" ]] && args+=(--skip-public)
-  [[ "${FW_SKIP_PRIVATE}" == "true" ]] && args+=(--skip-private)
+  # Explicit --skip-private always wins. On create, also skip private/PSC FW when
+  # PSC infra was not created; cleanup keeps existing FW_SKIP_PRIVATE-only behavior.
+  if [[ "${FW_SKIP_PRIVATE}" == "true" ]] || \
+    { [[ "${action}" != "cleanup" ]] && [[ "${CREATE_PSC}" != "true" ]]; }; then
+    args+=(--skip-private)
+  fi
   [[ "${FW_SKIP_SHARED}" == "true" ]] && args+=(--skip-shared)
   [[ "${UPDATE_PLAYWRIGHT_ENV}" != "true" ]] && args+=(--skip-env-update)
 
