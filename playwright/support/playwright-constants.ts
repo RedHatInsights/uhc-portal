@@ -127,3 +127,8 @@ export const CLUSTER_LIST_FULL_PATH = `${OCM_BASE_PATH}${CLUSTER_LIST_PATH}`;
  * Create cluster route (relative to baseURL, used with navigateTo)
  */
 export const CREATE_CLUSTER_ROUTE = 'create';
+
+/**
+ * ROSA Hands-on Experience route (relative to baseURL, used with navigateTo)
+ */
+export const ROSA_HANDS_ON_ROUTE = 'overview/rosa/hands-on';

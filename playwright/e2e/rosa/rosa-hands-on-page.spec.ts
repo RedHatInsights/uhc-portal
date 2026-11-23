@@ -1,0 +1,148 @@
+import { expect, test } from '../../fixtures/pages';
+import {
+  DemoExperienceApiPayload,
+  ResolvedHandsOnExperience,
+} from '../../page-objects/rosa-hands-on-page';
+import { ROSA_HANDS_ON_ROUTE } from '../../support/playwright-constants';
+
+const handsOnFixture = require('../../fixtures/rosa/rosa-hands-on-page.spec.json') as {
+  demoExperience: Record<string, DemoExperienceApiPayload>;
+};
+
+const payloads = handsOnFixture.demoExperience;
+
+/**
+ * Hands-on e2e (ROSAENG-75830)
+ *
+ * - @ci mocked suite: static chrome + mailto/CTA states including started/deploying
+ *   (deterministic, no demo API dependency)
+ * - @smoke live suite: adapts to whatever the environment's demo API returns
+ *
+ * Mock payloads and expected hrefs live in playwright/fixtures/rosa/rosa-hands-on-page.spec.json
+ * (not imported from src/) so expectations stay stable if app constants move.
+ *
+ * Does not click "Request experience" except the intentional POST-failure case — otherwise
+ * side-effect free.
+ */
+// Plain describe: each mocked test reloads its own payload (independent).
+test.describe(
+  'ROSA Hands-on Experience page — mocked mailto and chrome (ROSAENG-75830)',
+  { tag: ['@ci', '@rosa'] },
+  () => {
+    test.beforeAll(async ({ navigateTo, rosaHandsOnPage }) => {
+      await rosaHandsOnPage.mockDemoExperience(payloads.availableUnused);
+      await navigateTo(ROSA_HANDS_ON_ROUTE);
+      await rosaHandsOnPage.isRosaHandsOnPage();
+    });
+
+    test.afterAll(async ({ rosaHandsOnPage }) => {
+      await rosaHandsOnPage.clearDemoExperienceMock();
+    });
+
+    test('renders page chrome, header Slack, Learn more, and recommended content links', async ({
+      rosaHandsOnPage,
+    }) => {
+      await expect(rosaHandsOnPage.pageHeading()).toBeVisible();
+      await rosaHandsOnPage.expectStaticChromeLinks();
+    });
+
+    test('available with unused quota — Request enabled, no alert mailto', async ({
+      rosaHandsOnPage,
+    }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.availableUnused);
+      expect(experience.status).toBe('available');
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('available with launches remaining — alert mailto to customer success', async ({
+      rosaHandsOnPage,
+    }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(
+        payloads.availableRemaining,
+      );
+      expect(experience.remainingQuota).toBe(2);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('unavailable — demo system alert, mailto, Request disabled', async ({
+      rosaHandsOnPage,
+    }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.unavailable);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('unavailable + unauthorized — business email copy, no alert mailto', async ({
+      rosaHandsOnPage,
+    }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.unauthorized);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('quota exceeded — Create a ROSA cluster CTA and mailto', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.quotaExceeded);
+      expect(experience.status).toBe('quota-exceeded');
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('failed — error alert mailto and Request enabled', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.failed);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('started — Access experience CTA', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.started);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('deploying — Provisioning cluster CTA', async ({ rosaHandsOnPage }) => {
+      const experience = await rosaHandsOnPage.reloadWithMockedExperience(payloads.deploying);
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+
+    test('request experience POST failure — shows Failed to request an experience', async ({
+      rosaHandsOnPage,
+    }) => {
+      await rosaHandsOnPage.reloadWithMockedExperience(payloads.availableUnused);
+      await rosaHandsOnPage.mockRequestExperienceFailure(payloads.availableUnused, 503);
+      const postFailure = rosaHandsOnPage.waitForRequestExperienceFailure(503);
+      await rosaHandsOnPage.requestExperienceButton().click();
+      await postFailure;
+      await rosaHandsOnPage.expectRequestExperienceFailureAlert();
+    });
+  },
+);
+
+test.describe(
+  'ROSA Hands-on Experience page — live demo status (ROSAENG-75830)',
+  { tag: ['@smoke', '@rosa'] },
+  () => {
+    let experience: ResolvedHandsOnExperience;
+
+    test.beforeAll(async ({ navigateTo, rosaHandsOnPage }) => {
+      await rosaHandsOnPage.clearDemoExperienceMock();
+      const capturePromise = rosaHandsOnPage.captureDemoExperience();
+      await navigateTo(ROSA_HANDS_ON_ROUTE);
+      experience = await capturePromise;
+      // Pin the first live payload so 5s polling cannot race assertions
+      // (e.g. deploying → started) while we still assert the captured status.
+      await rosaHandsOnPage.mockDemoExperience(experience.raw);
+      await rosaHandsOnPage.isRosaHandsOnPage();
+    });
+
+    test.afterAll(async ({ rosaHandsOnPage }) => {
+      await rosaHandsOnPage.clearDemoExperienceMock();
+    });
+
+    test('adapts alert, CTA, and customer-success mailto to live demo status', async ({
+      rosaHandsOnPage,
+    }) => {
+      test.info().annotations.push({
+        type: 'demo-experience',
+        description: `status=${experience.status} quota=${experience.quotaCurrent}/${experience.quotaLimit}${
+          experience.unavailableReason ? ` reason=${experience.unavailableReason}` : ''
+        }`,
+      });
+      await rosaHandsOnPage.expectStatusSpecificUi(experience);
+    });
+  },
+);
