@@ -486,17 +486,9 @@ export class NetworkingPage extends BasePage {
     await expect(this.editApplicationIngressModal()).toBeVisible({ timeout: 30000 });
   }
 
-  async fillApplicationIngressFields(fields: {
-    routeSelector: string;
-    excludedNamespaces: string;
-    excludeNamespaceSelectorKey: string;
-    excludeNamespaceSelectorValues: string;
-  }): Promise<void> {
-    await this.editApplicationIngressRouteSelectorInput().fill(fields.routeSelector);
-    await this.editApplicationIngressExcludedNamespacesInput().fill(fields.excludedNamespaces);
-    await this.fillExcludeNamespaceSelectorRow(0, {
-      key: fields.excludeNamespaceSelectorKey,
-      values: fields.excludeNamespaceSelectorValues,
+  excludeNamespaceSelectorKeyInputs(): Locator {
+    return this.editApplicationIngressModal().getByRole('textbox', {
+      name: 'Exclude namespace selector key',
     });
   }
 
@@ -514,20 +506,63 @@ export class NetworkingPage extends BasePage {
   }
 
   async addExcludeNamespaceSelectorRow(fields: { key: string; values: string }): Promise<void> {
-    const keyInputs = this.editApplicationIngressModal().getByRole('textbox', {
-      name: 'Exclude namespace selector key',
-    });
+    const keyInputs = this.excludeNamespaceSelectorKeyInputs();
     const previousCount = await keyInputs.count();
     await this.addExcludeNamespaceSelectorButton().click();
     await expect(keyInputs).toHaveCount(previousCount + 1);
     await this.fillExcludeNamespaceSelectorRow(previousCount, fields);
   }
 
+  /**
+   * Bring the modal's exclude-namespace-selector rows in line with `selectors`.
+   * Empty list clears the remaining single row.
+   *
+   * "Add selector" stays disabled while any row is incomplete, so fill each
+   * row before adding the next (cannot bulk-add empty rows first).
+   */
+  async setExcludeNamespaceSelectors(selectors: { key: string; values: string }[]): Promise<void> {
+    const keyInputs = this.excludeNamespaceSelectorKeyInputs();
+    let count = await keyInputs.count();
+    const targetCount = Math.max(selectors.length, 1);
+
+    /* eslint-disable no-await-in-loop -- add/remove/fill must be sequential; Add stays disabled until the current row is complete */
+    while (count > targetCount) {
+      await this.removeExcludeNamespaceSelectorButton(count - 1).click();
+      await expect(keyInputs).toHaveCount(count - 1);
+      count -= 1;
+    }
+
+    if (selectors.length === 0) {
+      await this.clearExcludeNamespaceSelectorRow(0);
+      return;
+    }
+
+    await this.fillExcludeNamespaceSelectorRow(0, selectors[0]);
+    for (let i = 1; i < selectors.length; i += 1) {
+      count = await keyInputs.count();
+      if (count <= i) {
+        await this.addExcludeNamespaceSelectorButton().click();
+        await expect(keyInputs).toHaveCount(i + 1);
+      }
+      await this.fillExcludeNamespaceSelectorRow(i, selectors[i]);
+    }
+    /* eslint-enable no-await-in-loop */
+  }
+
+  async fillApplicationIngressFields(fields: {
+    routeSelector: string;
+    excludedNamespaces: string;
+    excludeNamespaceSelectors: { key: string; values: string }[];
+  }): Promise<void> {
+    await this.editApplicationIngressRouteSelectorInput().fill(fields.routeSelector);
+    await this.editApplicationIngressExcludedNamespacesInput().fill(fields.excludedNamespaces);
+    await this.setExcludeNamespaceSelectors(fields.excludeNamespaceSelectors);
+  }
+
   async saveApplicationIngressFields(fields: {
     routeSelector: string;
     excludedNamespaces: string;
-    excludeNamespaceSelectorKey: string;
-    excludeNamespaceSelectorValues: string;
+    excludeNamespaceSelectors: { key: string; values: string }[];
   }): Promise<void> {
     await this.openEditApplicationIngressModal();
     await this.fillApplicationIngressFields(fields);
@@ -568,8 +603,7 @@ export class NetworkingPage extends BasePage {
   async expectApplicationIngressCardValues(fields: {
     routeSelector: string;
     excludedNamespaces: string;
-    excludeNamespaceSelectorKey: string;
-    excludeNamespaceSelectorValues: string;
+    excludeNamespaceSelectors: { key: string; values: string }[];
   }): Promise<void> {
     await this.scrollToApplicationIngressSection();
     await expect(this.applicationIngressRouteSelectorCardInput()).toHaveValue(
@@ -581,12 +615,7 @@ export class NetworkingPage extends BasePage {
     await expect(this.applicationIngressExcludedNamespacesCardInput()).toHaveValue(
       fields.excludedNamespaces,
     );
-    await this.expectExcludeNamespaceSelectorsCard([
-      {
-        key: fields.excludeNamespaceSelectorKey,
-        values: fields.excludeNamespaceSelectorValues,
-      },
-    ]);
+    await this.expectExcludeNamespaceSelectorsCard(fields.excludeNamespaceSelectors);
   }
 
   async saveNetworkingModal(): Promise<void> {
