@@ -178,4 +178,21 @@ describe('<StatusAlert />', () => {
       screen.getByText(/You have 2 launches remaining. If you have any questions, you can/),
     ).toBeInTheDocument();
   });
+
+  it('falls back to 0 launches when quota is missing on quota-exceeded', () => {
+    render(
+      <StatusAlert
+        demoExperience={createDemoExperience({
+          status: 'quota-exceeded',
+          quota: undefined,
+        } as Partial<AugmentedDemoExperience>)}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /After 0 launches, you can create ROSA clusters using a pay-as-you-go option/,
+      ),
+    ).toBeInTheDocument();
+  });
 });

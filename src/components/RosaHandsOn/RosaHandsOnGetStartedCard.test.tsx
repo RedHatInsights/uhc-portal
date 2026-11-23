@@ -51,6 +51,22 @@ describe('<RosaHandsOnGetStartedCard />', () => {
     expect(slackLink).toHaveAttribute('href', rosaHandsOnLinks.slackChannel);
   });
 
+  it('falls back to 0 launches in What to expect when quota is missing', async () => {
+    const user = userEvent.setup();
+    render(
+      <RosaHandsOnGetStartedCard
+        demoExperience={createDemoExperience({
+          quota: undefined,
+        } as Partial<AugmentedDemoExperience>)}
+        onRequestCluster={jest.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'What to expect help' }));
+
+    expect(screen.getByText('0 times')).toBeInTheDocument();
+  });
+
   it('disables Request experience when the experience is unavailable', () => {
     render(
       <RosaHandsOnGetStartedCard
