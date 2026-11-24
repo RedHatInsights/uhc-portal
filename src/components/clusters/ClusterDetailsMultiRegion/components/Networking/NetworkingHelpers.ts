@@ -22,18 +22,36 @@ export const getHostnameFromUrl = (url?: string): string => {
   }
 };
 
+/** Default OpenShift console hostname for a cluster's application router domain. */
+export const getDefaultConsoleHostname = (defaultRouterAddress?: string): string => {
+  if (!defaultRouterAddress) {
+    return '';
+  }
+  return `console-openshift-console.${defaultRouterAddress}`;
+};
+
 /**
- * True when a custom Console hostname is configured and Cluster console URL
- * has not yet reconciled to that hostname.
+ True when Cluster console URL has not yet caught up to the configured Console hostname
  */
 export const shouldShowConsoleUrlPendingAlert = (
   consoleHostname?: string,
   consoleUrl?: string,
+  defaultRouterAddress?: string,
 ): boolean => {
-  const configuredHostname = consoleHostname?.trim() || '';
+  const configuredHostname = consoleHostname?.trim().toLowerCase() || '';
+  const consoleUrlHostname = getHostnameFromUrl(consoleUrl).toLowerCase();
 
-  if (!configuredHostname) {
+  if (configuredHostname) {
+    return configuredHostname !== consoleUrlHostname;
+  }
+
+  // Custom hostname cleared: show while URL is still not back on the default console host
+  if (!consoleUrlHostname) {
     return false;
   }
-  return configuredHostname.toLowerCase() !== getHostnameFromUrl(consoleUrl).toLowerCase();
+  const defaultConsoleHostname = getDefaultConsoleHostname(defaultRouterAddress).toLowerCase();
+  if (!defaultConsoleHostname) {
+    return false;
+  }
+  return consoleUrlHostname !== defaultConsoleHostname;
 };

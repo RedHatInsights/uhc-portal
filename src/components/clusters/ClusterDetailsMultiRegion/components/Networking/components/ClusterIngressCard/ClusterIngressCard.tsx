@@ -18,6 +18,8 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 
+import { HCP_CUSTOM_COMPONENT_ROUTES } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { Ingress } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
@@ -88,9 +90,15 @@ const ClusterIngressCard = ({
   const clusterRouters = NetworkingSelector(clusterRoutersData);
   const hasAdditionalRouter = Object.keys(clusterRouters).length === 2;
   const hypershiftCluster = isHypershiftCluster(cluster);
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
   const showConsoleUrlPendingAlert =
     hypershiftCluster &&
-    shouldShowConsoleUrlPendingAlert(clusterRouters.default?.consoleHostname, consoleURL);
+    isHcpCustomComponentRoutesEnabled &&
+    shouldShowConsoleUrlPendingAlert(
+      clusterRouters.default?.consoleHostname,
+      consoleURL,
+      clusterRouters.default?.address,
+    );
 
   const additionalRouterAddress = hasAdditionalRouter
     ? clusterRouters.additional?.address

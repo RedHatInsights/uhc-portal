@@ -173,22 +173,34 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
           {canShowHcpComponentRoutes && (
             <>
               <FormGroup fieldId="consoleHostname" label="Console hostname" isStack>
-                <TextInput id="consoleHostname" value={consoleHostname ?? ''} isDisabled />
+                <TextInput
+                  id="consoleHostname"
+                  value={consoleHostname ?? ''}
+                  readOnlyVariant="default"
+                />
               </FormGroup>
 
               <FormGroup fieldId="consoleTlsSecretRef" label="Console TLS secret name" isStack>
-                <TextInput id="consoleTlsSecretRef" value={consoleTlsSecretRef ?? ''} isDisabled />
+                <TextInput
+                  id="consoleTlsSecretRef"
+                  value={consoleTlsSecretRef ?? ''}
+                  readOnlyVariant="default"
+                />
               </FormGroup>
 
               <FormGroup fieldId="downloadsHostname" label="Downloads hostname" isStack>
-                <TextInput id="downloadsHostname" value={downloadsHostname ?? ''} isDisabled />
+                <TextInput
+                  id="downloadsHostname"
+                  value={downloadsHostname ?? ''}
+                  readOnlyVariant="default"
+                />
               </FormGroup>
 
               <FormGroup fieldId="downloadsTlsSecretRef" label="Downloads TLS secret name" isStack>
                 <TextInput
                   id="downloadsTlsSecretRef"
                   value={downloadsTlsSecretRef ?? ''}
-                  isDisabled
+                  readOnlyVariant="default"
                 />
               </FormGroup>
             </>
