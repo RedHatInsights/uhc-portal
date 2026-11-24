@@ -10,19 +10,11 @@ import {
   DescriptionListTerm,
 } from '@patternfly/react-core';
 
-import type { Network } from '~/types/clusters_mgmt.v1';
+import type { NetworkWithOvnSubnets } from '../NetworkingHelpers';
 
 import './NetworkConfigurationCard.scss';
 
-/**
- * Provisional OVN fields until clusters_mgmt Network schema is regenerated
- * (ROSAENG-62680). Names follow the existing SdnToOvnClusterMigration shape.
- */
-export type NetworkWithOvnSubnets = Network & {
-  join_ipv4?: string;
-  transit_ipv4?: string;
-  masquerade_ipv4?: string;
-};
+export type { NetworkWithOvnSubnets };
 
 type NetworkConfigurationCardProps = {
   network: NetworkWithOvnSubnets;
