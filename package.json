@@ -193,7 +193,7 @@
     "@redhat-cloud-services/rbac-client": {
       "axios": "$axios"
     },
-    "form-data": "^4.0.4"
+    "form-data": "^4.0.6"
   },
   "scripts": {
     "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
