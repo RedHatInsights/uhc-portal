@@ -1145,6 +1145,24 @@ Clusters.forEach((clusterProperties) => {
               .WhitespaceError,
           );
           await createOSDWizardPage.vpcNameInput().fill('vpc-name');
+
+          // BYO firewall create-command reflects host project + VPC (and private profile when PSC).
+          if (await createOSDWizardPage.createFirewallRulesToggle().isVisible()) {
+            await createOSDWizardPage.createFirewallRulesToggle().click();
+            await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+              /ocm gcp create firewall-rules/,
+            );
+            await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+              /--project-id=host-project/,
+            );
+            await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+              /--vpc-name=vpc-name/,
+            );
+            await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+              /--wif-config=/,
+            );
+          }
+
           await createOSDWizardPage.wizardNextButton().click();
           await createOSDWizardPage.isTextContainsInPage(
             ClustersValidation.Networking.Configuration.InstallIntoExistingVPC.ExistingVPCName
