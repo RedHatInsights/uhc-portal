@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 
 const clusterProperties = require('../../fixtures/osd-gcp/osd-curated-gcp-wif-sharedvpc-psc-cluster-creation.json');
 
