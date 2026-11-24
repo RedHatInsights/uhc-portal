@@ -12,17 +12,30 @@ import { GCPAuthType } from '~/components/clusters/wizards/osd/ClusterSettings/C
 import { FieldId, initialValues } from '~/components/clusters/wizards/osd/constants';
 import { ClusterPrivacyType } from '~/components/clusters/wizards/osd/Networking/constants';
 import { GCP_BYO_FIREWALL_RULES, GCP_DNS_ZONE } from '~/queries/featureGates/featureConstants';
-import type { GcpFirewallRule } from '~/types/clusters_mgmt.v1';
+import type { DnsDomain, GcpFirewallRule } from '~/types/clusters_mgmt.v1';
 
 import { GcpVpcSettings } from './GcpVpcSettings';
 
 const FEATURE_GATE_QUERY_KEY = 'featureGate' as const;
+const STORYBOOK_ORG_ID = 'storybook-org-1';
 
 const MOCK_WIF_CONFIG = {
   id: 'dc-wif-5',
   display_name: 'demo-wif-config',
   gcp: { project_id: 'my-service-project' },
 };
+
+const MOCK_DNS_DOMAINS: DnsDomain[] = [
+  {
+    id: 'dns-zone-apps-1',
+    gcp: {
+      domain_prefix: 'apps',
+      project_id: 'my-service-project',
+      network_id: 'ocmdev-shared-vpc',
+    },
+    organization: { id: STORYBOOK_ORG_ID },
+  },
+];
 
 const MOCK_FIREWALL_RULES: GcpFirewallRule[] = [
   {
@@ -109,6 +122,12 @@ function buildQueryClient(options?: {
     data: { items: firewallRules.filter((rule) => rule.profile === 'private') },
   });
 
+  // Seed DNS domains so Dns Zone stories do not hit the network; include a row
+  // that useFetchGcpDnsDomains keeps (domain_prefix + organization.id match).
+  queryClient.setQueryData(['gcpDnsDomains'], {
+    data: { items: MOCK_DNS_DOMAINS },
+  });
+
   return queryClient;
 }
 
@@ -117,7 +136,7 @@ function buildStore() {
     reducer: {
       userProfile: () => ({
         organization: {
-          details: { id: 'storybook-org-1' },
+          details: { id: STORYBOOK_ORG_ID },
         },
       }),
       ccsInquiries: () => ({
