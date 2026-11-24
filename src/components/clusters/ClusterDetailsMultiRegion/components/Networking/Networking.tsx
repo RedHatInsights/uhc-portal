@@ -7,9 +7,11 @@ import type { AugmentedCluster } from '~/types/types';
 
 import ApplicationIngressCard from './components/ApplicationIngressCard';
 import { ClusterIngressCard } from './components/ClusterIngressCard/ClusterIngressCard';
+import type { NetworkWithOvnSubnets } from './components/NetworkConfigurationCard';
 import NetworkConfigurationCard from './components/NetworkConfigurationCard';
 import VPCDetailsCard from './components/VPCDetailsCard';
 import VPCSubnetsCard from './components/VPCSubnetsCard';
+import { canShowOvnNetworkDetails } from './NetworkingHelpers';
 
 import './Networking.scss';
 
@@ -27,7 +29,8 @@ const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingPr
     isError: isClusterRoutersError,
   } = useGetClusterRouters(clusterID, region);
 
-  const network = cluster.network || {};
+  const network = (cluster.network || {}) as NetworkWithOvnSubnets;
+  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster);
   const provider = cluster.cloud_provider?.id ? cluster.cloud_provider.id : 'N/A';
   const clusterRoutersData = clusterRouters ?? [];
 
@@ -53,7 +56,10 @@ const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingPr
         />
       </GridItem>
       <GridItem lg={3} md={12} className="networking-grid-item">
-        <NetworkConfigurationCard network={network} />
+        <NetworkConfigurationCard
+          network={network}
+          shouldShowOvnNetworkDetails={shouldShowOvnNetworkDetails}
+        />
       </GridItem>
       <GridItem lg={9} md={12} className="networking-grid-item">
         <ApplicationIngressCard
