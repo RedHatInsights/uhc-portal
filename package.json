@@ -29,7 +29,7 @@
     "@types/file-saver": "^2.0.5",
     "@types/humanize-duration": "^3.27.1",
     "@types/react-dom": "^18.3.0",
-    "axios": "^1.16.1",
+    "axios": "^1.20.0",
     "cidr-tools": "^11.0.0",
     "classnames": "^2.2.6",
     "dayjs": "^1.11.10",
@@ -193,7 +193,7 @@
     "@redhat-cloud-services/rbac-client": {
       "axios": "$axios"
     },
-    "form-data": "^4.0.4"
+    "form-data": "^4.0.6"
   },
   "scripts": {
     "dev": "concurrently --kill-others --prefix=name --names=SERVER,MOCK --prefix-colors=cyan,reset --passthrough-arguments 'HOT=true fec dev --clouddotEnv prod {@}' 'mockdata/mockserver.py' --",
