@@ -25,6 +25,36 @@ The user typically starts with a spike or epic link, e.g.:
 - Do not ask the user for information Jira (or linked docs) already contain — discover
   it, then confirm.
 
+### UI persona (required, especially Phases 1–3)
+
+Speak and write **from a console / OCM UI engineer persona**. Early phases often
+ingest backend API docs and sibling CLI/TF/CS tickets that use **different
+terminology** than the UI. Translate for the human:
+
+- Prefer **UI labels and surfaces** the customer sees (wizard step names, tab titles,
+  field labels, buttons, empty/error states) over API resource names, CLI flags, or
+  platform jargon.
+- When a source term is not a UI term (e.g. an API/object name), **map it**:  
+  `API/sibling term → UI term (where it appears)` or mark `Unknown — need UI copy`.
+- Do **not** lead Phase 1–2 summaries with backend-only vocabulary. Put raw API/CLI
+  names under API / CLI status (or Phase 3), always paired with the UI meaning.
+- Refinement notes and spoken status lines should stay UI-first; deep contract detail
+  belongs in later How / API sections of the DDR.
+
+### Decisions — options for the human (required)
+
+When there is a real fork (scope, parity with a sibling, which surface to change,
+how to interpret an ambiguous requirement, mockups vs DDR next already covered by
+gates), **present concise options and let the user choose**. Do not silently pick
+“the best” path and continue.
+
+- Offer **2–3 labeled options** plus a one-line tradeoff each when the choice
+  affects UI scope or DDR content.
+- Default / recommendation is OK **only if labeled as such** and you still wait.
+- Do **not** expand this into catalogs of mockup title/layout variants (Phase 4
+  still picks a single best UX **after** the user confirms the surface list).
+- Routine discoveries with one clear reading do not need fake multiple choice.
+
 ## Progress UX (required)
 
 Orient the user on **every** assistant reply. Phases are numbered **1–6** (no Phase 0).
@@ -400,7 +430,9 @@ Categorize siblings by name/prefix when present (do **not** invent missing kinds
 
 For each useful sibling, fetch: summary, description, status, comments, remote links,
 attachments, and notable child spikes/stories (especially closed/in-review refinement
-spikes — they often contain CLI/API decisions the UI must match).
+spikes — they often contain CLI/API decisions the UI must match). **Present those
+decisions in UI terms** (see UI persona); keep raw sibling jargon only as a mapping
+aid.
 
 **Do not** surface auto-created UI-epic scaffolding (E2E automation, feature-flag
 stubs, post-merge testing placeholders, etc.) in the intake summary — it adds noise
@@ -461,7 +493,7 @@ Example (good):
 | Source | Location | Status |
 |---|---|---|
 | **PRD** | [PRD: \<actual doc title\>](https://docs.google.com/…) | **Found** (readable; remote link on \<FEATURE\>) |
-| **Sibling CLI epic / spike** | [\<CLI-EPIC\>](…) → spike [\<SPIKE\>](…) | **Refined (sibling)** — one plain-language open question |
+| **Sibling CLI epic / spike** | [\<CLI-EPIC\>](…) → spike [\<SPIKE\>](…) | **Refined (sibling)** — UI parity question in console terms |
 
 Example (bad):
 
@@ -480,7 +512,7 @@ feature; do not hardcode a standing client list):
 | Feature description | … | … |
 | OCM API / CS epic or spike | … | … |
 | Sibling client epics/spikes (CLI / TF / Docs / …) | … | … only if discovered |
-| Open questions from siblings | … | … |
+| Open questions from siblings (UI-phrased) | … | … |
 
 **Omit from Phase 1 entirely:**
 
@@ -526,12 +558,14 @@ write it into uhc-portal. Scratch analysis only — not DDR-template content.
 
 Prefer the terms **UI Overview** and **UI impact** — avoid “teach-in.”
 
-Audience: an OCM UI developer. Lead with what changes in the **console**. Backend
-internals belong briefly under API / open questions, not in the feature summary.
+Audience: an OCM UI developer (**UI persona**). Lead with what changes in the
+**console**. Backend/sibling jargon belongs under API / CLI status, always mapped
+to UI terms — never as the lead vocabulary of the Overview.
 
 **Keep this skill generic:** do not bake in examples from whatever feature is
 currently being refined. Always derive products, outs, CLI/API notes, and UI
-surfaces from *that* ticket’s sources.
+surfaces from *that* ticket’s sources. If sources conflict or leave a UI choice
+open, list **options for the human** (see Decisions) instead of picking one.
 
 #### 2.0 UI Overview (required — lead with this)
 
@@ -609,12 +643,13 @@ Phase 3; here a best-effort surface list is enough, refined in codebase analysis
 Parity for a UI engineer — not a CLI ticket dump. Cover: plain-language contract
 (what the console should mirror or intentionally skip); refinement state + links;
 copy vs ignore (validation/defaults/gates); open questions as full UI sentences.
+If parity is ambiguous, offer **options** and wait.
 
 ##### API / Cluster Service status
 
 Same bar: who owns validation/defaults, what the UI must not re-implement,
-blockers in plain language + links. Pull from *all* confirmed sources, not only
-the PRD.
+blockers in **console terms** + links (API names only as mappings). Pull from
+*all* confirmed sources, not only the PRD.
 
 #### 2.1 Deepen with three lenses (UI impact)
 
@@ -651,7 +686,8 @@ Using Phase 1–2 context:
 3. Existing components, hooks, routes, and patterns to reuse or change
 4. Current API integration points vs required contract
 5. **Discrepancies worth flagging** — ticket vs code vs PRD/CLI conflicts, shared
-   components that widen product scope, missing API fields, etc.
+   components that widen product scope, missing API fields, etc. Phrase each as a
+   **UI impact** question; if multiple resolutions are viable, list **options**.
 
 Append a **Codebase Analysis** section to `<FeatureOrKey>_Refinement_Notes.md`.
 
@@ -849,14 +885,16 @@ DDR review-ready / Approved:
     the UI calls (e.g. create vs update/patch for each resource this feature uses)
   - For each: lead with a short **example request** (method + path + relevant JSON
     fields, including zeros / key payload shape), **then** 1 short paragraph on
-    when the UI uses it, field meaning, and errors/gaps
+    when the UI uses it, field meaning, and errors/gaps — still in UI-relevant
+    language
   - Separate APIs visually (### headings or horizontal rules) — do not merge Day 1
     and Day 2 into one dense paragraph
   - Still **no** full OpenAPI schema dump and **no** uhc-portal code-path tables
 - Day 1 / Day 2 surface and control behavior belongs in **How**, not under a
   “UI scope” blurb in **What**
 - Only state what sources support; otherwise `N/A`
-- Label assumptions that need team input
+- Label assumptions that need team input; if several UI interpretations are
+  plausible, **options for the human** before locking How
 - **Never** add a standalone **Mockups** section in the DDR. If mockups exist, put
   them as the **first bullet under References**
 - **Never** cite `draft_ddr_dir` local paths (refinement notes, local draft files) in
@@ -869,9 +907,9 @@ DDR review-ready / Approved:
 
 Follow `docs/templates/ddr-template.md` section guidelines. Skill-only emphasis:
 
-- **What / User Stories / Why** — customer + console voice; no “Primary UI use
-  cases” list under What; no UI-scope inventory in What (that is How). Why table:
-  only rows with content; pain/demand last.
+- **What / User Stories / Why** — customer + **console** voice (UI persona); no
+  “Primary UI use cases” list under What; no UI-scope inventory in What (that is
+  How). Why table: only rows with content; pain/demand last.
 - **How** — template How rules; per-API blocks; concrete upstream/API constraints
   in **How — Errors** (not only Open Issues). No Mockups/Tracking under How.
 - **Tracking** — once, as `## Tracking` only.
@@ -914,7 +952,9 @@ Prefer Atlassian MCP or Jira UI for creates when available. If using curl, match
 the **UI epic’s project** and Story issue type (do not hardcode project/type IDs).
 Description must be valid ADF. Report each new issue key/URL.
 
-**Always get explicit approval before creating or updating Jira issues.**
+**Always get explicit approval before creating or updating Jira issues.** Present
+the proposed epic update + story list as **options/checklist** for the user to
+edit before any write.
 
 ---
 
@@ -925,5 +965,5 @@ For `Help me refine <spike-url>` — follow Progress UX Step A, then:
 1. Roadmap + ask `draft_ddr_dir` (no tools)
 2. Show layout → confirm (`wipe` / `preserve` if non-empty)
 3. Phase 1 Intake → sources table → wait
-4. Phase 2 UI Overview → wait
+4. Phase 2 UI Overview (**UI persona**) → wait; options if forks
 5. Phase 3 codebase → **Do mockups next? Y/N**
