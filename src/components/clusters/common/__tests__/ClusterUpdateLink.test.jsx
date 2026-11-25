@@ -69,4 +69,82 @@ describe('<ClusterUpdateLink />', () => {
     render(<ClusterUpdateLink cluster={cluster} />);
     expect(screen.getByText('→ some-new-version')).toBeInTheDocument();
   });
+
+  it('shows update link for managed cluster when canUpdateSubscription is true', () => {
+    const cluster = {
+      managed: true,
+      state: 'ready',
+      openshift_version: '4.12.0',
+      version: {
+        raw_id: '4.12.0',
+        available_upgrades: ['4.12.1'],
+      },
+      canUpdateSubscription: true,
+      subscription: {
+        id: 'subscription-id',
+        status: 'Active',
+      },
+      metrics: {
+        upgrade: {
+          available: true,
+        },
+      },
+    };
+
+    render(<ClusterUpdateLink cluster={cluster} />);
+
+    expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
+  });
+
+  it('shows update link for managed cluster when only list canEdit is true', () => {
+    const cluster = {
+      managed: true,
+      state: 'ready',
+      openshift_version: '4.12.0',
+      version: {
+        raw_id: '4.12.0',
+        available_upgrades: ['4.12.1'],
+      },
+      canEdit: true,
+      subscription: {
+        id: 'subscription-id',
+        status: 'Active',
+      },
+      metrics: {
+        upgrade: {
+          available: true,
+        },
+      },
+    };
+
+    render(<ClusterUpdateLink cluster={cluster} />);
+
+    expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
+  });
+
+  it('renders null for managed cluster when user cannot update subscription', () => {
+    const cluster = {
+      managed: true,
+      state: 'ready',
+      openshift_version: '4.12.0',
+      version: {
+        raw_id: '4.12.0',
+        available_upgrades: ['4.12.1'],
+      },
+      canUpdateSubscription: false,
+      subscription: {
+        id: 'subscription-id',
+        status: 'Active',
+      },
+      metrics: {
+        upgrade: {
+          available: true,
+        },
+      },
+    };
+
+    const { container } = render(<ClusterUpdateLink cluster={cluster} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });

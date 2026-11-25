@@ -27,12 +27,12 @@ jest.mock('react-redux', () => {
 const useGlobalStateMock = useGlobalState as jest.Mock;
 
 // TODO:  Do mock children - it doesn't test the actual component
-jest.mock('../components/AddNotificationContactButton', () => () => (
-  <div data-testid="add-notification-contact-button" />
+jest.mock('../components/AddNotificationContactButton', () => (props: any) => (
+  <div data-testid="add-notification-contact-button" data-can-edit={String(!!props.canEdit)} />
 ));
 
 jest.mock('../components/NotificationContactsCard', () => (props: any) => (
-  <div data-testid="notification-contacts-card" />
+  <div data-testid="notification-contacts-card" data-is-disabled={String(!!props.isDisabled)} />
 ));
 
 jest.mock('../components/SupportCasesCard', () => (props: any) => (
@@ -172,6 +172,7 @@ describe('<Support />', () => {
       // Arrange
       const cluster = {
         ...defaultClusterFromSubscription,
+        canUpdateSubscription: true,
         subscription: {
           ...defaultClusterFromSubscription.subscription,
           id: 'whatevertheid',
@@ -190,9 +191,47 @@ describe('<Support />', () => {
 
       // Assert
       expect(screen.getByTestId('add-notification-contact-button')).toBeInTheDocument();
+      expect(screen.getByTestId('add-notification-contact-button')).toHaveAttribute(
+        'data-can-edit',
+        'true',
+      );
       expect(screen.getByTestId('support-cases-card')).toBeInTheDocument();
 
       expect(screen.getByTestId('notification-contacts-card')).toBeInTheDocument();
+      expect(screen.getByTestId('notification-contacts-card')).toHaveAttribute(
+        'data-is-disabled',
+        'false',
+      );
+    });
+
+    it('disables notification contacts when user cannot update subscription', () => {
+      const cluster = {
+        ...defaultClusterFromSubscription,
+        canUpdateSubscription: false,
+        subscription: {
+          ...defaultClusterFromSubscription.subscription,
+          id: 'whatevertheid',
+          managed: true,
+        },
+      };
+
+      render(
+        <Support
+          cluster={cluster}
+          addNotificationStatus="success"
+          isAddNotificationContactSuccess={isAddNotificationContactSuccessMock}
+          isAddNotificationContactPending={isAddNotificationContactPendingMock}
+        />,
+      );
+
+      expect(screen.getByTestId('add-notification-contact-button')).toHaveAttribute(
+        'data-can-edit',
+        'false',
+      );
+      expect(screen.getByTestId('notification-contacts-card')).toHaveAttribute(
+        'data-is-disabled',
+        'true',
+      );
     });
 
     it('without subscription ID', () => {

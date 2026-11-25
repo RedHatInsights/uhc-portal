@@ -133,4 +133,35 @@ describe('Overview BillingAccount Component', () => {
     expect(await screen.findByText('123456')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Edit billing account/i })).not.toBeInTheDocument();
   });
+
+  it('hides edit button when user cannot update subscription', async () => {
+    const useParamsMock = jest.requireMock('react-router-dom').useParams;
+    useParamsMock.mockReturnValue({ id: '1msoogsgTLQ4PePjrTOt3UqvMzX' });
+    mockUseFeatureGate([[EDIT_BILLING_ACCOUNT, true]]);
+
+    const useFetchClusterDetailsMock = jest.requireMock(
+      '~/queries/ClusterDetailsQueries/useFetchClusterDetails',
+    );
+    useFetchClusterDetailsMock.useFetchClusterDetails.mockReturnValue({
+      cluster: {
+        ...fixtures.clusterDetails.cluster,
+        canUpdateSubscription: false,
+        aws: {
+          billing_account_id: '123456',
+        },
+        hypershift: {
+          enabled: true,
+        },
+      },
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    });
+
+    render(<OverviewBillingAccount />);
+
+    expect(await screen.findByText('123456')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Edit billing account/i })).not.toBeInTheDocument();
+  });
 });

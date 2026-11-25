@@ -26,6 +26,10 @@ jest.mock('./useFetchActionsPermissions', () => ({
   useCanDeleteAccessReview: jest.fn(),
 }));
 
+jest.mock('./useFetchAiCluster', () => ({
+  useFetchAiCluster: jest.fn(),
+}));
+
 // Mock queryClient.invalidateQueries
 jest.mock('~/components/App/queryClient', () => ({
   queryClient: {
@@ -40,6 +44,12 @@ describe('useClusterDetails hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const useFetchAiClusterMock = jest.requireMock('./useFetchAiCluster');
+    useFetchAiClusterMock.useFetchAiCluster.mockReturnValue({
+      isLoading: false,
+      data: undefined,
+      isError: false,
+    });
   });
 
   it('useClusterDetails returns valid response', async () => {
@@ -146,6 +156,71 @@ describe('useClusterDetails hook', () => {
     });
 
     expect(result.current.cluster?.canUpdateClusterResource).toBe(false);
+  });
+
+  it('useClusterDetails sets canUpdateSubscription on AI cluster response', async () => {
+    const subscriptionID = 'mockedSubscriptionID';
+
+    const useFetchSubscriptionMock = jest.requireMock('../common/useFetchSubscription');
+    useFetchSubscriptionMock.useFetchSubscription.mockReturnValue({
+      isLoading: false,
+      data: mockedSubscriptionWithClusterType,
+      isError: false,
+      error: null,
+    });
+
+    const useFetchClusterMock = jest.requireMock('./useFetchCluster');
+    useFetchClusterMock.useFetchCluster.mockReturnValue({
+      isLoading: false,
+      data: undefined,
+      isError: false,
+      error: null,
+    });
+
+    const useFetchAiClusterMock = jest.requireMock('./useFetchAiCluster');
+    useFetchAiClusterMock.useFetchAiCluster.mockReturnValue({
+      isLoading: false,
+      data: {
+        id: 'ai-cluster-id',
+        name: 'AI cluster',
+      },
+      isError: false,
+    });
+
+    const useFetchActionsPermissionsMock = jest.requireMock('./useFetchActionsPermissions');
+    useFetchActionsPermissionsMock.useFetchActionsPermissions.mockReturnValue({
+      isLoading: false,
+      canUpdateSubscription: true,
+      canEditClusterAutoscaler: true,
+      canEditOCMRoles: true,
+      canViewOCMRoles: true,
+      canUpdateClusterResource: true,
+      kubeletConfigActions: { get: true },
+      machinePoolsActions: { get: true },
+      idpActions: { get: true },
+      isError: false,
+      error: null,
+    });
+    useFetchActionsPermissionsMock.useCanDeleteAccessReview.mockReturnValue({
+      isLoading: false,
+      canDeleteAccessreviewResponse: {
+        data: {
+          allowed: false,
+        },
+      },
+      isError: false,
+      error: null,
+    });
+
+    const { result } = renderHook(() => useFetchClusterDetails(subscriptionID));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.cluster?.id).toBe('ai-cluster-id');
+    expect(result.current.cluster?.canUpdateSubscription).toBe(true);
+    expect(result.current.cluster?.canDelete).toBe(false);
   });
 
   it('useSubscription error results in useClusterDetails error response', async () => {

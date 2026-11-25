@@ -68,6 +68,7 @@ export const useFetchActionsPermissions = (
           'selfResourceReview',
           SelfAccessReviewAction.update,
           SelfAccessReviewResourceType.Subscription,
+          subscriptionID,
         ],
         queryFn: async () => {
           const canUpdateSubscription = fetchPermissions({

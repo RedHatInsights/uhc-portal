@@ -23,15 +23,22 @@ jest.mock('~/queries/ClusterActionsQueries/useClusterTransfer', () => ({
   useCreateClusterTransfer: jest.fn(),
   useEditClusterTransfer: jest.fn(),
 }));
+jest.mock('~/queries/ClusterDetailsQueries/useFetchActionsPermissions', () => ({
+  useFetchActionsPermissions: jest.fn(),
+}));
 const useClusterTransferMock = jest.requireMock(
   '~/queries/ClusterActionsQueries/useClusterTransfer',
 );
 const useFetchClusterTransferMock = jest.requireMock(
   '~/queries/ClusterDetailsQueries/ClusterTransferOwnership/useFetchClusterTransfer',
 );
+const useFetchActionsPermissionsMock = jest.requireMock(
+  '~/queries/ClusterDetailsQueries/useFetchActionsPermissions',
+);
 const useEditClusterTransferMock = useClusterTransferMock.useEditClusterTransfer;
 const useCreateClusterTransferMock = useClusterTransferMock.useCreateClusterTransfer;
 const useFetchTransferMock = useFetchClusterTransferMock.useFetchClusterTransfer;
+const useFetchActionsPermissions = useFetchActionsPermissionsMock.useFetchActionsPermissions;
 
 const getClusterNameMock = getClusterName as jest.Mock;
 
@@ -69,6 +76,9 @@ describe('<AutoTransferClusterOwnershipForm />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useDispatchMock.mockReturnValue(mockedDispatch);
+    useFetchActionsPermissions.mockReturnValue({
+      canUpdateSubscription: true,
+    });
     useCreateClusterTransferMock.mockReturnValue({
       isPending: false,
       isError: false,
@@ -144,6 +154,9 @@ describe('<AutoTransferClusterOwnershipForm />', () => {
 
   it('should show transfer details and cancel button should be disabled', async () => {
     getClusterNameMock.mockReturnValue('test');
+    useFetchActionsPermissions.mockReturnValue({
+      canUpdateSubscription: false,
+    });
 
     useFetchTransferMock.mockReturnValue({
       data: {
@@ -166,5 +179,33 @@ describe('<AutoTransferClusterOwnershipForm />', () => {
     // Assert
     expect(await screen.findByText('Transfer in progress for test')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel transfer' })).toBeDisabled();
+  });
+
+  it('should enable cancel transfer when user can update subscription', async () => {
+    getClusterNameMock.mockReturnValue('test');
+    useFetchActionsPermissions.mockReturnValue({
+      canUpdateSubscription: true,
+    });
+
+    useFetchTransferMock.mockReturnValue({
+      data: {
+        items: [
+          {
+            cluster_uuid: 'external-cluster-id',
+            status: 'pending',
+            id: '123',
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+      error: null,
+      isFetching: false,
+    });
+
+    withState(initialState).render(<AutoTransferClusterOwnershipForm onClose={onClose} />);
+
+    expect(await screen.findByText('Transfer in progress for test')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel transfer' })).toBeEnabled();
   });
 });

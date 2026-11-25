@@ -65,6 +65,26 @@ describe('useGetInflightChecks hook', () => {
     expect(result.current.isError).toBe(true);
   });
 
+  it('useFetchActionsAndPermissions returns false when subscription update is denied', async () => {
+    const subscriptionID = 'mockedSubscriptionID';
+    const subscriptionStatus = 'Active';
+    (authorizationsService.selfAccessReview as jest.Mock).mockResolvedValue({
+      data: {
+        allowed: false,
+      },
+    });
+
+    const { result } = renderHook(() =>
+      useFetchActionsPermissions(subscriptionID, MAIN_QUERY_KEY, subscriptionStatus),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isActionQueriesLoading).toBe(false);
+    });
+
+    expect(result.current.canUpdateSubscription).toBe(false);
+  });
+
   it('useCanDeleteAccessReview returns valid response', async () => {
     const clusterID = 'mockedClusterID';
     const subscriptionResponseMock = {
