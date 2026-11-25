@@ -1,0 +1,969 @@
+---
+name: ocmui-refinement
+description: >-
+  Assist with OCMUI feature refinement and DDR (Design Decision Record) creation,
+  and breaking accepted DDRs into implementation stories.
+  Use when the user mentions DDR, refinement, OCMUI epic, feature refinement,
+  OCMUI ticket, implementation stories, or asks to refine a Jira ticket for the OCM UI.
+---
+
+# OCMUI Refinement Assistant
+
+Guide a developer (including first-timers) through refining an OCM UI feature:
+discover requirements up the Jira hierarchy, teach the feature, draft a DDR, create
+mockups, and break an accepted DDR into implementation stories.
+
+The user typically starts with a spike or epic link, e.g.:
+
+> Help me refine https://redhat.atlassian.net/browse/\<UI-SPIKE-OR-EPIC\>
+
+## Audience and tone
+
+- Assume the user may be new to OCMUI refinement.
+- Be hand-holding at phase boundaries: say what you found, what is missing, and what
+  happens next. Wait for confirmation before advancing phases.
+- Do not ask the user for information Jira (or linked docs) already contain — discover
+  it, then confirm.
+
+### UI persona (required, especially Phases 1–3)
+
+Speak and write **from a console / OCM UI engineer persona**. Early phases often
+ingest backend API docs and sibling CLI/TF/CS tickets that use **different
+terminology** than the UI. Translate for the human:
+
+- Prefer **UI labels and surfaces** the customer sees (wizard step names, tab titles,
+  field labels, buttons, empty/error states) over API resource names, CLI flags, or
+  platform jargon.
+- When a source term is not a UI term (e.g. an API/object name), **map it**:  
+  `API/sibling term → UI term (where it appears)` or mark `Unknown — need UI copy`.
+- Do **not** lead Phase 1–2 summaries with backend-only vocabulary. Put raw API/CLI
+  names under API / CLI status (or Phase 3), always paired with the UI meaning.
+- Refinement notes and spoken status lines should stay UI-first; deep contract detail
+  belongs in later How / API sections of the DDR.
+
+### Decisions — options for the human (required)
+
+When there is a real fork (scope, parity with a sibling, which surface to change,
+how to interpret an ambiguous requirement, mockups vs DDR next already covered by
+gates), **present concise options and let the user choose**. Do not silently pick
+“the best” path and continue.
+
+- Offer **2–3 labeled options** plus a one-line tradeoff each when the choice
+  affects UI scope or DDR content.
+- Default / recommendation is OK **only if labeled as such** and you still wait.
+- Do **not** expand this into catalogs of mockup title/layout variants (Phase 4
+  still picks a single best UX **after** the user confirms the surface list).
+- Routine discoveries with one clear reading do not need fake multiple choice.
+
+## Progress UX (required)
+
+Orient the user on **every** assistant reply. Phases are numbered **1–6** (no Phase 0).
+
+### Step A — Friendly roadmap gate (before Phase 1)
+
+When the user asks to refine a ticket, **reply immediately** with a short friendly
+message and the roadmap. **Do not call tools or start discovery yet.**
+
+Never write refinement files into the uhc-portal git tree. All skill outputs go under
+user-supplied **`draft_ddr_dir`**.
+
+#### A.1 First reply — roadmap + ask for `draft_ddr_dir`
+
+```markdown
+Sure! I can help refine <ISSUE_KEY>. Here are the steps we'll go through:
+
+## Refinement roadmap
+- **Phase 1 — Intake:** Discover Jira hierarchy, PRD/ADR/siblings; confirm sources.
+- **Phase 2 — UI Overview:** Analyse confirmed docs; summarize UI / API / CLI impact.
+- **Phase 3 — Codebase analysis:** Map affected wizards, Day 2 views, and API hooks.
+- **Phase 4 — Mockups:** Optional lo-fi HTML under `draft_ddr_dir/mockups`.
+- **Phase 5 — Draft DDR:** Write `<JiraID>_Draft_DDR.md` under `draft_ddr_dir`.
+- **Phase 6 — Stories:** After DDR acceptance, update the epic and create child stories.
+
+After Phase 3: **Do mockups next?** `Y` / `N` (`N` → Phase 5 — Draft DDR).
+
+**Draft DDR directory (`draft_ddr_dir`):** Where should I create notes, mockups, and
+the draft DDR? Reply with an absolute path **outside** the uhc-portal repo, e.g.
+`/Users/<you>/repos/work/Refinements/<feature-slug>`
+```
+
+Footer Waiting on: `draft_ddr_dir path`
+
+#### A.2 After the user provides a path — show layout + confirm
+
+Immediately reply with the layout using **their actual path** (no tools yet). Use
+one-line `#` comments on every row. Example shape:
+
+I'll use this `draft_ddr_dir` layout:
+
+```text
+/Users/…/Refinements/<feature-slug>/
+├── mockups/                           # Phase 4 lo-fi HTML mockups
+├── <FeatureOrKey>_Refinement_Notes.md # Phase 2+ working notes (not the DDR)
+└── <JiraID>_Draft_DDR.md              # Phase 5 draft DDR
+```
+
+**Use this `draft_ddr_dir`?** Reply `Y` / `yes` to create it (if needed) and start
+**Phase 1 — Intake**. Reply `N` to give a different path.
+
+If the path **already exists and is non-empty**, also warn clearly before any wipe:
+
+```markdown
+⚠️ This directory already has files. Confirming will **delete all contents**
+(including unrelated files), then start a fresh run.
+
+Reply `wipe` to clear it and continue, `preserve` to keep existing files, or
+`N` to choose a different (preferably empty) path.
+```
+
+Substitute real `<FeatureOrKey>` / `<JiraID>` guesses from the ticket when known;
+otherwise keep placeholders and note they will be finalized in Phase 1.
+
+Footer Waiting on: `confirm draft_ddr_dir Y/N` (or `wipe` / `preserve` if non-empty)
+
+#### A.3 On confirm — prepare `draft_ddr_dir` and start Phase 1
+
+Only after an explicit confirm:
+
+1. **If `draft_ddr_dir` does not exist** — create it (and `mockups/`).
+2. **If `draft_ddr_dir` exists and is empty** — reuse it; create `mockups/` if needed.
+3. **If `draft_ddr_dir` exists and is non-empty:**
+   - On `wipe` (or equivalent explicit clear confirm) — delete/clear **all**
+     contents, then continue. Briefly tell the user you wiped it for a new run.
+   - On `preserve` — **do not** delete anything; skip the fresh-run wipe (see
+     Fresh run policy for how Phase 2/5 write files).
+   - On bare `Y` alone when non-empty — **do not wipe**; re-ask for `wipe` /
+     `preserve` / new path.
+4. Remember the path as `<draft_ddr_dir>` for the session.
+5. Begin **Phase 1 — Intake** (there is no Phase 0).
+
+On `N`, ask for a new path and repeat A.2. Never default to the uhc-portal workspace.
+Prefer an empty directory when starting fresh.
+
+### Step B — Narrated status while working (every discovery/analysis turn)
+
+While fetching tickets/docs/code, keep the user oriented with short status lines
+(Cursor’s step summaries count). Prefer concrete narration, e.g.:
+
+- “Fetching the ticket hierarchy.”
+- “Walking up to the feature and discovering sibling epics and linked docs.”
+- “Pulling PRD/ADR links from the feature and checking sibling refinement spikes.”
+
+During **Phase 1**, do **not** narrate scanning for DDR drafts or `mockups/` — those belong
+to later phases under `<draft_ddr_dir>`.
+
+Always do this during Phase 1+ tool work — never go silent for long stretches.
+
+### Phase title (every phase reply after the roadmap gate)
+
+Start the main body with an explicit H2. Use these **exact** phase names everywhere
+(tables, “Proposed sources”, checkpoints, footers) — do not invent aliases like
+“teach-in”, “feature briefing”, or “later DDR”:
+
+```markdown
+## Phase 1 — Intake: hierarchy & source discovery
+## Phase 2 — UI Overview
+## Phase 3 — Codebase analysis
+## Phase 4 — Mockups
+## Phase 5 — Draft DDR
+## Phase 6 — Implementation stories
+```
+
+If a phase spans multiple replies, keep the same Phase title and optionally add a
+subtitle (`### What`, `### How`).
+
+### ASCII Jira hierarchy (required in Phase 1+)
+
+Always show a compact ASCII map of the resolved chain (and keep it in later phases
+when useful):
+
+```text
+<REFINE-SPIKE> (UI refine spike)
+└── <UI-EPIC> ([OCM UI] epic)
+    └── <FEATURE> (feature)
+```
+
+Replace placeholders with real keys/summaries. If the user started from the epic or
+feature, still show the full useful chain.
+
+### Progress footer (every reply after the roadmap gate)
+
+End every reply with a footer. Use **words**, not empty checkbox glyphs:
+
+| Marker | Meaning |
+|---|---|
+| `done` | Phase finished |
+| `⚡ current` | Phase in progress (this reply) |
+| upcoming phases | Listed by number/name only (not started) |
+
+```markdown
+---
+**Progress:** done 1 Intake · ⚡ **2 UI Overview (current)** · 3 Codebase · 4 Mockups · 5 DDR · 6 Stories
+**Waiting on:** <one line — e.g. confirm sources / review UI Overview / approve Jira creates>
+```
+
+If the user skips or defers mockups, keep the phase **names** stable and note that in
+**Waiting on** (e.g. `Do mockups next? Y/N` or `mockups deferred; drafting DDR`).
+
+Roadmap-gate reply (before Phase 1 starts):
+
+```markdown
+---
+**Progress:** (not started) 1 Intake · 2 UI Overview · 3 Codebase · 4 Mockups · 5 DDR · 6 Stories
+**Waiting on:** `draft_ddr_dir` path   # then, after path: confirm draft_ddr_dir Y/N
+```
+## Portability (no personal Cursor setup required)
+
+This skill must work for any teammate who has:
+
+1. This skill (`docs/ai/skills/ocmui-refinement/SKILL.md`)
+2. A uhc-portal checkout (for `docs/templates/` and Phase 3 `src/` reads)
+3. Jira credentials as env vars **or** Atlassian MCP
+
+**Do not depend on** personal Cursor rules, local token-file layouts, `gog`,
+Slack MCP, or personal template directories. Those are **not** part of this skill’s
+contract.
+
+| Need | How (portable) |
+|---|---|
+| Jira | `$JIRA_EMAIL` + `$JIRA_TOKEN` via curl **or** Atlassian MCP |
+| DDR / Jira story structure | `docs/templates/` in the uhc-portal checkout |
+| Feature PRDs / Google Docs | Links from Jira + user excerpts in chat (no `gog` required) |
+| Outputs | User-supplied `draft_ddr_dir` outside uhc-portal |
+
+If personal rules conflict with this skill (e.g. old template paths), **follow this
+skill** for refinement workflows.
+
+## Prerequisites
+
+| Dependency | Purpose | Required? |
+|---|---|---|
+| Jira access | Read feature hierarchy; create/update OCMUI / team UI tickets | Yes |
+| `gh` CLI | Optional lookups in `openshift-online/ocm-api-model` | Recommended |
+| uhc-portal workspace | `docs/templates/` + read-only codebase analysis (`src/`) | Yes |
+| Draft DDR directory | All skill-written notes / mockups / draft DDR | Yes (user-supplied path) |
+
+**Jira access — MCP is optional, not required.** Either path works:
+
+1. **Atlassian / Jira MCP** (if the user’s Cursor setup has it) — preferred when available
+2. **Jira REST API** via `curl` with `$JIRA_EMAIL` and `$JIRA_TOKEN` — always a valid
+   fallback; do not fail Phase 1 just because MCP is missing
+
+```bash
+curl -s -u "$JIRA_EMAIL:$JIRA_TOKEN" \
+  -H "Content-Type: application/json" \
+  "https://redhat.atlassian.net/rest/api/3/issue/<ISSUE_KEY>?fields=summary,description,status,issuetype,parent,issuelinks,labels,components,attachment,comment"
+```
+
+**If neither path works** (MCP missing / auth errors, and `$JIRA_EMAIL`/`$JIRA_TOKEN`
+unset or rejected): **stop Phase 1**. Do not invent ticket content. Tell the user to
+set up one of:
+
+- **Env vars (simplest):** create an Atlassian API token at
+  https://id.atlassian.com/manage-profile/security/api-tokens , then export
+  `JIRA_EMAIL` (Red Hat email) and `JIRA_TOKEN` in the shell Cursor inherits
+  (e.g. `~/.bashrc` / a sourced tokens file). Re-open the chat and retry.
+- **Atlassian MCP:** follow **AGENTS.md → MCP Integrations → Jira MCP** in this
+  repo (uv, wrapper script, `~/.cursor/mcp.json`), restart Cursor, then retry.
+
+Point them at that AGENTS section rather than pasting a full MCP install into chat.
+Wait for confirmation that access works before continuing Intake.
+
+**Requirement docs:** Prefer links discovered from Jira (remote links, descriptions,
+comments) or links the user provides in chat. Do not use a `support_docs/` folder.
+If a linked Google Doc cannot be read automatically, ask the user for access, a
+shareable summary, or key excerpts **in chat** — never require them to drop files
+into the repo or `draft_ddr_dir`. Do not hardcode Drive folder or doc IDs.
+
+**DDR drafting:** Only in **Phase 5**, write
+`<draft_ddr_dir>/<JiraID>_Draft_DDR.md`. Do not discuss draft file naming in
+Phases 1–3.
+
+## Jira project rules
+
+| Prefix | Role |
+|---|---|
+| **OCMUI-** | OCM UI team tickets — create/update allowed |
+| **ROSAENG-** (OCM UI team / UI epics & spikes) | Create/update only when the work is clearly UI refinement owned by the OCM UI team |
+| **OCM-**, **ROSA-**, **CS-**, **SDA-**, etc. | Backend/platform — **read-only** |
+| **HCMSTRAT-**, **OCPSTRAT-**, **XCMSTRAT-** | Strategy — **read-only** context |
+
+Base URL: `https://redhat.atlassian.net`
+
+## Templates
+
+Read team templates from the uhc-portal checkout — **not** from personal paths
+and **not** from a copy under this skill:
+
+```text
+docs/templates/
+├── ddr-template.md
+└── jira/
+    ├── epic-template.md
+    ├── story-template.md
+    ├── task-template.md
+    └── bug-template.md
+```
+
+## OCM API reference
+
+When tickets or docs mention API types/endpoints, verify against the live contract.
+Do not trust ticket text or stale TypeScript types alone. Flag discrepancies.
+
+**OpenAPI (field-level):**
+
+```bash
+curl -s "https://api.openshift.com/api/clusters_mgmt/v1/openapi" \
+  | python3 -c "import json,sys; schemas=json.load(sys.stdin)['components']['schemas']; [print(json.dumps(schemas[k],indent=2)) for k in sorted(schemas) if '<SEARCH_TERM>' in k.lower()]"
+```
+
+**API model repo (comments + canonical names):**
+
+```bash
+gh api repos/openshift-online/ocm-api-model/contents/model/clusters_mgmt/v1 \
+  --jq '.[].name' | grep -i <search_term>
+
+gh api repos/openshift-online/ocm-api-model/contents/model/clusters_mgmt/v1/<type_name>.model \
+  --jq '.content' | base64 -d
+```
+
+Also check `accounts_mgmt`, `service_logs`, etc. when relevant.
+
+## Draft DDR directory vs uhc-portal workspace
+
+| Location | Role |
+|---|---|
+| **uhc-portal workspace** (`./src`, etc.) | **Read-only** for Phase 3 codebase analysis. **Never** write refinement notes, draft DDRs, or mockups here. |
+| **`<draft_ddr_dir>`** (user-supplied absolute path) | **Only** place the skill creates/updates refinement files. |
+
+Example: `/home/<you>/work/Refinements/<feature-slug>`
+
+```text
+<draft_ddr_dir>/
+├── mockups/                           # Phase 4 lo-fi HTML mockups
+├── <FeatureOrKey>_Refinement_Notes.md # Phase 2+ working notes (not the DDR)
+└── <JiraID>_Draft_DDR.md              # Phase 5 draft DDR
+```
+
+- **`mockups/`** — Phase 4 only
+- **`*_Refinement_Notes.md`** — Phase 2+ scratch (not the DDR)
+- **`<JiraID>_Draft_DDR.md`** — Phase 5 only (do not mention in Phases 1–3)
+
+Do **not** create or mention a `support_docs/` folder.
+
+### Fresh run — clean `draft_ddr_dir`
+
+Default is a clean slate, but **never wipe without an explicit confirm** when the
+directory is non-empty (see A.2 / A.3).
+
+| Situation | Action |
+|---|---|
+| Directory missing | **Create** it (+ `mockups/`) |
+| Directory empty | **Reuse** as-is (+ `mockups/` if needed) |
+| Directory non-empty + user said `wipe` | **Erase all contents**, then continue |
+| Directory non-empty + user said `preserve` / diff | **Do not wipe**; keep existing files |
+
+On a normal wiped fresh run: do not merge prior notes/drafts/mockups; say briefly
+that the directory was cleared.
+
+**Preserve / diff mode:** When the user asked to preserve or diff, Phase 2 and
+Phase 5 must **not** silently overwrite existing
+`*_Refinement_Notes.md` / `*_Draft_DDR.md`. Ask before replacing, or write a new
+filename (e.g. `…_Draft_DDR_v2.md`). Do not invent a full versioning scheme.
+
+---
+
+## Workflow overview
+
+After the user confirms `draft_ddr_dir` (`Y`), follow phases **1–6** in order.
+Each phase ends with a user checkpoint. All file writes go under `<draft_ddr_dir>`.
+
+| Phase | Goal | Gate |
+|---|---|---|
+| 1 | Resolve hierarchy, discover docs/siblings, confirm sources | User confirms materials |
+| 2 | Analyse confirmed sources → **UI Overview** (UI / API / CLI impact) | User confirms understanding |
+| 3 | Codebase analysis | User reviews findings; **Do mockups next? Y/N** |
+| 4 | Mockups (optional) | User confirms surface list / reviews or skips |
+| 5 | Write `<JiraID>_Draft_DDR.md` | User reviews sections |
+| 6 | Implementation stories (after DDR acceptance) | User approves Jira writes |
+
+---
+
+### Phase 1: Intake — hierarchy walk and source discovery
+
+**Starts only after** the user confirms `<draft_ddr_dir>` with `Y` (Step A.3).
+
+Narrate status while working (see Progress UX). Then present findings.
+
+#### 1.1 Resolve the ticket chain
+
+Walk **up** via `parent` / Epic Link until you identify:
+
+1. **Refinement ticket** — often a Spike (“Create a DDR…”) with little feature content
+2. **UI epic** — e.g. `[OCM UI] Epic for <FEATURE> — …` (placeholder until refined)
+3. **Feature ticket** — e.g. `ROSA-…`, `OSD-…`, `OCM-…` (requirements live here or in linked PRD)
+
+**Always** render the ASCII hierarchy map (see Progress UX).
+
+If the user pasted the feature or UI epic directly, adapt — still walk up to the
+feature and down to siblings.
+
+#### 1.2 Discover children and siblings of the feature
+
+From the **feature** ticket, list child epics / linked work. Prefer JQL such as:
+
+```text
+parent = <FEATURE_KEY> ORDER BY key ASC
+```
+
+Also fetch `issuelinks` and **remote links** on the feature and on each relevant child.
+
+Categorize siblings by name/prefix when present (do **not** invent missing kinds):
+
+| Kind | Typical title markers |
+|---|---|
+| OCM UI | `[OCM UI]` |
+| OCM API / Cluster Service | `[OCM API]`, CS/OCM backend |
+| CLI clients | `[ROSA CLI]`, `[OCM CLI]`, other `* CLI` |
+| Terraform / CAPI | `[Terraform]`, `[CAPI`, `CAPA]` |
+| Docs | `[Docs]`, OSDOCS |
+
+For each useful sibling, fetch: summary, description, status, comments, remote links,
+attachments, and notable child spikes/stories (especially closed/in-review refinement
+spikes — they often contain CLI/API decisions the UI must match). **Present those
+decisions in UI terms** (see UI persona); keep raw sibling jargon only as a mapping
+aid.
+
+**Do not** surface auto-created UI-epic scaffolding (E2E automation, feature-flag
+stubs, post-merge testing placeholders, etc.) in the intake summary — it adds noise
+and confuses scope. Only mention those later in Phase 6 when creating stories (to
+avoid duplicates).
+
+#### 1.3 Discover requirement documents
+
+Search automatically (do not wait for the user to attach them):
+
+1. Feature description + Acceptance Criteria
+2. Remote links titled PRD / ADR / design / refinement
+3. Attachments on feature and sibling epics
+4. Comments that link to Google Docs, GitHub design docs, or OpenAPI
+5. Links the user provides in chat (docs, tickets, design URLs)
+
+**Missing docs are normal.** If no PRD/ADR exists, say so clearly and continue with
+feature description + sibling findings. Do not block Intake on a missing ADR.
+
+#### 1.4 Present discovery checklist (checkpoint)
+
+Output a structured summary, then **stop and wait**:
+
+```markdown
+## Phase 1 — Intake: hierarchy & source discovery
+
+### Hierarchy
+```text
+<ISSUE> (role)
+└── <PARENT> (role)
+    └── <FEATURE> (feature)
+```
+
+### Discovered sources
+```
+
+Fill the sources table with **informative** Location and Status cells — not tool names.
+
+| Column | Requirement |
+|---|---|
+| **Location** | Clickable link whose **label is the real title** (doc title, ticket summary), not a generic label like “Product Requirement Document”. |
+| **Status** | Start with a **clear maturity/presence label**, then provenance + one-line note. Prefer provenance over tool names. |
+
+**Status vocabulary for sibling / doc rows** (do **not** use vague “Strong”):
+
+| Label | Meaning |
+|---|---|
+| **Found** | Doc/ticket exists and was read (add provenance) |
+| **Not found** | Looked for; absent |
+| **Partial** | Some signal, incomplete |
+| **Placeholder** | Epic/ticket exists but no useful refinement content yet |
+| **Refined (sibling)** | Sibling client already refined (spike done / story written) — useful for **UI parity**, not a score of “DDR readiness” |
+
+Never use “Strong” / “Weak”. If you mean “this sibling is refined enough to inform UI parity,” say **`Refined (sibling)`**.
+
+Example (good):
+
+| Source | Location | Status |
+|---|---|---|
+| **PRD** | [PRD: \<actual doc title\>](https://docs.google.com/…) | **Found** (readable; remote link on \<FEATURE\>) |
+| **Sibling CLI epic / spike** | [\<CLI-EPIC\>](…) → spike [\<SPIKE\>](…) | **Refined (sibling)** — UI parity question in console terms |
+
+Example (bad):
+
+| Source | Location | Status |
+|---|---|---|
+| PRD | [Product Requirement Document](https://docs.google.com/…) | **Found** (via tool name) |
+| Sibling CLI … | … | **Strong** — refined |
+
+Template rows to populate (Phase 1 only — **omit rows that do not exist** for this
+feature; do not hardcode a standing client list):
+
+| Source | Location | Status |
+|---|---|---|
+| PRD | *real title + link* | Found / Not found + provenance |
+| Backend ADR | … | … |
+| Feature description | … | … |
+| OCM API / CS epic or spike | … | … |
+| Sibling client epics/spikes (CLI / TF / Docs / …) | … | … only if discovered |
+| Open questions from siblings (UI-phrased) | … | … |
+
+**Omit from Phase 1 entirely:**
+
+- UXD / mockups / `/mockups` (Phase 4 produces mockups; absence is expected)
+- `<JiraID>_Draft_DDR.md` / draft DDR file naming (Phase 5 only)
+- Auto-created E2E / feature-flag scaffolding under the UI epic (Phase 6 only)
+
+Then:
+
+```markdown
+### Proposed sources of truth
+For **Phase 2 — UI Overview**:
+- List the docs/tickets/links you will analyse next.
+
+### Still needed from you
+- Confirm the list above, **or** share any additional doc/ticket links
+```
+
+Ask: **Are these all the docs and content I should analyse for Phase 2 — UI Overview?**
+
+**Do not** ask about draft DDR files or mockups here.
+
+**Phase 1 stays discovery-only.** No deep PRD dumps, no full UI Overview before the
+user confirms sources.
+
+Only after confirmation, proceed to Phase 2. If the user provides extra docs, read
+them first and update the source list.
+
+---
+
+### Phase 2: UI Overview
+
+After the user confirms sources, analyse the agreed materials (PRD, feature,
+sibling CLI/API/TF refinements, comments) and produce the **UI Overview** before
+mockups or the DDR.
+
+Write working notes to
+`<draft_ddr_dir>/<FeatureOrKey>_Refinement_Notes.md`, derived from the feature
+title or Jira key. On a wiped fresh run, **overwrite** if it already exists.
+If the user chose **preserve** / diff, ask before replacing or use a new
+filename (Fresh run policy). **Never** name this file `DDR_Refinement.md` or
+write it into uhc-portal. Scratch analysis only — not DDR-template content.
+
+Prefer the terms **UI Overview** and **UI impact** — avoid “teach-in.”
+
+Audience: an OCM UI developer (**UI persona**). Lead with what changes in the
+**console**. Backend/sibling jargon belongs under API / CLI status, always mapped
+to UI terms — never as the lead vocabulary of the Overview.
+
+**Keep this skill generic:** do not bake in examples from whatever feature is
+currently being refined. Always derive products, outs, CLI/API notes, and UI
+surfaces from *that* ticket’s sources. If sources conflict or leave a UI choice
+open, list **options for the human** (see Decisions) instead of picking one.
+
+#### 2.0 UI Overview (required — lead with this)
+
+Use this exact heading and cover each bullet (`Unknown` / `N/A` when missing —
+do not invent):
+
+```markdown
+## UI Overview
+
+- **Feature summary** — …
+- **Customer context / pain** — …
+- **Console scenarios** (feed User Stories only) — …
+- **Products in scope** — …
+- **Where in the UI** — …
+- **Day 1 (cluster creation wizards)** — …
+- **Day 2 (cluster details / post-create)** — …
+- **CLI status** — …
+- **API / Cluster Service status** — …
+- **Other clients** — …
+- **Open questions that block or shape UI** — …
+```
+
+##### Feature summary (customer / UI voice)
+
+2–4 sentences. Answer: *What can a console user do that they cannot do today?*
+
+- **Do:** Describe the user-visible capability and where they exercise it (create
+  wizard, cluster details, settings, etc.), plus any product/version gate in plain
+  language.
+- **Don’t:** Lead with platform/backend implementation detail (internal resource
+  names, cloud plumbing, operator internals). Save that for API / codebase phases.
+- Light product constraints are OK (“\<product\> only”, “version \<N\>+\”) — not a
+  platform essay.
+
+##### Customer context / pain
+
+Brief (bullets OK): who the end user is, what job they’re doing, and what hurts
+today or why the feature was requested (from feature/strategy tickets — `Unknown`
+if missing). This feeds DDR **Why** later.
+
+##### Console scenarios (for User Stories — not a separate DDR “use cases” list)
+
+Internally identify 2–5 console scenarios (Day 1 / Day 2). In the **DDR**, express
+them only as **User Stories** — do **not** also add a “Primary UI use cases”
+block under What (that duplicated User Stories in practice).
+
+##### Products in scope (+ outs that need explanation)
+
+State in-scope products clearly. When a PRD/feature lists **out-of-scope** items,
+do **not** paste them as an unexplained comma list. For each out that a UI engineer
+might wonder about, add:
+
+1. **What it is** (one short clause — decode jargon)
+2. **Why the source mentions it** (related / deferred / orthogonal)
+3. **Why this UI epic can ignore it** (or how it still constrains UI)
+
+Generic shape (fill from *this* feature’s sources only):
+
+- **In:** \<products / versions\>
+- **Out (and why):**
+  - **\<out item\>** — \<what it means\>. Listed because \<reason from PRD/feature\>.
+    UI impact: \<none / deferred / separate epic\>.
+
+Skip outs that have zero UI relevance only if you can say so in one clause; otherwise
+gloss them. Never hardcode a standing “outs” list in this skill.
+
+##### Where in the UI / Day 1 / Day 2
+
+Be concrete about console surfaces (wizard steps, tabs, modals, fields) using **UI**
+vocabulary from the product (labels the user sees). Deeper file-level mapping is
+Phase 3; here a best-effort surface list is enough, refined in codebase analysis.
+
+##### CLI status (UI-eyes)
+
+Parity for a UI engineer — not a CLI ticket dump. Cover: plain-language contract
+(what the console should mirror or intentionally skip); refinement state + links;
+copy vs ignore (validation/defaults/gates); open questions as full UI sentences.
+If parity is ambiguous, offer **options** and wait.
+
+##### API / Cluster Service status
+
+Same bar: who owns validation/defaults, what the UI must not re-implement,
+blockers in **console terms** + links (API names only as mappings). Pull from
+*all* confirmed sources, not only the PRD.
+
+#### 2.1 Deepen with three lenses (UI impact)
+
+After the UI Overview, expand only where needed:
+
+**(a) UI impact** — controls, validation, empty/edge states, warnings, out of scope
+for UI (with why, glossed from sources).
+
+**(b) UI ↔ API integration** — endpoints/resources; validation ownership; version
+gates / flags / errors to surface; OpenAPI / `ocm-api-model` verification; gaps.
+
+**(c) Consistency with CLI (and other clients)** — parity in UI terms; intentional
+differences called out; shared open questions in full sentences.
+
+**Checkpoint** — use this wording (adapt lightly, keep the invite to ask questions):
+
+> Does this **Phase 2 — UI Overview** match your understanding? I can expand on any
+> item — now is a good time to ask questions so you're clear before we move on.
+> When you're ready, say yes and we'll continue to **Phase 3 — Codebase analysis**.
+
+Update `<FeatureOrKey>_Refinement_Notes.md` with any corrections from the discussion.
+
+---
+
+### Phase 3: Codebase analysis
+
+**Read** UI code from the uhc-portal workspace (`./src`). **Write** analysis only
+into `<draft_ddr_dir>/…_Refinement_Notes.md` — never create files under uhc-portal.
+
+Using Phase 1–2 context:
+
+1. Affected product paths
+2. Affected lifecycle stages (Day 1 / Day 2)
+3. Existing components, hooks, routes, and patterns to reuse or change
+4. Current API integration points vs required contract
+5. **Discrepancies worth flagging** — ticket vs code vs PRD/CLI conflicts, shared
+   components that widen product scope, missing API fields, etc. Phrase each as a
+   **UI impact** question; if multiple resolutions are viable, list **options**.
+
+Append a **Codebase Analysis** section to `<FeatureOrKey>_Refinement_Notes.md`.
+
+Carry every discrepancy forward: in **Phase 5** they become draft DDR
+**Open Issues** (what / why it matters for UI / next step). Do not drop them after
+Phase 3.
+
+**Checkpoint — Phase 4 / 5:**
+
+```markdown
+Phase 3 is done. **Do mockups next?** Reply `Y` / `N`
+(`N` → **Phase 5 — Draft DDR**; mockups can still be done after the draft if you want)
+```
+
+Wait for the user’s reply before continuing. Never force mockups.
+
+---
+
+### Phase 4: Mockups
+
+Optional. Run when the user answers **Y** to “Do mockups next?”, or asks for
+mockups later (e.g. after the draft DDR).
+
+#### 4.1 Surface list (required before drawing)
+
+From **Phase 2 — UI Overview** + **Phase 3 — Codebase analysis** (and the draft
+DDR How if Phase 5 already ran), propose a **short** surface list — only
+surfaces this feature **changes or adds**. Then wait for confirm/edit.
+
+- Prefer lifecycle labels when useful (`day-1-…`, `day-2-…`), but do **not**
+  walk a fixed checklist of wizards, cluster-details tabs, or other console
+  areas looking for something to draw.
+- If Phase 2/3 named one wizard step and one Day 2 tab, the list is those two
+  (plus edge cases) — not Overview / Networking / Settings “for completeness.”
+- For each surface: **happy path** + **edge cases** worth drawing (gated/hidden,
+  validation error, empty API fields, unsupported product path, etc.).
+
+Optionally ask the user for **as-is screenshots** of those surfaces (current UI)
+to improve chrome/spacing fidelity. Screenshots are optional — the skill can
+still produce lo-fi PatternFly HTML from the DDR + codebase map alone.
+
+Checkpoint before drawing:
+
+```markdown
+Proposed mockup surfaces:
+1. …
+2. …
+
+Optional: attach as-is screenshots of any of the above for fidelity.
+
+**Use this surface list?** Reply `Y` / edit the list / skip mockups.
+```
+
+Do **not** proceed to HTML until the user confirms the surface list (or
+explicitly says to use the proposed list / skip).
+
+#### 4.2 Output
+
+- HTML files under `<draft_ddr_dir>/mockups/` — **one file per surface** (or one
+  file per surface with clearly labeled happy/edge scenarios inside)
+- Naming: prefer lifecycle + area, e.g. `day-1-wizard-<step>.html`,
+  `day-2-<area>.html`
+- PatternFly look and feel; happy path + the confirmed edge cases
+- PatternFly AI guidance:
+  https://github.com/patternfly/ai-helpers/blob/main/docs/guidelines/ai-prompt-guidance.md
+
+**Design choices:** Pick the **single best** UX that fits the DDR + existing
+console patterns (labels, titles, step placement). Do **not** generate catalogs
+of title/layout alternatives unless the user asks for variants. Prefer current
+UI copy/structure when extending an existing surface.
+
+**Stay inside the decision:** Do not invent alternate navigation or page
+structure the sources/DDR already rejected (e.g. a new wizard step when How says
+extend an existing step). If mockups run **before** the DDR, stay lo-fi and
+avoid locking controversial layout; treat mockups as input to Phase 5.
+
+#### 4.3 After mockups exist
+
+If mockups run **before** the DDR, keep them lo-fi and treat them as design input
+for Phase 5.
+
+When linking mockups from the draft DDR (**References**, first bullet only —
+never a How/Mockups section):
+
+- Prefer a **shareable URL** if the user has one.
+- **Never** paste local `draft_ddr_dir` filesystem paths into the DDR.
+- If mockups are only local HTML and there is no URL yet: ask the user to publish
+  and provide a link, **or** put a short References placeholder
+  (`Mockups — shareable link TBD`) / omit until a link exists. Do **not** block
+  drafting the rest of the DDR on hosting.
+
+**If Phase 4 runs after Phase 5** (user answered `N` to mockups-next, then later
+asked for mockups): update the existing draft DDR **References** with the mockup
+link/placeholder, and remind the user to re-Paste as Markdown into the feature
+DDR gDoc if they already published.
+
+---
+
+### Phase 5: Draft DDR
+
+Create **one** file under the draft DDR directory (local markdown first; user
+pastes into the feature DDR gDoc afterward — see below):
+
+```text
+<draft_ddr_dir>/<JiraID>_Draft_DDR.md
+```
+
+Use the UI epic key when known (else the refine-spike key), e.g.
+`…/<UI-EPIC-KEY>_Draft_DDR.md`. On a wiped fresh run, **overwrite** if it already
+exists. If the user chose **preserve** / diff, ask before replacing or use a new
+filename (Fresh run policy).
+
+**Authorship:** The assistant may produce a **complete first draft** under
+`draft_ddr_dir`. The human author still owns accuracy and must review/edit before
+the feature DDR gDoc is treated as review-ready (aligns with
+`docs/templates/ddr-template.md` Prerequisites). Do not publish or mark Approved
+without that author pass.
+
+**DDR structure SoT at draft time:** `docs/templates/ddr-template.md`.
+Apply that file’s section guidelines when drafting (including How’s “Guidelines”
+list). Do **not** auto-fetch or auto-sync the live Google Doc on every run.
+
+Official blank DDR template (human / maintainer reference — not required at
+runtime):
+https://docs.google.com/document/d/1QE1pgNfG-60Wve2ucAgefWShLFEZaB3mmj7U5d7-xjY/edit
+
+- **Maintainers** occasionally re-sync `docs/templates/ddr-template.md` from that
+  gDoc when the team updates it (manual).
+- **Without `gog` (or similar):** the skill **cannot** read Google Docs. Drafting
+  still works from `docs/templates/ddr-template.md`. If a *feature* PRD is a
+  Google Doc link the agent can’t open, ask the user for excerpts in chat.
+
+Draft from **Phase 2 — UI Overview** + **Phase 3 — Codebase analysis** (+ mockups
+if Phase 4 already ran) + confirmed sources.
+
+**Open Issues (required section):** Copy Phase 3 “discrepancies worth flagging” (and
+any still-open parity/API questions that shape UI) into **Open Issues**. Each item:
+what / why it matters for UI / proposed next step or owner. Use `N/A` only if none
+remain.
+
+#### Draft brevity
+
+Prefer **shorter** over longer. Cut scaffolding and cross-section repetition
+before cutting concrete How detail (controls, defaults, gates, API examples,
+real error rules).
+
+Word counts below are **soft review-ready ceilings** (smell tests), **not**
+targets to hit and **not** hard limits. Do **not** pad to approach them. Do
+**not** delete needed How/API/error detail just to stay under them. Complex
+features may run longer; say so briefly if a section must exceed the ceiling.
+
+| Section | Soft ceiling (smell test) | Prefer |
+|---|---|---|
+| **What** | ~1 short paragraph | Feature framing only — no outs laundry list |
+| **User Stories** | A handful of bullets | One persona; scenarios once |
+| **Why** | Short table; only rows with real content | Omit empty / N/A guideline rows from published draft |
+| **How — Day 1 / Day 2** | Concise but concrete | Controls / defaults / gates |
+| **How — Errors** | As long as the rules need | Upstream/API constraints over vague “validate” |
+| **How — API** | Short per operation | Example + 1 short paragraph (existing rule) |
+| **Tracking** | A few lines | |
+| **Alternatives** | Few real discards only | No strawmen |
+| **Open Issues** | Short while drafting; **empty** when review-ready | Only after real decisions — see below |
+
+Do **not** repeat the same decision across What + Why + How + Alternatives.
+
+**Open Issues → How:** While drafting, open questions are fine. Before calling the
+DDR review-ready / Approved:
+
+- **Decided** items → fold the decision into **How** (or **Alternatives**) and
+  remove from Open Issues.
+- **Still unresolved** (especially API/product discrepancies that block UI) →
+  **keep them in Open Issues**. Moving text into How/Alternatives without a
+  decision does **not** count as resolved and must not be used to force an empty
+  Open Issues list.
+- Do not ship a long unresolved parking lot as if the DDR were done; either get
+  decisions or leave the blockers visible.
+
+**Rules:**
+
+- **Template outline only.** Use exactly the `##` sections from
+  `docs/templates/ddr-template.md` (What, User Stories, Why, How, Tracking, References,
+  Alternatives, Open Issues, Acceptance Criteria, Reviews). Do **not** invent extra
+  top-level sections (e.g. Mockups). Do **not** invent persona/role sections that are
+  not in the template. Under **How**, keep subheadings minimal and only for content
+  structure (e.g. API usage) — never duplicate a later top-level section as a How
+  subsection (especially **never** `### Tracking` under How; Tracking is only
+  `## Tracking` once).
+- Be concise; **do not repeat** concepts already covered in earlier sections
+  (What → User Stories → Why → How). Why must not restate What’s use cases or
+  feature definition at length.
+- **No** uhc-portal file/path tables, component inventories, or “code touchpoints”
+  in the DDR — that detail belongs in **Phase 6** Jira implementation stories
+- **How → API usage** is required and must be **structured**, not a wall of text:
+  - One **clearly separated** subsection (or headed block) **per API / operation**
+    the UI calls (e.g. create vs update/patch for each resource this feature uses)
+  - For each: lead with a short **example request** (method + path + relevant JSON
+    fields, including zeros / key payload shape), **then** 1 short paragraph on
+    when the UI uses it, field meaning, and errors/gaps — still in UI-relevant
+    language
+  - Separate APIs visually (### headings or horizontal rules) — do not merge Day 1
+    and Day 2 into one dense paragraph
+  - Still **no** full OpenAPI schema dump and **no** uhc-portal code-path tables
+- Day 1 / Day 2 surface and control behavior belongs in **How**, not under a
+  “UI scope” blurb in **What**
+- Only state what sources support; otherwise `N/A`
+- Label assumptions that need team input; if several UI interpretations are
+  plausible, **options for the human** before locking How
+- **Never** add a standalone **Mockups** section in the DDR. If mockups exist, put
+  them as the **first bullet under References**
+- **Never** cite `draft_ddr_dir` local paths (refinement notes, local draft files) in
+  the DDR — the published doc is a Google Doc with no access to those files
+- **References** must not repeat header table links (Other docs, OCM Epic(s),
+  Governing STRAT(s)/ADR(s), etc.) — only *additional* materials
+- Omit the template’s **Prerequisites (LLM)** section from the filled draft
+
+#### Section guidance
+
+Follow `docs/templates/ddr-template.md` section guidelines. Skill-only emphasis:
+
+- **What / User Stories / Why** — customer + **console** voice (UI persona); no
+  “Primary UI use cases” list under What; no UI-scope inventory in What (that is
+  How). Why table: only rows with content; pain/demand last.
+- **How** — template How rules; per-API blocks; concrete upstream/API constraints
+  in **How — Errors** (not only Open Issues). No Mockups/Tracking under How.
+- **Tracking** — once, as `## Tracking` only.
+- Present section-by-section when helpful; invite corrections on What / User
+  Stories / Why before locking.
+
+If mockups were deferred, offer **Phase 4 — Mockups** after the draft checkpoint.
+
+#### After the draft file is written (required)
+
+Tell the user how to get the markdown into their **feature DDR Google Doc**
+(the blank or WIP DDR linked from the UI epic / feature — not the template gDoc):
+
+```markdown
+**Next step — publish to the feature DDR gDoc:**
+1. Open `<draft_ddr_dir>/<JiraID>_Draft_DDR.md` and copy the markdown.
+2. Open your feature’s DDR Google Doc.
+3. Use **Paste as Markdown** (Docs add-on / extension) so headings, tables, and
+   lists keep their structure.
+```
+
+Do not attempt to write the Google Doc via `gog` or other automation unless the
+user explicitly asks. Wait for them to confirm the gDoc paste (and any review
+edits) before offering **Phase 6 — Stories**.
+
+---
+
+### Phase 6: Implementation stories
+
+Only after the DDR is **accepted** (reviewers LGTM).
+
+1. Update the UI epic description using `docs/templates/jira/epic-template.md`
+2. Create child stories using `docs/templates/jira/story-template.md`
+3. Check for auto-created standard stories (post-merge testing, CI/E2E automation,
+   feature flags) before duplicating — this is the **only** phase where that
+   scaffolding is discussed
+4. Prefer Day 1 / Day 2 split when both apply; use scope prefixes from the story template
+
+Prefer Atlassian MCP or Jira UI for creates when available. If using curl, match
+the **UI epic’s project** and Story issue type (do not hardcode project/type IDs).
+Description must be valid ADF. Report each new issue key/URL.
+
+**Always get explicit approval before creating or updating Jira issues.** Present
+the proposed epic update + story list as **options/checklist** for the user to
+edit before any write.
+
+---
+
+## Example response shape (checklist)
+
+For `Help me refine <spike-url>` — follow Progress UX Step A, then:
+
+1. Roadmap + ask `draft_ddr_dir` (no tools)
+2. Show layout → confirm (`wipe` / `preserve` if non-empty)
+3. Phase 1 Intake → sources table → wait
+4. Phase 2 UI Overview (**UI persona**) → wait; options if forks
+5. Phase 3 codebase → **Do mockups next? Y/N**
