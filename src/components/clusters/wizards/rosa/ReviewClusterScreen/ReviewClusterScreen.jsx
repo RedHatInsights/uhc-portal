@@ -49,6 +49,7 @@ import {
   CREATE_CLUSTER_YAML_EDITOR,
   FIPS_FOR_HYPERSHIFT,
   HCP_LOG_FORWARDING,
+  HCP_OVN_IP4_SUBNETS,
   HCP_SPOT_INSTANCES,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
@@ -140,6 +141,7 @@ const ReviewClusterScreen = ({
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
 
   const showSpotInterruptionHandling =
     isHypershiftSelected &&
@@ -147,7 +149,9 @@ const ReviewClusterScreen = ({
     isEnhancedSpotVersionSupported(clusterVersionRawId);
 
   const shouldShowOvnSubnets =
-    isHypershiftSelected && canConfigureDayOneOvnSubnets(clusterVersionRawId);
+    isHcpOvnIp4SubnetsEnabled &&
+    isHypershiftSelected &&
+    canConfigureDayOneOvnSubnets(clusterVersionRawId);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,

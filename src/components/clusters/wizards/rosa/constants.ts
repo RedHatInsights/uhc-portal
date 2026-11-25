@@ -113,6 +113,14 @@ export const ovnSubnetInitialValues = {
   [FieldId.NetworkInternalMasqueradeSubnet]: MASQUERADE_SUBNET_DEFAULT,
 };
 
+/** Cleared OVN fields — used when the feature flag is off or for classic control plane. */
+export const ovnSubnetClearedValues = {
+  [FieldId.OvnDefaultValuesToggle]: true,
+  [FieldId.NetworkInternalJoinSubnet]: '',
+  [FieldId.NetworkInternalTransitSwitchSubnet]: '',
+  [FieldId.NetworkInternalMasqueradeSubnet]: '',
+};
+
 export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnabled?: boolean) =>
   isHypershift
     ? {
@@ -126,7 +134,8 @@ export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnab
         [FieldId.SharedVpc]: { is_allowed: false },
         [FieldId.UpgradePolicy]: 'automatic',
         [FieldId.Region]: isMultiRegionEnabled ? undefined : AWS_DEFAULT_REGION,
-        ...ovnSubnetInitialValues,
+        // OVN defaults are applied by the wizard when HCP_OVN_IP4_SUBNETS is enabled
+        ...ovnSubnetClearedValues,
       }
     : {
         [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.standard,
@@ -143,13 +152,8 @@ export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnab
           hosted_zone_role_arn: '',
         },
         [FieldId.UpgradePolicy]: 'manual',
-        // Clear OVN fields so classic / non-HCP paths do not participate in overlap checks
-        [FieldId.OvnDefaultValuesToggle]: true,
-        [FieldId.NetworkInternalJoinSubnet]: '',
-        [FieldId.NetworkInternalTransitSwitchSubnet]: '',
-        [FieldId.NetworkInternalMasqueradeSubnet]: '',
+        ...ovnSubnetClearedValues,
       };
-
 export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   hypershiftDefault = hypershiftDefaultSelected,
 ) => ({

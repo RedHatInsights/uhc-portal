@@ -2,7 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { HCP_OVN_IP4_SUBNETS } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 
 import { FieldId } from '../constants';
 
@@ -51,7 +52,9 @@ describe('<CIDRScreen />', () => {
     expect(screen.getByLabelText('Host prefix')).toBeDisabled();
   });
 
-  it('shows OVN subnet fields for HCP when OpenShift version is 4.18 or higher', () => {
+  it('shows OVN subnet fields for HCP when the feature flag is on and OpenShift is 4.18 or higher', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
     render(
       build({
         [FieldId.Hypershift]: 'true',
@@ -70,7 +73,22 @@ describe('<CIDRScreen />', () => {
     expect(screen.getAllByLabelText('Use default values')).toHaveLength(2);
   });
 
+  it('hides OVN subnet fields when the feature flag is off', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, false]]);
+
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
+  });
+
   it('hides OVN subnet fields for HCP when OpenShift version is below 4.18', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
     render(
       build({
         [FieldId.Hypershift]: 'true',
@@ -84,6 +102,8 @@ describe('<CIDRScreen />', () => {
   });
 
   it('hides OVN subnet fields for classic (non-HCP) clusters', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
     render(
       build({
         [FieldId.Hypershift]: 'false',

@@ -222,7 +222,7 @@ describe('createClusterRequest', () => {
       network_internal_masquerade_subnet: '169.254.0.0/17',
     };
 
-    it('includes OVN subnet fields for HCP on OpenShift 4.18+', () => {
+    it('includes OVN subnet fields for HCP on OpenShift 4.18+ when form values are set', () => {
       const request = createClusterRequest(
         {},
         {
@@ -248,6 +248,30 @@ describe('createClusterRequest', () => {
         internal_masquerade_subnet: '169.254.0.0/17',
       });
       expect(request.network.type).toBeUndefined();
+    });
+
+    it('omits OVN subnet fields when OVN form values are empty', () => {
+      const request = createClusterRequest(
+        {},
+        {
+          ...rosaFormData,
+          hypershift: 'true',
+          cluster_version: {
+            ...baseFormData.cluster_version,
+            raw_id: '4.18.1',
+            id: 'openshift-v4.18.1',
+          },
+          ...hcpMachinePools,
+          ...CIDRData,
+          network_service_cidr: '172.30.0.0/16',
+          network_pod_cidr: '10.128.0.0/14',
+          network_internal_join_subnet: '',
+          network_internal_transit_switch_subnet: '',
+          network_internal_masquerade_subnet: '',
+        },
+      );
+
+      expect(request.network.internal_join_subnet).toBeUndefined();
     });
 
     it('omits OVN subnet fields when OpenShift version is below 4.18', () => {

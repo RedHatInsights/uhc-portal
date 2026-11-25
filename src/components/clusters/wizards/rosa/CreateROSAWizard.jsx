@@ -34,6 +34,7 @@ import useAnalytics from '~/hooks/useAnalytics';
 import usePreventBrowserNav from '~/hooks/usePreventBrowserNav';
 import {
   HCP_LOG_FORWARDING,
+  HCP_OVN_IP4_SUBNETS,
   HYPERSHIFT_WIZARD_FEATURE,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -56,7 +57,13 @@ import UpdatesScreen from './UpdatesScreen/UpdatesScreen';
 import { VPCScreen } from './VPCScreen/VPCScreen';
 import AccountsRolesScreen from './AccountsRolesScreen';
 import ClusterProxyScreen from './ClusterProxyScreen';
-import { FieldId, initialTouched, initialValues, initialValuesRestrictedEnv } from './constants';
+import {
+  FieldId,
+  initialTouched,
+  initialValues,
+  initialValuesRestrictedEnv,
+  ovnSubnetInitialValues,
+} from './constants';
 import CreateClusterErrorModal from './CreateClusterErrorModal';
 import CreateRosaWizardFooter from './CreateRosaWizardFooter';
 import MachinePoolScreen from './MachinePoolScreen';
@@ -563,9 +570,17 @@ const CreateROSAWizardFormik = (props) => {
   const onActiveStepIdChange = React.useCallback((id) => {
     activeStepIdRef.current = id;
   }, []);
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
+  const baseInitialValues = isRestrictedEnv() ? initialValuesRestrictedEnv : initialValues();
+  // Hypershift is selected by default outside restricted env; apply OVN defaults only when flagged.
+  const formInitialValues =
+    isHcpOvnIp4SubnetsEnabled && baseInitialValues[FieldId.Hypershift] === 'true'
+      ? { ...baseInitialValues, ...ovnSubnetInitialValues }
+      : baseInitialValues;
+
   return (
     <Formik
-      initialValues={isRestrictedEnv() ? initialValuesRestrictedEnv : initialValues()}
+      initialValues={formInitialValues}
       initialTouched={initialTouched}
       validate={(values) => rosaWizardFormValidator(values, activeStepIdRef.current)}
       validateOnChange

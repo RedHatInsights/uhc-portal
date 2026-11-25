@@ -148,8 +148,13 @@ export const createClusterRequest = (
     };
 
     // ROSA HCP OVN internal subnets (OpenShift ≥ 4.18). Do not set network.type.
+    // Included only when form values are present (feature-flag UI populates them).
     // Property names follow PRD (snake_case); final API names may change with ROSAENG-61815.
-    if (isHypershiftSelected && canConfigureDayOneOvnSubnets(formData.cluster_version?.raw_id)) {
+    if (
+      isHypershiftSelected &&
+      canConfigureDayOneOvnSubnets(formData.cluster_version?.raw_id) &&
+      formData.network_internal_join_subnet
+    ) {
       clusterRequest.network.internal_join_subnet = formData.network_internal_join_subnet;
       clusterRequest.network.internal_transit_switch_subnet =
         formData.network_internal_transit_switch_subnet;
