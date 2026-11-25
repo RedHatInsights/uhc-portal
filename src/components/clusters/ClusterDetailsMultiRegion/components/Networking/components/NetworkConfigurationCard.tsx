@@ -32,7 +32,7 @@ const NetworkConfigurationCard = ({
 
   return (
     <Card className="ocm-c-networking-network-configuration__card">
-      <CardTitle>Network CIDRs</CardTitle>
+      <CardTitle>{shouldShowOvnNetworkDetails ? 'Network CIDRs' : 'CIDR ranges'}</CardTitle>
       <CardBody className="ocm-c-networking-network-configuration__card--body">
         <DescriptionList>
           {shouldShowOvnNetworkDetails && network.type ? (

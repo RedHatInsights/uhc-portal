@@ -7,6 +7,8 @@ import {
   Flex,
 } from '@patternfly/react-core';
 
+import { HCP_OVN_IP4_SUBNETS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import type { ClusterFromSubscription } from '~/types/types';
 
 import {
@@ -19,12 +21,14 @@ type ClusterNetworkProps = {
 };
 
 function ClusterNetwork({ cluster }: ClusterNetworkProps) {
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
+
   if (!cluster.managed || !cluster.network) {
     return null;
   }
 
   const network = cluster.network as NetworkWithOvnSubnets;
-  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster);
+  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster, isHcpOvnIp4SubnetsEnabled);
 
   return (
     <DescriptionListGroup>

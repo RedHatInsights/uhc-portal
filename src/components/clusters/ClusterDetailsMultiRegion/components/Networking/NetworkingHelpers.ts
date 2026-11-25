@@ -28,10 +28,13 @@ export const OVN_NETWORK_DETAILS_MIN_MINOR = 18;
 
 /**
  * Whether Day-2 Overview/Networking may show Network type and OVN Join/Transit/Masquerade subnets.
- * Individual rows still require the API fields to be present on cluster.network.
+ * Requires the HCP_OVN_IP4_SUBNETS feature gate. Individual rows still require API fields on cluster.network.
  */
-export const canShowOvnNetworkDetails = (cluster: ClusterFromSubscription): boolean => {
-  if (!isHypershiftCluster(cluster)) {
+export const canShowOvnNetworkDetails = (
+  cluster: ClusterFromSubscription,
+  isHcpOvnIp4SubnetsEnabled: boolean,
+): boolean => {
+  if (!isHcpOvnIp4SubnetsEnabled || !isHypershiftCluster(cluster)) {
     return false;
   }
 

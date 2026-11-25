@@ -13,10 +13,10 @@ describe('<NetworkConfigurationCard />', () => {
     host_prefix: 23,
   };
 
-  it('shows Network CIDRs title and existing CIDR rows', () => {
+  it('shows CIDR ranges title and existing CIDR rows when OVN details are hidden', () => {
     render(<NetworkConfigurationCard network={baseNetwork} />);
 
-    expect(screen.getByText('Network CIDRs')).toBeInTheDocument();
+    expect(screen.getByText('CIDR ranges')).toBeInTheDocument();
     expect(screen.getByText('Machine CIDR')).toBeInTheDocument();
     expect(screen.getByText('10.0.0.0/16')).toBeInTheDocument();
     expect(screen.getByText('Service CIDR')).toBeInTheDocument();
@@ -25,6 +25,12 @@ describe('<NetworkConfigurationCard />', () => {
     expect(screen.getByText('10.128.0.0/14')).toBeInTheDocument();
     expect(screen.getByText('Host prefix')).toBeInTheDocument();
     expect(screen.getByText('/23')).toBeInTheDocument();
+  });
+
+  it('shows Network CIDRs title when OVN details are enabled', () => {
+    render(<NetworkConfigurationCard network={baseNetwork} shouldShowOvnNetworkDetails />);
+
+    expect(screen.getByText('Network CIDRs')).toBeInTheDocument();
   });
 
   it('hides Network type and OVN subnet rows when shouldShowOvnNetworkDetails is false', () => {

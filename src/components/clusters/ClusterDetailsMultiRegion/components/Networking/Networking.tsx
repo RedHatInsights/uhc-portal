@@ -3,6 +3,8 @@ import React from 'react';
 import { EmptyState, EmptyStateBody, Grid, GridItem, Spinner } from '@patternfly/react-core';
 
 import { useGetClusterRouters } from '~/queries/ClusterDetailsQueries/NetworkingTab/useGetClusterRouters';
+import { HCP_OVN_IP4_SUBNETS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import type { AugmentedCluster } from '~/types/types';
 
 import ApplicationIngressCard from './components/ApplicationIngressCard';
@@ -23,6 +25,7 @@ type NetworkingProps = {
 };
 
 const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingProps) => {
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
   const {
     data: clusterRouters,
     isLoading: isClusterRoutersLoading,
@@ -30,7 +33,7 @@ const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingPr
   } = useGetClusterRouters(clusterID, region);
 
   const network = (cluster.network || {}) as NetworkWithOvnSubnets;
-  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster);
+  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster, isHcpOvnIp4SubnetsEnabled);
   const provider = cluster.cloud_provider?.id ? cluster.cloud_provider.id : 'N/A';
   const clusterRoutersData = clusterRouters ?? [];
 
