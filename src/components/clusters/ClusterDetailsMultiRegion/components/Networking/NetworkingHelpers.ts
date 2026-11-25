@@ -22,21 +22,22 @@ export const getHostnameFromUrl = (url?: string): string => {
   }
 };
 
-/** Default OpenShift console hostname for a cluster's application router domain. */
-export const getDefaultConsoleHostname = (defaultRouterAddress?: string): string => {
-  if (!defaultRouterAddress) {
-    return '';
-  }
-  return `console-openshift-console.${defaultRouterAddress}`;
-};
+/** Default OpenShift console route hostname prefix (`console` + `openshift-console` namespace). */
+const DEFAULT_CONSOLE_HOSTNAME_PREFIX = 'console-openshift-console.';
+
+const isDefaultConsoleHostname = (hostname: string): boolean =>
+  hostname.startsWith(DEFAULT_CONSOLE_HOSTNAME_PREFIX);
 
 /**
- True when Cluster console URL has not yet caught up to the configured Console hostname
+ * True when Cluster console URL has not yet caught up to the configured Console hostname,
+ * or (after clear) is still not on a default-shaped console-openshift-console.* host.
+ *
+ * After clear, default shape is a best-effort signal: a rare custom host of that same shape
+ * will not show the pending alert during lag.
  */
 export const shouldShowConsoleUrlPendingAlert = (
   consoleHostname?: string,
   consoleUrl?: string,
-  defaultRouterAddress?: string,
 ): boolean => {
   const configuredHostname = consoleHostname?.trim().toLowerCase() || '';
   const consoleUrlHostname = getHostnameFromUrl(consoleUrl).toLowerCase();
@@ -45,13 +46,8 @@ export const shouldShowConsoleUrlPendingAlert = (
     return configuredHostname !== consoleUrlHostname;
   }
 
-  // Custom hostname cleared: show while URL is still not back on the default console host
   if (!consoleUrlHostname) {
     return false;
   }
-  const defaultConsoleHostname = getDefaultConsoleHostname(defaultRouterAddress).toLowerCase();
-  if (!defaultConsoleHostname) {
-    return false;
-  }
-  return consoleUrlHostname !== defaultConsoleHostname;
+  return !isDefaultConsoleHostname(consoleUrlHostname);
 };

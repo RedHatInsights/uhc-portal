@@ -94,11 +94,7 @@ const ClusterIngressCard = ({
   const showConsoleUrlPendingAlert =
     hypershiftCluster &&
     isHcpCustomComponentRoutesEnabled &&
-    shouldShowConsoleUrlPendingAlert(
-      clusterRouters.default?.consoleHostname,
-      consoleURL,
-      clusterRouters.default?.address,
-    );
+    shouldShowConsoleUrlPendingAlert(clusterRouters.default?.consoleHostname, consoleURL);
 
   const additionalRouterAddress = hasAdditionalRouter
     ? clusterRouters.additional?.address
