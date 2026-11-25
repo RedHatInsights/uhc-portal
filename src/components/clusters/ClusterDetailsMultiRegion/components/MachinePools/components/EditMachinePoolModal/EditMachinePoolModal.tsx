@@ -24,6 +24,7 @@ import {
 
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
+import { ClusterMissingOCMRoleAlert } from '~/components/clusters/ClusterDetailsMultiRegion/components/common/ClusterMissingOCMRoleAlert';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { getMaxNodeCount, getNodeCount } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
@@ -273,6 +274,7 @@ const EditMachinePoolModal = ({
     (!machinePoolsError && machinePoolsLoading) ||
     (!machineTypesError && machineTypesLoading) ||
     (isEdit && machineTypesResponse && machinePoolsResponse && !currentMachinePool);
+
   return (
     <Formik<EditMachinePoolValues>
       onSubmit={async (values) => {
@@ -340,6 +342,8 @@ const EditMachinePoolModal = ({
                 <Spinner size="lg" aria-label="Loading..." />
               </div>
             ) : null}
+
+            <ClusterMissingOCMRoleAlert cluster={cluster} />
 
             {!isPending && (machinePoolsError || machineTypesError) ? (
               <ErrorBox
