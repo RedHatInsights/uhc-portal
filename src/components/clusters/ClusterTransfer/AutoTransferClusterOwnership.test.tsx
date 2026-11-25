@@ -38,7 +38,7 @@ const useFetchActionsPermissionsMock = jest.requireMock(
 const useEditClusterTransferMock = useClusterTransferMock.useEditClusterTransfer;
 const useCreateClusterTransferMock = useClusterTransferMock.useCreateClusterTransfer;
 const useFetchTransferMock = useFetchClusterTransferMock.useFetchClusterTransfer;
-const useFetchActionsPermissions = useFetchActionsPermissionsMock.useFetchActionsPermissions;
+const { useFetchActionsPermissions } = useFetchActionsPermissionsMock;
 
 const getClusterNameMock = getClusterName as jest.Mock;
 

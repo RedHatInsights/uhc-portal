@@ -27,12 +27,12 @@ jest.mock('react-redux', () => {
 const useGlobalStateMock = useGlobalState as jest.Mock;
 
 // TODO:  Do mock children - it doesn't test the actual component
-jest.mock('../components/AddNotificationContactButton', () => (props: any) => (
-  <div data-testid="add-notification-contact-button" data-can-edit={String(!!props.canEdit)} />
+jest.mock('../components/AddNotificationContactButton', () => ({ canEdit }: any) => (
+  <div data-testid="add-notification-contact-button" data-can-edit={String(!!canEdit)} />
 ));
 
-jest.mock('../components/NotificationContactsCard', () => (props: any) => (
-  <div data-testid="notification-contacts-card" data-is-disabled={String(!!props.isDisabled)} />
+jest.mock('../components/NotificationContactsCard', () => ({ isDisabled }: any) => (
+  <div data-testid="notification-contacts-card" data-is-disabled={String(!!isDisabled)} />
 ));
 
 jest.mock('../components/SupportCasesCard', () => (props: any) => (
