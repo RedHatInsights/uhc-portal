@@ -49,6 +49,7 @@ When changing existing code, if following these rules would require significant 
 ## Data loading
 
 - Always handle loading and error states for async data. Use PatternFly `Skeleton` / `Spinner` for loading and `Alert` (or existing error UI) for failures. Do not fail silently.
+- Query keys must use domain query key factories (hierarchical arrays). Do not add new inline magic strings or entries to `queriesConstants.ts`. Follow [`docs/react-query-keys.md`](react-query-keys.md).
 
 ## Imports
 
@@ -72,7 +73,7 @@ When changing existing code, if following these rules would require significant 
 
 ## Libraries
 
-- Do not use Redux for new development. Use TanStack Query for data-fetching and async state.
+- Do not use Redux for new development. Use TanStack Query for data-fetching and async state. Query key naming and invalidation conventions: [`docs/react-query-keys.md`](react-query-keys.md).
 - Do not use `lodash/get`, `lodash/set`, or similar accessors when `?.` and `??` suffice. Use lodash only when plain TS/JS is unclear.
 
 ## Documenting and testing
