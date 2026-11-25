@@ -26,6 +26,7 @@ import { SpotInterruptionMode } from '../../common/SpotInterruptionHandling/spot
 
 import {
   canConfigureDayOneManagedIngress,
+  canConfigureDayOneOvnSubnets,
   canConfigureDayOnePrivateServiceConnect,
 } from './constants';
 import * as submitRequestHelpers from './submitOSDRequestHelper';
@@ -145,6 +146,16 @@ export const createClusterRequest = (
       pod_cidr: formData.network_pod_cidr,
       host_prefix: parseCIDRSubnetLength(formData.network_host_prefix),
     };
+
+    // ROSA HCP OVN internal subnets (OpenShift ≥ 4.18). Do not set network.type.
+    // Property names follow PRD (snake_case); final API names may change with ROSAENG-61815.
+    if (isHypershiftSelected && canConfigureDayOneOvnSubnets(formData.cluster_version?.raw_id)) {
+      clusterRequest.network.internal_join_subnet = formData.network_internal_join_subnet;
+      clusterRequest.network.internal_transit_switch_subnet =
+        formData.network_internal_transit_switch_subnet;
+      clusterRequest.network.internal_masquerade_subnet =
+        formData.network_internal_masquerade_subnet;
+    }
 
     const wasClusterPrivacyShown =
       actualCloudProviderID === 'aws' ||

@@ -51,6 +51,49 @@ describe('<CIDRScreen />', () => {
     expect(screen.getByLabelText('Host prefix')).toBeDisabled();
   });
 
+  it('shows OVN subnet fields for HCP when OpenShift version is 4.18 or higher', () => {
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+        [FieldId.OvnDefaultValuesToggle]: true,
+        [FieldId.NetworkInternalJoinSubnet]: '100.64.0.0/16',
+        [FieldId.NetworkInternalTransitSwitchSubnet]: '100.88.0.0/16',
+        [FieldId.NetworkInternalMasqueradeSubnet]: '169.254.0.0/17',
+      }),
+    );
+
+    expect(screen.getByRole('heading', { name: 'OVN SUBNETS' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Join subnet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Transit subnet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Masquerade subnet')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Use default values')).toHaveLength(2);
+  });
+
+  it('hides OVN subnet fields for HCP when OpenShift version is below 4.18', () => {
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.17.5' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Transit subnet')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Masquerade subnet')).not.toBeInTheDocument();
+  });
+
+  it('hides OVN subnet fields for classic (non-HCP) clusters', () => {
+    render(
+      build({
+        [FieldId.Hypershift]: 'false',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
+  });
+
   it('is accessible', async () => {
     const { container } = render(build());
     await checkAccessibility(container);

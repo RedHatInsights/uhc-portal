@@ -1116,18 +1116,36 @@ const validateRange = (value?: string): string | undefined => {
   return undefined;
 };
 
+/** Max prefix length for OVN Join and Transit subnets (mask ≤ /30). */
+const OVN_JOIN_TRANSIT_PREFIX_MAX = 30;
+/** Max prefix length for OVN Masquerade subnet (must fit ≥ 6 IPs; mask ≤ /29). */
+const OVN_MASQUERADE_PREFIX_MAX = 29;
+
+const DEFAULT_NETWORKING_OVERLAP_FIELDS: { [key: string]: string } = {
+  network_machine_cidr: 'Machine CIDR',
+  network_service_cidr: 'Service CIDR',
+  network_pod_cidr: 'Pod CIDR',
+};
+
+/** Machine / Service / Pod plus OVN Join / Transit / Masquerade (ROSA HCP ≥ 4.18). */
+const OVN_NETWORKING_OVERLAP_FIELDS: { [key: string]: string } = {
+  ...DEFAULT_NETWORKING_OVERLAP_FIELDS,
+  network_internal_join_subnet: 'Join subnet',
+  network_internal_transit_switch_subnet: 'Transit subnet',
+  network_internal_masquerade_subnet: 'Masquerade subnet',
+};
+
 const disjointSubnets =
-  (fieldName: string) =>
+  (
+    fieldName: string,
+    networkingFieldsMap: { [key: string]: string } = DEFAULT_NETWORKING_OVERLAP_FIELDS,
+  ) =>
   (value: string | undefined, formData: { [name: string]: Networks }): string | undefined => {
     if (!value) {
       return undefined;
     }
 
-    const networkingFields: { [key: string]: string } = {
-      network_machine_cidr: 'Machine CIDR',
-      network_service_cidr: 'Service CIDR',
-      network_pod_cidr: 'Pod CIDR',
-    };
+    const networkingFields = { ...networkingFieldsMap };
     delete networkingFields[fieldName];
     const overlappingFields: string[] = [];
 
@@ -1149,6 +1167,50 @@ const disjointSubnets =
       return `This subnet overlaps with the subnet${
         plural ? 's' : ''
       } in the ${overlappingFields.join(', ')} field${plural ? 's' : ''}.`;
+    }
+    return undefined;
+  };
+
+/**
+ * Join and Transit subnet prefix length must be at most /30.
+ */
+const ovnJoinTransitSubnetMask = (value?: string): string | undefined => {
+  if (cidr(value) !== undefined || !value) {
+    return undefined;
+  }
+  const maskBits = parseCIDRSubnetLength(value);
+  if (maskBits != null && maskBits > OVN_JOIN_TRANSIT_PREFIX_MAX) {
+    return `Subnet mask must be at most /${OVN_JOIN_TRANSIT_PREFIX_MAX}.`;
+  }
+  return undefined;
+};
+
+/**
+ * Masquerade subnet prefix length must be at most /29 (upstream OVN requires ≥ 6 IPs).
+ */
+const ovnMasqueradeSubnetMask = (value?: string): string | undefined => {
+  if (cidr(value) !== undefined || !value) {
+    return undefined;
+  }
+  const maskBits = parseCIDRSubnetLength(value);
+  if (maskBits != null && maskBits > OVN_MASQUERADE_PREFIX_MAX) {
+    return `Subnet mask must be at most /${OVN_MASQUERADE_PREFIX_MAX}.`;
+  }
+  return undefined;
+};
+
+/**
+ * Join subnet and Transit subnet must not be the same value.
+ */
+const ovnJoinTransitNotEqual =
+  (otherFieldName: string, otherFieldLabel: string) =>
+  (value: string | undefined, formData: { [name: string]: string }): string | undefined => {
+    if (!value) {
+      return undefined;
+    }
+    const otherValue = get(formData, otherFieldName, null);
+    if (otherValue && value === otherValue) {
+      return `Join subnet and Transit subnet must not be the same value. This matches the ${otherFieldLabel}.`;
     }
     return undefined;
   };
@@ -1980,7 +2042,13 @@ const validators = {
   validateRange,
   privateAddress,
   awsSubnetMask,
+  ovnJoinTransitSubnetMask,
+  ovnMasqueradeSubnetMask,
+  ovnJoinTransitNotEqual,
   hostPrefix,
+  OVN_JOIN_TRANSIT_PREFIX_MAX,
+  OVN_MASQUERADE_PREFIX_MAX,
+  OVN_NETWORKING_OVERLAP_FIELDS,
   nodesMultiAz,
   validateNumericInput,
   validateLabelKey,

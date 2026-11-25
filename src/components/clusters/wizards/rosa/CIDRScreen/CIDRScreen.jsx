@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Form, Grid, GridItem, Title } from '@patternfly/react-core';
 
+import { canConfigureDayOneOvnSubnets } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
 
@@ -15,11 +16,14 @@ function CIDRScreen() {
       [FieldId.InstallToVpc]: installToVPC,
       [FieldId.CidrDefaultValuesToggle]: cidrDefaultValuesToggle,
       [FieldId.Hypershift]: hypershift,
+      [FieldId.ClusterVersion]: clusterVersion,
     },
     values,
   } = useFormState();
 
   const isHypershiftSelected = hypershift === 'true';
+  const shouldShowOvnSubnets =
+    isHypershiftSelected && canConfigureDayOneOvnSubnets(clusterVersion?.raw_id);
 
   const isMultiAz = multiAz === true;
 
@@ -41,6 +45,7 @@ function CIDRScreen() {
           installToVpcSelected={installToVPC}
           isDefaultValuesChecked={cidrDefaultValuesToggle}
           isHypershiftSelected={isHypershiftSelected}
+          shouldShowOvnSubnets={shouldShowOvnSubnets}
           formValues={values}
         />
       </Grid>

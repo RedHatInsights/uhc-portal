@@ -202,6 +202,89 @@ describe('createClusterRequest', () => {
     });
   });
 
+  describe('ROSA HCP OVN internal subnets', () => {
+    const hcpMachinePools = {
+      machinePoolsSubnets: [
+        {
+          availabilityZone: '',
+          privateSubnetId: 'subnet-00b3753ab2dd892ac',
+          publicSubnetId: '',
+        },
+      ],
+    };
+
+    const ovnCidrData = {
+      ...CIDRData,
+      network_service_cidr: '172.30.0.0/16',
+      network_pod_cidr: '10.128.0.0/14',
+      network_internal_join_subnet: '100.64.0.0/16',
+      network_internal_transit_switch_subnet: '100.88.0.0/16',
+      network_internal_masquerade_subnet: '169.254.0.0/17',
+    };
+
+    it('includes OVN subnet fields for HCP on OpenShift 4.18+', () => {
+      const request = createClusterRequest(
+        {},
+        {
+          ...rosaFormData,
+          hypershift: 'true',
+          cluster_version: {
+            ...baseFormData.cluster_version,
+            raw_id: '4.18.1',
+            id: 'openshift-v4.18.1',
+          },
+          ...hcpMachinePools,
+          ...ovnCidrData,
+        },
+      );
+
+      expect(request.network).toEqual({
+        machine_cidr: '10.1.128.0/17',
+        service_cidr: '172.30.0.0/16',
+        pod_cidr: '10.128.0.0/14',
+        host_prefix: 24,
+        internal_join_subnet: '100.64.0.0/16',
+        internal_transit_switch_subnet: '100.88.0.0/16',
+        internal_masquerade_subnet: '169.254.0.0/17',
+      });
+      expect(request.network.type).toBeUndefined();
+    });
+
+    it('omits OVN subnet fields when OpenShift version is below 4.18', () => {
+      const request = createClusterRequest(
+        {},
+        {
+          ...rosaFormData,
+          hypershift: 'true',
+          ...hcpMachinePools,
+          ...ovnCidrData,
+        },
+      );
+
+      expect(request.network.internal_join_subnet).toBeUndefined();
+      expect(request.network.internal_transit_switch_subnet).toBeUndefined();
+      expect(request.network.internal_masquerade_subnet).toBeUndefined();
+    });
+
+    it('omits OVN subnet fields for classic (non-HCP) clusters', () => {
+      const request = createClusterRequest(
+        {},
+        {
+          ...rosaFormData,
+          hypershift: 'false',
+          cluster_version: {
+            ...baseFormData.cluster_version,
+            raw_id: '4.18.1',
+            id: 'openshift-v4.18.1',
+          },
+          ...ovnCidrData,
+        },
+      );
+
+      expect(request.network.internal_join_subnet).toBeUndefined();
+    });
+  });
+
   describe('Machine types', () => {
     it('sets machine_type when available', () => {
       const request = createClusterRequest({}, baseFormData);

@@ -125,6 +125,10 @@ export const canConfigureDayOnePrivateServiceConnect = (clusterVersionRawId: str
 export const canConfigureDayOneGcpFirewallRules = (clusterVersionRawId: string): boolean =>
   isMajorMinorEqualOrGreater(clusterVersionRawId, 4, 21);
 
+/** ROSA HCP OVN Join / Transit / Masquerade subnets on the CIDR ranges step. */
+export const canConfigureDayOneOvnSubnets = (clusterVersionRawId?: string): boolean =>
+  !!clusterVersionRawId && isMajorMinorEqualOrGreater(clusterVersionRawId, 4, 18);
+
 // Default compute node counts for different cluster configurations
 export const DEFAULT_NODE_COUNT_CUSTOMER_SINGLE_AZ = 2;
 export const DEFAULT_NODE_COUNT_CUSTOMER_MULTI_AZ = 1;
