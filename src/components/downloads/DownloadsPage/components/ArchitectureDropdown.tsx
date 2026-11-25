@@ -1,7 +1,13 @@
 import React from 'react';
 import { has } from 'lodash';
 
-import { FormSelect, FormSelectOption } from '@patternfly/react-core';
+import {
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 
 import { urls as URLS } from '~/common/installLinks.mjs';
 
@@ -13,7 +19,7 @@ type ArchitectureDropdownProps = {
   channel: string;
   OS: string | null;
   architecture?: string;
-  setArchitecture: (event: React.FormEvent<HTMLSelectElement>, value: string) => void;
+  setArchitecture: (value: string) => void;
 };
 
 const ArchitectureDropdown = ({
@@ -24,24 +30,48 @@ const ArchitectureDropdown = ({
   architecture,
   setArchitecture,
 }: ArchitectureDropdownProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
   const optionsForOS = architecturesForToolOS(urls, tool, channel, OS);
+  const options = allArchitecturesForTool(urls, tool, channel).filter(({ value }) =>
+    has(urls, [tool, channel, value, OS ?? '']),
+  );
+  const selectedLabel =
+    options.find(({ value }) => value === architecture)?.label ?? 'Select architecture';
 
-  return (
-    <FormSelect
-      aria-label="Select architecture dropdown"
-      value={architecture}
-      onChange={setArchitecture}
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={() => setIsOpen(!isOpen)}
+      isExpanded={isOpen}
       isDisabled={optionsForOS.length <= 1}
+      isFullWidth
+      aria-label="Select architecture dropdown"
       data-testid={`arch-dropdown-${tool}`}
     >
-      <FormSelectOption key="select" value="select" label="Select architecture" isDisabled />
-      {allArchitecturesForTool(urls, tool, channel).map(
-        ({ value, label }) =>
-          has(urls, [tool, channel, value, OS ?? '']) && (
-            <FormSelectOption key={value} value={value} label={label} />
-          ),
-      )}
-    </FormSelect>
+      {selectedLabel}
+    </MenuToggle>
+  );
+
+  return (
+    <Select
+      isOpen={isOpen}
+      selected={architecture}
+      onSelect={(_event, selection) => {
+        setArchitecture(String(selection));
+        setIsOpen(false);
+      }}
+      onOpenChange={setIsOpen}
+      toggle={toggle}
+      shouldFocusToggleOnSelect
+    >
+      <SelectList>
+        {options.map(({ value, label }) => (
+          <SelectOption key={value} value={value}>
+            {label}
+          </SelectOption>
+        ))}
+      </SelectList>
+    </Select>
   );
 };
 

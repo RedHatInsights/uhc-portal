@@ -1,10 +1,20 @@
 import React from 'react';
 
-import { FormSelect, FormSelectOption } from '@patternfly/react-core';
+import {
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 
 export type ChannelSelectProps = {
-  input: Omit<React.ComponentPropsWithoutRef<typeof FormSelect>, 'onChange' | 'children'> & {
+  input: {
+    value?: string;
+    name?: string;
     onChange?: (value: string) => void;
+    onBlur?: (event: React.FocusEvent) => void;
+    isDisabled?: boolean;
   };
   optionsDropdownData: {
     value: string;
@@ -13,18 +23,46 @@ export type ChannelSelectProps = {
 };
 
 export const ChannelSelect = ({ optionsDropdownData, input }: ChannelSelectProps) => {
-  const { onChange, ...restInput } = input;
+  const [isOpen, setIsOpen] = React.useState(false);
+  const { value = '', onChange, isDisabled } = input;
 
-  return (
-    <FormSelect
-      {...restInput}
-      onChange={(_, value) => onChange?.(value as string)}
+  const selectedLabel =
+    optionsDropdownData.find((option) => option.value === value)?.label ?? value;
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={() => setIsOpen(!isOpen)}
+      isExpanded={isOpen}
+      isDisabled={isDisabled}
+      isFullWidth
       aria-label="Channel select input"
       ouiaId="ChannelSelectInput"
+      className="channel-select-menu-toggle"
     >
-      {optionsDropdownData?.map((option) => (
-        <FormSelectOption key={option.value} value={option.value} label={option.label} />
-      ))}
-    </FormSelect>
+      {selectedLabel}
+    </MenuToggle>
+  );
+
+  return (
+    <Select
+      isOpen={isOpen}
+      selected={value}
+      onSelect={(_event, selection) => {
+        onChange?.(String(selection));
+        setIsOpen(false);
+      }}
+      onOpenChange={setIsOpen}
+      toggle={toggle}
+      shouldFocusToggleOnSelect
+    >
+      <SelectList>
+        {optionsDropdownData?.map((option) => (
+          <SelectOption key={option.value} value={option.value}>
+            {option.label}
+          </SelectOption>
+        ))}
+      </SelectList>
+    </Select>
   );
 };

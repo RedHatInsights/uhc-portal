@@ -1,7 +1,15 @@
 import React from 'react';
 import { FieldInputProps } from 'formik';
 
-import { Alert, FormSelect, FormSelectOption, Spinner } from '@patternfly/react-core';
+import {
+  Alert,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+  Spinner,
+} from '@patternfly/react-core';
 
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import ErrorBox from '~/components/common/ErrorBox';
@@ -17,6 +25,8 @@ interface MultiRegionCloudRegionSelectFieldProps {
   handleCloudRegionChange?(): void;
 }
 
+const regionLabel = (region: CheckedRegion) => `${region.id}, ${region.display_name}`;
+
 export const MultiRegionCloudRegionSelectField = ({
   field,
   cloudProviderID,
@@ -25,6 +35,7 @@ export const MultiRegionCloudRegionSelectField = ({
 }: MultiRegionCloudRegionSelectFieldProps) => {
   const { setFieldValue } = useFormState();
   const [regions, setRegions] = React.useState<CheckedRegion[] | undefined>([]);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const {
     data: multiRegions,
@@ -58,32 +69,56 @@ export const MultiRegionCloudRegionSelectField = ({
     (isFailedRegionalizedRegions || isFailedGlobalRegions) && !isFailedRegionalAndGlobal;
 
   if (isSuccess && !isFetching && regions) {
+    const visibleRegions = regions.filter(
+      // Never hide current selection.  If current region is invalid we'll
+      // normally force a different selection — but that affects next render.
+      (region) => !region.hide || region.id === field.value,
+    );
+    const selectedRegion = visibleRegions.find((region) => region.id === field.value);
+
+    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+      <MenuToggle
+        ref={toggleRef}
+        onClick={() => setIsOpen(!isOpen)}
+        isExpanded={isOpen}
+        isDisabled={isDisabled}
+        isFullWidth
+        aria-label="Region"
+        className="cloud-region-combo-box"
+      >
+        {selectedRegion ? regionLabel(selectedRegion) : field.value}
+      </MenuToggle>
+    );
+
     return (
       <>
-        <FormSelect
-          name={field.name}
-          className="cloud-region-combo-box"
-          aria-label="Region"
-          isDisabled={isDisabled}
-          value={field.value}
-          onChange={(_event, value) => {
-            setFieldValue(field.name, value);
+        <Select
+          isOpen={isOpen}
+          selected={field.value}
+          onSelect={(_event, selection) => {
+            setFieldValue(field.name, String(selection));
             handleCloudRegionChange?.();
+            setIsOpen(false);
           }}
+          onOpenChange={setIsOpen}
+          toggle={toggle}
+          shouldFocusToggleOnSelect
+          isScrollable
+          maxMenuHeight="20em"
         >
-          {regions
-            // Never hide current selection.  If current region is invalid we'll
-            // normally force a different selection — but that affects next render.
-            .filter((region) => !region.hide || region.id === field.value)
-            .map((region) => (
-              <FormSelectOption
+          <SelectList>
+            {visibleRegions.map((region) => (
+              <SelectOption
                 key={region.id}
                 value={region.id}
-                label={`${region.id}, ${region.display_name}`}
                 isDisabled={!!region.disableReason}
-              />
+                description={region.disableReason}
+              >
+                {regionLabel(region)}
+              </SelectOption>
             ))}
-        </FormSelect>
+          </SelectList>
+        </Select>
         {displayWarning ? (
           <Alert
             title="Some regions failed to load"

@@ -74,7 +74,7 @@ describe('<MultiRegionCloudRegionSeletField />', () => {
       isSuccess: true,
     });
 
-    render(
+    const { user } = render(
       <Formik initialValues={defaultValues} onSubmit={() => {}}>
         <MultiRegionCloudRegionSelectField {...defaultProps} />
       </Formik>,
@@ -84,8 +84,14 @@ describe('<MultiRegionCloudRegionSeletField />', () => {
       expect(screen.queryByText('Loading region list...')).not.toBeInTheDocument();
     });
 
-    expect(await screen.findByText('ap-southeast-1, Asia Pacific, Singapore')).toBeInTheDocument();
-    expect(await screen.findByText('us-west-2, US West, Oregon')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Region' }));
+
+    expect(
+      await screen.findByRole('option', { name: 'ap-southeast-1, Asia Pacific, Singapore' }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('option', { name: 'us-west-2, US West, Oregon' }),
+    ).toBeInTheDocument();
   });
 
   it('displays the warning when regionalized endpoint fails', async () => {

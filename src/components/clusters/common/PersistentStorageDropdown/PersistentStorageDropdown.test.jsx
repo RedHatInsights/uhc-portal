@@ -164,7 +164,9 @@ describe('<PersistentStorageDropdown />', () => {
     it('displays expected options', async () => {
       setMockingValues();
 
-      render(<PersistentStorageDropdown {...defaultProps} />);
+      const { user } = render(<PersistentStorageDropdown {...defaultProps} />);
+
+      await user.click(screen.getByRole('button', { name: 'Persistent Storage' }));
 
       expect(screen.getAllByRole('option')).toHaveLength(mockedStorageQuotaReturnedData.length);
 
@@ -176,7 +178,9 @@ describe('<PersistentStorageDropdown />', () => {
     it('displays expected options on expected order', async () => {
       setMockingValues();
 
-      render(<PersistentStorageDropdown {...defaultProps} />);
+      const { user } = render(<PersistentStorageDropdown {...defaultProps} />);
+
+      await user.click(screen.getByRole('button', { name: 'Persistent Storage' }));
 
       const options = screen.getAllByRole('option');
       expect(within(options[0]).queryByText('100 GiB')).toBeInTheDocument();

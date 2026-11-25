@@ -475,23 +475,10 @@ h1 .badged-resource-pf .badged-resource-pf-icon {
   margin-left: 5px;
 }
 
-.quota-dropdown {
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    max-height: 200px !important;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  div {
-    width: 100%;
-  }
-  select {
-    width: 100%;
-    margin-right: var(--pf-t--global--spacer--xs);
-    display: block;
-  }
+.pf-v6-c-menu-toggle.quota-dropdown,
+.pf-v6-c-menu-toggle.cloud-region-combo-box,
+.pf-v6-c-menu-toggle.channel-select-menu-toggle {
+  max-width: none;
 }
 
 .edit-cluster-modal {

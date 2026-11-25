@@ -3,7 +3,15 @@
 
 import React from 'react';
 
-import { FormSelect, FormSelectOption, Spinner, Tooltip } from '@patternfly/react-core';
+import {
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+  Spinner,
+  Tooltip,
+} from '@patternfly/react-core';
 
 import { useFetchStorageQuotaValues } from '~/queries/ClusterActionsQueries/useFetchStorageQuotaValues';
 import { useFetchOrganizationAndQuota } from '~/queries/common/useFetchOrganizationAndQuota';
@@ -17,7 +25,10 @@ import { availableQuota } from '../quotaSelectors';
 import { filterPersistentStorageValuesByQuota } from './PersistentStorageDropDownHelper';
 
 type PersistentStorageDropdownProps = {
-  input: any;
+  input: {
+    value?: string | number;
+    onChange: (value: string) => void;
+  };
   disabled: boolean;
   currentValue: any;
   billingModel: any;
@@ -26,6 +37,11 @@ type PersistentStorageDropdownProps = {
   isBYOC: boolean;
   isMultiAZ: boolean;
   region: string;
+};
+
+const formatStorageLabel = (value: number) => {
+  const valueWithUnit = humanizeValueWithUnitGiB(value);
+  return `${valueWithUnit.value} ${valueWithUnit.unit}`;
 };
 
 const PersistentStorageDropdown = ({
@@ -39,6 +55,7 @@ const PersistentStorageDropdown = ({
   isMultiAZ,
   region,
 }: PersistentStorageDropdownProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
   const {
     data: persistentStorageValues,
     isFetched: persistentStorageIsFetched,
@@ -52,23 +69,6 @@ const PersistentStorageDropdown = ({
     error: quotaError,
     isFetched: quotaFetched,
   } = useFetchOrganizationAndQuota();
-
-  // Set up options for storage values
-  const storageOption = (value: any) => {
-    // value is a tuple of {value, unit}
-    const valueWithUnit = humanizeValueWithUnitGiB(value.value);
-    const strValue = value.value.toString();
-    // Values passed in the select are *always* in bytes, but we display them
-    // in a humanize form.
-
-    return (
-      <FormSelectOption
-        key={strValue}
-        value={strValue}
-        label={`${valueWithUnit.value} ${valueWithUnit.unit}`}
-      />
-    );
-  };
 
   if (persistentStorageIsFetched && !persistentStorageIsError && quotaFetched && !quotaIsError) {
     const storageQuota = availableQuota(quotaList, {
@@ -89,28 +89,64 @@ const PersistentStorageDropdown = ({
     );
     const notEnoughQuota = filteredStorageValues.values.length <= 1;
     const isDisabled = disabled || notEnoughQuota;
+    const sortedValues = filteredStorageValues.values.sort(
+      (a: { value: number }, b: { value: number }) => a.value - b.value,
+    );
+    const selectedValue = input.value?.toString() ?? '';
+    const selectedLabel =
+      selectedValue !== '' && Number.isFinite(Number(selectedValue))
+        ? formatStorageLabel(Number(selectedValue))
+        : selectedValue;
 
-    const { onChange, ...restInput } = input;
-    const formSelect = (
-      <FormSelect
-        className="quota-dropdown"
-        aria-label="Persistent Storage"
+    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+      <MenuToggle
+        ref={toggleRef}
+        onClick={() => setIsOpen(!isOpen)}
+        isExpanded={isOpen}
         isDisabled={isDisabled}
-        onChange={(_event, value) => onChange(value)}
-        {...restInput}
+        isFullWidth
+        aria-label="Persistent Storage"
+        className="quota-dropdown"
       >
-        {filteredStorageValues.values.sort((a, b) => a.value - b.value).map(storageOption)}
-      </FormSelect>
+        {selectedLabel}
+      </MenuToggle>
+    );
+
+    const select = (
+      <Select
+        isOpen={isOpen}
+        selected={selectedValue}
+        onSelect={(_event, selection) => {
+          input.onChange(String(selection));
+          setIsOpen(false);
+        }}
+        onOpenChange={setIsOpen}
+        toggle={toggle}
+        shouldFocusToggleOnSelect
+        isScrollable
+        maxMenuHeight="200px"
+      >
+        <SelectList>
+          {sortedValues.map((value: { value: number }) => {
+            const strValue = value.value.toString();
+            return (
+              <SelectOption key={strValue} value={strValue}>
+                {formatStorageLabel(value.value)}
+              </SelectOption>
+            );
+          })}
+        </SelectList>
+      </Select>
     );
 
     if (notEnoughQuota) {
       return (
         <Tooltip content={noQuotaTooltip} position="right">
-          <div>{formSelect}</div>
+          <div>{select}</div>
         </Tooltip>
       );
     }
-    return formSelect;
+    return select;
   }
 
   return persistentStorageIsError || quotaIsError ? (

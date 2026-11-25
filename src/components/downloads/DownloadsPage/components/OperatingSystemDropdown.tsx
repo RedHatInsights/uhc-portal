@@ -1,6 +1,12 @@
 import React from 'react';
 
-import { FormSelect, FormSelectOption } from '@patternfly/react-core';
+import {
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 
 import { urls as URLS } from '~/common/installLinks.mjs';
 
@@ -11,7 +17,7 @@ type OperatingSystemDropdownProps = {
   tool: string;
   channel: string;
   OS: string | null;
-  setOS: (event: React.FormEvent<HTMLSelectElement>, value: string) => void;
+  setOS: (value: string) => void;
 };
 
 const OperatingSystemDropdown = ({
@@ -20,18 +26,45 @@ const OperatingSystemDropdown = ({
   channel,
   OS,
   setOS,
-}: OperatingSystemDropdownProps) => (
-  <FormSelect
-    value={OS}
-    data-testid={`os-dropdown-${tool}`}
-    onChange={setOS}
-    aria-label="Select OS dropdown"
-  >
-    <FormSelectOption key="select" value="select" label="Select OS" isDisabled />
-    {allOperatingSystemsForTool(urls, tool, channel).map(({ value, label }) => (
-      <FormSelectOption key={value} value={value} label={label} />
-    ))}
-  </FormSelect>
-);
+}: OperatingSystemDropdownProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const options = allOperatingSystemsForTool(urls, tool, channel);
+  const selectedLabel = options.find(({ value }) => value === OS)?.label ?? 'Select OS';
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={() => setIsOpen(!isOpen)}
+      isExpanded={isOpen}
+      isFullWidth
+      aria-label="Select OS dropdown"
+      data-testid={`os-dropdown-${tool}`}
+    >
+      {selectedLabel}
+    </MenuToggle>
+  );
+
+  return (
+    <Select
+      isOpen={isOpen}
+      selected={OS ?? undefined}
+      onSelect={(_event, selection) => {
+        setOS(String(selection));
+        setIsOpen(false);
+      }}
+      onOpenChange={setIsOpen}
+      toggle={toggle}
+      shouldFocusToggleOnSelect
+    >
+      <SelectList>
+        {options.map(({ value, label }) => (
+          <SelectOption key={value} value={value}>
+            {label}
+          </SelectOption>
+        ))}
+      </SelectList>
+    </Select>
+  );
+};
 
 export default OperatingSystemDropdown;

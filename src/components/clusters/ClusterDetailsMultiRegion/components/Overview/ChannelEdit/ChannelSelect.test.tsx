@@ -10,8 +10,8 @@ const options = [
 ];
 
 describe('ChannelSelect', () => {
-  it('renders a form select with options and aria-label', () => {
-    render(
+  it('renders a select with options and aria-label', async () => {
+    const { user } = render(
       <ChannelSelect
         optionsDropdownData={options}
         input={{
@@ -22,8 +22,12 @@ describe('ChannelSelect', () => {
       />,
     );
 
-    const select = screen.getByLabelText('Channel select input');
+    const select = screen.getByRole('button', { name: 'Channel select input' });
     expect(select).toBeInTheDocument();
+    expect(select).toHaveTextContent('stable-4.16');
+
+    await user.click(select);
+
     expect(screen.getByRole('option', { name: 'stable-4.16' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'eus-4.16' })).toBeInTheDocument();
   });
@@ -41,13 +45,14 @@ describe('ChannelSelect', () => {
       />,
     );
 
-    await user.selectOptions(screen.getByLabelText('Channel select input'), 'eus-4.16');
+    await user.click(screen.getByRole('button', { name: 'Channel select input' }));
+    await user.click(screen.getByRole('option', { name: 'eus-4.16' }));
 
     expect(onChange).toHaveBeenCalledWith('eus-4.16');
   });
 
-  it('renders no options when optionsDropdownData is empty', () => {
-    render(
+  it('renders no options when optionsDropdownData is empty', async () => {
+    const { user } = render(
       <ChannelSelect
         optionsDropdownData={[]}
         input={{
@@ -57,6 +62,8 @@ describe('ChannelSelect', () => {
         }}
       />,
     );
+
+    await user.click(screen.getByRole('button', { name: 'Channel select input' }));
 
     expect(screen.queryAllByRole('option')).toHaveLength(0);
   });
