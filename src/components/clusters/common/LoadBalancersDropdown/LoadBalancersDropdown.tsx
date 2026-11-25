@@ -3,7 +3,15 @@
 
 import React from 'react';
 
-import { FormSelect, FormSelectOption, Spinner, Tooltip } from '@patternfly/react-core';
+import {
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+  Spinner,
+  Tooltip,
+} from '@patternfly/react-core';
 
 import { useFetchLoadBalancerQuotaValues } from '~/queries/ClusterActionsQueries/useFetchLoadBalancerQuotaValues';
 import { useFetchOrganizationAndQuota } from '~/queries/common/useFetchOrganizationAndQuota';
@@ -16,7 +24,10 @@ import { availableQuota } from '../quotaSelectors';
 import { filterLoadBalancerValuesByQuota } from './LoadBalancersDropdownHelper';
 
 type LoadBalancersDropdownProps = {
-  input: any;
+  input: {
+    value?: string | number;
+    onChange: (value: string) => void;
+  };
   disabled: boolean;
   currentValue: string;
   billingModel: any;
@@ -38,6 +49,7 @@ const LoadBalancersDropdown = ({
   isMultiAZ,
   region,
 }: LoadBalancersDropdownProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
   const {
     data: loadBalancerValues,
     isError: loadBalancerValuesIsError,
@@ -49,10 +61,6 @@ const LoadBalancersDropdown = ({
     isError: quotaListIsError,
     error: quotaListError,
   } = useFetchOrganizationAndQuota();
-
-  const loadBalancerOption = (value: any) => (
-    <FormSelectOption key={value} value={value} label={value} />
-  );
 
   if (loadBalancerValues && !loadBalancerValuesIsError && quotaList && !quotaListError) {
     const query = {
@@ -69,26 +77,57 @@ const LoadBalancersDropdown = ({
     const filteredValues = filterLoadBalancerValuesByQuota(currentValue, loadBalancerValues, quota);
     const notEnoughQuota = filteredValues.values.length <= 1;
     const isDisabled = disabled || notEnoughQuota;
-    const { onChange, ...restInput } = input;
-    const formSelect = (
-      <FormSelect
-        className="quota-dropdown"
-        aria-label="Load Balancers"
+    const selectedValue = input.value?.toString() ?? '';
+
+    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+      <MenuToggle
+        ref={toggleRef}
+        onClick={() => setIsOpen(!isOpen)}
+        isExpanded={isOpen}
         isDisabled={isDisabled}
-        onChange={(_event, value) => onChange(value)}
-        {...restInput}
+        isFullWidth
+        aria-label="Load Balancers"
+        className="quota-dropdown"
       >
-        {filteredValues.values.map((value: any) => loadBalancerOption(value.toString()))}
-      </FormSelect>
+        {selectedValue}
+      </MenuToggle>
     );
+
+    const select = (
+      <Select
+        isOpen={isOpen}
+        selected={selectedValue}
+        onSelect={(_event, selection) => {
+          input.onChange(String(selection));
+          setIsOpen(false);
+        }}
+        onOpenChange={setIsOpen}
+        toggle={toggle}
+        shouldFocusToggleOnSelect
+        isScrollable
+        maxMenuHeight="200px"
+      >
+        <SelectList>
+          {filteredValues.values.map((value: number | string) => {
+            const strValue = value.toString();
+            return (
+              <SelectOption key={strValue} value={strValue}>
+                {strValue}
+              </SelectOption>
+            );
+          })}
+        </SelectList>
+      </Select>
+    );
+
     if (notEnoughQuota) {
       return (
         <Tooltip content={noQuotaTooltip} position="right">
-          <div>{formSelect}</div>
+          <div>{select}</div>
         </Tooltip>
       );
     }
-    return formSelect;
+    return select;
   }
 
   return loadBalancerValuesIsError || quotaListIsError ? (

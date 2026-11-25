@@ -137,14 +137,16 @@ describe('<LoadBalancersDropdown />', () => {
       const listAllowedWithQuota = mockedLoadBalancerValues.filter((item) => item < 17);
 
       setMockingValues();
-      const { container } = render(<LoadBalancersDropdown {...defaultProps} />);
+      const { container, user } = render(<LoadBalancersDropdown {...defaultProps} />);
+
+      await user.click(screen.getByRole('button', { name: 'Load Balancers' }));
 
       await waitFor(() =>
         expect(screen.getAllByRole('option')).toHaveLength(listAllowedWithQuota.length),
       );
 
       listAllowedWithQuota.forEach((item) => {
-        expect(screen.getByRole('option', { name: item })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: String(item) })).toBeInTheDocument();
       });
       await checkAccessibility(container);
     });

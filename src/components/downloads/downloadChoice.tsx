@@ -37,16 +37,13 @@ const downloadChoice = (
   const { OS, architecture } =
     selections[tool] || initialSelection(urls, tool, channel, detectOS());
   // Callbacks for dropdowns:
-  const onChangeOS = (event: React.FormEvent<HTMLSelectElement>, newOS: string | null) => {
+  const onChangeOS = (newOS: string) => {
     // Apply the same defaults as initialSelection (mac → arm when available, else first arch).
     const newArchitecture = defaultArchitectureForOS(urls, tool, channel, newOS) ?? architecture;
     setSelections({ ...selections, [tool]: { OS: newOS, architecture: newArchitecture } });
   };
 
-  const onChangeArchitecture = (
-    event: React.FormEvent<HTMLSelectElement>,
-    newArchitecture: string,
-  ) => {
+  const onChangeArchitecture = (newArchitecture: string) => {
     setSelections({ ...selections, [tool]: { OS, architecture: newArchitecture } });
   };
 

@@ -1,7 +1,14 @@
 import React from 'react';
 import { useField } from 'formik';
 
-import { FormGroup, FormSelect, FormSelectOption } from '@patternfly/react-core';
+import {
+  FormGroup,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+} from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
@@ -15,7 +22,8 @@ export type ChannelSelectFieldProps = {
 };
 
 export const ChannelSelectField = ({ clusterVersion }: ChannelSelectFieldProps) => {
-  const [input] = useField(FieldId.VersionChannel);
+  const [{ value }, , { setValue }] = useField<string>(FieldId.VersionChannel);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const versionChannels = clusterVersion?.available_channels;
   const hasChannels = !!versionChannels?.length;
@@ -32,28 +40,50 @@ export const ChannelSelectField = ({ clusterVersion }: ChannelSelectFieldProps) 
     />
   );
 
+  const toggleLabel = (() => {
+    if (!hasChannels) {
+      return clusterVersion ? 'No channels available for the selected version' : '';
+    }
+    return value || 'Select a channel';
+  })();
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      onClick={() => setIsOpen(!isOpen)}
+      isExpanded={isOpen}
+      isDisabled={!hasChannels}
+      isFullWidth
+      aria-label="Channel"
+      className="channel-select-menu-toggle"
+    >
+      {toggleLabel}
+    </MenuToggle>
+  );
+
   return (
     <FormGroup label="Channel" labelHelp={popoverHint} fieldId={FieldId.VersionChannel}>
-      <FormSelect
-        {...input}
-        aria-label="Channel"
-        isDisabled={!hasChannels}
-        aria-disabled={!hasChannels}
+      <Select
+        isOpen={isOpen}
+        selected={value}
+        onSelect={(_event, selection) => {
+          setValue(String(selection));
+          setIsOpen(false);
+        }}
+        onOpenChange={setIsOpen}
+        toggle={toggle}
+        shouldFocusToggleOnSelect
       >
-        {hasChannels ? (
-          <>
-            <FormSelectOption label="Select a channel" value="" isPlaceholder />
-            {versionChannels?.map((channel: string) => (
-              <FormSelectOption key={channel} value={channel} label={channel} />
-            ))}
-          </>
-        ) : (
-          <FormSelectOption
-            label={clusterVersion ? 'No channels available for the selected version' : ''}
-            isPlaceholder
-          />
-        )}
-      </FormSelect>
+        <SelectList>
+          {hasChannels
+            ? versionChannels?.map((channel: string) => (
+                <SelectOption key={channel} value={channel}>
+                  {channel}
+                </SelectOption>
+              ))
+            : null}
+        </SelectList>
+      </Select>
     </FormGroup>
   );
 };

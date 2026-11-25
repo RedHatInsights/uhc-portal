@@ -47,12 +47,14 @@ describe('<ChannelSelectField />', () => {
     await checkAccessibility(container);
   });
 
-  it('renders channels when available', () => {
-    buildComponent({ clusterVersion: defaultVersion });
+  it('renders channels when available', async () => {
+    const { user } = buildComponent({ clusterVersion: defaultVersion });
 
-    expect(screen.getByText('candidate-4.19')).toBeInTheDocument();
-    expect(screen.getByText('candidate-4.20')).toBeInTheDocument();
-    expect(screen.getByText('fast-4.19')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Channel' }));
+
+    expect(screen.getByRole('option', { name: 'candidate-4.19' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'candidate-4.20' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'fast-4.19' })).toBeInTheDocument();
   });
 
   it('renders popover hint', () => {
@@ -69,7 +71,7 @@ describe('<ChannelSelectField />', () => {
         screen.queryByText('No channels available for the selected version'),
       ).not.toBeInTheDocument();
       expect(screen.queryByText('candidate-4.19')).not.toBeInTheDocument();
-      expect(screen.getByRole('combobox', { name: 'Channel' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Channel' })).toBeDisabled();
     });
   });
 
@@ -80,7 +82,7 @@ describe('<ChannelSelectField />', () => {
       expect(
         screen.getByText('No channels available for the selected version'),
       ).toBeInTheDocument();
-      expect(screen.getByRole('combobox', { name: 'Channel' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Channel' })).toBeDisabled();
     });
   });
 });
