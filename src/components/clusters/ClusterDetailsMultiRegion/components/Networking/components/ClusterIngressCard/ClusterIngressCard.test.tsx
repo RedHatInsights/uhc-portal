@@ -17,7 +17,7 @@ describe('<ClusterIngressCard />', () => {
     console: {
       url: 'consoleURL',
     },
-    canEdit: false,
+    canUpdateSubscription: false,
     status: {
       configuration_mode: 'active',
     },
@@ -137,7 +137,7 @@ describe('<ClusterIngressCard />', () => {
         ...defaultProps,
         cluster: {
           ...defaultProps.cluster,
-          canEdit: true,
+          canUpdateSubscription: true,
           cloud_provider: {
             id: 'gcp',
           },
@@ -170,7 +170,7 @@ describe('<ClusterIngressCard />', () => {
         ...defaultProps,
         cluster: {
           ...defaultProps.cluster,
-          canEdit: true,
+          canUpdateSubscription: true,
           cloud_provider: {
             id: 'gcp',
           },

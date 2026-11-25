@@ -1,6 +1,6 @@
 const openModal = jest.fn();
 
-const canEdit = true;
+const canUpdateSubscription = true;
 const canSubscribeOCP = true;
 
 const subscription = {
@@ -32,4 +32,4 @@ const subscription = {
   updated_at: '2019-01-02T18:28:14.851121Z',
 };
 
-export { subscription, openModal, canEdit, canSubscribeOCP };
+export { subscription, openModal, canUpdateSubscription, canSubscribeOCP };

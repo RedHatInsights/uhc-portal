@@ -64,7 +64,7 @@ const ClusterVersionInfo = ({ cluster }) => {
                       upgradeGates={upgradeGates}
                       cluster={cluster}
                       clusterID={cluster.id}
-                      canEdit={cluster.canEdit}
+                      canUpdateSubscription={cluster.canUpdateSubscription}
                       clusterVersion={clusterVersion}
                       scheduledUpgrade={scheduledUpdate}
                       availableUpgrades={cluster.version?.available_upgrades}
@@ -116,7 +116,7 @@ ClusterVersionInfo.propTypes = {
       available_upgrades: PropTypes.arrayOf(PropTypes.string),
       raw_id: PropTypes.string,
     }),
-    canEdit: PropTypes.bool,
+    canUpdateSubscription: PropTypes.bool,
     state: PropTypes.string,
   }),
 };

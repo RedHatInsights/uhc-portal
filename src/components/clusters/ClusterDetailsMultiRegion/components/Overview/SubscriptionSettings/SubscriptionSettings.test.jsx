@@ -49,7 +49,7 @@ describe('<SubscriptionSettings />', () => {
     const newProps = { ...fixtures };
     newProps.subscription.plan.id = normalizedProducts.OCP;
     newProps.subscription.plan.type = normalizedProducts.OCP;
-    newProps.canEdit = false;
+    newProps.canUpdateSubscription = false;
 
     render(<SubscriptionSettings {...newProps} />);
     expect(

@@ -36,7 +36,7 @@ import {
 
 function SubscriptionSettings({
   subscription,
-  canEdit = false,
+  canUpdateSubscription = false,
   canSubscribeOCP = false,
   isLoading,
 }) {
@@ -52,7 +52,7 @@ function SubscriptionSettings({
 
   const status = get(subscription, 'status');
   const isEditViewable =
-    canEdit &&
+    canUpdateSubscription &&
     status !== SubscriptionCommonFieldsStatus.Archived &&
     status !== SubscriptionCommonFieldsStatus.Deprovisioned;
 
@@ -211,7 +211,7 @@ function SubscriptionSettings({
 
 SubscriptionSettings.propTypes = {
   subscription: PropTypes.object,
-  canEdit: PropTypes.bool,
+  canUpdateSubscription: PropTypes.bool,
   canSubscribeOCP: PropTypes.bool,
   isLoading: PropTypes.bool,
 };

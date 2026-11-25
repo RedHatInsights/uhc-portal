@@ -95,7 +95,7 @@ const ClusterIngressCard = ({
   );
   const isAdditionalRouterPrivate = !!clusterRouters?.additional?.isPrivate;
 
-  const { canEdit } = cluster;
+  const { canUpdateSubscription } = cluster;
 
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
   const isSTSEnabled = cluster?.aws?.sts?.enabled === true;
@@ -110,7 +110,7 @@ const ClusterIngressCard = ({
   };
 
   const disableEditReason = resolveDisableEditReason({
-    canEdit,
+    canEdit: canUpdateSubscription,
     isReadOnly,
     isSTSEnabled,
     clusterHibernating,

@@ -5,17 +5,17 @@ import modals from '~/components/common/Modal/modals';
 import ButtonWithTooltip from '../../../../../common/ButtonWithTooltip';
 
 type AddNotificationContactButtonProps = {
-  canEdit?: boolean;
+  canUpdateSubscription?: boolean;
   openModal: (modalId: string) => void;
 };
 
 const AddNotificationContactButton = ({
-  canEdit,
+  canUpdateSubscription,
   openModal,
 }: AddNotificationContactButtonProps) => (
   <ButtonWithTooltip
     disableReason={
-      canEdit
+      canUpdateSubscription
         ? null
         : 'You do not have permission to add a Notification Contact. Only cluster owners, cluster editors, and Organization Administrators can add them.'
     }

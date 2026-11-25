@@ -6,22 +6,33 @@ import { checkAccessibility, render, screen } from '~/testUtils';
 import AddNotificationContactButton from '../AddNotificationContactButton';
 
 describe('<AddNotificationContactButton />', () => {
-  it.each([[true], [false]])('is accessible. canEdit %p', async (canEdit: boolean) => {
+  it.each([[true], [false]])(
+    'is accessible. canUpdateSubscription %p',
+    async (canUpdateSubscription: boolean) => {
+      // Act
+      const { container } = render(
+        <AddNotificationContactButton
+          canUpdateSubscription={canUpdateSubscription}
+          openModal={() => {}}
+        />,
+      );
+
+      // Assert
+      await checkAccessibility(container);
+    },
+  );
+
+  it.each([[true, false]])('canUpdateSubscription %p', (canUpdateSubscription: boolean) => {
     // Act
-    const { container } = render(
-      <AddNotificationContactButton canEdit={canEdit} openModal={() => {}} />,
+    render(
+      <AddNotificationContactButton
+        canUpdateSubscription={canUpdateSubscription}
+        openModal={() => {}}
+      />,
     );
 
     // Assert
-    await checkAccessibility(container);
-  });
-
-  it.each([[true, false]])('canEdit %p', (canEdit: boolean) => {
-    // Act
-    render(<AddNotificationContactButton canEdit={canEdit} openModal={() => {}} />);
-
-    // Assert
-    if (canEdit) {
+    if (canUpdateSubscription) {
       expect(screen.getByRole('button', { name: /add notification contact/i })).toBeEnabled();
     } else {
       expect(screen.getByRole('button', { name: /add notification contact/i })).not.toBeEnabled();
@@ -31,7 +42,9 @@ describe('<AddNotificationContactButton />', () => {
   it('opens the modal', async () => {
     // Arrange
     const openModalMock = jest.fn();
-    const { user } = render(<AddNotificationContactButton canEdit openModal={openModalMock} />);
+    const { user } = render(
+      <AddNotificationContactButton canUpdateSubscription openModal={openModalMock} />,
+    );
     expect(openModalMock).toHaveBeenCalledTimes(0);
 
     // Act

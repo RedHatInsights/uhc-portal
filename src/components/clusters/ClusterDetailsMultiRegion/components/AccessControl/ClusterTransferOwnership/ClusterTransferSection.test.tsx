@@ -53,7 +53,7 @@ describe('Cluster Transfer Section Component', () => {
       <ClusterTransferSection
         clusterExternalID="external-cluster-id"
         subscription={testSubscription as unknown as Subscription}
-        canEdit
+        canUpdateSubscription
       />,
     );
     expect(await screen.findByText('Transfer details')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('Cluster Transfer Section Component', () => {
       <ClusterTransferSection
         clusterExternalID="external-cluster-id"
         subscription={testSubscription as unknown as Subscription}
-        canEdit
+        canUpdateSubscription
       />,
     );
     expect(await screen.findByText('Initiate transfer')).toBeInTheDocument();

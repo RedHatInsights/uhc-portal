@@ -398,7 +398,7 @@ const baseState = {
         },
         etcd_encryption: false,
         upgrade_channel_group: 'stable',
-        canEdit: true,
+        canUpdateSubscription: true,
         canDelete: true,
       },
     },

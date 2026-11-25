@@ -19,13 +19,13 @@ import { TransferDetails } from './TransferDetails';
 type ClusterTransferSectionProps = {
   clusterExternalID: string;
   subscription: Subscription;
-  canEdit: boolean;
+  canUpdateSubscription: boolean;
 };
 
 export const ClusterTransferSection = ({
   clusterExternalID,
   subscription,
-  canEdit,
+  canUpdateSubscription,
 }: ClusterTransferSectionProps) => {
   const { data, isLoading, isError, error } = useFetchClusterTransfer({
     clusterExternalID,
@@ -37,10 +37,10 @@ export const ClusterTransferSection = ({
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
 
   const disableCancelReason =
-    (!canEdit || subscription?.creator?.username !== username) &&
+    (!canUpdateSubscription || subscription?.creator?.username !== username) &&
     'You do not have permission to cancel transfer.';
   const disableInitiateReason =
-    (!canEdit || subscription?.creator?.username !== username) &&
+    (!canUpdateSubscription || subscription?.creator?.username !== username) &&
     'You do not have permission to initiate transfer.';
 
   return (

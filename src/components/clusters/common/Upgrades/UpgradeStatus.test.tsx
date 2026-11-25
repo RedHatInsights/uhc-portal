@@ -33,7 +33,7 @@ describe('<UpgradeStatus />', () => {
   const defaultProps = {
     clusterID: 'myClusterId',
     availableUpgrades: [],
-    canEdit: true,
+    canUpdateSubscription: true,
     clusterVersion: '1.2.3',
     clusterVersionRawID: '1.2.3',
     cluster: {
@@ -123,10 +123,10 @@ describe('<UpgradeStatus />', () => {
       expect(screen.getByText(/1 Dec 2020, 00:00 UTC/)).toBeInTheDocument();
     });
 
-    it('should not show cancel button when canEdit is false', () => {
+    it('should not show cancel button when canUpdateSubscription is false', () => {
       const nonEditProps = {
         ...manualUpgradeScheduled,
-        canEdit: false,
+        canUpdateSubscription: false,
       };
       render(<UpgradeStatus {...nonEditProps} />);
       expect(screen.queryByRole('button', { name: cancelButtonText })).not.toBeInTheDocument();

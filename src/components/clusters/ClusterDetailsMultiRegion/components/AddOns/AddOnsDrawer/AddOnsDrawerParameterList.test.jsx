@@ -39,7 +39,7 @@ const defaultProps = {
     },
   },
   activeCardId: 'card1',
-  cluster: { id: 'myCluster', canEdit: true },
+  cluster: { id: 'myCluster', canUpdateSubscription: true },
 };
 
 describe('AddOnsDrawerParameterList', () => {

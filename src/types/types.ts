@@ -89,7 +89,10 @@ export type ClusterFromSubscription = FakeCluster & {
 };
 
 export type ClusterWithPermissions = ClusterFromSubscription & {
+  // Cluster list - Cluster resource update
   canEdit?: boolean;
+  // Cluster details - Subscription resource update
+  canUpdateSubscription?: boolean;
   canDelete?: boolean;
   partialCS?: boolean;
 };

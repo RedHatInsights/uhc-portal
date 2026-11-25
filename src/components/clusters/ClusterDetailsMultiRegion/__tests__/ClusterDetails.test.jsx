@@ -900,7 +900,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
         ...fixtures.clusterDetails,
         cluster: {
           ...fixtures.clusterDetails.cluster,
-          canEdit: true,
+          canUpdateSubscription: true,
           subscription: {
             ...fixtures.clusterDetails.cluster.subscription,
             status: SubscriptionCommonFieldsStatus.Active,
@@ -949,7 +949,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
     it('should show support tab for Deprovisioned clusters', async () => {
       const deprovisionedCluster = {
         ...fixtures.clusterDetails.cluster,
-        canEdit: true,
+        canUpdateSubscription: true,
         subscription: {
           ...fixtures.clusterDetails.cluster.subscription,
           status: SubscriptionCommonFieldsStatus.Deprovisioned,
@@ -987,7 +987,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
     it('should hide tabs for Deprovisioned clusters', async () => {
       const deprovisionedCluster = {
         ...fixtures.clusterDetails.cluster,
-        canEdit: true,
+        canUpdateSubscription: true,
         subscription: {
           ...fixtures.clusterDetails.cluster.subscription,
           status: SubscriptionCommonFieldsStatus.Deprovisioned,
@@ -1048,7 +1048,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
     it('should show support tab for Archived clusters', async () => {
       const archivedCluster = {
         ...fixtures.OCPClusterDetails.cluster,
-        canEdit: true,
+        canUpdateSubscription: true,
         subscription: {
           ...fixtures.OCPClusterDetails.cluster.subscription,
           status: SubscriptionCommonFieldsStatus.Archived,
@@ -1093,7 +1093,7 @@ describe('<ClusterDetailsMultiRegion />', () => {
     it('should hide tabs for Archived clusters', async () => {
       const archivedCluster = {
         ...fixtures.OCPClusterDetails.cluster,
-        canEdit: true,
+        canUpdateSubscription: true,
         subscription: {
           ...fixtures.OCPClusterDetails.cluster.subscription,
           status: SubscriptionCommonFieldsStatus.Archived,

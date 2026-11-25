@@ -78,7 +78,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
 
   const region = cluster?.subscription?.rh_region_id;
   const clusterID = cluster.id || '';
-  const { canEdit } = cluster;
+  const { canUpdateSubscription } = cluster;
 
   const isOcp5SupportEnabled = useFeatureGate(OCP5_SUPPORT);
   const organization = useGlobalState((state) => state.userProfile.organization);
@@ -482,7 +482,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
             <CardBody>
               <UpgradeStatus
                 clusterID={clusterID}
-                canEdit={canEdit}
+                canUpdateSubscription={canUpdateSubscription}
                 clusterVersion={clusterVersion}
                 scheduledUpgrade={scheduledUpgrade}
                 availableUpgrades={availableUpgrades || ([] as any)}

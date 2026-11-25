@@ -143,7 +143,7 @@ const fetchSingleClusterAndPermissions = async (
     SelfAccessReviewAction.list,
     SelfAccessReviewAction.delete,
   ];
-  let canEdit = false;
+  let canUpdateSubscription = false;
   let canEditOCMRoles = false;
   let canEditClusterAutoscaler = false;
   let canViewOCMRoles = false;
@@ -184,7 +184,7 @@ const fetchSingleClusterAndPermissions = async (
         subscription_id: subscriptionID,
       })
       .then((response) => {
-        canEdit = response.data.allowed;
+        canUpdateSubscription = response.data.allowed;
       });
     actions.forEach(async (action) => {
       await authorizationsService
@@ -302,7 +302,7 @@ const fetchSingleClusterAndPermissions = async (
       cluster.data.inflight_checks = inflightChecks.data?.items || [];
     }
 
-    cluster.data.canEdit = canEdit;
+    cluster.data.canUpdateSubscription = canUpdateSubscription;
     cluster.data.idpActions = idpActions;
     cluster.data.canEditOCMRoles = canEditOCMRoles;
     cluster.data.canViewOCMRoles = canViewOCMRoles;
@@ -356,7 +356,7 @@ const fetchSingleClusterAndPermissions = async (
     cluster = fakeClusterFromSubscription(subscription.data);
   }
 
-  cluster.canEdit = canEdit;
+  cluster.canUpdateSubscription = canUpdateSubscription;
   cluster.canEditOCMRoles = canEditOCMRoles;
   cluster.canViewOCMRoles = canViewOCMRoles;
   cluster.canDelete = false; // OCP clusters can't be deleted

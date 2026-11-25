@@ -64,7 +64,7 @@ function AutoTransferClusterOwnershipForm(props: AutoTransferClusterOwnershipFor
   );
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
   const isOwner = cluster.subscription?.creator?.username === username;
-  const { canEdit } = useFetchActionsPermissions(
+  const { canUpdateSubscription } = useFetchActionsPermissions(
     cluster.subscription?.id || '',
     queryConstants.FETCH_CLUSTER_DETAILS_QUERY_KEY,
     cluster.subscription?.status,
@@ -80,7 +80,12 @@ function AutoTransferClusterOwnershipForm(props: AutoTransferClusterOwnershipFor
   const isTransferAccepted = transfer.status === ClusterTransferStatus.Accepted.toLowerCase();
 
   const canCancelTransfer =
-    canEdit && !isPendingEdit && !isPendingCancel && !isErrorEdit && isOwner && !isTransferAccepted;
+    canUpdateSubscription &&
+    !isPendingEdit &&
+    !isPendingCancel &&
+    !isErrorEdit &&
+    isOwner &&
+    !isTransferAccepted;
 
   const submitTransfer = async ({
     username,
@@ -226,7 +231,7 @@ function AutoTransferClusterOwnershipForm(props: AutoTransferClusterOwnershipFor
             !formik.dirty ||
             formik.isSubmitting ||
             isPendingEdit ||
-            !canEdit ||
+            !canUpdateSubscription ||
             !isOwner ||
             !clusterExternalID
           }

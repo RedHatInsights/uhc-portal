@@ -186,7 +186,7 @@ describe('<ChannelEdit />', () => {
   it('should not render an edit button if user cannot update cluster resource', () => {
     const nonEditableCluster = {
       ...mockedROSAHyperShiftCluster,
-      canEdit: true,
+      canUpdateSubscription: true,
       canUpdateClusterResource: false,
     };
     render(<ChannelEdit cluster={nonEditableCluster} />);
