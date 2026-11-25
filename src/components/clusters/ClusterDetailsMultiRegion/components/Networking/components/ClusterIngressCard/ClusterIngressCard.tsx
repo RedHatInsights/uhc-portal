@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import {
   ActionList,
+  Alert,
   Card,
   CardBody,
   CardFooter,
@@ -17,6 +18,8 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 
+import { HCP_CUSTOM_COMPONENT_ROUTES } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { Ingress } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
@@ -30,6 +33,7 @@ import {
   isOffline,
   isWIFCluster,
 } from '../../../../../common/clusterStates';
+import { shouldShowConsoleUrlPendingAlert } from '../../NetworkingHelpers';
 import NetworkingSelector, { routeSelectorPairsAsStrings } from '../../NetworkingSelector';
 import EditClusterIngressDialog from '../EditClusterIngressDialog';
 
@@ -85,6 +89,12 @@ const ClusterIngressCard = ({
   const isApiPrivate = cluster.api?.listening === 'internal';
   const clusterRouters = NetworkingSelector(clusterRoutersData);
   const hasAdditionalRouter = Object.keys(clusterRouters).length === 2;
+  const hypershiftCluster = isHypershiftCluster(cluster);
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
+  const showConsoleUrlPendingAlert =
+    hypershiftCluster &&
+    isHcpCustomComponentRoutesEnabled &&
+    shouldShowConsoleUrlPendingAlert(clusterRouters.default?.consoleHostname, consoleURL);
 
   const additionalRouterAddress = hasAdditionalRouter
     ? clusterRouters.additional?.address
@@ -101,7 +111,6 @@ const ClusterIngressCard = ({
   const isSTSEnabled = cluster?.aws?.sts?.enabled === true;
   const clusterHibernating = isHibernating(cluster);
   const showConsoleLink = consoleURL && !isOffline(cluster);
-  const hypershiftCluster = isHypershiftCluster(cluster);
   const isGCPWifCluster = isWIFCluster(cluster);
 
   const dispatch = useDispatch();
@@ -141,6 +150,13 @@ const ClusterIngressCard = ({
               </>
             ) : (
               <TextInput value="N/A" type="text" readOnlyVariant="default" />
+            )}
+            {showConsoleUrlPendingAlert && (
+              <Alert
+                isInline
+                variant="info"
+                title="The Cluster console URL may take a few moments to update after you change the Console hostname."
+              />
             )}
           </FormGroup>
           <FormGroup

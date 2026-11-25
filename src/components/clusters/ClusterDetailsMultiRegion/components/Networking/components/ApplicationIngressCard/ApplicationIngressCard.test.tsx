@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { mockUseChrome, mockUseFeatureGate, render, screen } from '~/testUtils';
 import { Ingress } from '~/types/clusters_mgmt.v1';
 import { ClusterWithPermissions } from '~/types/types';
@@ -129,5 +132,135 @@ describe('<ApplicationIngressCard /> – Exclude namespace selectors', () => {
     render(<ApplicationIngressCard {...defaultProps} cluster={awsCluster} provider="aws" />);
 
     expect(screen.queryByText('Exclude namespace selectors')).not.toBeInTheDocument();
+  });
+});
+
+describe('<ApplicationIngressCard /> – HCP component routes', () => {
+  const hcpCluster: ClusterWithPermissions = {
+    ...baseCluster,
+    hypershift: { enabled: true },
+    cloud_provider: { id: 'aws' },
+  };
+
+  beforeEach(() => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
+  });
+
+  const hcpRouters: Ingress[] = [
+    {
+      default: true,
+      dns_name: 'apps.hcp.example.com',
+      id: 'ingress-1',
+      kind: 'Ingress',
+      listening: 'external',
+      component_routes: {
+        console: {
+          hostname: 'console.example.com',
+          tls_secret_ref: 'console-tls',
+        },
+        downloads: {
+          hostname: 'downloads.example.com',
+          tls_secret_ref: 'downloads-tls',
+        },
+      },
+    },
+  ];
+
+  it('renders Console and Downloads hostname/TLS fields for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.getByText('Console hostname')).toBeInTheDocument();
+    expect(screen.getByText('Console TLS secret name')).toBeInTheDocument();
+    expect(screen.getByText('Downloads hostname')).toBeInTheDocument();
+    expect(screen.getByText('Downloads TLS secret name')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('console.example.com')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('console-tls')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('downloads.example.com')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('downloads-tls')).toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields for Classic', () => {
+    render(<ApplicationIngressCard {...defaultProps} />);
+
+    expect(screen.queryByText('Console hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('Downloads TLS secret name')).not.toBeInTheDocument();
+  });
+
+  it('does not render HCP component route fields when feature gate is off', () => {
+    mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.queryByText('Console hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('Downloads TLS secret name')).not.toBeInTheDocument();
+  });
+
+  it('does not render Classic managed-ingress fields for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.queryByText('Route selector')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hostname')).not.toBeInTheDocument();
+    expect(screen.queryByText('TLS Secret name')).not.toBeInTheDocument();
+  });
+
+  it('renders empty HCP component route fields when not configured', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={[
+          {
+            default: true,
+            dns_name: 'apps.hcp.example.com',
+            id: 'ingress-1',
+            kind: 'Ingress',
+            listening: 'external',
+          },
+        ]}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Console hostname' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Console TLS secret name' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Downloads hostname' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Downloads TLS secret name' })).toHaveValue('');
+  });
+
+  it('enables Edit application ingress for HCP', () => {
+    render(
+      <ApplicationIngressCard
+        {...defaultProps}
+        cluster={hcpCluster}
+        clusterRoutersData={hcpRouters}
+        provider="aws"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Edit application ingress' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 });

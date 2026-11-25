@@ -42,7 +42,10 @@ import {
   ReduxCheckbox,
   ReduxVerticalFormGroup,
 } from '~/components/common/ReduxFormComponents_deprecated';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { LoadBalancerFlavor } from '~/types/clusters_mgmt.v1/enums';
 
@@ -76,8 +79,11 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
     getFieldMeta, // Access: error, touched for a <Field>, useful for mapping to a field
   } = useFormState();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
   const isGCP = provider === CloudProviderType.Gcp;
   const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
+  const canShowHcpComponentRoutes =
+    isDay2 && isHypershiftCluster && isHcpCustomComponentRoutesEnabled;
 
   return (
     <>
@@ -215,6 +221,90 @@ export const DefaultIngressFieldsFormik: React.FC<DefaultIngressFieldsFormikProp
               showHelpTextOnError={false}
               input={getFieldProps('clusterRoutesHostname')}
               meta={getFieldMeta('clusterRoutesHostname')}
+            />
+          </FormGroup>
+        </>
+      )}
+
+      {canShowHcpComponentRoutes && (
+        <>
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="consoleHostname"
+              type="text"
+              label="Console hostname"
+              aria-label="Console hostname"
+              validate={(value: string) =>
+                validateTlsHostname(value, {
+                  clusterRoutesHostname: values?.consoleHostname,
+                  clusterRoutesTlsSecretRef: values?.consoleTlsSecretRef,
+                })
+              }
+              helpText="Custom hostname for the OpenShift web console."
+              showHelpTextOnError={false}
+              input={getFieldProps('consoleHostname')}
+              meta={getFieldMeta('consoleHostname')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="consoleTlsSecretRef"
+              type="text"
+              label="Console TLS secret name"
+              aria-label="Console TLS secret name"
+              validate={(value: string) =>
+                validateTlsSecretName(value, {
+                  clusterRoutesHostname: values?.consoleHostname,
+                  clusterRoutesTlsSecretRef: values?.consoleTlsSecretRef,
+                })
+              }
+              helpText="Name of a TLS secret in the openshift-config namespace."
+              showHelpTextOnError={false}
+              input={getFieldProps('consoleTlsSecretRef')}
+              meta={getFieldMeta('consoleTlsSecretRef')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="downloadsHostname"
+              type="text"
+              label="Downloads hostname"
+              aria-label="Downloads hostname"
+              validate={(value: string) =>
+                validateTlsHostname(value, {
+                  clusterRoutesHostname: values?.downloadsHostname,
+                  clusterRoutesTlsSecretRef: values?.downloadsTlsSecretRef,
+                })
+              }
+              helpText="Custom hostname for the downloads route."
+              showHelpTextOnError={false}
+              input={getFieldProps('downloadsHostname')}
+              meta={getFieldMeta('downloadsHostname')}
+            />
+          </FormGroup>
+
+          <FormGroup className={className}>
+            <Field
+              component={ReduxVerticalFormGroup}
+              name="downloadsTlsSecretRef"
+              type="text"
+              label="Downloads TLS secret name"
+              aria-label="Downloads TLS secret name"
+              validate={(value: string) =>
+                validateTlsSecretName(value, {
+                  clusterRoutesHostname: values?.downloadsHostname,
+                  clusterRoutesTlsSecretRef: values?.downloadsTlsSecretRef,
+                })
+              }
+              helpText="Name of a TLS secret in the openshift-config namespace."
+              showHelpTextOnError={false}
+              input={getFieldProps('downloadsTlsSecretRef')}
+              meta={getFieldMeta('downloadsTlsSecretRef')}
             />
           </FormGroup>
         </>

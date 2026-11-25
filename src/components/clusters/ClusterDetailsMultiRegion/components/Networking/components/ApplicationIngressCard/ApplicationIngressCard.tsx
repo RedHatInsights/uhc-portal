@@ -19,7 +19,10 @@ import {
 import { isHibernating, isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
 import { modalActions } from '~/components/common/Modal/ModalActions';
-import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import {
+  GCP_EXCLUDE_NAMESPACE_SELECTORS,
+  HCP_CUSTOM_COMPONENT_ROUTES,
+} from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { Ingress } from '~/types/clusters_mgmt.v1';
@@ -93,9 +96,11 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
   const clusterRouters = NetworkingSelector(clusterRoutersData);
   const dispatch = useDispatch();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
+  const isHcpCustomComponentRoutesEnabled = useFeatureGate(HCP_CUSTOM_COMPONENT_ROUTES);
 
   const { canEdit } = cluster;
   const isHypershift = isHypershiftCluster(cluster);
+  const canShowHcpComponentRoutes = isHypershift && isHcpCustomComponentRoutesEnabled;
   const isGCP = provider === CloudProviderType.Gcp;
   const isAWS = provider === CloudProviderType.Aws;
   const isReadOnly = cluster?.status?.configuration_mode === 'read_only';
@@ -117,6 +122,10 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
     isWildcardPolicyAllowed: isDefaultIngressWildcardPolicyAllowed,
     isNamespaceOwnershipPolicyStrict: isDefaultRouterNamespaceOwnershipPolicyStrict,
     hostname: clusterRoutesHostname,
+    consoleHostname,
+    consoleTlsSecretRef,
+    downloadsHostname,
+    downloadsTlsSecretRef,
   } = clusterRouters.default || {};
   const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGCP;
   const region = cluster.subscription?.rh_region_id;
@@ -160,6 +169,42 @@ const ApplicationIngressCard: React.FC<ApplicationIngressCardProps> = ({
               </Content>
             </Content>
           </FormGroup>
+
+          {canShowHcpComponentRoutes && (
+            <>
+              <FormGroup fieldId="consoleHostname" label="Console hostname" isStack>
+                <TextInput
+                  id="consoleHostname"
+                  value={consoleHostname ?? ''}
+                  readOnlyVariant="default"
+                />
+              </FormGroup>
+
+              <FormGroup fieldId="consoleTlsSecretRef" label="Console TLS secret name" isStack>
+                <TextInput
+                  id="consoleTlsSecretRef"
+                  value={consoleTlsSecretRef ?? ''}
+                  readOnlyVariant="default"
+                />
+              </FormGroup>
+
+              <FormGroup fieldId="downloadsHostname" label="Downloads hostname" isStack>
+                <TextInput
+                  id="downloadsHostname"
+                  value={downloadsHostname ?? ''}
+                  readOnlyVariant="default"
+                />
+              </FormGroup>
+
+              <FormGroup fieldId="downloadsTlsSecretRef" label="Downloads TLS secret name" isStack>
+                <TextInput
+                  id="downloadsTlsSecretRef"
+                  value={downloadsTlsSecretRef ?? ''}
+                  readOnlyVariant="default"
+                />
+              </FormGroup>
+            </>
+          )}
 
           {hasSufficientIngressEditVersion && (
             <>

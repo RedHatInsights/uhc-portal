@@ -1,9 +1,15 @@
 import * as React from 'react';
 
+import { HCP_CUSTOM_COMPONENT_ROUTES } from '~/queries/featureGates/featureConstants';
 import { Ingress } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster } from '~/types/types';
 
-import { mockRestrictedEnv, render, screen } from '../../../../../../../testUtils';
+import {
+  mockRestrictedEnv,
+  mockUseFeatureGate,
+  render,
+  screen,
+} from '../../../../../../../testUtils';
 
 import { ClusterIngressCard } from './ClusterIngressCard';
 
@@ -128,6 +134,128 @@ describe('<ClusterIngressCard />', () => {
       };
       render(<ClusterIngressCard {...props} />);
       expect(screen.getByTestId('edit-cluster-ingress')).toHaveAttribute('aria-disabled', 'true');
+    });
+  });
+
+  describe('Console URL pending alert', () => {
+    const alertTitle =
+      'The Cluster console URL may take a few moments to update after you change the Console hostname.';
+
+    const mismatchedProps = {
+      ...defaultProps,
+      cluster: {
+        ...defaultProps.cluster,
+        console: { url: 'https://console-openshift-console.apps.example.com' },
+      } as AugmentedCluster,
+      clusterRoutersData: [
+        {
+          ...clusterRouters[0],
+          component_routes: {
+            console: {
+              hostname: 'console.example.com',
+              tls_secret_ref: 'console-tls',
+            },
+          },
+        },
+      ] as Ingress[],
+    };
+
+    beforeEach(() => {
+      mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, true]]);
+    });
+
+    it('shows an info alert when Console hostname does not match Cluster console URL', () => {
+      render(<ClusterIngressCard {...mismatchedProps} />);
+
+      expect(screen.getByText(alertTitle)).toBeInTheDocument();
+    });
+
+    it('hides the alert when Console hostname matches Cluster console URL', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          console: { url: 'https://console.example.com' },
+        } as AugmentedCluster,
+        clusterRoutersData: [
+          {
+            ...clusterRouters[0],
+            component_routes: {
+              console: {
+                hostname: 'console.example.com',
+                tls_secret_ref: 'console-tls',
+              },
+            },
+          },
+        ] as Ingress[],
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+
+    it('hides the alert when Console hostname is not configured and URL is on the default host', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          console: {
+            url: 'https://console-openshift-console.apps.rosa.re-hcp-1.2njp.s3.devshift.org',
+          },
+        } as AugmentedCluster,
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+
+    it('shows the alert when Console hostname is cleared but URL is still on the custom host', () => {
+      const props = {
+        ...defaultProps,
+        cluster: {
+          ...defaultProps.cluster,
+          console: { url: 'https://console.example.com' },
+        } as AugmentedCluster,
+        clusterRoutersData: [
+          {
+            ...clusterRouters[0],
+            component_routes: {
+              console: {
+                hostname: '',
+                tls_secret_ref: '',
+              },
+            },
+          },
+        ] as Ingress[],
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.getByText(alertTitle)).toBeInTheDocument();
+    });
+
+    it('hides the alert on Classic even when Console hostname does not match', () => {
+      const props = {
+        ...mismatchedProps,
+        cluster: {
+          ...mismatchedProps.cluster,
+          hypershift: { enabled: false },
+        } as AugmentedCluster,
+      };
+
+      render(<ClusterIngressCard {...props} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
+    });
+
+    it('hides the alert when feature gate is off', () => {
+      mockUseFeatureGate([[HCP_CUSTOM_COMPONENT_ROUTES, false]]);
+
+      render(<ClusterIngressCard {...mismatchedProps} />);
+
+      expect(screen.queryByText(alertTitle)).not.toBeInTheDocument();
     });
   });
 
