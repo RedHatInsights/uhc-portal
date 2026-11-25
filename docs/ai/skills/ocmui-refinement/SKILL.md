@@ -190,10 +190,9 @@ This skill must work for any teammate who has:
 2. A uhc-portal checkout (for `docs/templates/` and Phase 3 `src/` reads)
 3. Jira credentials as env vars **or** Atlassian MCP
 
-**Do not depend on** the author’s personal Cursor rules, `session-context`,
-`~/ocmui-tokens.sh` layout, `gog`, Slack MCP, or `~/.cursor/ocmui-templates/`.
-Those may exist on one machine and change agent tone/tools, but they are **not**
-part of this skill’s contract.
+**Do not depend on** personal Cursor rules, local token-file layouts, `gog`,
+Slack MCP, or personal template directories. Those are **not** part of this skill’s
+contract.
 
 | Need | How (portable) |
 |---|---|
@@ -264,7 +263,7 @@ Base URL: `https://redhat.atlassian.net`
 ## Templates
 
 Read team templates from the uhc-portal checkout — **not** from personal paths
-(`~/.cursor/ocmui-templates/`, etc.) and **not** from a copy under this skill:
+and **not** from a copy under this skill:
 
 ```text
 docs/templates/
@@ -353,8 +352,8 @@ Each phase ends with a user checkpoint. All file writes go under `<draft_ddr_dir
 |---|---|---|
 | 1 | Resolve hierarchy, discover docs/siblings, confirm sources | User confirms materials |
 | 2 | Analyse confirmed sources → **UI Overview** (UI / API / CLI impact) | User confirms understanding |
-| 3 | Codebase analysis | User reviews findings; choose mockups↔DDR order |
-| 4 | Mockups (optional; order is user choice) | User reviews or skips |
+| 3 | Codebase analysis | User reviews findings; **Do mockups next? Y/N** |
+| 4 | Mockups (optional) | User confirms surface list / reviews or skips |
 | 5 | Write `<JiraID>_Draft_DDR.md` | User reviews sections |
 | 6 | Implementation stories (after DDR acceptance) | User approves Jira writes |
 
@@ -389,16 +388,14 @@ parent = <FEATURE_KEY> ORDER BY key ASC
 
 Also fetch `issuelinks` and **remote links** on the feature and on each relevant child.
 
-Categorize siblings by name/prefix when possible:
+Categorize siblings by name/prefix when present (do **not** invent missing kinds):
 
 | Kind | Typical title markers |
 |---|---|
 | OCM UI | `[OCM UI]` |
 | OCM API / Cluster Service | `[OCM API]`, CS/OCM backend |
-| ROSA CLI | `[ROSA CLI]` |
-| OCM CLI | `[OCM CLI]` |
-| Terraform | `[Terraform]` |
-| CAPI/CAPA | `[CAPI`, `CAPA]` |
+| CLI clients | `[ROSA CLI]`, `[OCM CLI]`, other `* CLI` |
+| Terraform / CAPI | `[Terraform]`, `[CAPI`, `CAPA]` |
 | Docs | `[Docs]`, OSDOCS |
 
 For each useful sibling, fetch: summary, description, status, comments, remote links,
@@ -464,25 +461,25 @@ Example (good):
 | Source | Location | Status |
 |---|---|---|
 | **PRD** | [PRD: \<actual doc title\>](https://docs.google.com/…) | **Found** (readable; remote link on \<FEATURE\>) |
-| **ROSA CLI epic / spike** | [\<CLI-EPIC\>](…) → spike [\<SPIKE\>](…) → story [\<STORY\>](…) | **Refined (sibling)** — \<one plain-language open question\> |
+| **Sibling CLI epic / spike** | [\<CLI-EPIC\>](…) → spike [\<SPIKE\>](…) | **Refined (sibling)** — one plain-language open question |
 
 Example (bad):
 
 | Source | Location | Status |
 |---|---|---|
 | PRD | [Product Requirement Document](https://docs.google.com/…) | **Found** (via tool name) |
-| ROSA CLI … | … | **Strong** — refined |
+| Sibling CLI … | … | **Strong** — refined |
 
-Template rows to populate (Phase 1 only):
+Template rows to populate (Phase 1 only — **omit rows that do not exist** for this
+feature; do not hardcode a standing client list):
 
 | Source | Location | Status |
 |---|---|---|
 | PRD | *real title + link* | Found / Not found + provenance |
 | Backend ADR | … | … |
 | Feature description | … | … |
-| OCM API epic / spike | … | … |
-| ROSA CLI epic / spike | … | … |
-| OCM CLI / Terraform / other | … | … |
+| OCM API / CS epic or spike | … | … |
+| Sibling client epics/spikes (CLI / TF / Docs / …) | … | … only if discovered |
 | Open questions from siblings | … | … |
 
 **Omit from Phase 1 entirely:**
@@ -607,29 +604,17 @@ Be concrete about console surfaces (wizard steps, tabs, modals, fields) using **
 vocabulary from the product (labels the user sees). Deeper file-level mapping is
 Phase 3; here a best-effort surface list is enough, refined in codebase analysis.
 
-##### CLI status (UI-eyes, human readable)
+##### CLI status (UI-eyes)
 
-Write for a UI engineer aligning parity — not a CLI ticket dump.
-
-Include:
-
-1. **Plain-language contract** — what CLI will allow/change, and what the UI should
-   mirror (or intentionally not).
-2. **Refinement state** — one readable sentence + links (spike/story status).
-3. **What UI should copy vs ignore** — shared validation/defaults/version rules;
-   mark unknowns as open.
-4. **Open questions** — full sentences a UI engineer can act on, not telegram
-   shorthand (`"\<topic\>"` → “Should the UI \<behavior\>? \<why it matters for
-   console\>”).
-
-Bad: `Spike \<KEY\> (Review) → story … Open: \<word\>; \<word\>; \<word\>.`
+Parity for a UI engineer — not a CLI ticket dump. Cover: plain-language contract
+(what the console should mirror or intentionally skip); refinement state + links;
+copy vs ignore (validation/defaults/gates); open questions as full UI sentences.
 
 ##### API / Cluster Service status
 
-Same readability bar: who owns validation/defaults, what the UI must not
-re-implement, blockers in plain language + links.
-
-Pull from *all* confirmed sources, not only the PRD.
+Same bar: who owns validation/defaults, what the UI must not re-implement,
+blockers in plain language + links. Pull from *all* confirmed sources, not only
+the PRD.
 
 #### 2.1 Deepen with three lenses (UI impact)
 
@@ -728,7 +713,7 @@ explicitly says to use the proposed list / skip).
 - HTML files under `<draft_ddr_dir>/mockups/` — **one file per surface** (or one
   file per surface with clearly labeled happy/edge scenarios inside)
 - Naming: prefer lifecycle + area, e.g. `day-1-wizard-<step>.html`,
-  `day-2-networking.html`, `day-2-overview.html`, `downloads.html`
+  `day-2-<area>.html`
 - PatternFly look and feel; happy path + the confirmed edge cases
 - PatternFly AI guidance:
   https://github.com/patternfly/ai-helpers/blob/main/docs/guidelines/ai-prompt-guidance.md
@@ -775,7 +760,7 @@ pastes into the feature DDR gDoc afterward — see below):
 ```
 
 Use the UI epic key when known (else the refine-spike key), e.g.
-`…/ROSAENG-69928_Draft_DDR.md`. On a wiped fresh run, **overwrite** if it already
+`…/<UI-EPIC-KEY>_Draft_DDR.md`. On a wiped fresh run, **overwrite** if it already
 exists. If the user chose **preserve** / diff, ask before replacing or use a new
 filename (Fresh run policy).
 
@@ -861,7 +846,7 @@ DDR review-ready / Approved:
   in the DDR — that detail belongs in **Phase 6** Jira implementation stories
 - **How → API usage** is required and must be **structured**, not a wall of text:
   - One **clearly separated** subsection (or headed block) **per API / operation**
-    the UI calls (e.g. cluster create vs node-pool create vs node-pool patch)
+    the UI calls (e.g. create vs update/patch for each resource this feature uses)
   - For each: lead with a short **example request** (method + path + relevant JSON
     fields, including zeros / key payload shape), **then** 1 short paragraph on
     when the UI uses it, field meaning, and errors/gaps
@@ -880,42 +865,18 @@ DDR review-ready / Approved:
   Governing STRAT(s)/ADR(s), etc.) — only *additional* materials
 - Omit the template’s **Prerequisites (LLM)** section from the filled draft
 
-#### Customer context (team expectation)
+#### Section guidance
 
-Team consensus: **What**, **User Stories**, and **Why** must reflect how customers
-use the feature and why they asked — not only UI controls.
+Follow `docs/templates/ddr-template.md` section guidelines. Skill-only emphasis:
 
-Synthesize from sources (gaps → `Unknown` / `N/A`; do not invent customers), then:
-
-- **What** — short feature framing only
-- **User Stories** — concrete console scenarios as stories (**single** place for that
-  content; no separate “use cases” list in What)
-- **Why** — pain/demand and origin, without restating the stories
-
-Keep mechanisms and API detail for **How**.
-
-#### Section guidance (abbreviated)
-
-- **What** — 1–2 short paragraphs of feature framing. **No** “Primary UI use cases”
-  list; **no** “UI scope” inventory (How).
-- **User Stories** — **Concentrate** console scenarios here. One persona heading;
-  concise bullets; do not invent roles; do not spam “As a cluster administrator…”.
-- **Why** — **Short markdown table**: Guideline | Content. Official rows first
-  (Feature origin, Reasoning, Feature usage, Competitor analysis, Feature
-  availability). **Pain points / demand last**. `N/A` when empty; no rehash of
-  What/User Stories.
-- **How** — Apply `docs/templates/ddr-template.md` How guidelines: concise/concrete;
-  UX impact; permissions; **API usage** as separate per-API blocks (example call
-  first, then brief discussion); errors; testing; FedRAMP/rollout. No
-  Mockups/Tracking under How. When OpenAPI, `ocm-api-model`, or sibling CLI/CS
-  docs state concrete constraints (prefix lengths, equality bans, version gates),
-  put those in **How — Errors** rather than leaving them only as Open Issues.
-- **Tracking** — **Once**, as `## Tracking` only.
-- **Open Issues / References / Alternatives / Acceptance Criteria / Reviews** —
-  per template only
-
-Present section-by-section for iterative review when helpful. For **What** /
-**User Stories** / **Why**, invite corrections before locking the draft.
+- **What / User Stories / Why** — customer + console voice; no “Primary UI use
+  cases” list under What; no UI-scope inventory in What (that is How). Why table:
+  only rows with content; pain/demand last.
+- **How** — template How rules; per-API blocks; concrete upstream/API constraints
+  in **How — Errors** (not only Open Issues). No Mockups/Tracking under How.
+- **Tracking** — once, as `## Tracking` only.
+- Present section-by-section when helpful; invite corrections on What / User
+  Stories / Why before locking.
 
 If mockups were deferred, offer **Phase 4 — Mockups** after the draft checkpoint.
 
@@ -949,58 +910,20 @@ Only after the DDR is **accepted** (reviewers LGTM).
    scaffolding is discussed
 4. Prefer Day 1 / Day 2 split when both apply; use scope prefixes from the story template
 
-**Jira create (example):**
-
-```bash
-curl -s -u "$JIRA_EMAIL:$JIRA_TOKEN" \
-  -X POST "https://redhat.atlassian.net/rest/api/3/issue" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fields": {
-      "project": { "key": "OCMUI" },
-      "issuetype": { "id": "10009" },
-      "parent": { "key": "<EPIC_KEY>" },
-      "summary": "<STORY_SUMMARY>",
-      "description": <ADF_JSON>,
-      "labels": ["ui-active-item"]
-    }
-  }'
-```
-
-Adjust project/issue type IDs if the UI epic lives under a different team project
-(e.g. ROSAENG) — follow the epic’s project, not a hardcoded key.
-
-Description must be valid ADF. Report each new issue key/URL. If delete is not
-permitted via API, tell the user to delete mistakes in the Jira UI.
+Prefer Atlassian MCP or Jira UI for creates when available. If using curl, match
+the **UI epic’s project** and Story issue type (do not hardcode project/type IDs).
+Description must be valid ADF. Report each new issue key/URL.
 
 **Always get explicit approval before creating or updating Jira issues.**
 
 ---
 
-## Example response shape
+## Example response shape (checklist)
 
-For a prompt like `Help me refine <spike-url>`:
+For `Help me refine <spike-url>` — follow Progress UX Step A, then:
 
-**First reply (roadmap gate — no tools):**
-1. Friendly ack + **Refinement roadmap**
-2. Ask for **`draft_ddr_dir`** (absolute path outside uhc-portal)
-3. Footer: Waiting on: `draft_ddr_dir path`
-
-**After user sends a path (still no Phase 1 tools):**
-1. Print the `draft_ddr_dir/` tree with `#` one-line comments (real path filled in)
-2. Ask **Use this `draft_ddr_dir`?** `Y` / `N` (if non-empty: warn + ask `wipe` /
-   `preserve` / new path)
-3. Footer: Waiting on: `confirm draft_ddr_dir Y/N` (or wipe/preserve)
-
-**On confirm → Phase 1 — Intake:**
-1. Create `draft_ddr_dir` if missing; wipe only after explicit `wipe` when non-empty
-2. Narrated status while fetching
-3. `## Phase 1 — Intake: hierarchy & source discovery`
-4. ASCII hierarchy map + discovered sources
-5. Proposed sources for **Phase 2 — UI Overview**
-6. Ask confirm sources; footer `⚡ 1 Intake (current)`
-
-**After user confirms sources (Phase 2 — UI Overview):**
-1. `## Phase 2 — UI Overview`
-2. Write `<draft_ddr_dir>/<Feature>_Refinement_Notes.md`
-3. Checkpoint + footer
+1. Roadmap + ask `draft_ddr_dir` (no tools)
+2. Show layout → confirm (`wipe` / `preserve` if non-empty)
+3. Phase 1 Intake → sources table → wait
+4. Phase 2 UI Overview → wait
+5. Phase 3 codebase → **Do mockups next? Y/N**
