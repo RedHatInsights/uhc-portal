@@ -302,7 +302,7 @@ function CIDRFields({
           showHelpTextOnError={false}
         />
       </GridItem>
-      {shouldShowOvnSubnets && <OvnSubnetFields disabled={disabled} />}
+      {shouldShowOvnSubnets && <OvnSubnetFields isDisabled={disabled} />}
     </>
   );
 }
