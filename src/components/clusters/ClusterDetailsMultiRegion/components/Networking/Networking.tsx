@@ -3,13 +3,17 @@ import React from 'react';
 import { EmptyState, EmptyStateBody, Grid, GridItem, Spinner } from '@patternfly/react-core';
 
 import { useGetClusterRouters } from '~/queries/ClusterDetailsQueries/NetworkingTab/useGetClusterRouters';
+import { HCP_OVN_IP4_SUBNETS } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import type { AugmentedCluster } from '~/types/types';
 
 import ApplicationIngressCard from './components/ApplicationIngressCard';
 import { ClusterIngressCard } from './components/ClusterIngressCard/ClusterIngressCard';
+import type { NetworkWithOvnSubnets } from './components/NetworkConfigurationCard';
 import NetworkConfigurationCard from './components/NetworkConfigurationCard';
 import VPCDetailsCard from './components/VPCDetailsCard';
 import VPCSubnetsCard from './components/VPCSubnetsCard';
+import { canShowOvnNetworkDetails } from './NetworkingHelpers';
 
 import './Networking.scss';
 
@@ -21,13 +25,15 @@ type NetworkingProps = {
 };
 
 const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingProps) => {
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
   const {
     data: clusterRouters,
     isLoading: isClusterRoutersLoading,
     isError: isClusterRoutersError,
   } = useGetClusterRouters(clusterID, region);
 
-  const network = cluster.network || {};
+  const network = (cluster.network || {}) as NetworkWithOvnSubnets;
+  const shouldShowOvnNetworkDetails = canShowOvnNetworkDetails(cluster, isHcpOvnIp4SubnetsEnabled);
   const provider = cluster.cloud_provider?.id ? cluster.cloud_provider.id : 'N/A';
   const clusterRoutersData = clusterRouters ?? [];
 
@@ -53,7 +59,10 @@ const Networking = ({ cluster, refreshCluster, clusterID, region }: NetworkingPr
         />
       </GridItem>
       <GridItem lg={3} md={12} className="networking-grid-item">
-        <NetworkConfigurationCard network={network} />
+        <NetworkConfigurationCard
+          network={network}
+          shouldShowOvnNetworkDetails={shouldShowOvnNetworkDetails}
+        />
       </GridItem>
       <GridItem lg={9} md={12} className="networking-grid-item">
         <ApplicationIngressCard
