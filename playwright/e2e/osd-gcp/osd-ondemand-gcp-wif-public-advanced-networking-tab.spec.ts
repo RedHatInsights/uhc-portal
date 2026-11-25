@@ -1,9 +1,12 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
 const day2Fixture = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-networking-tab.spec.json');
+
+const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const FIREWALL_RULES_NAME = QE_INFRA_GCP['FIREWALL_RULES_NAME'] || '';
 
 /**
  * Day-2 Networking tab validation for the OSD On-Demand GCP WIF public advanced cluster
@@ -12,7 +15,17 @@ const day2Fixture = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced - Networking tab validation',
   {
-    tag: ['@day2', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced', '@networking'],
+    tag: [
+      '@day2',
+      '@osd',
+      '@gcp',
+      '@wif',
+      '@ondemand',
+      '@public',
+      '@advanced',
+      '@networking',
+      '@firewall',
+    ],
   },
   () => {
     const clusterName =
@@ -20,15 +33,26 @@ test.describe.serial(
 
     let domainPrefix = '';
 
+    // Day-1 fixture stores ExcludeNamespaceSelectors as an array (multi-row).
+    const day1ExcludeNamespaceSelectors = (
+      day1Profile.ExcludeNamespaceSelectors as { Key: string; Values: string }[]
+    ).map((selector) => ({
+      key: selector.Key,
+      values: selector.Values,
+    }));
+    const day1PrimaryExcludeNamespaceSelector = day1ExcludeNamespaceSelectors[0];
+
     // Shared by serial Day-1 asserts, restore, and afterAll cleanup.
     const day1IngressFields = {
       routeSelector: day1Profile.RouteSelector.KeyValue,
       excludedNamespaces: day1Profile.ExcludedNamespaces.Values,
-      excludeNamespaceSelectorKey: day1Profile.ExcludeNamespaceSelectors.Key,
-      excludeNamespaceSelectorValues: day1Profile.ExcludeNamespaceSelectors.Values,
+      excludeNamespaceSelectors: day1ExcludeNamespaceSelectors,
     };
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
+      if (!FIREWALL_RULES_NAME?.trim()) {
+        throw new Error('QE_INFRA_GCP.FIREWALL_RULES_NAME must be set for Day 2 firewall coverage');
+      }
       await navigateTo(CLUSTER_LIST_ROUTE);
       await clusterListPage.waitForDataReady();
       await clusterListPage.isClusterListScreen();
@@ -56,6 +80,13 @@ test.describe.serial(
         PodCIDR: day1Profile.PodCIDR,
         Hostprefix: day1Profile.HostPrefix,
       });
+    });
+
+    test('verifies Firewall rules are shown under VPC details when set', async ({
+      networkingPage,
+    }) => {
+      await expect(networkingPage.vpcDetailsCardTitle()).toBeVisible();
+      await networkingPage.expectFirewallRulesValue(FIREWALL_RULES_NAME);
     });
 
     test('verifies Application ingress card shows Day-1 custom settings', async ({
@@ -90,12 +121,19 @@ test.describe.serial(
       await expect(networkingPage.editApplicationIngressExcludedNamespacesInput()).toHaveValue(
         day1IngressFields.excludedNamespaces,
       );
-      await expect(
-        networkingPage.editApplicationIngressExcludeNamespaceSelectorKeyInput(),
-      ).toHaveValue(day1IngressFields.excludeNamespaceSelectorKey);
-      await expect(
-        networkingPage.editApplicationIngressExcludeNamespaceSelectorValuesInput(),
-      ).toHaveValue(day1IngressFields.excludeNamespaceSelectorValues);
+      await expect(networkingPage.excludeNamespaceSelectorKeyInputs()).toHaveCount(
+        day1ExcludeNamespaceSelectors.length,
+      );
+      await Promise.all(
+        day1ExcludeNamespaceSelectors.map(async (selector, i) => {
+          await expect(
+            networkingPage.editApplicationIngressExcludeNamespaceSelectorKeyInput(i),
+          ).toHaveValue(selector.key);
+          await expect(
+            networkingPage.editApplicationIngressExcludeNamespaceSelectorValuesInput(i),
+          ).toHaveValue(selector.values);
+        }),
+      );
     });
 
     test('validates Route selector field errors in Edit application ingress', async ({
@@ -182,7 +220,7 @@ test.describe.serial(
 
       await networkingPage
         .editApplicationIngressExcludeNamespaceSelectorKeyInput()
-        .fill(day1IngressFields.excludeNamespaceSelectorKey);
+        .fill(day1PrimaryExcludeNamespaceSelector.key);
       await networkingPage.editApplicationIngressExcludeNamespaceSelectorValuesInput().fill('');
       await networkingPage.editApplicationIngressExcludeNamespaceSelectorKeyInput().click();
       await networkingPage.expectTextInEditApplicationIngressModal(valueCases[0].EmptyWithKeyError);
@@ -205,12 +243,10 @@ test.describe.serial(
       await networkingPage.editApplicationIngressExcludeNamespaceSelectorKeyInput().click();
       await networkingPage.expectTextInEditApplicationIngressModal(protectedError);
 
-      await networkingPage.fillExcludeNamespaceSelectorRow(0, {
-        key: day1IngressFields.excludeNamespaceSelectorKey,
-        values: day1IngressFields.excludeNamespaceSelectorValues,
-      });
+      // Validation cases only need a single known-good row; trim extras from Day-1.
+      await networkingPage.setExcludeNamespaceSelectors([day1PrimaryExcludeNamespaceSelector]);
       await networkingPage.addExcludeNamespaceSelectorRow({
-        key: day1IngressFields.excludeNamespaceSelectorKey,
+        key: day1PrimaryExcludeNamespaceSelector.key,
         values: 'duplicate-value',
       });
       await networkingPage.editApplicationIngressExcludeNamespaceSelectorKeyInput(0).click();
@@ -221,10 +257,7 @@ test.describe.serial(
       );
 
       await networkingPage.removeExcludeNamespaceSelectorButton(1).click();
-      await networkingPage.fillExcludeNamespaceSelectorRow(0, {
-        key: day1IngressFields.excludeNamespaceSelectorKey,
-        values: day1IngressFields.excludeNamespaceSelectorValues,
-      });
+      await networkingPage.fillExcludeNamespaceSelectorRow(0, day1PrimaryExcludeNamespaceSelector);
       await networkingPage.expectTextInEditApplicationIngressModal(protectedError, false);
       await networkingPage.expectTextInEditApplicationIngressModal(
         excludeNamespaceSelectorCases.DuplicateKeyError,
@@ -242,8 +275,12 @@ test.describe.serial(
       const day2EditIngressFields = {
         routeSelector: editIngress.RouteSelector.KeyValue,
         excludedNamespaces: editIngress.ExcludedNamespaces.Values,
-        excludeNamespaceSelectorKey: editIngress.ExcludeNamespaceSelectors.Key,
-        excludeNamespaceSelectorValues: editIngress.ExcludeNamespaceSelectors.Values,
+        excludeNamespaceSelectors: [
+          {
+            key: editIngress.ExcludeNamespaceSelectors.Key,
+            values: editIngress.ExcludeNamespaceSelectors.Values,
+          },
+        ],
       };
 
       await networkingPage.saveApplicationIngressFields(day2EditIngressFields);
@@ -295,20 +332,13 @@ test.describe.serial(
 
     test('clears Exclude namespace selectors and saves', async ({ networkingPage }) => {
       await networkingPage.openEditApplicationIngressModal();
-      await networkingPage.clearExcludeNamespaceSelectorRow(0);
+      await networkingPage.setExcludeNamespaceSelectors([]);
       await expect(networkingPage.networkingModalSaveButton()).toBeEnabled();
       await networkingPage.saveNetworkingModal();
       await networkingPage.expectExcludeNamespaceSelectorsCard([]);
     });
 
     test('restores Day-1 fixture values on application ingress', async ({ networkingPage }) => {
-      const day1ExcludeNamespaceSelectors = [
-        {
-          key: day1IngressFields.excludeNamespaceSelectorKey,
-          values: day1IngressFields.excludeNamespaceSelectorValues,
-        },
-      ];
-
       await networkingPage.saveApplicationIngressFields(day1IngressFields);
       await networkingPage.expectApplicationIngressCardValues(day1IngressFields);
       await networkingPage.expectExcludeNamespaceSelectorsCard(day1ExcludeNamespaceSelectors);

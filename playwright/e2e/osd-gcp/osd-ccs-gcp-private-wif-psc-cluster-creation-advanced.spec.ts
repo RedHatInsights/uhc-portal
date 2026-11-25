@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/pages';
+import { expect, test } from '../../fixtures/pages';
 import { getUsernameSuffix } from '../../support/auth-config';
 import { CREATE_CLUSTER_ROUTE } from '../../support/playwright-constants';
 
@@ -9,21 +9,40 @@ const clusterDomainPrefix = `osdpvt${userSuffix}`;
 const authType = `${clusterProperties.AuthenticationType}`;
 const isPscEnabled = 'PrivateServiceConnect';
 
-const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG?.trim();
+// Dedicated WIF for private/PSC BYO firewall (1 WIF : 1 firewall-rules set).
+// Do not fall back to QE_GCP_WIF_CONFIG — that is the public WIF and filters out private FW rules.
+const QE_GCP_WIF_CONFIG_PRIVATE = process.env.QE_GCP_WIF_CONFIG_PRIVATE?.trim() || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
 const PSC_INFRA = QE_INFRA_GCP['PSC_INFRA'] || {};
 const region = PSC_INFRA['REGION'];
+const FIREWALL_RULES_NAME_PRIVATE = PSC_INFRA['FIREWALL_RULES_NAME'] || '';
 
 test.describe.serial(
   'OSD GCP CCS WIF private PSC advanced cluster creation tests',
   {
-    tag: ['@advanced', '@day1', '@osd', '@ccs', '@gcp', '@private', '@wif', '@psc', '@multizone'],
+    tag: [
+      '@advanced',
+      '@day1',
+      '@osd',
+      '@ccs',
+      '@gcp',
+      '@private',
+      '@wif',
+      '@psc',
+      '@multizone',
+      '@firewall',
+    ],
   },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
-      if (!QE_GCP_WIF_CONFIG) {
+      if (!QE_GCP_WIF_CONFIG_PRIVATE) {
         throw new Error(
-          'QE_GCP_WIF_CONFIG must be set in playwright.env.json (expected GCP WIF configuration name).',
+          'QE_GCP_WIF_CONFIG_PRIVATE must be set for private PSC BYO firewall tests (do not reuse QE_GCP_WIF_CONFIG)',
+        );
+      }
+      if (!FIREWALL_RULES_NAME_PRIVATE?.trim()) {
+        throw new Error(
+          'QE_INFRA_GCP.PSC_INFRA.FIREWALL_RULES_NAME must be set for private PSC BYO firewall coverage',
         );
       }
       if (
@@ -62,7 +81,7 @@ test.describe.serial(
       await createOSDWizardPage.isCloudProviderSelectionScreen();
       await createOSDWizardPage.selectCloudProvider(clusterProperties.CloudProvider);
       await createOSDWizardPage.workloadIdentityFederationButton().click();
-      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG!);
+      await createOSDWizardPage.selectWorkloadIdentityConfiguration(QE_GCP_WIF_CONFIG_PRIVATE);
       await createOSDWizardPage.acknowlegePrerequisitesCheckbox().check();
       await createOSDWizardPage.wizardNextButton().click();
     });
@@ -165,6 +184,20 @@ test.describe.serial(
       await createOSDWizardPage.selectPrivateServiceConnectSubnetName(
         PSC_INFRA['PRIVATE_SERVICE_CONNECT_SUBNET'],
       );
+
+      // BYO firewall rules (ROSAENG-72666): private profile for PSC.
+      await createOSDWizardPage.createFirewallRulesToggle().click();
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /ocm gcp create firewall-rules/,
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /--profile=private/,
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        new RegExp(`--vpc-name=${PSC_INFRA['VPC_NAME']}`),
+      );
+      await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME_PRIVATE);
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -208,7 +241,12 @@ test.describe.serial(
       await expect(createOSDWizardPage.authenticationTypeValue()).toContainText(
         clusterProperties.AuthenticationType,
       );
-      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(QE_GCP_WIF_CONFIG!);
+      await expect(createOSDWizardPage.wifConfigurationValue()).toContainText(
+        QE_GCP_WIF_CONFIG_PRIVATE,
+      );
+      await expect(createOSDWizardPage.firewallRulesValue()).toHaveText(
+        FIREWALL_RULES_NAME_PRIVATE,
+      );
       await expect(createOSDWizardPage.clusterNameValue()).toContainText(clusterName);
       await expect(createOSDWizardPage.clusterDomainPrefixLabelValue()).toContainText(
         clusterDomainPrefix,
@@ -269,9 +307,11 @@ test.describe.serial(
       if (await excludedNamespacesMoreButton.isVisible()) {
         await excludedNamespacesMoreButton.click();
       }
-      for (const namespace of clusterProperties.ExcludedNamespaces.Values.split(',')) {
-        await expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim());
-      }
+      await Promise.all(
+        clusterProperties.ExcludedNamespaces.Values.split(',').map((namespace: string) =>
+          expect(createOSDWizardPage.excludedNamespacesValue()).toContainText(namespace.trim()),
+        ),
+      );
       await expect(createOSDWizardPage.wildcardPolicyValue()).toContainText(
         clusterProperties.WildcardPolicy,
       );
@@ -326,7 +366,7 @@ test.describe.serial(
         clusterProperties.AuthenticationType,
       );
       await expect(clusterDetailsPage.clusterWifConfigurationValue()).toContainText(
-        QE_GCP_WIF_CONFIG!,
+        QE_GCP_WIF_CONFIG_PRIVATE,
       );
     });
   },
