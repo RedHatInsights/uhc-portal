@@ -3,8 +3,6 @@ import semver from 'semver';
 import * as Yup from 'yup';
 
 import {
-  checkAwsTagKey,
-  checkAwsTagValue,
   checkLabelKey,
   checkLabelValue,
   checkMachinePoolName,
@@ -14,6 +12,13 @@ import {
   validateSecurityGroups,
 } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
+import {
+  AwsTagRow,
+  awsTagsToRows,
+  splitAwsTags,
+} from '~/components/clusters/common/awsTags/awsTagsHelpers';
+import { getAwsTagsValidationSchema } from '~/components/clusters/common/awsTags/awsTagsValidation';
+import { useCanEditAwsTags } from '~/components/clusters/common/awsTags/useCanEditAwsTags';
 import { isHypershiftCluster, isROSA } from '~/components/clusters/common/clusterStates';
 import {
   CAPACITY_RESERVATION_MIN_VERSION as requiredCRVersion,
@@ -26,7 +31,6 @@ import {
   getWorkerNodeVolumeSizeMinGiB,
 } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType, IMDSType } from '~/components/clusters/wizards/common';
-import { ENABLE_AWS_TAGS_EDITING } from '~/queries/featureGates/featureConstants';
 import { MachineTypesResponse } from '~/queries/types';
 import { MachinePool, MachineType, NodePool } from '~/types/clusters_mgmt.v1';
 import { ImageType } from '~/types/clusters_mgmt.v1/enums';
@@ -46,7 +50,7 @@ export type EditMachinePoolValues = {
   autoscaleMax: number;
   replicas: number;
   labels: { key: string; value: string }[];
-  awsTags: { key: string; value: string }[];
+  awsTags: AwsTagRow[];
   taints: { key: string; value: string; effect: TaintEffect }[];
   useSpotInstances: boolean;
   spotInstanceType: 'onDemand' | 'maximum';
@@ -85,6 +89,7 @@ const shieldedVmSecureBoot = (machinePool: MachinePool, cluster: ClusterFromSubs
   return (machinePool as MachinePool)?.gcp?.secure_boot !== false;
 };
 
+/** Initial values and validation schema for the add/edit machine pool form. */
 const useMachinePoolFormik = ({
   machinePool,
   cluster,
@@ -103,6 +108,8 @@ const useMachinePoolFormik = ({
   const isValidCRVersion = semver.valid(clusterVersion)
     ? semver.gte(clusterVersion, requiredCRVersion)
     : false;
+  // Existing tags are only validated when the AWS tags section is shown and can be edited
+  const canEditAwsTags = useCanEditAwsTags(cluster);
 
   const minNodesRequired = getClusterMinNodes({
     cluster,
@@ -173,6 +180,11 @@ const useMachinePoolFormik = ({
       replicas /= 3;
     }
 
+    const nodePoolAwsTags = splitAwsTags(
+      isNodePool(machinePool) ? machinePool.aws_node_pool?.tags : undefined,
+      { inheritedTags: cluster.aws?.tags },
+    );
+
     const machinePoolData: EditMachinePoolValues = {
       name: machinePool?.id || '',
       autoscaling: !!machinePool?.autoscaling,
@@ -187,13 +199,11 @@ const useMachinePoolFormik = ({
           }))
         : [{ key: '', value: '' }],
 
-      awsTags:
-        isNodePool(machinePool) && machinePool.aws_node_pool?.tags
-          ? Object.keys(machinePool.aws_node_pool.tags).map((key) => ({
-              key,
-              value: machinePool.aws_node_pool!.tags?.[key]!!,
-            }))
-          : [{ key: '', value: '' }],
+      awsTags: awsTagsToRows(
+        nodePoolAwsTags.editable,
+        nodePoolAwsTags.inherited,
+        nodePoolAwsTags.overridden,
+      ),
       taints: machinePool?.taints?.map((taint) => ({
         key: taint.key || '',
         value: taint.value || '',
@@ -312,57 +322,12 @@ const useMachinePoolFormik = ({
               }),
             }),
           ),
-          // Day-2 tag edits are disabled; skip validation so existing
+          // Skip validation when tags can't be edited so existing
           // (possibly non-compliant) tags do not block other pool updates.
           awsTags:
-            hasMachinePool && !ENABLE_AWS_TAGS_EDITING
+            hasMachinePool && !canEditAwsTags
               ? Yup.array()
-              : Yup.array().of(
-                  Yup.object().shape({
-                    key: Yup.string().test('awsTag-key', '', function test(value) {
-                      if (values.awsTags.length === 1 && (!value || value.length === 0)) {
-                        return true;
-                      }
-                      const err = checkAwsTagKey(value);
-                      if (err) {
-                        return new Yup.ValidationError(err, value, this.path);
-                      }
-
-                      if (
-                        values.awsTags.filter(({ key }: { key: any }) => key === value).length > 1
-                      ) {
-                        return new Yup.ValidationError(
-                          'Each AWS Tag must have a different key.',
-                          value,
-                          this.path,
-                        );
-                      }
-                      return true;
-                    }),
-                    value: Yup.string().test('awsTag-value', '', function test(value) {
-                      const awsTagKey = this.parent.key;
-                      // Allow an empty placeholder row (no key and no value) even on HCP,
-                      // where non-empty values are otherwise required.
-                      if (!awsTagKey && (!value || value.length === 0)) {
-                        return true;
-                      }
-
-                      const err = checkAwsTagValue(value, { isHypershift });
-                      if (err) {
-                        return new Yup.ValidationError(err, value, this.path);
-                      }
-
-                      if (value && !awsTagKey) {
-                        return new Yup.ValidationError(
-                          'AWS Tag key has to be defined',
-                          value,
-                          this.path,
-                        );
-                      }
-                      return true;
-                    }),
-                  }),
-                ),
+              : getAwsTagsValidationSchema(values.awsTags, { isHypershift }),
           taints: Yup.array().of(
             Yup.object().shape({
               key: Yup.string().test('taint-key', '', function test(value) {
@@ -564,6 +529,7 @@ const useMachinePoolFormik = ({
       maxDiskSize,
       hasMachinePool,
       isHypershift,
+      canEditAwsTags,
     ],
   );
 

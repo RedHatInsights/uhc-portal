@@ -11,14 +11,17 @@ type FieldArrayRemoveButtonProps = {
   onRemove: (index: number) => void;
   onPush: () => void;
   disabled?: boolean;
+  ariaLabel: string;
 };
 
+/** Removes a key/value row; removing the last row leaves an empty placeholder row. */
 const FieldArrayRemoveButton = ({
   input,
   index,
   onRemove,
   onPush,
   disabled,
+  ariaLabel,
 }: FieldArrayRemoveButtonProps) => {
   const disableRemove = index === 0 && !input.value[index].key && !input.value[index].value;
   return (
@@ -34,7 +37,7 @@ const FieldArrayRemoveButton = ({
       variant="link"
       isInline
       isDisabled={disableRemove || disabled}
-      aria-label="Remove AWS Tag"
+      aria-label={ariaLabel}
     />
   );
 };

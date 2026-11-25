@@ -24,6 +24,7 @@ import {
 
 import { getErrorMessage } from '~/common/errors';
 import getClusterName from '~/common/getClusterName';
+import { getOwnAwsTags } from '~/components/clusters/common/awsTags/awsTagsHelpers';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { getMaxNodeCount, getNodeCount } from '~/components/clusters/common/machinePools/utils';
 import { CloudProviderType } from '~/components/clusters/wizards/common';
@@ -282,6 +283,7 @@ const EditMachinePoolModal = ({
             region,
             values,
             currentMPId: currentMachinePool?.id,
+            initialAwsTags: getOwnAwsTags(initialValues.awsTags),
           });
           onSave?.();
           onClose();

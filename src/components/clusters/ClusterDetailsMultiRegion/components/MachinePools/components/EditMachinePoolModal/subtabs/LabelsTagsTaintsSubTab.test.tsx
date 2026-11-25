@@ -65,23 +65,23 @@ describe('LabelsTagsTaintsSubTab', () => {
   });
 
   describe('tab', () => {
-    it('displays tab with standard title when AWS Tags feature is disabled', () => {
+    it('displays tab with standard title when AWS tags feature is disabled', () => {
       mockUseFeatureGate([[AWS_TAGS_NEW_MP, false]]);
       const { result } = renderHook(() => useLabelsTagsTaintsSubTab(defaultProps));
       const [tabs] = result.current;
 
       render(tabs({}));
-      expect(screen.getByRole('tab')).toHaveTextContent('Labels and Taints');
+      expect(screen.getByRole('tab')).toHaveTextContent('Labels and taints');
       checkForError(false);
     });
 
-    it('displays tab with AWS Tags title when AWS Tags feature is enabled', () => {
+    it('displays tab with AWS tags title when AWS tags feature is enabled', () => {
       mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
       const { result } = renderHook(() => useLabelsTagsTaintsSubTab(defaultProps));
       const [tabs] = result.current;
 
       render(tabs({}));
-      expect(screen.getByRole('tab')).toHaveTextContent('Labels, Taints and AWS Tags');
+      expect(screen.getByRole('tab')).toHaveTextContent('Labels, taints and AWS tags');
       checkForError(false);
     });
 
@@ -116,6 +116,53 @@ describe('LabelsTagsTaintsSubTab', () => {
       expect(screen.getByRole('tabpanel')).toBeInTheDocument();
       expect(screen.getByText('Node labels')).toBeInTheDocument();
       expect(screen.getByText('Taints')).toBeInTheDocument();
+    });
+
+    it('disables AWS tags for an existing machine pool when the cluster version is below 4.20', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      const { result } = renderHook(() =>
+        useLabelsTagsTaintsSubTab({
+          ...defaultProps,
+          cluster: { ...mockCluster, openshift_version: '4.19.5' },
+          isNewMachinePool: false,
+        }),
+      );
+      const [_tab, content] = result.current;
+
+      render(content());
+      expect(
+        screen.getByText('Editing AWS tags requires OpenShift version 4.20.0 or above.'),
+      ).toBeInTheDocument();
+    });
+
+    it('enables AWS tags for an existing machine pool on 4.20 and shows read-only tags', () => {
+      mockUseFeatureGate([[AWS_TAGS_NEW_MP, true]]);
+      const { result } = renderHook(() =>
+        useLabelsTagsTaintsSubTab({
+          ...defaultProps,
+          cluster: {
+            ...mockCluster,
+            hypershift: { enabled: true },
+            openshift_version: '4.20.0',
+            aws: { tags: { team: 'payments' } },
+          },
+          machinePools: [
+            {
+              id: 'mp-1',
+              aws_node_pool: { tags: { team: 'payments', 'red-hat-managed': 'true' } },
+            } as MachinePool,
+          ],
+          isNewMachinePool: false,
+        }),
+      );
+      const [_tab, content] = result.current;
+
+      render(content());
+      expect(
+        screen.queryByText('Editing AWS tags requires OpenShift version 4.20.0 or above.'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('red-hat-managed=true')).toBeInTheDocument();
+      expect(screen.queryByText('team=payments')).not.toBeInTheDocument();
     });
   });
 });

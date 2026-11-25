@@ -8,28 +8,34 @@ import {
   buildMachinePoolRequest,
   buildNodePoolRequest,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/MachinePools/components/EditMachinePoolModal/utils';
+import { AwsTags } from '~/components/clusters/common/awsTags/awsTagsHelpers';
+import { useCanEditAwsTags } from '~/components/clusters/common/awsTags/useCanEditAwsTags';
 import { isROSA } from '~/components/clusters/common/clusterStates';
 import { CAPACITY_RESERVATION_MIN_VERSION as requiredCRVersion } from '~/components/clusters/common/machinePools/constants';
 import { getClusterService, getClusterServiceForRegion } from '~/services/clusterService';
 import { MachinePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
+/** Mutation that creates or updates a machine pool (classic) or node pool (hosted control plane). */
 export const useEditCreateMachineOrNodePools = (
   isHypershift: boolean | undefined,
   cluster: ClusterFromSubscription,
   currentMachinePool?: MachinePool,
   isCapacityReservationEnabled?: boolean,
 ) => {
+  const canEditAwsTags = useCanEditAwsTags(cluster);
   const { data, isPending, isError, isSuccess, mutate, mutateAsync } = useMutation({
     mutationKey: ['createOrEditMachineOrNodePool', 'clusterService'],
     mutationFn: async ({
       region,
       values,
       currentMPId,
+      initialAwsTags,
     }: {
       region?: string;
       values: EditMachinePoolValues;
       currentMPId?: string;
+      initialAwsTags?: AwsTags;
     }) => {
       const updatedSecureBoot = cluster.gcp?.security?.secure_boot === values.secure_boot;
       const clusterService = region ? getClusterServiceForRegion(region) : getClusterService();
@@ -49,6 +55,8 @@ export const useEditCreateMachineOrNodePools = (
             isEdit: !!currentMPId,
             isMultiZoneMachinePool,
             canUseCapacityReservation,
+            canEditAwsTags,
+            initialAwsTags,
           })
         : buildMachinePoolRequest(values, {
             isEdit: !!currentMPId,

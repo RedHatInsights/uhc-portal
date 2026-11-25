@@ -283,10 +283,10 @@ describe('<EditMachinePoolModal />', () => {
             {...commonProps}
           />,
         );
-        expect(await screen.findByRole('tab', { name: 'Labels and Taints' })).toBeInTheDocument();
+        expect(await screen.findByRole('tab', { name: 'Labels and taints' })).toBeInTheDocument();
         expect(screen.queryByText('Taints')).not.toBeVisible();
 
-        await user.click(screen.getByRole('tab', { name: 'Labels and Taints' }));
+        await user.click(screen.getByRole('tab', { name: 'Labels and taints' }));
         expect(screen.getByText('Taints')).toBeVisible();
       });
 
