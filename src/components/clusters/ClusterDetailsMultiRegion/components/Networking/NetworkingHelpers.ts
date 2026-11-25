@@ -31,9 +31,6 @@ const isDefaultConsoleHostname = (hostname: string): boolean =>
 /**
  * True when Cluster console URL has not yet caught up to the configured Console hostname,
  * or (after clear) is still not on a default-shaped console-openshift-console.* host.
- *
- * After clear, default shape is a best-effort signal: a rare custom host of that same shape
- * will not show the pending alert during lag.
  */
 export const shouldShowConsoleUrlPendingAlert = (
   consoleHostname?: string,
