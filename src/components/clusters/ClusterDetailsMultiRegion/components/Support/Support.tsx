@@ -44,7 +44,7 @@ const Support = ({
           </div>
           {!isDisabled && (
             <AddNotificationContactButton
-              canEdit={cluster.canUpdateSubscription}
+              canUpdateSubscription={cluster.canUpdateSubscription}
               openModal={(modalId) => dispatch(openModal(modalId))}
             />
           )}

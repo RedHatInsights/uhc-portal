@@ -27,8 +27,11 @@ jest.mock('react-redux', () => {
 const useGlobalStateMock = useGlobalState as jest.Mock;
 
 // TODO:  Do mock children - it doesn't test the actual component
-jest.mock('../components/AddNotificationContactButton', () => ({ canEdit }: any) => (
-  <div data-testid="add-notification-contact-button" data-can-edit={String(!!canEdit)} />
+jest.mock('../components/AddNotificationContactButton', () => ({ canUpdateSubscription }: any) => (
+  <div
+    data-testid="add-notification-contact-button"
+    data-can-update-subscription={String(!!canUpdateSubscription)}
+  />
 ));
 
 jest.mock('../components/NotificationContactsCard', () => ({ isDisabled }: any) => (
@@ -192,7 +195,7 @@ describe('<Support />', () => {
       // Assert
       expect(screen.getByTestId('add-notification-contact-button')).toBeInTheDocument();
       expect(screen.getByTestId('add-notification-contact-button')).toHaveAttribute(
-        'data-can-edit',
+        'data-can-update-subscription',
         'true',
       );
       expect(screen.getByTestId('support-cases-card')).toBeInTheDocument();
@@ -225,7 +228,7 @@ describe('<Support />', () => {
       );
 
       expect(screen.getByTestId('add-notification-contact-button')).toHaveAttribute(
-        'data-can-edit',
+        'data-can-update-subscription',
         'false',
       );
       expect(screen.getByTestId('notification-contacts-card')).toHaveAttribute(

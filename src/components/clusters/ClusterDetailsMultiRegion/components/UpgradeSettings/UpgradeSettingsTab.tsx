@@ -482,7 +482,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
             <CardBody>
               <UpgradeStatus
                 clusterID={clusterID}
-                canEdit={canUpdateSubscription}
+                canUpdateSubscription={canUpdateSubscription}
                 clusterVersion={clusterVersion}
                 scheduledUpgrade={scheduledUpgrade}
                 availableUpgrades={availableUpgrades || ([] as any)}

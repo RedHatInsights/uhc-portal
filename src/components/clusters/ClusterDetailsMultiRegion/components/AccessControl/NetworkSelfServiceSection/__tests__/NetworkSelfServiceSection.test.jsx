@@ -104,7 +104,7 @@ describe('<NetworkSelfServiceSection />', () => {
   const dispatchMock = jest.fn();
 
   const props = {
-    canEdit: true,
+    canUpdateSubscription: true,
     deleteGrant,
     openAddGrantModal,
     // addNotification,
@@ -489,7 +489,7 @@ describe('<NetworkSelfServiceSection />', () => {
     expect(mockedAddNotification).toHaveBeenCalledTimes(1);
   });
 
-  it('should disable add button when canEdit is false', () => {
+  it('should disable add button when canUpdateSubscription is false', () => {
     useFetchGrantsMock.mockReturnValue({
       data: fakeGrants,
       isLoading: false,
@@ -498,7 +498,11 @@ describe('<NetworkSelfServiceSection />', () => {
       error: null,
     });
     render(
-      <NetworkSelfServiceSection canEdit={false} clusterHibernating={false} isReadOnly={false} />,
+      <NetworkSelfServiceSection
+        canUpdateSubscription={false}
+        clusterHibernating={false}
+        isReadOnly={false}
+      />,
     );
 
     expect(screen.getByRole('button', { name: 'Grant role' })).not.toBeEnabled();
@@ -512,7 +516,9 @@ describe('<NetworkSelfServiceSection />', () => {
       isError: false,
       error: null,
     });
-    render(<NetworkSelfServiceSection canEdit clusterHibernating isReadOnly={false} />);
+    render(
+      <NetworkSelfServiceSection canUpdateSubscription clusterHibernating isReadOnly={false} />,
+    );
     expect(screen.getByRole('button', { name: 'Grant role' })).not.toBeEnabled();
   });
 
@@ -524,7 +530,9 @@ describe('<NetworkSelfServiceSection />', () => {
       isError: false,
       error: null,
     });
-    render(<NetworkSelfServiceSection canEdit clusterHibernating={false} isReadOnly />);
+    render(
+      <NetworkSelfServiceSection canUpdateSubscription clusterHibernating={false} isReadOnly />,
+    );
     expect(screen.getByRole('button', { name: 'Grant role' })).not.toBeEnabled();
   });
 });

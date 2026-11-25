@@ -50,7 +50,7 @@ import { grantsDataAggregator } from './NetworkSelfServiceHelpers';
 
 const NetworkSelfServiceSection = ({
   clusterID,
-  canEdit,
+  canUpdateSubscription,
   clusterHibernating,
   isReadOnly,
   region,
@@ -219,7 +219,7 @@ const NetworkSelfServiceSection = ({
   const hibernatingReason =
     clusterHibernating && 'This operation is not available while cluster is hibernating';
   const canNotEditReason =
-    !canEdit &&
+    !canUpdateSubscription &&
     'You do not have permission to grant a role. Only cluster owners, cluster editors, and Organization Administrators can grant roles.';
   const disableReason = readOnlyReason || hibernatingReason || canNotEditReason;
 
@@ -358,7 +358,7 @@ const NetworkSelfServiceSection = ({
 NetworkSelfServiceSection.propTypes = {
   region: PropTypes.string,
   clusterID: PropTypes.string,
-  canEdit: PropTypes.bool.isRequired,
+  canUpdateSubscription: PropTypes.bool.isRequired,
   clusterHibernating: PropTypes.bool.isRequired,
   isReadOnly: PropTypes.bool.isRequired,
 };

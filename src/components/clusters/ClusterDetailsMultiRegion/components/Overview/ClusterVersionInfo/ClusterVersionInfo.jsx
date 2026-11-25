@@ -64,7 +64,7 @@ const ClusterVersionInfo = ({ cluster }) => {
                       upgradeGates={upgradeGates}
                       cluster={cluster}
                       clusterID={cluster.id}
-                      canEdit={cluster.canUpdateSubscription}
+                      canUpdateSubscription={cluster.canUpdateSubscription}
                       clusterVersion={clusterVersion}
                       scheduledUpgrade={scheduledUpdate}
                       availableUpgrades={cluster.version?.available_upgrades}

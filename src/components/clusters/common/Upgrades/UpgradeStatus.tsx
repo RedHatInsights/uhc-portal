@@ -24,7 +24,7 @@ import './UpgradeStatus.scss';
 
 interface UpgradeStatusProps {
   clusterID: string;
-  canEdit?: boolean;
+  canUpdateSubscription?: boolean;
   isHypershift?: boolean;
   isSTSEnabled?: boolean;
   clusterVersion?: string;
@@ -38,7 +38,7 @@ interface UpgradeStatusProps {
 
 const UpgradeStatus = ({
   clusterID,
-  canEdit = false,
+  canUpdateSubscription = false,
   clusterVersion,
   scheduledUpgrade,
   availableUpgrades = [],
@@ -69,7 +69,10 @@ const UpgradeStatus = ({
 
   const upgradeState = scheduledUpgrade?.state?.value;
   const canCancel =
-    isManualUpgradeScheduled && canEdit && upgradeState !== 'started' && upgradeState !== 'delayed';
+    isManualUpgradeScheduled &&
+    canUpdateSubscription &&
+    upgradeState !== 'started' &&
+    upgradeState !== 'delayed';
 
   const upgradeStateIcon = (): React.ReactNode => {
     let icon: React.ReactNode;

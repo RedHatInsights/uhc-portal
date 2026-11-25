@@ -251,7 +251,7 @@ const Overview = (props) => {
           {showSubscriptionSettings && (
             <SubscriptionSettings
               subscription={subscription}
-              canEdit={cluster.canUpdateSubscription}
+              canUpdateSubscription={cluster.canUpdateSubscription}
               canSubscribeOCP={canSubscribeOCP}
               isLoading={isSubscriptionSettingsRequestPending || clusterDetailsLoading}
             />
