@@ -21,9 +21,8 @@ import {
   SERVICE_CIDR_DEFAULT,
 } from '../../../common/networkingConstants';
 
-const machineDisjointSubnets = validators.disjointSubnets('network_machine_cidr');
-const serviceDisjointSubnets = validators.disjointSubnets('network_service_cidr');
-const podDisjointSubnets = validators.disjointSubnets('network_pod_cidr');
+import { OvnSubnetFields } from './OvnSubnetFields';
+
 const awsMachineSingleAZSubnetMask = validators.awsSubnetMask('network_machine_cidr_single_az');
 const awsMachineMultiAZSubnetMask = validators.awsSubnetMask('network_machine_cidr_multi_az');
 const awsServiceSubnetMask = validators.awsSubnetMask('network_service_cidr');
@@ -35,11 +34,23 @@ function CIDRFields({
   installToVpcSelected,
   isDefaultValuesChecked,
   isHypershiftSelected,
+  shouldShowOvnSubnets,
   formValues,
 }) {
   const { getFieldProps, getFieldMeta, setFieldValue, validateForm } = useFormState();
 
   const isFieldDisabled = isDefaultValuesChecked || disabled;
+
+  const overlapFields = shouldShowOvnSubnets ? validators.OVN_NETWORKING_OVERLAP_FIELDS : undefined;
+  const machineDisjointSubnets = validators.disjointSubnets(
+    FieldId.NetworkMachineCidr,
+    overlapFields,
+  );
+  const serviceDisjointSubnets = validators.disjointSubnets(
+    FieldId.NetworkServiceCidr,
+    overlapFields,
+  );
+  const podDisjointSubnets = validators.disjointSubnets(FieldId.NetworkPodCidr, overlapFields);
 
   const formatHostPrefix = (value) => {
     if (value && value.charAt(0) !== '/') {
@@ -112,8 +123,9 @@ function CIDRFields({
           title="CIDR ranges cannot be changed after you create your cluster."
         >
           <p className="pf-v6-u-mb-md">
-            Specify non-overlapping ranges for machine, service, and pod ranges. Each range should
-            correspond to the first IP address in their subnet.
+            {shouldShowOvnSubnets
+              ? 'Specify non-overlapping ranges for machine, service, pod, Join, Transit, and Masquerade ranges. Each range should correspond to the first IP address in their subnet.'
+              : 'Specify non-overlapping ranges for machine, service, and pod ranges. Each range should correspond to the first IP address in their subnet.'}
           </p>
 
           <ExternalLink
@@ -290,6 +302,7 @@ function CIDRFields({
           showHelpTextOnError={false}
         />
       </GridItem>
+      {shouldShowOvnSubnets && <OvnSubnetFields isDisabled={disabled} />}
     </>
   );
 }
@@ -301,6 +314,7 @@ CIDRFields.propTypes = {
   installToVpcSelected: PropTypes.bool,
   isDefaultValuesChecked: PropTypes.bool,
   isHypershiftSelected: PropTypes.bool,
+  shouldShowOvnSubnets: PropTypes.bool,
   formValues: PropTypes.object,
 };
 

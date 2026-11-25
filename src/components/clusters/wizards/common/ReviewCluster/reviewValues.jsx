@@ -564,6 +564,15 @@ const reviewValues = {
     title: 'Host prefix',
     valueTransform: (value) => (value?.includes('/') ? value : `/${value}`),
   },
+  network_internal_join_subnet: {
+    title: 'Join subnet',
+  },
+  network_internal_transit_switch_subnet: {
+    title: 'Transit subnet',
+  },
+  network_internal_masquerade_subnet: {
+    title: 'Masquerade subnet',
+  },
   cluster_privacy: {
     title: 'Cluster privacy',
     values: {

@@ -7,9 +7,12 @@ import { getDefaultClusterAutoScaling } from '~/components/clusters/common/clust
 import { defaultWorkerNodeVolumeSizeGiB } from '~/components/clusters/common/machinePools/constants';
 import {
   HOST_PREFIX_DEFAULT,
+  JOIN_SUBNET_DEFAULT,
   MACHINE_CIDR_DEFAULT,
+  MASQUERADE_SUBNET_DEFAULT,
   POD_CIDR_DEFAULT,
   SERVICE_CIDR_DEFAULT,
+  TRANSIT_SUBNET_DEFAULT,
 } from '~/components/clusters/common/networkingConstants';
 import {
   AWS_DEFAULT_REGION,
@@ -51,6 +54,10 @@ export enum RosaFieldId {
   LogForwardingCloudWatchSelectedItems = 'log_forwarding_cloudwatch_selected_items',
   SpotInterruptionHandling = 'spot_interruption_handling',
   SpotTerminationHandlerQueueUrl = 'termination_handler_queue_url',
+  OvnDefaultValuesToggle = 'ovn_default_values_toggle',
+  NetworkInternalJoinSubnet = 'network_internal_join_subnet',
+  NetworkInternalTransitSwitchSubnet = 'network_internal_transit_switch_subnet',
+  NetworkInternalMasqueradeSubnet = 'network_internal_masquerade_subnet',
 }
 
 export const FieldId = { ...CommonFieldId, ...RosaFieldId };
@@ -99,6 +106,21 @@ export const logForwardingInitialFieldValues = {
   [FieldId.LogForwardingCloudWatchSelectedItems]: [],
 };
 
+export const ovnSubnetInitialValues = {
+  [FieldId.OvnDefaultValuesToggle]: true,
+  [FieldId.NetworkInternalJoinSubnet]: JOIN_SUBNET_DEFAULT,
+  [FieldId.NetworkInternalTransitSwitchSubnet]: TRANSIT_SUBNET_DEFAULT,
+  [FieldId.NetworkInternalMasqueradeSubnet]: MASQUERADE_SUBNET_DEFAULT,
+};
+
+/** Cleared OVN fields — used when the feature flag is off or for classic control plane. */
+export const ovnSubnetClearedValues = {
+  [FieldId.OvnDefaultValuesToggle]: true,
+  [FieldId.NetworkInternalJoinSubnet]: '',
+  [FieldId.NetworkInternalTransitSwitchSubnet]: '',
+  [FieldId.NetworkInternalMasqueradeSubnet]: '',
+};
+
 export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnabled?: boolean) =>
   isHypershift
     ? {
@@ -112,6 +134,8 @@ export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnab
         [FieldId.SharedVpc]: { is_allowed: false },
         [FieldId.UpgradePolicy]: 'automatic',
         [FieldId.Region]: isMultiRegionEnabled ? undefined : AWS_DEFAULT_REGION,
+        // OVN defaults are applied by the wizard when HCP_OVN_IP4_SUBNETS is enabled
+        ...ovnSubnetClearedValues,
       }
     : {
         [FieldId.BillingModel]: SubscriptionCommonFieldsClusterBillingModel.standard,
@@ -128,8 +152,8 @@ export const initialValuesHypershift = (isHypershift: boolean, isMultiRegionEnab
           hosted_zone_role_arn: '',
         },
         [FieldId.UpgradePolicy]: 'manual',
+        ...ovnSubnetClearedValues,
       };
-
 export const initialValues: (hypershiftDefault?: boolean) => FormikValues = (
   hypershiftDefault = hypershiftDefaultSelected,
 ) => ({

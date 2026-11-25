@@ -429,6 +429,68 @@ describe('Field does not share subnets with other fields', () => {
       expect(validators.disjointSubnets('network_machine_cidr')(value, formData)).toBe(expected);
     },
   );
+
+  it('detects overlap with OVN Join subnet when OVN fields are included', () => {
+    expect(
+      validators.disjointSubnets('network_machine_cidr', validators.OVN_NETWORKING_OVERLAP_FIELDS)(
+        '100.64.0.0/16',
+        {
+          network_internal_join_subnet: '100.64.0.0/16',
+          network_service_cidr: '172.30.0.0/16',
+          network_pod_cidr: '10.128.0.0/14',
+        },
+      ),
+    ).toBe('This subnet overlaps with the subnet in the Join subnet field.');
+  });
+});
+
+describe('OVN Join / Transit subnet mask', () => {
+  it.each([
+    [undefined, undefined],
+    ['100.64.0.0/16', undefined],
+    ['100.64.0.0/30', undefined],
+    ['100.64.0.0/31', 'Subnet mask must be at most /30.'],
+    ['100.64.0.0/32', 'Subnet mask must be at most /30.'],
+  ])('value %p to be %p', (value: string | undefined, expected: string | undefined) => {
+    expect(validators.ovnJoinTransitSubnetMask(value)).toBe(expected);
+  });
+});
+
+describe('OVN Masquerade subnet mask', () => {
+  it.each([
+    [undefined, undefined],
+    ['169.254.0.0/17', undefined],
+    ['169.254.169.0/29', undefined],
+    ['169.254.169.0/30', 'Subnet mask must be at most /29.'],
+  ])('value %p to be %p', (value: string | undefined, expected: string | undefined) => {
+    expect(validators.ovnMasqueradeSubnetMask(value)).toBe(expected);
+  });
+});
+
+describe('OVN Join and Transit must not be equal', () => {
+  it('returns an error when Join matches Transit', () => {
+    expect(
+      validators.ovnJoinTransitNotEqual('network_internal_transit_switch_subnet', 'Transit subnet')(
+        '100.64.0.0/16',
+        {
+          network_internal_transit_switch_subnet: '100.64.0.0/16',
+        },
+      ),
+    ).toBe(
+      'Join subnet and Transit subnet must not be the same value. This matches the Transit subnet.',
+    );
+  });
+
+  it('returns undefined when Join and Transit differ', () => {
+    expect(
+      validators.ovnJoinTransitNotEqual('network_internal_transit_switch_subnet', 'Transit subnet')(
+        '100.64.0.0/16',
+        {
+          network_internal_transit_switch_subnet: '100.88.0.0/16',
+        },
+      ),
+    ).toBeUndefined();
+  });
 });
 
 describe('Subnet cidrs are valid against machine, network and pod cidr ranges', () => {

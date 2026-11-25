@@ -2,6 +2,12 @@ export const MACHINE_CIDR_DEFAULT = '10.0.0.0/16';
 export const SERVICE_CIDR_DEFAULT = '172.30.0.0/16';
 export const POD_CIDR_DEFAULT = '10.128.0.0/14';
 export const HOST_PREFIX_DEFAULT = '/23';
+
+/** Default OVN-Kubernetes internal subnets for ROSA HCP (OpenShift ≥ 4.18). */
+export const JOIN_SUBNET_DEFAULT = '100.64.0.0/16';
+export const TRANSIT_SUBNET_DEFAULT = '100.88.0.0/16';
+/** OCP ≥ 4.17 new-install default (was 169.254.169.0/29 before 4.17). */
+export const MASQUERADE_SUBNET_DEFAULT = '169.254.0.0/17';
 export const HTTP_PROXY_PLACEHOLDER = 'http://<user>:<password>@<ipaddr>:<port>';
 export const HTTPS_PROXY_PLACEHOLDER = 'http(s)://<user>:<password>@<ipaddr>:<port>';
 export const TRUST_BUNDLE_PLACEHOLDER = `-----BEGIN CERTIFICATE-----

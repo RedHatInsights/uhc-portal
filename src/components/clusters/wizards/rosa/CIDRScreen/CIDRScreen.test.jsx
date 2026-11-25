@@ -2,7 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 
 import docLinks from '~/common/docLinks.mjs';
-import { checkAccessibility, render, screen, within } from '~/testUtils';
+import { HCP_OVN_IP4_SUBNETS } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 
 import { FieldId } from '../constants';
 
@@ -49,6 +50,68 @@ describe('<CIDRScreen />', () => {
     expect(screen.getByLabelText('Service CIDR')).toBeDisabled();
     expect(screen.getByLabelText('Pod CIDR')).toBeDisabled();
     expect(screen.getByLabelText('Host prefix')).toBeDisabled();
+  });
+
+  it('shows OVN subnet fields for HCP when the feature flag is on and OpenShift is 4.18 or higher', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+        [FieldId.OvnDefaultValuesToggle]: true,
+        [FieldId.NetworkInternalJoinSubnet]: '100.64.0.0/16',
+        [FieldId.NetworkInternalTransitSwitchSubnet]: '100.88.0.0/16',
+        [FieldId.NetworkInternalMasqueradeSubnet]: '169.254.0.0/17',
+      }),
+    );
+
+    expect(screen.getByRole('heading', { name: 'OVN SUBNETS' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Join subnet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Transit subnet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Masquerade subnet')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Use default values')).toHaveLength(2);
+  });
+
+  it('hides OVN subnet fields when the feature flag is off', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, false]]);
+
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
+  });
+
+  it('hides OVN subnet fields for HCP when OpenShift version is below 4.18', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
+    render(
+      build({
+        [FieldId.Hypershift]: 'true',
+        [FieldId.ClusterVersion]: { raw_id: '4.17.5' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Transit subnet')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Masquerade subnet')).not.toBeInTheDocument();
+  });
+
+  it('hides OVN subnet fields for classic (non-HCP) clusters', () => {
+    mockUseFeatureGate([[HCP_OVN_IP4_SUBNETS, true]]);
+
+    render(
+      build({
+        [FieldId.Hypershift]: 'false',
+        [FieldId.ClusterVersion]: { raw_id: '4.18.1' },
+      }),
+    );
+
+    expect(screen.queryByLabelText('Join subnet')).not.toBeInTheDocument();
   });
 
   it('is accessible', async () => {

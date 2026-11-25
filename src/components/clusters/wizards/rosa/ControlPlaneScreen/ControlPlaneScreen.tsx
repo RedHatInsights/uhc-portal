@@ -16,6 +16,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import { ThemedImage } from '~/components/common/ThemedImage/ThemedImage';
 import {
   FIPS_FOR_HYPERSHIFT,
+  HCP_OVN_IP4_SUBNETS,
   MULTIREGION_PREVIEW_ENABLED,
 } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
@@ -28,7 +29,13 @@ import RedHatLogoLightTheme from '~/styles/images/Logo-Red_Hat-B-Standard-RGB.sv
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
 
 import { NO_ROLE_DETECTED } from '../AccountsRolesScreen/AccountRolesARNsSection/AccountRolesARNsSection';
-import { FieldId, initialValuesHypershift, logForwardingInitialFieldValues } from '../constants';
+import {
+  FieldId,
+  initialValuesHypershift,
+  logForwardingInitialFieldValues,
+  ovnSubnetClearedValues,
+  ovnSubnetInitialValues,
+} from '../constants';
 
 import { hypershiftValue } from './ControlPlaneCommon';
 import { HostedTile } from './HostedTile';
@@ -50,6 +57,7 @@ const ControlPlaneField = ({
   const isHostedDisabled = !hasHostedProductQuota;
   const isMultiRegionEnabled = useFeatureGate(MULTIREGION_PREVIEW_ENABLED);
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
 
   React.useEffect(() => {
     if (isHostedDisabled) {
@@ -72,6 +80,9 @@ const ControlPlaneField = ({
       ...formValues,
       ...initialValuesHypershift(isHypershift === 'true', isMultiRegionEnabled),
       ...logForwardingInitialFieldValues,
+      ...(isHypershift === 'true' && isHcpOvnIp4SubnetsEnabled
+        ? ovnSubnetInitialValues
+        : ovnSubnetClearedValues),
       [FieldId.Hypershift]: isHypershift,
       // Uncheck the following Network checkboxes when switching Control plane selection
       [FieldId.InstallToVpc]: false,

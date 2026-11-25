@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import {
   Bullseye,
   Button,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Flex,
   FlexItem,
   Icon,
@@ -24,7 +27,10 @@ import {
   isEnhancedSpotVersionSupported,
   SpotInterruptionMode,
 } from '~/components/clusters/common/SpotInterruptionHandling/spotInterruptionHandlingConstants';
-import { canSelectImds } from '~/components/clusters/wizards/common/constants';
+import {
+  canConfigureDayOneOvnSubnets,
+  canSelectImds,
+} from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
 import { getUserRoleForSelectedAWSAccount } from '~/components/clusters/wizards/rosa/AccountsRolesScreen/AccountsRolesScreen';
 import { FieldId } from '~/components/clusters/wizards/rosa/constants';
@@ -43,6 +49,7 @@ import {
   CREATE_CLUSTER_YAML_EDITOR,
   FIPS_FOR_HYPERSHIFT,
   HCP_LOG_FORWARDING,
+  HCP_OVN_IP4_SUBNETS,
   HCP_SPOT_INSTANCES,
   HYPERSHIFT_WIZARD_FEATURE,
   IMDS_SELECTION,
@@ -134,11 +141,17 @@ const ReviewClusterScreen = ({
   const isFipsForHypershiftEnabled = useFeatureGate(FIPS_FOR_HYPERSHIFT);
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
   const isHcpSpotInstancesEnabled = useFeatureGate(HCP_SPOT_INSTANCES);
+  const isHcpOvnIp4SubnetsEnabled = useFeatureGate(HCP_OVN_IP4_SUBNETS);
 
   const showSpotInterruptionHandling =
     isHypershiftSelected &&
     isHcpSpotInstancesEnabled &&
     isEnhancedSpotVersionSupported(clusterVersionRawId);
+
+  const shouldShowOvnSubnets =
+    isHcpOvnIp4SubnetsEnabled &&
+    isHypershiftSelected &&
+    canConfigureDayOneOvnSubnets(clusterVersionRawId);
 
   const clusterSettingsFields = [
     FieldId.ClusterName,
@@ -491,6 +504,19 @@ const ReviewClusterScreen = ({
           {ReviewItem(FieldId.NetworkServiceCidr)}
           {ReviewItem(FieldId.NetworkPodCidr)}
           {ReviewItem(FieldId.NetworkHostPrefix)}
+          {shouldShowOvnSubnets && (
+            <DescriptionListGroup>
+              <DescriptionListTerm>
+                <Title headingLevel="h4">OVN SUBNETS</Title>
+              </DescriptionListTerm>
+              <DescriptionListDescription>
+                <span className="pf-v6-u-screen-reader">OVN subnet ranges</span>
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          )}
+          {shouldShowOvnSubnets && ReviewItem(FieldId.NetworkInternalJoinSubnet)}
+          {shouldShowOvnSubnets && ReviewItem(FieldId.NetworkInternalTransitSwitchSubnet)}
+          {shouldShowOvnSubnets && ReviewItem(FieldId.NetworkInternalMasqueradeSubnet)}
 
           {!isHypershiftSelected && ReviewItem(FieldId.ApplicationIngress)}
           {applicationIngress !== 'default' && !isHypershiftSelected && (
