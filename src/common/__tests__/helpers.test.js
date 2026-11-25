@@ -6,6 +6,7 @@ import helpers, {
   parseCIDRSubnetLength,
   parseReduxFormKeyValueList,
   parseReduxFormTaints,
+  scrollAppToTop,
   scrollToFirstField,
   shouldRefetchQuota,
   strToKeyValueObject,
@@ -163,6 +164,35 @@ describe('scrollToFirstField', () => {
 
     // Assert
     expect(document.activeElement.id).toBe(expectedId);
+  });
+});
+
+describe('scrollAppToTop', () => {
+  it('scrolls each scrollable ancestor of the app root to the top', () => {
+    document.body.innerHTML = '';
+
+    const page = document.createElement('div');
+    page.style.overflowY = 'auto';
+    const pageScrollTo = jest.fn();
+    page.scrollTo = pageScrollTo;
+
+    const staticParent = document.createElement('div');
+    const staticScrollTo = jest.fn();
+    staticParent.scrollTo = staticScrollTo;
+
+    const appRoot = document.createElement('div');
+    appRoot.id = 'app-outer-div';
+
+    staticParent.appendChild(appRoot);
+    page.appendChild(staticParent);
+    document.body.appendChild(page);
+
+    scrollAppToTop();
+
+    expect(pageScrollTo).toHaveBeenCalledWith(0, 0);
+    expect(staticScrollTo).not.toHaveBeenCalled();
+
+    document.body.innerHTML = '';
   });
 });
 

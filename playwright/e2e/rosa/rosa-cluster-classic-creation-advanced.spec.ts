@@ -274,7 +274,7 @@ test.describe.serial(
       }
 
       for (const securityGroup of securityGroups) {
-        await expect(page.getByTestId('appDrawerContent')).toContainText(securityGroup);
+        await expect(createRosaWizardPage.mainRegion()).toContainText(securityGroup);
       }
       await createRosaWizardPage.rosaNextButton().click();
     });

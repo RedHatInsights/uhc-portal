@@ -18,6 +18,7 @@ import { HAD_INFLIGHT_ERROR_LOCALSTORAGE_KEY } from '~/common/localStorageConsta
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import AIDetailCard from '~/components/AIComponents/AIDetailCard';
 import useAnalytics from '~/hooks/useAnalytics';
+import { useGlobalState } from '~/redux/hooks';
 import { isRestrictedEnv } from '~/restrictedEnv';
 import { SubscriptionCommonFieldsStatus } from '~/types/accounts_mgmt.v1';
 
@@ -141,8 +142,10 @@ const Overview = (props) => {
   const showDetailsCard = !cluster.aiCluster || !isUninstalledAICluster(cluster);
   const showSubscriptionSettings = !isDeprovisioned && !isArchived;
   const awsAccountId = cluster.subscription?.cloud_account_id;
+  const userOrgId = useGlobalState((state) => state.userProfile.organization.details?.id);
+  const isUserInClusterOrg = !!userOrgId && userOrgId === cluster.subscription?.organization_id;
   const shouldCheckOCMRole =
-    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!awsAccountId;
+    isROSA(cluster) && cluster.aws?.sts?.enabled === true && !!awsAccountId && isUserInClusterOrg;
 
   const resourceUsage = (
     <Card className="ocm-c-overview-resource-usage__card" data-testid="resource-usage">

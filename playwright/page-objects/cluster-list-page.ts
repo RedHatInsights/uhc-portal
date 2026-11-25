@@ -155,7 +155,7 @@ export class ClusterListPage extends BasePage {
   }
 
   async scrollClusterListPageTo(direction: 'top' | 'bottom'): Promise<void> {
-    await this.page.getByTestId('appDrawerContent').evaluate((element, dir) => {
+    await this.page.getByRole('main').evaluate((element, dir) => {
       if (dir === 'bottom') {
         element.scrollTop = element.scrollHeight;
       } else {

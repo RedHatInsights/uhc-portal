@@ -10,11 +10,30 @@
  * - Reports HTTP status codes (2xx, 3xx, 4xx, 5xx)
  * - Tests redirect destinations
  * - Color-coded output for easy identification of issues
- * - Multiple output modes (default, verbose, redirects-only, summary)
+ * - Multiple output modes (default, verbose, redirects-only, summary, slack draft)
  */
+import { stdin as input, stdout as output } from 'node:process';
+import readline from 'node:readline/promises';
 import fetch from 'node-fetch';
 import ProgressBar from 'progress';
 
+import {
+  findContactByKey,
+  findContactForUrl,
+  getDownloadContacts,
+  updateSlackChannels,
+} from '../src/common/downloadContacts.mjs';
+import {
+  countKnownFalsePositives,
+  errorMarker,
+  formatSummaryStatusLine,
+  getActionableErrorCount,
+  getKnownFalsePositiveNote,
+  getKnownFalsePositiveNoteForBrokenLink,
+  isRedirectTestError,
+  STATUS_MARKER,
+} from '../src/common/knownFalsePositives.mjs';
+import { parseSlackSelection } from '../src/common/parseSlackSelection.mjs';
 import { getAllExternalLinks } from '../src/common/urlUtils.mjs';
 
 // ======================================================================
@@ -27,6 +46,10 @@ const verboseMode = args.includes('-v') || args.includes('--verbose');
 const helpMode = args.includes('-h') || args.includes('--help');
 const redirectsMode = args.includes('-r') || args.includes('--redirects');
 const summaryMode = args.includes('--summary');
+const slackMode = args.includes('--slack');
+const listChannelsMode = args.includes('-l') || args.includes('--list-channels');
+const updateChannelIndex = args.indexOf('--update-channel');
+const updateChannelMode = updateChannelIndex !== -1;
 
 // Constants
 const LINE_LENGTH = 80;
@@ -44,31 +67,6 @@ const MAX_ATTEMPTS = 3;
 const RETRY_BACKOFF_MS = 1500;
 const RETRYABLE_STATUSES = new Set([403, 429, 503]);
 const INTER_REQUEST_DELAY_MS = 200;
-
-/**
- * Known URL patterns that produce expected (non-actionable) errors.
- * Each entry maps a regex to a short explanation shown in the output.
- */
-const KNOWN_FALSE_POSITIVES = [
-  {
-    pattern: /join\.slack\.com\/.*shared_invite/,
-    reason: 'Slack invite links block programmatic access (expected 403)',
-  },
-  {
-    pattern: /console\.cloud\.google\.com/,
-    reason: 'Google Cloud Console returns oversized headers that exceed node-fetch limits',
-  },
-];
-
-/**
- * Returns a contextual note if a URL matches a known false-positive pattern.
- * @param {string} url - The URL to check
- * @returns {string|null} Explanation string or null
- */
-function getKnownFalsePositiveNote(url) {
-  const match = KNOWN_FALSE_POSITIVES.find(({ pattern }) => pattern.test(url));
-  return match ? match.reason : null;
-}
 
 // ======================================================================
 // CONCURRENCY CONTROL
@@ -146,6 +144,13 @@ Options:
                  (By default, only error URLs are displayed)
   -r, --redirects Show ONLY redirected URLs with their redirect targets
   --summary      Print summary table and broken links only
+  --slack        List real 4xx broken links (false positives excluded),
+                 then draft copy/paste Slack messages for selected URLs
+  -l, --list-channels
+                 Print downloadContacts.json entries (key, name, channels)
+  --update-channel <key> <channel(s)>
+                 Overwrite slackChannels for <key> and write downloadContacts.json.
+                 Quote channels (e.g. "#forum-rosa-eng"). Multiple: "#a,#b"
 
 Output:
   The script categorizes URLs by their HTTP status:
@@ -193,6 +198,88 @@ HTTP Status Codes:
 if (helpMode) {
   displayHelp();
   process.exit(0);
+}
+
+/**
+ * Prints every downloadContacts.json entry: key, display name, Slack channel(s).
+ */
+function listDownloadChannels() {
+  const contacts = getDownloadContacts();
+  const keyWidth = Math.max('KEY'.length, ...contacts.map((entry) => entry.key.length));
+  const nameWidth = Math.max(
+    'DISPLAY NAME'.length,
+    ...contacts.map((entry) => entry.displayName.length),
+  );
+
+  console.log(`${'KEY'.padEnd(keyWidth)}  ${'DISPLAY NAME'.padEnd(nameWidth)}  SLACK CHANNEL(S)`);
+
+  contacts.forEach((entry) => {
+    const channels = entry.slackChannels.length > 0 ? entry.slackChannels.join(', ') : '(none)';
+    console.log(
+      `${entry.key.padEnd(keyWidth)}  ${entry.displayName.padEnd(nameWidth)}  ${channels}`,
+    );
+  });
+}
+
+/**
+ * Overwrites slackChannels for --update-channel <key> <channel(s)>.
+ * @returns {boolean} Whether the update succeeded
+ */
+function applyChannelUpdate() {
+  const key = args[updateChannelIndex + 1];
+  const channelsRaw = args[updateChannelIndex + 2];
+
+  if (!key || !channelsRaw || channelsRaw.startsWith('-')) {
+    console.error('Usage: node check-links.mjs --update-channel <key> <channel(s)>');
+    return false;
+  }
+
+  if (!findContactByKey(key)) {
+    console.error(`Unknown key "${key}". Valid keys:`);
+    getDownloadContacts().forEach((entry) => {
+      console.error(`  ${entry.key}`);
+    });
+    return false;
+  }
+
+  const slackChannels = channelsRaw
+    .split(',')
+    .map((channel) => channel.trim())
+    .filter(Boolean);
+
+  if (slackChannels.length === 0) {
+    console.error('Error: at least one channel is required. Use "#channel" format.');
+    return false;
+  }
+
+  const updated = updateSlackChannels(key, slackChannels);
+
+  if (updated.noChange) {
+    console.log(
+      `${key} slackChannels already set to ${JSON.stringify(updated.slackChannels)}; no file changes.`,
+    );
+    return true;
+  }
+
+  console.log(`Updated ${key} slackChannels to ${JSON.stringify(updated.slackChannels)}`);
+  console.log('');
+  console.log('This command does not commit, push, or open a PR.');
+  console.log('Next steps:');
+  console.log('  git diff src/common/downloadContacts.json');
+  console.log('  git checkout -b <branch>');
+  console.log('  git add src/common/downloadContacts.json && git commit');
+  console.log('  # push and open a PR');
+  return true;
+}
+
+if (listChannelsMode) {
+  listDownloadChannels();
+  process.exit(0);
+}
+
+if (updateChannelMode) {
+  const succeeded = applyChannelUpdate();
+  process.exit(succeeded ? 0 : 1);
 }
 
 // ======================================================================
@@ -514,7 +601,8 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
 
     // Display the failed URLs
     failedTests.forEach((r) => {
-      console.log(`  [Original URL] ${r.url}`);
+      const note = getKnownFalsePositiveNoteForBrokenLink(r.url, r.redirectUrl);
+      console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
       if (r.redirectUrl) {
         console.log(`  [Redirect URL] ${r.redirectUrl}`);
 
@@ -533,11 +621,9 @@ function displayRedirectStatusGroup(status, items, redirectTestMap, verbose) {
           }
           console.log(`  [Redirect URL Test] ${statusText}`);
         }
-
-        const note = getKnownFalsePositiveNote(r.redirectUrl);
-        if (note) {
-          console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
-        }
+      }
+      if (note) {
+        console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
       }
       console.log();
     });
@@ -688,8 +774,8 @@ function displayErrorSection(title, errorItems) {
 
     if (items.length > 0) {
       items.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
         const note = getKnownFalsePositiveNote(r.url);
+        console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
         if (note) {
           console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
@@ -734,9 +820,9 @@ function displayRequestErrorsSection(errors) {
 
     if (items.length > 0) {
       items.forEach((r) => {
-        console.log(`  [Original URL] ${r.url}`);
-        console.log(`  [Error] ${r.errorMessage}`);
         const note = getKnownFalsePositiveNote(r.url);
+        console.log(`  ${errorMarker(note)} [Original URL] ${r.url}`);
+        console.log(`  [Error] ${r.errorMessage}`);
         if (note) {
           console.log(`  ${COLOR.YELLOW}[Note] ${note}${COLOR.RESET}`);
         }
@@ -792,9 +878,11 @@ function displayUsageNotes(verbose) {
       '\nNote: Run with -v or --verbose to see URLs for successful requests and redirects',
     );
     console.log('      Run with -r or --redirects to see ONLY redirected URLs with targets');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   } else {
     console.log('\nNote: Run with -r or --redirects to see ONLY redirected URLs with targets');
+    console.log('      Run with --slack to draft Slack messages for broken download links');
     console.log('      Run with -h or --help for more information');
   }
 }
@@ -803,12 +891,28 @@ const SUMMARY_MAX_BROKEN_LINK_ENTRIES = 12;
 const SUMMARY_MAX_REPORT_LENGTH = 2800;
 
 /**
- * Formats a count for plain-text output (no ANSI).
+ * Formats a count for plain text output (no ANSI).
  * @param {number} count - The count to display
  * @returns {string} Formatted count string
  */
 function formatPlainCount(count) {
   return count.toString().padStart(6);
+}
+
+/**
+ * Prefixes a broken-link entry with 🟡/🔴 and appends the false positive reason when present.
+ * @param {'simple'|'redirect'} kind
+ * @param {string[]} lines - Body lines; first line is the URL (no indent)
+ * @param {string|null} note - Known false positive reason
+ * @returns {{ kind: 'simple'|'redirect', text: string }}
+ */
+function formatBrokenLinkEntry(kind, lines, note) {
+  const [first, ...rest] = lines;
+  const markedLines = [`  ${errorMarker(note)} ${first}`, ...rest];
+  if (note) {
+    markedLines.push(`     ${note}`);
+  }
+  return { kind, text: markedLines.join('\n') };
 }
 
 /**
@@ -828,51 +932,48 @@ function formatBrokenLinksList(
   const entries = [];
 
   clientErrors.forEach(({ url, status }) => {
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${status})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${status})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   serverErrors.forEach(({ url, status }) => {
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${status})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${status})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   errors.forEach(({ url, errorMessage }) => {
     const shortError = errorMessage.length > 80 ? `${errorMessage.slice(0, 77)}...` : errorMessage;
-    entries.push({
-      kind: 'simple',
-      text: `  ${url} (${shortError})`,
-    });
+    entries.push(
+      formatBrokenLinkEntry('simple', [`${url} (${shortError})`], getKnownFalsePositiveNote(url)),
+    );
   });
 
   testedRedirects.forEach((item) => {
-    const isError =
-      item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300));
-    if (!isError) {
+    if (!isRedirectTestError(item)) {
       return;
     }
 
+    const note = getKnownFalsePositiveNoteForBrokenLink(item.originalUrl, item.redirectUrl);
+
     if (item.error) {
       const shortError = item.error.length > 60 ? `${item.error.slice(0, 57)}...` : item.error;
-      entries.push({
-        kind: 'redirect',
-        text: [
-          `  ${item.originalUrl}`,
-          `  -> ${item.redirectUrl}`,
-          `  (redirect error: ${shortError})`,
-        ].join('\n'),
-      });
-    } else {
-      entries.push({
-        kind: 'redirect',
-        text: [`  ${item.originalUrl}`, `  -> ${item.redirectUrl} (${item.finalStatus})`].join(
-          '\n',
+      entries.push(
+        formatBrokenLinkEntry(
+          'redirect',
+          [item.originalUrl, `  -> ${item.redirectUrl}`, `  (redirect error: ${shortError})`],
+          note,
         ),
-      });
+      );
+    } else {
+      entries.push(
+        formatBrokenLinkEntry(
+          'redirect',
+          [item.originalUrl, `  -> ${item.redirectUrl} (${item.finalStatus})`],
+          note,
+        ),
+      );
     }
   });
 
@@ -906,8 +1007,8 @@ function formatBrokenLinksList(
  * @param {number} redirectErrorCount - Count of redirect errors
  * @param {Object} [options] - Formatting options
  * @param {boolean} [options.plain] - Omit ANSI color codes from counts
- * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when issues exist
- * @param {Array} [options.testedRedirects] - Redirect test results for broken link list
+ * @param {boolean} [options.includeBrokenLinks] - Append broken link URLs when any exist
+ * @param {Array} [options.testedRedirects] - Redirect test results for counts and broken link list
  * @param {number} [options.maxBrokenEntries] - Maximum broken links to include in Slack output
  * @returns {string} Summary report text
  */
@@ -923,16 +1024,14 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     : (value, useRed = false) => formatCount(value, useRed);
 
   const { success, redirects, clientErrors, serverErrors, errors, skipped } = categories;
-  const hasIssues =
-    redirectErrorCount > 0 ||
-    clientErrors.length > 0 ||
-    serverErrors.length > 0 ||
-    errors.length > 0;
   const totalErrors =
     redirectErrorCount + clientErrors.length + serverErrors.length + errors.length;
+  const knownFalsePositives = countKnownFalsePositives(categories, testedRedirects);
+  const actionableErrors = getActionableErrorCount(totalErrors, knownFalsePositives);
+  const statusLine = formatSummaryStatusLine(knownFalsePositives, actionableErrors);
 
   const lines = [
-    hasIssues ? '👎 Issues found' : '👍 All clear',
+    statusLine,
     '',
     'Category                           Count',
     '---------------------------------- ------',
@@ -945,10 +1044,12 @@ function formatSummaryReport(categories, totalChecked, redirectErrorCount, optio
     `Request errors                    ${count(errors.length, true)}`,
     '---------------------------------- ------',
     `Total URLs checked                ${count(totalChecked)}`,
-    `Total Errors                      ${count(totalErrors, true)}`,
+    `Total errors                      ${count(totalErrors, true)}`,
+    `Known false positives             ${count(knownFalsePositives)}  ${STATUS_MARKER.knownFalsePositive}`,
+    `Actionable errors                 ${count(actionableErrors, true)}  ${STATUS_MARKER.actionable}`,
   ];
 
-  if (includeBrokenLinks && hasIssues) {
+  if (includeBrokenLinks && totalErrors > 0) {
     const brokenLinks = formatBrokenLinksList(categories, testedRedirects, maxBrokenEntries);
     if (brokenLinks) {
       lines.push(brokenLinks);
@@ -996,9 +1097,12 @@ function buildSummaryReport(categories, totalChecked, redirectErrorCount, tested
  * @param {Object} categories - Categorized results
  * @param {number} totalChecked - Total checked URLs
  * @param {number} redirectErrorCount - Count of redirect errors
+ * @param {Array} testedRedirects - Redirect test results (needed to classify redirect false positives)
  */
-function displaySummaryTable(categories, totalChecked, redirectErrorCount) {
-  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount);
+function displaySummaryTable(categories, totalChecked, redirectErrorCount, testedRedirects) {
+  const summary = formatSummaryReport(categories, totalChecked, redirectErrorCount, {
+    testedRedirects,
+  });
 
   console.log('\nURL CHECK RESULTS');
   console.log(summary);
@@ -1054,13 +1158,7 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
     success.length + redirects.length + clientErrors.length + serverErrors.length + errors.length;
   const grandTotal = totalChecked + skipped.length;
 
-  // Count redirect errors
-  let redirectErrorCount = 0;
-  testedRedirects.forEach((item) => {
-    if (item.error || (item.finalStatus && (item.finalStatus < 200 || item.finalStatus >= 300))) {
-      redirectErrorCount += 1;
-    }
-  });
+  const redirectErrorCount = testedRedirects.filter(isRedirectTestError).length;
 
   // In --summary mode, print only the summary table and broken links
   if (summaryMode) {
@@ -1070,7 +1168,7 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
   }
 
   // Display summary table
-  displaySummaryTable(categories, totalChecked, redirectErrorCount);
+  displaySummaryTable(categories, totalChecked, redirectErrorCount, testedRedirects);
 
   // Display detailed sections
   displaySuccessSection(success, verbose);
@@ -1085,6 +1183,134 @@ function displayResults(results, testedRedirects, verbose = false, redirectsMode
 
   // Display usage notes
   displayUsageNotes(verbose);
+}
+
+/**
+ * 4xx errors + failed redirects that are not known false positives
+ * @param {Object} categories - Categorized results
+ * @param {Array} testedRedirects - Results of testRedirectUrls
+ * @returns {Array<{url: string, status: number|string}>}
+ */
+function getSlackDraftCandidates(categories, testedRedirects) {
+  // Direct 4xx errors
+  const directErrors = categories.clientErrors.filter(({ url }) => !getKnownFalsePositiveNote(url));
+
+  // Failed redirects
+  const failedRedirects = testedRedirects
+    .filter((item) => {
+      const isBroken =
+        item.error || (item.finalStatus && item.finalStatus >= 400 && item.finalStatus < 500);
+      // Skip false positives on redirect URL
+      return (
+        isBroken &&
+        !getKnownFalsePositiveNote(item.originalUrl) &&
+        !getKnownFalsePositiveNote(item.redirectUrl)
+      );
+    })
+    .map((item) => ({
+      url: item.originalUrl,
+      redirectUrl: item.redirectUrl,
+      status: item.error ? `redirect error` : `${item.status} → ${item.finalStatus}`,
+    }));
+
+  return [...directErrors, ...failedRedirects];
+}
+
+/**
+ * @param {number} count
+ * @returns {Promise<number[]>}
+ */
+async function promptSlackSelection(count) {
+  if (!input.isTTY) {
+    console.log('\nNo TTY detected; skipping Slack draft selection.');
+    return [];
+  }
+
+  const rl = readline.createInterface({ input, output });
+  const prompt =
+    'Select which to draft a Slack message for (e.g. "1,2" or "all"), Enter to skip:\n> ';
+  try {
+    let parsed;
+    do {
+      // eslint-disable-next-line no-await-in-loop -- re-prompt until selection is valid or skipped
+      const answer = await rl.question(prompt);
+      parsed = parseSlackSelection(answer, count);
+      if (parsed.status === 'invalid') {
+        console.log(`  ${parsed.message}`);
+      }
+    } while (parsed.status === 'invalid');
+    return parsed.status === 'skip' ? [] : parsed.indices;
+  } finally {
+    rl.close();
+  }
+}
+
+/**
+ * Prints a copy/paste Slack draft, or a fallback notice when unmapped/deprecated.
+ * @param {number} displayNumber
+ * @param {{url: string, status: number}} item
+ * @param {Object|null} contact
+ */
+function printSlackDraft(displayNumber, item, contact) {
+  if (!contact) {
+    console.log(`\n[${displayNumber}] ${item.url}`);
+    console.log('  no owner mapped');
+    return;
+  }
+
+  if (contact.deprecated || contact.slackChannels.length === 0) {
+    console.log(`\n[${displayNumber}] ${item.url}`);
+    console.log('  no active owner (deprecated)');
+    return;
+  }
+
+  const divider = '─'.repeat(LINE_LENGTH);
+  const channels = contact.slackChannels.join(', ');
+  console.log(`\n${divider}`);
+  console.log(`[${displayNumber}] Post to: ${channels}   (${contact.displayName})`);
+  console.log(divider);
+  console.log('Hey team 👋 — our weekly link checker found a broken');
+  console.log('download link served by OCM UI (console.redhat.com/openshift).');
+  console.log(`Broken URL (${item.status}):`);
+  console.log(item.url);
+  if (item.redirectUrl) {
+    console.log(`  ↳ redirects to: ${item.redirectUrl}`);
+  }
+  console.log(divider);
+  console.log(
+    `Wrong channel? Execute: node check-links.mjs --update-channel ${contact.key} "#new-channel"`,
+  );
+}
+
+/**
+ * --slack flow: numbered 4xx list → user selection → Slack drafts (never posts).
+ * @param {Object} categories
+ * @param {Array} testedRedirects
+ */
+async function runSlackDraftFlow(categories, testedRedirects = []) {
+  const broken = getSlackDraftCandidates(categories, testedRedirects);
+
+  console.log('\nBroken links (4xx, false positives excluded):');
+  if (broken.length === 0) {
+    console.log('  None');
+    return;
+  }
+
+  broken.forEach((item, index) => {
+    console.log(`  [${index + 1}] ${item.status}  ${item.url}`);
+  });
+  console.log('');
+
+  const selected = await promptSlackSelection(broken.length);
+  if (selected.length === 0) {
+    return;
+  }
+
+  const contacts = getDownloadContacts();
+  selected.forEach((index) => {
+    const item = broken[index];
+    printSlackDraft(index + 1, item, findContactForUrl(item.url, contacts));
+  });
 }
 
 // ======================================================================
@@ -1144,6 +1370,11 @@ async function main() {
 
   // Gather redirect URLs for testing
   const redirectItems = await testRedirectUrls(statusByUrl);
+
+  if (slackMode) {
+    await runSlackDraftFlow(categorizeResults(statusByUrl), redirectItems);
+    return;
+  }
 
   // Display the results
   displayResults(statusByUrl, redirectItems, verboseMode, redirectsMode);

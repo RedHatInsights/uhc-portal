@@ -25,9 +25,13 @@ describe('useFetchSubscriptionIdForCluster', () => {
     });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/accounts_mgmt/v1/subscriptions');
-    expect(apiRequestMock.get.mock.calls[0][1]?.params.search).toEqual(
-      "external_cluster_id='c70eddae-f76c-4a27-9f08-07eb6d4de45d'",
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      '/api/accounts_mgmt/v1/subscriptions',
+      expect.objectContaining({
+        params: expect.objectContaining({
+          search: "external_cluster_id='c70eddae-f76c-4a27-9f08-07eb6d4de45d'",
+        }),
+      }),
     );
 
     expect(result.current.subscriptionID).toEqual('mySubscriptionId');
@@ -45,8 +49,12 @@ describe('useFetchSubscriptionIdForCluster', () => {
       expect(result.current.isFetched).toBeTruthy();
     });
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/accounts_mgmt/v1/subscriptions');
-    expect(apiRequestMock.get.mock.calls[0][1]?.params.search).toEqual("cluster_id='myClusterId'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      '/api/accounts_mgmt/v1/subscriptions',
+      expect.objectContaining({
+        params: expect.objectContaining({ search: "cluster_id='myClusterId'" }),
+      }),
+    );
 
     expect(result.current.subscriptionID).toEqual('mySubscriptionId');
   });
@@ -66,8 +74,12 @@ describe('useFetchSubscriptionIdForCluster', () => {
       expect(result.current.isFetched).toBeTruthy();
     });
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/accounts_mgmt/v1/subscriptions');
-    expect(apiRequestMock.get.mock.calls[0][1]?.params.search).toEqual("cluster_id='myClusterId'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      '/api/accounts_mgmt/v1/subscriptions',
+      expect.objectContaining({
+        params: expect.objectContaining({ search: "cluster_id='myClusterId'" }),
+      }),
+    );
 
     expect(result.current.isError).toBeTruthy();
     expect(result.current.isFetched).toBeTruthy();
@@ -85,8 +97,12 @@ describe('useFetchSubscriptionIdForCluster', () => {
       expect(result.current.isFetched).toBeTruthy();
     });
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/accounts_mgmt/v1/subscriptions');
-    expect(apiRequestMock.get.mock.calls[0][1]?.params.search).toEqual("cluster_id='myClusterId'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      '/api/accounts_mgmt/v1/subscriptions',
+      expect.objectContaining({
+        params: expect.objectContaining({ search: "cluster_id='myClusterId'" }),
+      }),
+    );
 
     expect(result.current.subscriptionID).toBeUndefined();
   });

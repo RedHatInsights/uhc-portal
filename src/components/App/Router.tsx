@@ -14,13 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
+import { scrollAppToTop } from '~/common/helpers';
 import {
   CLUSTER_LIST_PATH,
   Navigate,
@@ -107,6 +108,10 @@ const Router: React.FC<RouterProps> = ({ planType, clusterId, externalClusterId 
       ...(is404() ? { title: '404 Not Found' } : {}),
     });
   }, [pathname, planType, clusterId, externalClusterId, setPageMetadata]);
+
+  useLayoutEffect(() => {
+    scrollAppToTop();
+  }, [pathname]);
 
   return (
     <ApiError apiRequest={apiRequest}>

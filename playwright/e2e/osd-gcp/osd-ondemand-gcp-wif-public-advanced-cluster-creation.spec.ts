@@ -8,10 +8,15 @@ const clusterDomainPrefix = `osd${userSuffix}`;
 
 const QE_GCP_WIF_CONFIG = process.env.QE_GCP_WIF_CONFIG || '';
 const QE_INFRA_GCP = JSON.parse(process.env.QE_INFRA_GCP || '{}');
+const QE_GCP_KEY_RING_LOCATION = process.env.QE_GCP_KEY_RING_LOCATION || '';
+const QE_GCP_KEY_RING = process.env.QE_GCP_KEY_RING || '';
+const QE_GCP_KEY_NAME = process.env.QE_GCP_KEY_NAME || '';
+const QE_GCP_KMS_SERVICE_ACCOUNT = process.env.QE_GCP_KMS_SERVICE_ACCOUNT || '';
+const FIREWALL_RULES_NAME = QE_INFRA_GCP['FIREWALL_RULES_NAME'] || '';
 
 test.describe.serial(
   'OSD On-Demand GCP WIF public advanced cluster creation',
-  { tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced'] },
+  { tag: ['@day1', '@osd', '@gcp', '@wif', '@ondemand', '@public', '@advanced', '@firewall'] },
   () => {
     test.beforeAll(async ({ navigateTo }) => {
       if (!QE_GCP_WIF_CONFIG?.trim()) {
@@ -25,6 +30,21 @@ test.describe.serial(
       ) {
         throw new Error(
           'QE_INFRA_GCP must include top-level REGION, VPC_NAME, CONTROLPLANE_SUBNET, and COMPUTE_SUBNET',
+        );
+      }
+      if (
+        !QE_GCP_KEY_RING_LOCATION ||
+        !QE_GCP_KEY_RING ||
+        !QE_GCP_KEY_NAME ||
+        !QE_GCP_KMS_SERVICE_ACCOUNT
+      ) {
+        throw new Error(
+          'QE_GCP_KEY_RING_LOCATION, QE_GCP_KEY_RING, QE_GCP_KEY_NAME, and QE_GCP_KMS_SERVICE_ACCOUNT must be set in playwright.env.json',
+        );
+      }
+      if (!FIREWALL_RULES_NAME?.trim()) {
+        throw new Error(
+          'QE_INFRA_GCP.FIREWALL_RULES_NAME must be set for public BYO firewall coverage',
         );
       }
       await navigateTo('create');
@@ -73,6 +93,17 @@ test.describe.serial(
       await createOSDWizardPage.selectRegion(QE_INFRA_GCP.REGION);
       await createOSDWizardPage.enableSecureBootSupportForSchieldedVMs(true);
       await expect(createOSDWizardPage.enableUserWorkloadMonitoringCheckbox()).toBeChecked();
+      await createOSDWizardPage.advancedEncryptionLink().click();
+      await createOSDWizardPage.configureCustomGcpKmsKey({
+        keyRingLocation: QE_GCP_KEY_RING_LOCATION,
+        keyRing: QE_GCP_KEY_RING,
+        keyName: QE_GCP_KEY_NAME,
+        kmsServiceAccount: QE_GCP_KMS_SERVICE_ACCOUNT,
+      });
+      await expect(createOSDWizardPage.useCustomKMSKeyRadio()).toBeChecked();
+      await expect(createOSDWizardPage.kmsServiceAccountInput()).toHaveValue(
+        QE_GCP_KMS_SERVICE_ACCOUNT,
+      );
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -163,6 +194,25 @@ test.describe.serial(
       await createOSDWizardPage.selectGcpVPC(QE_INFRA_GCP.VPC_NAME);
       await createOSDWizardPage.selectControlPlaneSubnetName(QE_INFRA_GCP.CONTROLPLANE_SUBNET);
       await createOSDWizardPage.selectComputeSubnetName(QE_INFRA_GCP.COMPUTE_SUBNET);
+
+      // BYO firewall rules (ROSAENG-72666). Requires OpenShift >= 4.21 and a
+      // pre-created rule matching this WIF / QE_INFRA_GCP.VPC_NAME / public profile.
+      await createOSDWizardPage.createFirewallRulesToggle().click();
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /ocm gcp create firewall-rules/,
+      );
+      // CLI emits WIF config id (not display name / QE_GCP_WIF_CONFIG).
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        /--wif-config=[^\s<]+/,
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).toHaveValue(
+        new RegExp(`--vpc-name=${QE_INFRA_GCP.VPC_NAME}`),
+      );
+      await expect(createOSDWizardPage.createFirewallRulesCommand()).not.toHaveValue(
+        /--profile=private/,
+      );
+      await createOSDWizardPage.selectFirewallRules(FIREWALL_RULES_NAME);
+
       await createOSDWizardPage.wizardNextButton().click();
     });
 
@@ -251,6 +301,7 @@ test.describe.serial(
       await expect(createOSDWizardPage.installIntoExistingVpcValue()).toContainText(
         clusterProperties.InstallIntoExistingVPC,
       );
+      await expect(createOSDWizardPage.firewallRulesValue()).toHaveText(FIREWALL_RULES_NAME);
       await expect(createOSDWizardPage.vpcSubnetSettingsValue()).toContainText(
         QE_INFRA_GCP.VPC_NAME,
       );

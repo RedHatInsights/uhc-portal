@@ -17,7 +17,7 @@ const useDemoExperiencePolling = (): {
   restartPolling: (demoExperience: AugmentedDemoExperience) => void;
 } => {
   const [demoExperience, setDemoExperience] = React.useState<AugmentedDemoExperience>({
-    quota: {},
+    quota: { current: 0, limit: 0 },
   } as AugmentedDemoExperience);
   const [initializing, setInitializing] = React.useState<boolean>(false);
   const [initializeError, setInitializeError] = React.useState<unknown>();

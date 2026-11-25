@@ -1,15 +1,21 @@
-import { hasCapability, subscriptionCapabilities } from '~/common/subscriptionCapabilities';
-import { GlobalState } from '~/redux/stateTypes';
+import {
+  clusterCapabilities,
+  hasCapabilityValue,
+  hasSubscribedOcpMarketplaceCapability,
+} from '~/common/capabilities';
 import { Subscription } from '~/types/accounts_mgmt.v1';
 
 import { canSubscribeOCPMultiRegion, canSubscribeOCPSelector } from '../canSubscribeOCPSelector';
 
-jest.mock('~/common/subscriptionCapabilities');
+jest.mock('~/common/capabilities');
 
-const hasCapabilityMock = hasCapability as jest.Mock;
+const hasCapabilityValueMock = hasCapabilityValue as jest.Mock;
+const hasSubscribedOcpMarketplaceCapabilityMock =
+  hasSubscribedOcpMarketplaceCapability as jest.Mock;
 
 describe('canSubscribeOCPSelector', () => {
   afterEach(() => jest.clearAllMocks());
+
   describe.each([
     [
       'canSubscribeOCPSelector method',
@@ -24,76 +30,37 @@ describe('canSubscribeOCPSelector', () => {
       canSubscribeOCPMultiRegion,
     ],
   ])('%s', (_title: string, argument1: any, methodToExecute: (param: any) => boolean) => {
-    it.each([
-      ['without subscription', false, false, {}, { result: false, times: 2 }],
-      [
-        'with subscription',
-        false,
-        false,
-        argument1,
-        {
-          result: false,
-          times: 2,
-          firstHasCapabilityName: 'whatever',
-          secondHasCapabilityName: 'whatever',
-        },
-      ],
-      [
-        'has SUBSCRIBED_OCP',
-        true,
+    it('returns false and also checks the marketplace capability when the standard capability is false', () => {
+      hasCapabilityValueMock.mockReturnValue(false);
+      hasSubscribedOcpMarketplaceCapabilityMock.mockReturnValue(false);
+
+      const result = methodToExecute(argument1);
+
+      expect(result).toBe(false);
+      expect(hasCapabilityValueMock).toHaveBeenCalledWith(
         undefined,
-        {},
-        { result: true, times: 1, secondHasCapabilityName: null },
-      ],
-      [
-        'has SUBSCRIBED_OCP_MARKETPLACE but SUBSCRIBED_OCP',
-        false,
-        true,
-        {},
-        { result: true, times: 2 },
-      ],
-    ])(
-      '%s',
-      (
-        _title: string,
-        firstHasCapabilityReturn: boolean,
-        secondHasCapabilityReturn: boolean | undefined,
-        canSubscribeOCPSelectorResult: any,
-        expected: {
-          result: boolean;
-          times: number;
-          firstHasCapabilityName?: any;
-          secondHasCapabilityName?: any;
-        },
-      ) => {
-        // Arrange
-        hasCapabilityMock.mockReturnValueOnce(firstHasCapabilityReturn);
-        if (secondHasCapabilityReturn !== undefined) {
-          hasCapabilityMock.mockReturnValueOnce(secondHasCapabilityReturn);
-        }
+        clusterCapabilities.SUBSCRIBED_OCP,
+      );
+      expect(hasSubscribedOcpMarketplaceCapabilityMock).toHaveBeenCalledTimes(1);
+    });
 
-        // Act
-        const result = methodToExecute(canSubscribeOCPSelectorResult as GlobalState);
+    it('returns true from the standard OCP capability without checking the marketplace capability', () => {
+      hasCapabilityValueMock.mockReturnValue(true);
 
-        // Assert
-        expect(result).toBe(expected.result);
-        expect(hasCapabilityMock).toHaveBeenCalledTimes(expected.times);
-        expect(hasCapabilityMock).toHaveBeenCalledWith(
-          expected.firstHasCapabilityName,
-          subscriptionCapabilities.SUBSCRIBED_OCP,
-        );
-        if (expected.secondHasCapabilityName !== null) {
-          expect(hasCapabilityMock).toHaveBeenCalledWith(
-            expected.secondHasCapabilityName,
-            subscriptionCapabilities.SUBSCRIBED_OCP_MARKETPLACE,
-          );
-        } else {
-          expect(hasCapabilityMock).not.toHaveBeenCalledWith(
-            expect.anything(),
-            subscriptionCapabilities.SUBSCRIBED_OCP_MARKETPLACE,
-          );
-        }
-      },
-    );
+      const result = methodToExecute(argument1);
+
+      expect(result).toBe(true);
+      expect(hasSubscribedOcpMarketplaceCapabilityMock).not.toHaveBeenCalled();
+    });
+
+    it('returns true from the marketplace capability when the standard capability is false', () => {
+      hasCapabilityValueMock.mockReturnValue(false);
+      hasSubscribedOcpMarketplaceCapabilityMock.mockReturnValue(true);
+
+      const result = methodToExecute(argument1);
+
+      expect(result).toBe(true);
+      expect(hasSubscribedOcpMarketplaceCapabilityMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

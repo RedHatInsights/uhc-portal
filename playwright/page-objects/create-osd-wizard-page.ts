@@ -1,5 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
+import { DEFAULT_ACTION_TIMEOUT } from '../support/playwright-constants';
+
 import { BaseWizardPage } from './base-wizard-page';
 
 /**
@@ -263,8 +265,13 @@ export class CreateOSDWizardPage extends BaseWizardPage {
     await this.page.locator('button[id="gcp_wif_config"]').click();
     await this.page.locator('input[placeholder="Filter by name / ID"]').clear();
     await this.page.locator('input[placeholder="Filter by name / ID"]').fill(wifConfig);
-    await this.page.getByText(wifConfig).scrollIntoViewIfNeeded();
-    await this.page.getByText(wifConfig).click();
+    const escapedName = this.escapeRegExp(wifConfig);
+    // Option labels are `${name}` or `${name} ${id}` — avoid prefixes like zac-wif-1-private.
+    const options = this.page.getByRole('option', {
+      name: new RegExp(`^${escapedName}(\\s|$)`),
+    });
+    await expect(options).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
+    await options.first().click();
   }
 
   // AWS credentials
@@ -342,7 +349,11 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   dnsZoneDropdown(): Locator {
-    return this.page.getByRole('button', { name: 'Options menu' });
+    // FuzzySelect toggles share aria-label "Options menu". The firewall dropdown on
+    // this step is a second match, so target the DNS zone placeholder text.
+    return this.page
+      .getByRole('button', { name: 'Options menu' })
+      .filter({ hasText: 'Select a DNS Zone' });
   }
 
   dnsZoneFilterInput(): Locator {
@@ -350,7 +361,9 @@ export class CreateOSDWizardPage extends BaseWizardPage {
   }
 
   async selectDnsZone(dnsZone: string, partialMatch: boolean = false): Promise<void> {
-    await this.dnsZoneDropdown().click();
+    const dnsZoneDropdown = this.dnsZoneDropdown();
+    await expect(dnsZoneDropdown).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
+    await dnsZoneDropdown.click();
     await this.dnsZoneFilterInput().clear();
     await this.dnsZoneFilterInput().fill(dnsZone);
     const escapedDnsZone = this.escapeRegExp(dnsZone);
@@ -358,6 +371,51 @@ export class CreateOSDWizardPage extends BaseWizardPage {
       ? this.page.getByRole('option').filter({ hasText: new RegExp(`^${escapedDnsZone}`) })
       : this.page.getByRole('option', { name: dnsZone });
     await expect(options).toHaveCount(1);
+    await options.first().click();
+  }
+
+  createFirewallRulesToggle(): Locator {
+    return this.page.getByRole('button', { name: 'Create firewall rules' });
+  }
+
+  createFirewallRulesCommand(): Locator {
+    return this.page.getByLabel('Copyable create firewall rules command');
+  }
+
+  firewallRulesDropdown(): Locator {
+    // FuzzySelect toggles share aria-label "Options menu". The DNS zone dropdown on
+    // this step is another match, so target the firewall rules placeholder text.
+    return this.page.getByRole('button', { name: 'Options menu' }).filter({
+      hasText:
+        /Select firewall rules|Loading\.\.\.|No firewall rules found|Error loading firewall rules/,
+    });
+  }
+
+  firewallRulesFilterInput(): Locator {
+    return this.page.getByLabel('Filter by firewall rule name');
+  }
+
+  async selectFirewallRules(firewallRulesName: string): Promise<void> {
+    const firewallRulesDropdown = this.firewallRulesDropdown();
+    await expect(firewallRulesDropdown).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
+
+    // Fail fast when the filtered list is empty/error instead of timing out on enabled.
+    await expect
+      .poll(async () => (await firewallRulesDropdown.innerText()).trim(), {
+        timeout: DEFAULT_ACTION_TIMEOUT,
+      })
+      .not.toMatch(/^(No firewall rules found|Error loading firewall rules|Loading\.\.\.)$/);
+
+    await expect(firewallRulesDropdown).toBeEnabled({ timeout: DEFAULT_ACTION_TIMEOUT });
+    await firewallRulesDropdown.click();
+    await this.firewallRulesFilterInput().clear();
+    await this.firewallRulesFilterInput().fill(firewallRulesName);
+    const escapedName = this.escapeRegExp(firewallRulesName);
+    // Option labels are `${name} (${project} / ${vpc})` — match the full name before " (".
+    const options = this.page
+      .getByRole('option')
+      .filter({ hasText: new RegExp(`^${escapedName} \\(`) });
+    await expect(options).toHaveCount(1, { timeout: DEFAULT_ACTION_TIMEOUT });
     await options.first().click();
   }
 
@@ -510,6 +568,10 @@ export class CreateOSDWizardPage extends BaseWizardPage {
 
   dnsZoneValue(): Locator {
     return this.page.getByTestId('DNS-zone').locator('div');
+  }
+
+  firewallRulesValue(): Locator {
+    return this.page.getByTestId('Firewall-rules').locator('div');
   }
 
   vpcSubnetSettingsValue(): Locator {

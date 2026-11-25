@@ -8,8 +8,6 @@ import clusterService from './clusterService';
 type MockedJest = jest.Mocked<typeof axios> & jest.Mock;
 const apiRequestMock = apiRequest as unknown as MockedJest;
 
-const getApiGetParams = () => apiRequestMock.get.mock.calls[0][1]?.params;
-
 describe('clusterService', () => {
   beforeEach(() => {
     apiRequestMock.get.mockResolvedValue({ versions: ['a list of versions'] });
@@ -23,7 +21,10 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isRosa: true, isHCP });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().product).toEqual('hcp');
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ params: expect.objectContaining({ product: 'hcp' }) }),
+    );
   });
 
   it('call to get versions includes rosa_enabled if isRosa is true', async () => {
@@ -31,7 +32,12 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isRosa });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().search).toContain("rosa_enabled='t'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.objectContaining({ search: expect.stringContaining("rosa_enabled='t'") }),
+      }),
+    );
   });
 
   it('call to get versions does not includes rosa_enabled if isRosa is false', async () => {
@@ -39,7 +45,12 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isRosa });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().search).not.toContain("rosa_enabled='t'");
+    expect(apiRequestMock.get).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.objectContaining({ search: expect.stringContaining("rosa_enabled='t'") }),
+      }),
+    );
   });
 
   it('call to get versions includes gcp_marketplace_enabled if isGCP is true', async () => {
@@ -47,7 +58,14 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isMarketplaceGcp });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().search).toContain("gcp_marketplace_enabled='t'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.objectContaining({
+          search: expect.stringContaining("gcp_marketplace_enabled='t'"),
+        }),
+      }),
+    );
   });
 
   it('call to get versions does not includes gcp_marketplace_enabled if isGCP is false', async () => {
@@ -55,7 +73,14 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isMarketplaceGcp });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().search).not.toContain("gcp_marketplace_enabled='t'");
+    expect(apiRequestMock.get).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.objectContaining({
+          search: expect.stringContaining("gcp_marketplace_enabled='t'"),
+        }),
+      }),
+    );
   });
 
   it.each([
@@ -65,7 +90,21 @@ describe('clusterService', () => {
     await clusterService.getInstallableVersions({ isWIF });
 
     expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-    expect(getApiGetParams().search.includes("wif_enabled='t'")).toBe(isWIF);
+    if (isWIF) {
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ search: expect.stringContaining("wif_enabled='t'") }),
+        }),
+      );
+    } else {
+      expect(apiRequestMock.get).not.toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ search: expect.stringContaining("wif_enabled='t'") }),
+        }),
+      );
+    }
   });
 
   it('call to get GCP WIF config contains a WIF Id path param', async () => {
@@ -136,7 +175,12 @@ describe('clusterService', () => {
     expect(mockGetCallParams[0]).toEqual(
       '/api/clusters_mgmt/v1/clusters/myClusterId/addon_inquiries',
     );
-    expect(getApiGetParams().search).toContain("enabled='t'");
+    expect(apiRequestMock.get).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        params: expect.objectContaining({ search: expect.stringContaining("enabled='t'") }),
+      }),
+    );
   });
   describe('External Authentication', () => {
     it('call to get an external authentication prodiver detail', async () => {
@@ -306,26 +350,49 @@ describe('clusterService', () => {
       await clusterService.getGcpDnsDomains();
 
       expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-      expect(apiRequestMock.get.mock.calls[0][0]).toEqual('/api/clusters_mgmt/v1/dns_domains');
-      expect(getApiGetParams()).toEqual({
-        search: "cloud_provider='gcp' AND cluster.id=''",
-        size: -1,
+      expect(apiRequestMock.get).toHaveBeenCalledWith('/api/clusters_mgmt/v1/dns_domains', {
+        params: { search: "cloud_provider='gcp' AND cluster.id=''", size: -1 },
       });
     });
 
     it('searches for unattached GCP dns domains when options omit id', async () => {
       await clusterService.getGcpDnsDomains({});
 
-      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND cluster.id=''");
-      expect(getApiGetParams().search).not.toMatch(/(^|AND )id=/);
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ search: "cloud_provider='gcp' AND cluster.id=''" }),
+        }),
+      );
+      expect(apiRequestMock.get).not.toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ search: expect.stringMatching(/(^|AND )id=/) }),
+        }),
+      );
     });
 
     it('searches by id without filtering out attached domains', async () => {
       await clusterService.getGcpDnsDomains({ id: 'abc123.s1.devshift.org' });
 
-      expect(getApiGetParams().search).toBe("cloud_provider='gcp' AND id='abc123.s1.devshift.org'");
-      expect(getApiGetParams().search).not.toContain("cluster.id=''");
-      expect(getApiGetParams().size).toBe(-1);
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({
+            search: "cloud_provider='gcp' AND id='abc123.s1.devshift.org'",
+          }),
+        }),
+      );
+      expect(apiRequestMock.get).not.toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ search: expect.stringContaining("cluster.id=''") }),
+        }),
+      );
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ params: expect.objectContaining({ size: -1 }) }),
+      );
     });
   });
 
@@ -334,23 +401,19 @@ describe('clusterService', () => {
       await clusterService.getGcpFirewallRules();
 
       expect(apiRequestMock.get).toHaveBeenCalledTimes(1);
-      expect(apiRequestMock.get.mock.calls[0][0]).toEqual(
-        '/api/clusters_mgmt/v1/gcp/firewall_rules',
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ params: { unused: true, size: -1 } }),
       );
-      expect(getApiGetParams()).toEqual({
-        unused: true,
-        size: -1,
-      });
     });
 
     it('includes profile as a query param when provided', async () => {
       await clusterService.getGcpFirewallRules({ profile: 'private' });
 
-      expect(getApiGetParams()).toEqual({
-        unused: true,
-        profile: 'private',
-        size: -1,
-      });
+      expect(apiRequestMock.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ params: { unused: true, profile: 'private', size: -1 } }),
+      );
     });
 
     it('retrieves a firewall rule by id', async () => {

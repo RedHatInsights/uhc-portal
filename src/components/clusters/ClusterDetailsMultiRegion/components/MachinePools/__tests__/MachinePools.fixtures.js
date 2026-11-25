@@ -1,4 +1,4 @@
-import { subscriptionCapabilities } from '~/common/subscriptionCapabilities';
+import { clusterCapabilities, organizationCapabilities } from '~/common/capabilities';
 import { defaultClusterFromSubscription } from '~/components/clusters/common/__tests__/defaultClusterFromSubscription.fixtures';
 import { baseRequestState } from '~/redux/reduxHelpers';
 
@@ -64,12 +64,12 @@ const baseState = {
           console_url: 'https://console-openshift-console.apps.test-liza.uhqs.s1.devshift.org',
           capabilities: [
             {
-              name: subscriptionCapabilities.SUBSCRIBED_OCP,
+              name: clusterCapabilities.SUBSCRIBED_OCP,
               value: 'true',
               inherited: true,
             },
             {
-              name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
+              name: clusterCapabilities.MANAGE_CLUSTER_ADMIN,
               value: 'true',
               inherited: true,
             },
@@ -426,32 +426,17 @@ const baseState = {
         updated_at: '2021-01-20T11:16:15.568987Z',
         capabilities: [
           {
-            name: subscriptionCapabilities.HIBERNATE_CLUSTER,
+            name: organizationCapabilities.HIBERNATE_CLUSTER,
             value: 'true',
             inherited: false,
           },
           {
-            name: subscriptionCapabilities.MANAGE_CLUSTER_ADMIN,
+            name: clusterCapabilities.MANAGE_CLUSTER_ADMIN,
             value: 'true',
             inherited: false,
           },
           {
-            name: subscriptionCapabilities.ALLOW_ETCD_ENCRYPTION,
-            value: 'true',
-            inherited: false,
-          },
-          {
-            name: subscriptionCapabilities.ENABLE_TERMS_ENFORCEMENT,
-            value: 'true',
-            inherited: false,
-          },
-          {
-            name: subscriptionCapabilities.CREATE_MOA_CLUSTERS,
-            value: 'true',
-            inherited: false,
-          },
-          {
-            name: subscriptionCapabilities.SUBSCRIBED_OCP,
+            name: clusterCapabilities.SUBSCRIBED_OCP,
             value: 'true',
             inherited: false,
           },

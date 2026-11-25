@@ -445,7 +445,7 @@ export class ClusterIdentityProviderPage extends BasePage {
   }
 
   async scrollToBottom(): Promise<void> {
-    await this.page.getByTestId('appDrawerContent').evaluate((el) => {
+    await this.page.getByRole('main').evaluate((el) => {
       el.scrollTop = el.scrollHeight;
     });
   }

@@ -1,0 +1,64 @@
+{
+  "expected": {
+    "customerSuccessMailto": "mailto:openshift-rosa@redhat.com",
+    "slackChannel": "https://red.ht/rosa-slack",
+    "learnMoreAboutRosa": "https://www.redhat.com/en/technologies/cloud-computing/openshift/aws",
+    "getStartedPath": "/create/rosa/getstarted",
+    "statusAlertTestId": "rosa-hands-on-status-alert",
+    "unauthorizedReason": "unauthorized",
+    "recommendedContent": [
+      {
+        "title": "Red Hat OpenShift Service on AWS learning hub",
+        "label": "Documentation",
+        "href": "https://www.redhat.com/en/technologies/cloud-computing/openshift/aws/learn"
+      },
+      {
+        "title": "Red Hat OpenShift Service on AWS (ROSA) interactive walkthrough",
+        "label": "Walkthrough",
+        "href": "https://www.redhat.com/en/products/interactive-walkthrough/install-rosa"
+      },
+      {
+        "title": "Watch our Red Hat OpenShift Service on AWS video series",
+        "label": "Video",
+        "href": "https://www.redhat.com/en/about/videos/rosa-lightboard"
+      }
+    ]
+  },
+  "demoExperience": {
+    "availableUnused": {
+      "status": "available",
+      "quota": { "current": 0, "limit": 3 }
+    },
+    "availableRemaining": {
+      "status": "available",
+      "quota": { "current": 1, "limit": 3 }
+    },
+    "unavailable": {
+      "status": "unavailable",
+      "quota": { "current": 0, "limit": 3 }
+    },
+    "unauthorized": {
+      "status": "unavailable",
+      "unavailable_reason": "unauthorized",
+      "quota": { "current": 0, "limit": 3 }
+    },
+    "quotaExceeded": {
+      "status": "unavailable",
+      "quota": { "current": 3, "limit": 3 }
+    },
+    "failed": {
+      "status": "failed",
+      "quota": { "current": 1, "limit": 3 }
+    },
+    "started": {
+      "status": "started",
+      "quota": { "current": 1, "limit": 3 },
+      "experience_url": "https://example.com/rosa-hands-on",
+      "scheduled_delete_timestamp": "2099-01-01T00:00:00.000Z"
+    },
+    "deploying": {
+      "status": "deploying",
+      "quota": { "current": 1, "limit": 3 }
+    }
+  }
+}
