@@ -26,7 +26,7 @@ test.describe.serial(
     const clusterNamePrefix = clusterProperties.ClusterName;
     const userSuffix = getUsernameSuffix();
     const clusterName = `${clusterNamePrefix}-${userSuffix}`;
-    const clusterDomainPrefix = `rosa${userSuffix}`;
+    const clusterDomainPrefix = `rosapub${userSuffix}`;
     const oidcConfigId = process.env.QE_OIDC_CONFIG_ID ?? clusterProperties.OidcConfigId;
     const logForwardingS3BucketName = process.env.QE_LOG_FORWARDING_S3_BUCKET_NAME || '';
     const logForwardingS3BucketPrefix = process.env.QE_LOG_FORWARDING_S3_BUCKET_PREFIX || '';

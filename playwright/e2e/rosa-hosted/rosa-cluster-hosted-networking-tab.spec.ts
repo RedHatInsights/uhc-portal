@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
@@ -19,8 +19,7 @@ test.describe.serial(
   'ROSA HCP Day2 - Networking tab',
   { tag: ['@day2', '@rosa-hosted', '@rosa', '@hcp', '@networking', '@advanced', '@public'] },
   () => {
-    const clusterName =
-      process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
+    const clusterName = resolveClusterName(day1Profile.ClusterName);
     let domainPrefix = '';
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {

@@ -53,3 +53,12 @@ export function getUsernameSuffix(username?: string, length = 4): string {
 
   return suffix;
 }
+
+/**
+ * Name used to find a cluster created on Day 1.
+ * CLUSTER_NAME overrides the derived name. Otherwise the fixture base name is
+ * combined with the username suffix, matching Day 1 creation.
+ */
+export function resolveClusterName(fixtureClusterName: string): string {
+  return process.env.CLUSTER_NAME || `${fixtureClusterName}-${getUsernameSuffix()}`;
+}

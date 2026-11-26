@@ -1,13 +1,12 @@
 import clustersValidation from '../../fixtures/osd-gcp/osd-ccs-gcp-wizard-validation.spec.json';
 import clusterProperties from '../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json';
 import { test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 // Day-1 cluster created by osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.ts.
 /** Mirrors the Day-1 spec's name derivation; override via CLUSTER_NAME if needed. */
-const clusterName =
-  process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(clusterProperties.ClusterName);
 const ingressValidation =
   clustersValidation.ClustersValidation.Networking.Configuration.Common.IngressSettings
     .CustomSettings;

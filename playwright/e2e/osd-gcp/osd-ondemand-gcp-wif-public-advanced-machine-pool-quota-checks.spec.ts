@@ -1,12 +1,12 @@
 import { MAX_NODES } from '../../../src/components/clusters/common/machinePools/constants';
 import { expect, test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { getUsernameSuffix, resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE, DEFAULT_NAVIGATION_TIMEOUT } from '../../support/playwright-constants';
 import { clearQuotaCostMock, mockEmptyQuotaCost } from '../../support/quota-mock-helper';
 
 const day1Profile = require('../../fixtures/osd-gcp/osd-ondemand-gcp-wif-public-advanced-cluster-creation.spec.json');
 
-const clusterName = process.env.CLUSTER_NAME || `${day1Profile.ClusterName}-${getUsernameSuffix()}`;
+const clusterName = resolveClusterName(day1Profile.ClusterName);
 
 let newMachinePoolId: string;
 

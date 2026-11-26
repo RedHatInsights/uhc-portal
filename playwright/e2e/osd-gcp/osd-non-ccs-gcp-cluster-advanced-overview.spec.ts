@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { getUsernameSuffix, resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 /**
@@ -12,7 +12,7 @@ const clusterProperties = clusterProfile.day1Profile;
 const scaleClusterProperties = clusterProfile.day2Profile.ScaleCluster;
 
 const userSuffix = getUsernameSuffix();
-const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${userSuffix}`;
+const clusterName = resolveClusterName(clusterProperties.ClusterName);
 const clusterDomainPrefix = `${clusterProperties.DomainPrefix}${userSuffix}`;
 
 test.describe.serial(

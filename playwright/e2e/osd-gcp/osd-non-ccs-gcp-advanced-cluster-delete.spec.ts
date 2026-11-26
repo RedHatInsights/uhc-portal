@@ -1,12 +1,11 @@
 import { test } from '../../fixtures/pages';
-import { getUsernameSuffix } from '../../support/auth-config';
+import { resolveClusterName } from '../../support/auth-config';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterDetails = require('../../fixtures/osd-gcp/osd-non-ccs-gcp-advanced-cluster-creation.spec.json');
 const clusterProperties = clusterDetails['osd-nonccs-gcp-advanced'].day1Profile;
 
-const userSuffix = getUsernameSuffix();
-const clusterName = process.env.CLUSTER_NAME || `${clusterProperties.ClusterName}-${userSuffix}`;
+const clusterName = resolveClusterName(clusterProperties.ClusterName);
 
 test.describe.serial(
   'OSD non-CCS GCP multi-zone cluster delete',

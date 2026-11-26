@@ -3,6 +3,7 @@
 # AWS VPC Infrastructure Setup Script
 # Creates: VPC, 2-3 public subnets, 2-3 private subnets (based on available AZs), configurable security groups (no rules),
 #          SQS queue (EventBridge-wired), an S3 bucket + prefix for ROSA log forwarding,
+#          a targeted EC2 capacity reservation for the ROSA HCP machine-pool CR spec,
 #          and (only when --central-log-role-arn is set) an IAM role for CloudWatch log forwarding.
 #          When --oidc-config-issuer-url is set, also creates two AutoNode IAM roles.
 # Requires: At least 2 availability zones in the target region
@@ -29,6 +30,10 @@ S3_BUCKET_NAME="${S3_BUCKET_NAME:-}"
 S3_BUCKET_ARG_SET=0
 S3_BUCKET_PREFIX="${S3_BUCKET_PREFIX:-logs}"  # Folder / key prefix inside the S3 bucket
 SKIP_S3_BUCKET="${SKIP_S3_BUCKET:-false}"  # Set to true to skip S3 bucket creation
+# Targeted EC2 capacity reservation helpers. CLI flags override the defaults
+# defined in manage-capacity-reservations.sh.
+# shellcheck source=manage-capacity-reservations.sh
+source "$SCRIPT_DIR/manage-capacity-reservations.sh"
 # CLI flag overrides this. When both the flag and the env var are empty, CloudWatch is skipped.
 ENV_CENTRAL_LOG_ROLE_ARN="${CENTRAL_LOG_ROLE_ARN:-}"
 CENTRAL_LOG_ROLE_ARN=""
@@ -1304,6 +1309,13 @@ validate_resources() {
         fi
     fi
 
+    if [ "$SKIP_CAPACITY_RESERVATION" != "true" ]; then
+        if ! check_capacity_reservation_exists; then
+            print_error "Capacity reservation validation failed"
+            validation_failed=true
+        fi
+    fi
+
     # Validate CloudWatch role only when a central log role ARN was passed
     if cloudwatch_role_requested; then
         if ! check_cloudwatch_role_exists; then
@@ -1381,11 +1393,21 @@ output_summary() {
               "PRIVATE_SUBNET_ID": "'$private_subnet_id'"
             }'
     done
-    
+
+    local cr_json=""
+    if [ -n "${CAPACITY_RESERVATION_ID:-}" ]; then
+        cr_json='"CAPACITY_RESERVATION": {
+          "AvailabilityZone": "'"$CAPACITY_RESERVATION_AZ"'",
+          "InstanceType": "'"${CAPACITY_RESERVATION_INSTANCE_TYPE:-$CR_INSTANCE_TYPE}"'",
+          "ID": "'"$CAPACITY_RESERVATION_ID"'"
+        },'
+    fi
+
     # Create the new VPC infrastructure JSON structure
     NEW_VPC_DATA='{
         "VPC-ID": "'$VPC_ID'",
         "VPC_NAME": "'$VPC_NAME'",
+        '$cr_json'
         "SECURITY_GROUPS": [
           '$SG_IDS_JSON'
         ],
@@ -1501,6 +1523,11 @@ main() {
     else
         print_status "AutoNode roles: skipped (no OIDC issuer URL)"
     fi
+    if [ "$SKIP_CAPACITY_RESERVATION" != "true" ]; then
+        print_status "Capacity reservation: $CR_INSTANCE_COUNT x $CR_INSTANCE_TYPE (targeted)"
+    else
+        print_status "Capacity reservation: skipped"
+    fi
     
     check_aws_cli
     check_aws_credentials
@@ -1545,6 +1572,12 @@ main() {
         create_autonode_roles
     else
         print_status "Skipping AutoNode role creation (no OIDC issuer URL)"
+    fi
+
+    if [ "$SKIP_CAPACITY_RESERVATION" != "true" ]; then
+        create_capacity_reservation
+    else
+        print_status "Skipping capacity reservation creation (--skip-capacity-reservation)"
     fi
     
     # Validate all resources exist
@@ -1596,6 +1629,9 @@ confirm_cleanup() {
     fi
     if [ "$SKIP_S3_BUCKET" != "true" ]; then
         print_status "  - S3 bucket: $S3_BUCKET_NAME (including all objects)"
+    fi
+    if [ "$SKIP_CAPACITY_RESERVATION" != "true" ]; then
+        print_status "  - Capacity reservation: $(capacity_reservation_name)"
     fi
     if cloudwatch_role_requested; then
         print_status "  - CloudWatch IAM role: $CLOUDWATCH_ROLE_NAME"
@@ -1934,6 +1970,10 @@ cleanup_infrastructure() {
     else
         print_status "Skipping AutoNode role cleanup (no OIDC issuer URL)"
     fi
+
+    if [ "$SKIP_CAPACITY_RESERVATION" != "true" ]; then
+        cleanup_capacity_reservation
+    fi
     
     if check_vpc_exists; then
         # Get all resource IDs before deletion for route table cleanup
@@ -1981,6 +2021,9 @@ show_usage() {
     echo "  --queue-prefix PREFIX     SQS queue / EventBridge rule name prefix (default: sanitized VPC name, env: QUEUE_PREFIX)"
     echo "  --s3-bucket-name NAME     S3 bucket for ROSA log forwarding (default: sanitized VPC name, env: S3_BUCKET_NAME)"
     echo "  --s3-bucket-prefix PREFIX S3 folder / key prefix inside the bucket (default: logs, env: S3_BUCKET_PREFIX)"
+    echo "  --cr-instance-type TYPE   Capacity reservation instance type (default: m6id.xlarge, env: CR_INSTANCE_TYPE)"
+    echo "                            Must match the machine pool instance type. Public advanced day1 workers use m6id.xlarge."
+    echo "  --cr-instance-count COUNT Reserved instances (default: 3, env: CR_INSTANCE_COUNT)"
     echo "  --central-log-role-arn ARN"
     echo "                            ROSA-CentralLogDistributionRole ARN used as the CloudWatch role trust principal"
     echo "                            CLI value wins. Otherwise CENTRAL_LOG_ROLE_ARN."
@@ -2001,6 +2044,8 @@ show_usage() {
     echo "Options:"
     echo "  --skip-sqs-queue          Skip creating/validating/cleaning up the SQS queue (env: SKIP_SQS_QUEUE)"
     echo "  --skip-s3-bucket          Skip creating/validating/cleaning up the S3 bucket (env: SKIP_S3_BUCKET)"
+    echo "  --skip-capacity-reservation"
+    echo "                            Skip the targeted EC2 capacity reservation (env: SKIP_CAPACITY_RESERVATION)"
     echo "  --validate-only           Only validate existing resources, don't create new ones"
     echo "  --cleanup                 Delete all created AWS resources (DESTRUCTIVE)"
     echo "  --help                    Show this help message"
@@ -2013,6 +2058,10 @@ show_usage() {
     echo "                   The queue URL is written to playwright.env.json as QE_SPOT_INTERRUPTION_QUEUE_URL."
     echo "                   The S3 bucket and prefix are written as QE_LOG_FORWARDING_S3_BUCKET_NAME"
     echo "                   and QE_LOG_FORWARDING_S3_BUCKET_PREFIX."
+    echo "                   A targeted capacity reservation is created in the first subnet AZ and written"
+    echo "                   under QE_INFRA_REGIONS as CAPACITY_RESERVATION.AvailabilityZone, InstanceType, and ID"
+    echo "                   for rosa-cluster-hosted-machine-pool-cr.spec.ts. It expires 3 hours after"
+    echo "                   creation, so a failed --cleanup still releases it."
     echo "                   A name owned by another account, or a bucket in another region, is not reused."
     echo "                   The script creates an account-scoped bucket instead and records that name."
     echo "                   When a central log role ARN is provided, the script creates an IAM role that trusts"
@@ -2094,6 +2143,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-s3-bucket)
             SKIP_S3_BUCKET="true"
+            shift
+            ;;
+        --cr-instance-type)
+            CR_INSTANCE_TYPE="$2"
+            shift 2
+            ;;
+        --cr-instance-count)
+            CR_INSTANCE_COUNT="$2"
+            if ! [[ "$CR_INSTANCE_COUNT" =~ ^[1-9][0-9]*$ ]]; then
+                print_error "Invalid capacity reservation count: $CR_INSTANCE_COUNT (must be a positive integer)"
+                exit 1
+            fi
+            shift 2
+            ;;
+        --skip-capacity-reservation)
+            SKIP_CAPACITY_RESERVATION="true"
             shift
             ;;
         --validate-only)
