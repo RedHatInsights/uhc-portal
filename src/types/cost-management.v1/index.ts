@@ -176,6 +176,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/price-lists/{price_list_uuid}/rates/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List the rates of a Price List.
+     * @description Filterable, paginated rates of a price list, with metric display labels. Read-only. Rates are identified by custom_name; no rate identifier is returned.
+     */
+    get: operations['getPriceListRates'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/price-lists/{price_list_uuid}/duplicate/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Duplicate a Price List.
+     * @description Creates a copy named "Copy of <name>" with the same rates, currency and effective dates, version 1, enabled, and not assigned to any cost model. No request body.
+     */
+    post: operations['duplicatePriceList'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/forecasts/aws/costs/': {
     parameters: {
       query?: never;
@@ -2879,10 +2919,10 @@ export interface components {
     };
     TieredRate: {
       /**
-       * Format: uuid
-       * @example 83ee048e-3c1d-43ef-b945-108225ae52f4
+       * @description Name of the rate, unique within its price list; identifies the rate in the API. Generated from the metric, cost type and tag key when not provided. Renaming a rate replaces it.
+       * @example cpu_core_usage_per_hour-Infrastructure
        */
-      readonly uuid?: string;
+      custom_name?: string;
       /** @example {
        *       "name": "cpu_core_per_hour",
        *       "unit": "core-hours",
@@ -2912,10 +2952,10 @@ export interface components {
     };
     TagRate: {
       /**
-       * Format: uuid
-       * @example 83ee048e-3c1d-43ef-b945-108225ae52f4
+       * @description Name of the rate, unique within its price list; identifies the rate in the API. Generated from the metric, cost type and tag key when not provided. Renaming a rate replaces it.
+       * @example cpu_core_usage_per_hour-Infrastructure
        */
-      readonly uuid?: string;
+      custom_name?: string;
       /** @example {
        *       "name": "cpu_core_per_hour",
        *       "unit": "core-hours",
@@ -3703,6 +3743,84 @@ export interface components {
     UserSetting: {
       setting?: string;
     };
+    /** @description A rate of a price list, enriched with metric display labels. Carries tiered_rates or tag_rates. */
+    PriceListRateOut: {
+      /**
+       * @description Name of the rate, unique within its price list; identifies the rate in the API. Generated from the metric, cost type and tag key when not provided. Renaming a rate replaces it.
+       * @example cpu_core_usage_per_hour-Infrastructure
+       */
+      custom_name?: string;
+      /** @example Compute usage rate */
+      description?: string;
+      metric?: {
+        /** @example cpu_core_usage_per_hour */
+        name?: string;
+        /** @example CPU */
+        label_metric?: string;
+        /** @example Usage */
+        label_measurement?: string;
+        /** @example core-hours */
+        label_measurement_unit?: string;
+      };
+      /**
+       * @description Metric category, for example cpu, memory, storage, node, cluster, pvc, project, vm or gpu.
+       * @example cpu
+       */
+      metric_type?: string;
+      /** @enum {string} */
+      cost_type?: PriceListRateOutCost_type;
+      /**
+       * @description First tier's value as a decimal string, or null for tag rates without a default.
+       * @example 0.220000000000000
+       */
+      default_rate?: string | null;
+      /** @example [
+       *       {
+       *         "value": 0.22,
+       *         "unit": "USD",
+       *         "usage": {
+       *           "usage_start": 0,
+       *           "usage_end": 10
+       *         }
+       *       }
+       *     ] */
+      tiered_rates?: {
+        value?: number;
+        usage?: Record<string, never>;
+        /** @enum {string} */
+        unit?: PriceListRateOutTiered_ratesUnit;
+      }[];
+      tag_rates?: {
+        /** @enum {string} */
+        tag_key: PriceListRateOutTag_ratesTag_key;
+        /** @example [
+         *       {
+         *         "tag_value": "dev",
+         *         "unit": "USD",
+         *         "usage": {
+         *           "unit": "USD",
+         *           "usage_start": 0,
+         *           "usage_end": 10
+         *         },
+         *         "value": 0.2,
+         *         "description": "Developers",
+         *         "default": true
+         *       }
+         *     ] */
+        tag_values?: {
+          tag_value?: string;
+          usage?: Record<string, never>;
+          /** @enum {string} */
+          unit?: PriceListRateOutTag_ratesTag_valuesUnit;
+          value?: number;
+          description?: string;
+          default?: boolean;
+        }[];
+      };
+    };
+    PriceListRatePagination: components['schemas']['ListPagination'] & {
+      data: components['schemas']['PriceListRateOut'][];
+    };
     CPURequestOptimisedNotification: {
       323004?: {
         /** @example 323004 */
@@ -4417,6 +4535,8 @@ export type SchemaUser = components['schemas']['User'];
 export type SchemaUserOut = components['schemas']['UserOut'];
 export type SchemaUserSettings = components['schemas']['UserSettings'];
 export type SchemaUserSetting = components['schemas']['UserSetting'];
+export type SchemaPriceListRateOut = components['schemas']['PriceListRateOut'];
+export type SchemaPriceListRatePagination = components['schemas']['PriceListRatePagination'];
 export type SchemaCpuRequestOptimisedNotification =
   components['schemas']['CPURequestOptimisedNotification'];
 export type SchemaCpuLimitOptimisedNotification =
@@ -4884,14 +5004,30 @@ export interface operations {
         offset?: components['parameters']['QueryOffset'];
         /** @description Parameter for selecting the amount of data in a returned. */
         limit?: components['parameters']['QueryLimit'];
-        /** @description Filter by price list name (case-insensitive substring match). */
-        name?: string;
-        /** @description Filter by exact price list UUID. */
-        uuid?: string;
-        /** @description Filter by enabled status. Use true to show only active price lists or false to show only disabled ones. */
-        enabled?: boolean;
-        /** @description Order response by allowed fields. Prefix with '-' for descending order. Default is 'name'. */
-        ordering?: PathsPriceListsGetParametersQueryOrdering;
+        /**
+         * @description Case-insensitive substring match on the price list name. Accepts comma-separated values or repeated parameters (OR).
+         * @example [
+         *       "default"
+         *     ]
+         */
+        'filter[name]'?: string[];
+        /** @description Exact price list UUID. */
+        'filter[uuid]'?: string;
+        /** @description true shows only active price lists, false only disabled ones. */
+        'filter[enabled]'?: boolean;
+        /**
+         * @description Case-insensitive exact match on the currency code.
+         * @example USD
+         */
+        'filter[currency]'?: string;
+        /** @description Price lists assigned to these cost model UUIDs. Accepts comma-separated values or repeated parameters (OR). */
+        'filter[cost_model]'?: string[];
+        /** @description Order by name. Default ordering is name ascending. */
+        'order_by[name]'?: PathsPriceListsGetParametersQueryOrder_byName;
+        /** @description Order by effective start date. */
+        'order_by[effective_start_date]'?: PathsPriceListsGetParametersQueryOrder_byEffective_start_date;
+        /** @description Order by last update time. */
+        'order_by[updated_timestamp]'?: PathsPriceListsGetParametersQueryOrder_byUpdated_timestamp;
       };
       header?: never;
       path?: never;
@@ -5159,6 +5295,162 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PriceListAffectedCostModel'][];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  getPriceListRates: {
+    parameters: {
+      query?: {
+        /** @description Parameter for selecting the offset of data. */
+        offset?: components['parameters']['QueryOffset'];
+        /** @description Parameter for selecting the amount of data in a returned. */
+        limit?: components['parameters']['QueryLimit'];
+        /**
+         * @description Case-insensitive substring match on the rate's custom_name. Accepts comma-separated values or repeated parameters (OR).
+         * @example [
+         *       "cpu"
+         *     ]
+         */
+        'filter[name]'?: string[];
+        /**
+         * @description Case-insensitive exact match on the metric type. Accepts comma-separated values or repeated parameters (OR).
+         * @example [
+         *       "cpu",
+         *       "memory"
+         *     ]
+         */
+        'filter[metric_type]'?: string[];
+        /**
+         * @description Case-insensitive substring match on the measurement label, e.g. Usage or Request. Accepts comma-separated values or repeated parameters (OR).
+         * @example [
+         *       "usage"
+         *     ]
+         */
+        'filter[measurement]'?: string[];
+        /**
+         * @description Case-insensitive exact match on the cost type. Accepts comma-separated values or repeated parameters (OR).
+         * @example [
+         *       "Infrastructure"
+         *     ]
+         */
+        'filter[cost_type]'?: string[];
+        /** @description Order by custom_name. Default ordering is custom_name ascending. */
+        'order_by[name]'?: PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byName;
+        /** @description Order by metric type. */
+        'order_by[metric_type]'?: PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byMetric_type;
+        /** @description Order by metric name. */
+        'order_by[measurement]'?: PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byMeasurement;
+        /** @description Order by cost type. */
+        'order_by[cost_type]'?: PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byCost_type;
+      };
+      header?: never;
+      path: {
+        /** @description UUID of the Price List. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A paginated list of the price list's rates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListRatePagination'];
+        };
+      };
+      /** @description Bad Request: unsupported parameter or invalid value. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Unexpected Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  duplicatePriceList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the Price List to duplicate. */
+        price_list_uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The new Price List */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PriceListOut'];
+        };
+      };
+      /** @description Bad Request: the price list cannot be duplicated, or price list writes are temporarily disabled. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Error'];
         };
       };
       /** @description Unauthorized */
@@ -10116,13 +10408,33 @@ export enum PathsCostModelsGetParametersQueryOrdering {
   updated_timestamp = 'updated_timestamp',
   ValueMinusupdated_timestamp = '-updated_timestamp',
 }
-export enum PathsPriceListsGetParametersQueryOrdering {
-  name = 'name',
-  ValueMinusname = '-name',
-  effective_start_date = 'effective_start_date',
-  ValueMinuseffective_start_date = '-effective_start_date',
-  updated_timestamp = 'updated_timestamp',
-  ValueMinusupdated_timestamp = '-updated_timestamp',
+export enum PathsPriceListsGetParametersQueryOrder_byName {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsGetParametersQueryOrder_byEffective_start_date {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsGetParametersQueryOrder_byUpdated_timestamp {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byName {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byMetric_type {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byMeasurement {
+  asc = 'asc',
+  desc = 'desc',
+}
+export enum PathsPriceListsPrice_list_uuidRatesGetParametersQueryOrder_byCost_type {
+  asc = 'asc',
+  desc = 'desc',
 }
 export enum PathsSettingsCurrencyGetParametersQueryFilterEnabled {
   true = 'true',
@@ -10516,6 +10828,19 @@ export enum StaticExchangeRateOutStatus {
   active = 'active',
   expired = 'expired',
   upcoming = 'upcoming',
+}
+export enum PriceListRateOutCost_type {
+  Infrastructure = 'Infrastructure',
+  Supplementary = 'Supplementary',
+}
+export enum PriceListRateOutTiered_ratesUnit {
+  USD = 'USD',
+}
+export enum PriceListRateOutTag_ratesTag_key {
+  key_one = 'key_one',
+}
+export enum PriceListRateOutTag_ratesTag_valuesUnit {
+  USD = 'USD',
 }
 export enum ComponentsParametersCostType {
   unblended_cost = 'unblended_cost',
