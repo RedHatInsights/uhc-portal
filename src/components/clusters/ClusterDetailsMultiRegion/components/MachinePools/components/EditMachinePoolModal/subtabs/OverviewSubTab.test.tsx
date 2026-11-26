@@ -141,6 +141,10 @@ describe('OverviewSubTab', () => {
       expect(screen.getByText('Machine pool name')).toBeInTheDocument();
       expect(screen.getByText('Compute node count')).toBeInTheDocument();
       expect(screen.getByText('Root disk size')).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: 'Root disk size' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'More info for Root disk size field' }),
+      ).toBeInTheDocument();
     });
 
     it('displays IMDS section when feature enabled and not editing hypershift cluster', () => {

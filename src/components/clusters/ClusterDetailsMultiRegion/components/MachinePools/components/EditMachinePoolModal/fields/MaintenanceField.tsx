@@ -38,6 +38,7 @@ export const MaintenanceField = ({ fieldId, fieldName, hint }: MaintenanceFieldP
         {...field}
         id={fieldId}
         name={fieldId}
+        inputAriaLabel={fieldName}
         onPlus={() => {
           const newValue = field.value ? field.value + 1 : 0 + 1;
           setTouched(true);

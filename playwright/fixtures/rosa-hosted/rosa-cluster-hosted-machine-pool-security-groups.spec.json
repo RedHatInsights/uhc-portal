@@ -1,0 +1,6 @@
+{
+  "Autoscaling": {
+    "MinimumNodeCount": "0",
+    "MaximumNodeCount": "1"
+  }
+}

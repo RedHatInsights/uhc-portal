@@ -1,0 +1,17 @@
+{
+  "Autoscaling": {
+    "MinimumNodeCount": "0",
+    "MaximumNodeCount": "1"
+  },
+  "RootDisk": {
+    "DefaultSize": "300",
+    "ValidSize": "512",
+    "BelowMin": "74",
+    "AboveMax": "16385",
+    "DecimalValue": "300.5",
+    "MinError": "Disk size must be at least 75 GiB",
+    "MaxError": "Disk size can not be more than 16384 GiB",
+    "DecimalError": "Decimals are not allowed. Enter a whole number.",
+    "Hint": "Root disks are AWS EBS volumes attached as the primary disk for AWS EC2 instances. The root disk size for this machine pool group of nodes must be between 75GiB and 16384GiB."
+  }
+}
