@@ -16011,14 +16011,47 @@ export interface components {
        *     For example, if you have nodes with "topology.ebs.csi.aws.com/zone" label, you can add name of this label here
        *     to prevent cluster autoscaler from splitting nodes into different node groups based on its value. */
       balancing_ignored_labels?: string[];
+      /** @description Ordered list of strategies used to select which node group to grow when scaling up.
+       *     The strategies are applied in the given order, and each one only breaks the ties left
+       *     by the previous one, so the order is significant.
+       *     Accepted values are `LeastWaste`, `Priority` and `Random`. One to three entries are
+       *     allowed, and duplicates are not accepted. `Random` always resolves to a single node
+       *     group, so when more than one strategy is given it must be the last entry.
+       *     Only supported on ROSA HCP clusters. */
+      expanders?: string[];
       /** @description Should CA ignore DaemonSet pods when calculating resource utilization for scaling down. false by default. */
       ignore_daemonsets_utilization?: boolean;
+      /**
+       * Format: int32
+       * @description Maximum number of queries per second the cluster autoscaler is allowed to send to the
+       *     Kubernetes API server.
+       *     Accepted values are between -1 and 1000. `-1` disables client side rate limiting, and
+       *     `0` leaves the client-go default of 5 queries per second in place.
+       *     When not set the autoscaler applies its own default of 200.
+       *     Only supported on ROSA HCP clusters.
+       */
+      kube_client_qps?: number;
+      /**
+       * Format: int32
+       * @description Maximum number of queries the cluster autoscaler is allowed to send to the Kubernetes
+       *     API server in a single burst, on top of the sustained rate given by `kube_client_qps`.
+       *     Accepted values are between 1 and 2000.
+       *     When not set the autoscaler applies its own default of 300.
+       *     Only supported on ROSA HCP clusters.
+       */
+      kube_client_burst?: number;
       /**
        * Format: int32
        * @description Sets the autoscaler log level.
        *     Default value is 1, level 4 is recommended for DEBUGGING and level 6 will enable almost everything.
        */
       log_verbosity?: number;
+      /** @description Maximum difference in free resources tolerated between two node groups for them to still
+       *     be considered similar, and therefore eligible to be balanced against each other.
+       *     Expressed as a ratio of the smaller node group's free resource, a decimal string between "0.0" and "1.0", where "0.1" means 10%.
+       *     Values outside that range, and values with more than two decimal places, are not accepted.
+       *     Only supported on ROSA HCP clusters. */
+      max_free_difference_ratio?: string;
       /** @description Maximum time CA waits for node to be provisioned. */
       max_node_provision_time?: string;
       /**
