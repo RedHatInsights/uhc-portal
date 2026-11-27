@@ -3,7 +3,7 @@
     "MinimumNodeCount": "0",
     "MaximumNodeCount": "1"
   },
-  "Definitions": {
+  "Maintenance": {
     "ImdsV1AndV2Value": "optional",
     "ImdsV2Description": "A session-oriented method with enhanced security",
     "ImdsV1AndV2Description": "Allows use of both IMDS versions for backward compatibility",
@@ -23,16 +23,6 @@
     "MaxSurge": "2",
     "MaxUnavailable": "1",
     "NodeDrainTimeout": "15",
-    "EditedMaxSurge": "3",
-    "NodeLabels": [
-      { "Key": "zone", "Value": "multi" },
-      { "Key": "ocm-key", "Value": "day2" }
-    ],
-    "EditedNodeLabel": { "Key": "zone", "Value": "single" },
-    "Taints": [
-      { "Key": "dedicated", "Value": "e2e", "Effect": "NoSchedule" },
-      { "Key": "workload", "Value": "test", "Effect": "PreferNoSchedule" }
-    ],
-    "AwsTag": { "Key": "ocm-team", "Value": "e2e" }
+    "EditedMaxSurge": "3"
   }
 }

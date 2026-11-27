@@ -397,8 +397,12 @@ export class MachinePoolsPage extends BasePage {
     await this.windowsLicenseIncludedCheckbox().hover();
   }
 
+  // The expanded details row can repeat the pool id inside AWS tags. Match the name cell only.
   getMachinePoolRow(id: string): Locator {
-    return this.page.getByRole('row').filter({ hasText: id });
+    const idCell = this.page
+      .getByRole('gridcell', { name: id, exact: true })
+      .or(this.page.getByRole('cell', { name: id, exact: true }));
+    return this.page.getByRole('row').filter({ has: idCell });
   }
 
   async firstExistingMachinePoolId(): Promise<string> {
@@ -687,14 +691,16 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('button', { name: 'Add AWS Tag' });
   }
 
-  // Label fields lack accessible labels in the source (TextField);
-  // Formik-stable name attributes are the only reliable selectors available.
   labelKeyInput(index: number): Locator {
-    return this.page.locator(`input[name="labels[${index}].key"]`);
+    return this.machinePoolModal()
+      .getByRole('textbox', { name: 'Node label key', exact: true })
+      .nth(index);
   }
 
   labelValueInput(index: number): Locator {
-    return this.page.locator(`input[name="labels[${index}].value"]`);
+    return this.machinePoolModal()
+      .getByRole('textbox', { name: 'Node label value', exact: true })
+      .nth(index);
   }
 
   addLabelButton(): Locator {
@@ -730,11 +736,18 @@ export class MachinePoolsPage extends BasePage {
   // Labels and AWS tags are maps. The edit form lists them in API key order,
   // which is not the order they were entered.
   async labelRowIndex(key: string): Promise<number> {
-    return this.rowIndexByKey(this.page.locator('input[name^="labels["][name$="].key"]'), key);
+    return this.rowIndexByKey(
+      this.machinePoolModal().getByRole('textbox', { name: 'Node label key', exact: true }),
+      key,
+    );
   }
 
+  // AWS tag keys are the only textboxes named "Key". Node label keys use a distinct name.
   async awsTagRowIndex(key: string): Promise<number> {
-    return this.rowIndexByKey(this.page.locator('input[name^="awsTags["][name$="].key"]'), key);
+    return this.rowIndexByKey(
+      this.machinePoolModal().getByRole('textbox', { name: 'Key', exact: true }),
+      key,
+    );
   }
 
   private async rowIndexByKey(keys: Locator, key: string): Promise<number> {
@@ -821,13 +834,10 @@ export class MachinePoolsPage extends BasePage {
     );
   }
 
-  // The caption is a div in the same flex row as its LabelGroup. The heading can also
-  // read "Labels", so the div filter keeps the overflow button on that row only.
+  // Each label group list is named so its overflow button stays with that group.
   private labelGroupOverflow(expanded: Locator, caption: string): Locator {
     return expanded
-      .getByText(caption, { exact: true })
-      .and(expanded.locator('div'))
-      .locator('xpath=ancestor::div[.//button][1]')
+      .getByRole('list', { name: caption, exact: true })
       .getByRole('button', { name: /remaining/ });
   }
 

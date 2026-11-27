@@ -1,0 +1,18 @@
+{
+  "Autoscaling": {
+    "MinimumNodeCount": "0",
+    "MaximumNodeCount": "1"
+  },
+  "LabelsAndTaints": {
+    "NodeLabels": [
+      { "Key": "zone", "Value": "multi" },
+      { "Key": "ocm-key", "Value": "day2" }
+    ],
+    "EditedNodeLabel": { "Key": "zone", "Value": "single" },
+    "Taints": [
+      { "Key": "dedicated", "Value": "e2e", "Effect": "NoSchedule" },
+      { "Key": "workload", "Value": "test", "Effect": "PreferNoSchedule" }
+    ],
+    "AwsTag": { "Key": "ocm-team", "Value": "e2e" }
+  }
+}

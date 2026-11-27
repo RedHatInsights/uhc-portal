@@ -2,10 +2,10 @@ import { expect, test } from '../../fixtures/pages';
 import { CLUSTER_LIST_ROUTE } from '../../support/playwright-constants';
 
 const clusterProfiles = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-public-advanced-creation.spec.json');
-const machinePoolFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-machine-pool-definitions.spec.json');
+const machinePoolFixture = require('../../fixtures/rosa-hosted/rosa-cluster-hosted-machine-pool-labels-taints.spec.json');
 const clusterProperties = clusterProfiles['rosa-hosted-public-advanced']['day1-profile'];
 const { MinimumNodeCount, MaximumNodeCount } = machinePoolFixture.Autoscaling;
-const definitions = machinePoolFixture.Definitions;
+const labelsAndTaints = machinePoolFixture.LabelsAndTaints;
 const clusterName = process.env.CLUSTER_NAME || clusterProperties.ClusterName;
 let infraRegions: Record<
   string,
@@ -22,24 +22,16 @@ const privateSubnetName = Object.values(qeInfrastructure.SUBNETS?.ZONES || {})[0
   ?.PRIVATE_SUBNET_NAME;
 
 test.describe.serial(
-  'ROSA HCP Machine Pool - IMDS, labels, taints, AWS tags, and maintenance',
+  'ROSA HCP Machine Pool - Labels, taints, and AWS tags',
   {
-    tag: [
-      '@day2',
-      '@advanced',
-      '@rosa',
-      '@rosa-hosted',
-      '@machine-pool',
-      '@hcp',
-      '@machine-pool-definitions',
-    ],
+    tag: ['@day2', '@advanced', '@rosa', '@rosa-hosted', '@machine-pool', '@hcp', '@labels-taints'],
   },
   () => {
     // HCP node pool names are limited to 15 characters.
-    const machinePoolId = `mp-df-${Math.random().toString(36).slice(2, 7)}`;
-    const [firstLabel, secondLabel] = definitions.NodeLabels;
-    const [firstTaint, secondTaint] = definitions.Taints;
-    const awsTag = definitions.AwsTag;
+    const machinePoolId = `mp-lt-${Math.random().toString(36).slice(2, 7)}`;
+    const [firstLabel, secondLabel] = labelsAndTaints.NodeLabels;
+    const [firstTaint, secondTaint] = labelsAndTaints.Taints;
+    const awsTag = labelsAndTaints.AwsTag;
 
     test.beforeAll(async ({ navigateTo, clusterListPage }) => {
       if (!privateSubnetName) {
@@ -62,7 +54,7 @@ test.describe.serial(
       await machinePoolsPage.goToMachinePoolsTab();
     });
 
-    test('Configure IMDS, maintenance, labels, and create the machine pool', async ({
+    test('Create a machine pool with labels, taints, and an AWS tag', async ({
       machinePoolsPage,
     }) => {
       await machinePoolsPage.openAddMachinePoolModal();
@@ -72,71 +64,6 @@ test.describe.serial(
         MinimumNodeCount,
         MaximumNodeCount,
       );
-
-      await expect(machinePoolsPage.imdsV2OnlyRadio()).toBeChecked();
-      await expect(machinePoolsPage.imdsV1AndV2Radio()).not.toBeChecked();
-      await expect(machinePoolsPage.getByText(definitions.ImdsV2Description)).toBeVisible();
-      await expect(machinePoolsPage.getByText(definitions.ImdsV1AndV2Description)).toBeVisible();
-
-      await machinePoolsPage.imdsV1AndV2Radio().check();
-      await expect(machinePoolsPage.imdsV1AndV2Radio()).toBeChecked();
-      await expect(machinePoolsPage.imdsV2OnlyRadio()).not.toBeChecked();
-
-      await machinePoolsPage.goToMaintenanceTab();
-      await expect(machinePoolsPage.autoRepairCheckbox()).toBeChecked();
-      await expect(machinePoolsPage.getByText(definitions.AutoRepairDescription)).toBeVisible();
-      await expect(machinePoolsPage.getByText(definitions.UpgradeDescription)).toBeVisible();
-      await expect(machinePoolsPage.maxSurgeInput()).toHaveValue(definitions.DefaultMaxSurge);
-      await expect(machinePoolsPage.maxUnavailableInput()).toHaveValue(
-        definitions.DefaultMaxUnavailable,
-      );
-      await expect(machinePoolsPage.nodeDrainTimeoutInput()).toHaveValue(
-        definitions.DefaultNodeDrainTimeout,
-      );
-
-      await machinePoolsPage.maxSurgeHintButton().click();
-      await expect(machinePoolsPage.helpPopover(definitions.MaxSurgeHint)).toContainText(
-        definitions.MaxSurgeHint,
-      );
-      await machinePoolsPage.closeHelpPopover();
-
-      await machinePoolsPage.maxUnavailableHintButton().click();
-      await expect(machinePoolsPage.helpPopover(definitions.MaxUnavailableHint)).toContainText(
-        definitions.MaxUnavailableHint,
-      );
-      await machinePoolsPage.closeHelpPopover();
-
-      await machinePoolsPage.nodeDrainTimeoutHintButton().click();
-      await expect(machinePoolsPage.helpPopover(definitions.NodeDrainTimeoutHint)).toContainText(
-        definitions.NodeDrainTimeoutHint,
-      );
-      await machinePoolsPage.closeHelpPopover();
-
-      await machinePoolsPage.maxSurgeInput().fill(definitions.BothZeroValue);
-      await machinePoolsPage.maxSurgeInput().blur();
-      // Helper text stays hidden until the field is touched. blur() does not fire
-      // unless the input is focused, and this value is already the default.
-      await machinePoolsPage.maxUnavailableInput().focus();
-      await machinePoolsPage.maxUnavailableInput().blur();
-      await expect(machinePoolsPage.getByText(definitions.BothZeroSurgeError)).toBeVisible();
-      await expect(machinePoolsPage.getByText(definitions.BothZeroUnavailableError)).toBeVisible();
-      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
-
-      await machinePoolsPage.maxSurgeInput().fill(definitions.MaxSurge);
-      await machinePoolsPage.maxUnavailableInput().fill(definitions.MaxUnavailable);
-      await machinePoolsPage.nodeDrainTimeoutInput().fill(definitions.NodeDrainAboveMax);
-      await machinePoolsPage.nodeDrainTimeoutInput().blur();
-      await expect(machinePoolsPage.getByText(definitions.NodeDrainMaxError)).toBeVisible();
-      await expect(machinePoolsPage.getByText(definitions.BothZeroSurgeError)).toBeHidden();
-      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeDisabled();
-
-      await machinePoolsPage.nodeDrainTimeoutInput().fill(definitions.NodeDrainTimeout);
-      await machinePoolsPage.nodeDrainTimeoutInput().blur();
-      await expect(machinePoolsPage.getByText(definitions.NodeDrainMaxError)).toBeHidden();
-      await machinePoolsPage.autoRepairCheckbox().uncheck();
-      await expect(machinePoolsPage.autoRepairCheckbox()).not.toBeChecked();
-      await expect(machinePoolsPage.addMachinePoolSubmitButton()).toBeEnabled();
-
       await machinePoolsPage.openTaintsSection();
       await expect(machinePoolsPage.addLabelButton()).toBeEnabled();
       await expect(machinePoolsPage.addTaintButton()).toBeEnabled();
@@ -152,17 +79,9 @@ test.describe.serial(
 
       await machinePoolsPage.setAwsTag(0, awsTag.Key, awsTag.Value);
 
-      // IMDS is collected only when the pool is created, so the create request is the check.
       const body = await machinePoolsPage.submitNewNodePool();
 
       expect(body.id).toBe(machinePoolId);
-      expect(body.aws_node_pool?.ec2_metadata_http_tokens).toBe(definitions.ImdsV1AndV2Value);
-      expect(body.auto_repair).toBe(false);
-      expect(body.management_upgrade).toMatchObject({
-        max_surge: definitions.MaxSurge,
-        max_unavailable: definitions.MaxUnavailable,
-      });
-      expect(String(body.node_drain_grace_period?.value)).toBe(definitions.NodeDrainTimeout);
       expect(body.labels).toMatchObject({
         [firstLabel.Key]: firstLabel.Value,
         [secondLabel.Key]: secondLabel.Value,
@@ -188,9 +107,7 @@ test.describe.serial(
       });
     });
 
-    test('Verify created labels, taints, AWS tags, and AutoRepair', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify created labels, taints, and AWS tags', async ({ machinePoolsPage }) => {
       await machinePoolsPage.expandMachinePoolRow(machinePoolId);
       await machinePoolsPage.verifyLabels(machinePoolId, firstLabel.Key, firstLabel.Value);
       await machinePoolsPage.verifyLabels(machinePoolId, secondLabel.Key, secondLabel.Value);
@@ -207,28 +124,12 @@ test.describe.serial(
         secondTaint.Effect,
       );
       await machinePoolsPage.verifyAwsTag(machinePoolId, awsTag.Key, awsTag.Value);
-      await machinePoolsPage.verifyAutoRepair(machinePoolId, 'Disabled');
     });
 
-    test('Edit labels and maintenance and verify AWS tags and IMDS stay fixed', async ({
-      machinePoolsPage,
-    }) => {
+    test('Edit a label and confirm AWS tags stay fixed', async ({ machinePoolsPage }) => {
       await machinePoolsPage.editMachinePool(machinePoolId);
-
-      await expect(machinePoolsPage.imdsV2OnlyRadio()).toHaveCount(0);
-      await expect(machinePoolsPage.imdsV1AndV2Radio()).toHaveCount(0);
-
-      await machinePoolsPage.goToMaintenanceTab();
-      await expect(machinePoolsPage.autoRepairCheckbox()).not.toBeChecked();
-      await expect(machinePoolsPage.maxSurgeInput()).toHaveValue(definitions.MaxSurge);
-      await expect(machinePoolsPage.maxUnavailableInput()).toHaveValue(definitions.MaxUnavailable);
-      await expect(machinePoolsPage.nodeDrainTimeoutInput()).toHaveValue(
-        definitions.NodeDrainTimeout,
-      );
-      await machinePoolsPage.autoRepairCheckbox().check();
-      await machinePoolsPage.maxSurgeInput().fill(definitions.EditedMaxSurge);
-
       await machinePoolsPage.openTaintsSection();
+
       const zoneLabelRow = await machinePoolsPage.labelRowIndex(firstLabel.Key);
       const secondLabelRow = await machinePoolsPage.labelRowIndex(secondLabel.Key);
       await expect(machinePoolsPage.labelKeyInput(zoneLabelRow)).toHaveValue(firstLabel.Key);
@@ -250,21 +151,19 @@ test.describe.serial(
 
       await machinePoolsPage.setLabel(
         zoneLabelRow,
-        definitions.EditedNodeLabel.Key,
-        definitions.EditedNodeLabel.Value,
+        labelsAndTaints.EditedNodeLabel.Key,
+        labelsAndTaints.EditedNodeLabel.Value,
       );
       await machinePoolsPage.clickAddMachinePoolSubmitButton();
       await expect(machinePoolsPage.machinePoolModal()).toBeHidden({ timeout: 60000 });
     });
 
-    test('Verify the edited label, AutoRepair, and maintenance values', async ({
-      machinePoolsPage,
-    }) => {
+    test('Verify the edited label, taints, and AWS tag', async ({ machinePoolsPage }) => {
       await machinePoolsPage.expandMachinePoolRow(machinePoolId);
       await machinePoolsPage.verifyLabels(
         machinePoolId,
-        definitions.EditedNodeLabel.Key,
-        definitions.EditedNodeLabel.Value,
+        labelsAndTaints.EditedNodeLabel.Key,
+        labelsAndTaints.EditedNodeLabel.Value,
       );
       await machinePoolsPage.verifyLabels(machinePoolId, secondLabel.Key, secondLabel.Value);
       await machinePoolsPage.verifyTaints(
@@ -274,21 +173,9 @@ test.describe.serial(
         firstTaint.Effect,
       );
       await machinePoolsPage.verifyAwsTag(machinePoolId, awsTag.Key, awsTag.Value);
-      await machinePoolsPage.verifyAutoRepair(machinePoolId, 'Enabled');
-
-      await machinePoolsPage.editMachinePool(machinePoolId);
-      await machinePoolsPage.goToMaintenanceTab();
-      await expect(machinePoolsPage.autoRepairCheckbox()).toBeChecked();
-      await expect(machinePoolsPage.maxSurgeInput()).toHaveValue(definitions.EditedMaxSurge);
-      await expect(machinePoolsPage.maxUnavailableInput()).toHaveValue(definitions.MaxUnavailable);
-      await expect(machinePoolsPage.nodeDrainTimeoutInput()).toHaveValue(
-        definitions.NodeDrainTimeout,
-      );
-      await machinePoolsPage.cancelMachinePoolModalButton().click();
-      await expect(machinePoolsPage.machinePoolModal()).toBeHidden();
     });
 
-    test('Delete the definitions machine pool', async ({ machinePoolsPage }) => {
+    test('Delete the labels and taints machine pool', async ({ machinePoolsPage }) => {
       await machinePoolsPage.deleteMachinePool(machinePoolId);
     });
 
