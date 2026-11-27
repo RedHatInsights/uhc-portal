@@ -182,16 +182,14 @@ test.describe.serial(
     test.afterAll(async ({ machinePoolsPage }) => {
       try {
         await machinePoolsPage.dismissMachinePoolModalIfOpen();
-      } catch {
-        console.error('afterAll: failed to dismiss machine pool modal');
+      } catch (error) {
+        console.error('afterAll: failed to dismiss machine pool modal', error);
       }
       try {
         await machinePoolsPage.goToMachinePoolsTab();
-        if (await machinePoolsPage.getMachinePoolRow(machinePoolId).isVisible()) {
-          await machinePoolsPage.deleteMachinePool(machinePoolId);
-        }
-      } catch {
-        console.error(`Failed to delete machine pool ${machinePoolId} or already deleted`);
+        await machinePoolsPage.deleteMachinePool(machinePoolId);
+      } catch (error) {
+        console.error(`Failed to delete machine pool ${machinePoolId} or already deleted`, error);
       }
     });
   },

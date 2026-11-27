@@ -252,19 +252,18 @@ export class MachinePoolsPage extends BasePage {
   }
 
   // Select options render as menuitem, menuitemcheckbox, or option depending on PatternFly Select.
-  // Long names are truncated in the menu, so match the visible prefix.
+  // Names longer than 50 characters are shown with the same truncation as EditSecurityGroups.
   async selectSecurityGroup(name: string): Promise<void> {
     const toggle = this.securityGroupsToggle();
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
       await toggle.click();
     }
-    const visibleName = name.length > 45 ? name.slice(0, 45) : name;
-    const pattern = new RegExp(this.escapeRegExp(visibleName));
     const option = this.page
-      .getByRole('menuitem', { name: pattern })
-      .or(this.page.getByRole('menuitemcheckbox', { name: pattern }))
-      .or(this.page.getByRole('option', { name: pattern }));
-    await option.first().click();
+      .getByRole('menuitem')
+      .or(this.page.getByRole('menuitemcheckbox'))
+      .or(this.page.getByRole('option'))
+      .filter({ has: this.page.getByText(this.displayedMachinePoolItem(name), { exact: true }) });
+    await option.click();
     if ((await toggle.getAttribute('aria-expanded')) === 'true') {
       await toggle.click();
     }
@@ -841,6 +840,16 @@ export class MachinePoolsPage extends BasePage {
       .getByRole('button', { name: /remaining/ });
   }
 
+  // EditSecurityGroups and MachinePoolItemList both truncate past 50 characters
+  // with truncateTextWithEllipsis: the first 16 characters, "... ", then the last 33.
+  private displayedMachinePoolItem(text: string): string {
+    const maxLength = 50;
+    if (!text || text.length <= maxLength) {
+      return text;
+    }
+    return `${text.slice(0, maxLength / 3)}... ${text.slice((-maxLength * 2) / 3)}`;
+  }
+
   private async expandCollapsedLabelGroup(expanded: Locator, caption: string): Promise<void> {
     const overflow = this.labelGroupOverflow(expanded, caption);
     if (await overflow.isVisible()) {
@@ -852,7 +861,8 @@ export class MachinePoolsPage extends BasePage {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: /Labels/ })).toBeVisible();
     await this.expandCollapsedLabelGroup(expanded, 'Labels');
-    await expect(expanded.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
+    const labels = expanded.getByRole('list', { name: 'Labels', exact: true });
+    await expect(labels.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
   }
 
   async verifyTaints(id: string, key: string, value: string, effect: string): Promise<void> {
@@ -864,15 +874,17 @@ export class MachinePoolsPage extends BasePage {
   async verifySecurityGroup(id: string, name: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: 'Security groups' })).toBeVisible();
-    await expect(expanded.getByText(name, { exact: true })).toBeVisible();
+    await expect(
+      expanded.getByText(this.displayedMachinePoolItem(name), { exact: true }),
+    ).toBeVisible();
   }
 
   async verifyAwsTag(id: string, key: string, value: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: 'Labels and AWS tags' })).toBeVisible();
-    await expect(expanded.getByText('AWS tags', { exact: true })).toBeVisible();
     await this.expandCollapsedLabelGroup(expanded, 'AWS tags');
-    await expect(expanded.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
+    const awsTags = expanded.getByRole('list', { name: 'AWS tags', exact: true });
+    await expect(awsTags.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
   }
 
   async verifyAutoRepair(id: string, state: 'Enabled' | 'Disabled'): Promise<void> {
