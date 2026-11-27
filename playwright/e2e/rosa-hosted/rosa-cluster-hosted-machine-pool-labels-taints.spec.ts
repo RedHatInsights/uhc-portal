@@ -54,6 +54,98 @@ test.describe.serial(
       await machinePoolsPage.goToMachinePoolsTab();
     });
 
+    test('Verify label, taint, and AWS tag validation', async ({ machinePoolsPage }) => {
+      const validation = labelsAndTaints.Validation;
+      const modal = machinePoolsPage.machinePoolModal();
+      const submit = machinePoolsPage.addMachinePoolSubmitButton();
+
+      await machinePoolsPage.openAddMachinePoolModal();
+      await machinePoolsPage.fillHostedMachinePoolBasics(
+        machinePoolId,
+        privateSubnetName,
+        MinimumNodeCount,
+        MaximumNodeCount,
+      );
+      await machinePoolsPage.openTaintsSection();
+
+      await machinePoolsPage.labelKeyInput(0).fill(validation.InvalidLabelKey);
+      await machinePoolsPage.labelKeyInput(0).blur();
+      await expect(modal.getByText(validation.LabelKeyError)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.labelKeyInput(0).clear();
+      await machinePoolsPage.labelKeyInput(0).blur();
+      await machinePoolsPage.labelValueInput(0).fill(validation.LabelValueWithoutKey);
+      await machinePoolsPage.labelValueInput(0).blur();
+      await expect(modal.getByText(validation.LabelKeyError)).toHaveCount(0);
+      await expect(modal.getByText(validation.LabelKeyRequiredError)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.setLabel(0, firstLabel.Key, firstLabel.Value);
+      await machinePoolsPage.labelValueInput(0).blur();
+      await expect(modal.getByText(validation.LabelKeyRequiredError)).toHaveCount(0);
+      await expect(submit).toBeEnabled();
+
+      await machinePoolsPage.addLabelButton().click();
+      await machinePoolsPage.labelKeyInput(1).fill(firstLabel.Key);
+      await machinePoolsPage.labelKeyInput(1).blur();
+      // Both rows report the duplicate key.
+      await expect(modal.getByText(validation.DuplicateKeyError).first()).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.setLabel(1, secondLabel.Key, secondLabel.Value);
+      await machinePoolsPage.labelKeyInput(1).blur();
+      await expect(modal.getByText(validation.DuplicateKeyError)).toHaveCount(0);
+      await expect(submit).toBeEnabled();
+
+      await machinePoolsPage.taintValueInput(0).fill(validation.TaintValueWithoutKey);
+      await machinePoolsPage.taintValueInput(0).blur();
+      await expect(modal.getByText(validation.TaintKeyRequiredError)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.taintValueInput(0).clear();
+      await machinePoolsPage.setTaint(0, firstTaint.Key, firstTaint.Value);
+      await machinePoolsPage.taintKeyInput(0).blur();
+      await expect(modal.getByText(validation.TaintKeyRequiredError)).toHaveCount(0);
+      await expect(submit).toBeEnabled();
+
+      await machinePoolsPage.awsTagKeyInput(0).fill(validation.AwsTagKeyWithoutValue);
+      await machinePoolsPage.awsTagKeyInput(0).blur();
+      await expect(modal.getByText(validation.AwsTagValueRequiredError)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.awsTagKeyInput(0).fill(validation.AwsTagKeyStartsWithAws);
+      await machinePoolsPage.awsTagValueInput(0).fill(validation.AwsTagValue);
+      await machinePoolsPage.awsTagKeyInput(0).blur();
+      await expect(modal.getByText(validation.AwsTagValueRequiredError)).toHaveCount(0);
+      await expect(modal.getByText(validation.AwsTagPrefixError)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.setAwsTag(0, awsTag.Key, awsTag.Value);
+      await machinePoolsPage.awsTagKeyInput(0).blur();
+      await expect(modal.getByText(validation.AwsTagPrefixError)).toHaveCount(0);
+      await expect(submit).toBeEnabled();
+
+      await machinePoolsPage.addAwsTagButton().click();
+      await machinePoolsPage.awsTagKeyInput(1).fill(awsTag.Key);
+      await machinePoolsPage.awsTagValueInput(1).fill(validation.DuplicateAwsTagValue);
+      await machinePoolsPage.awsTagKeyInput(1).blur();
+      await expect(modal.getByText(validation.DuplicateAwsTagError).first()).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      await machinePoolsPage.setAwsTag(
+        1,
+        validation.UniqueAwsTagKey,
+        validation.DuplicateAwsTagValue,
+      );
+      await machinePoolsPage.awsTagKeyInput(1).blur();
+      await expect(modal.getByText(validation.DuplicateAwsTagError)).toHaveCount(0);
+      await expect(submit).toBeEnabled();
+
+      await machinePoolsPage.cancelMachinePoolModalButton().click();
+      await expect(modal).toBeHidden();
+    });
+
     test('Create a machine pool with labels, taints, and an AWS tag', async ({
       machinePoolsPage,
     }) => {
