@@ -52,10 +52,10 @@ const EditLabelsSection = () => {
                   // eslint-disable-next-line react/no-array-index-key
                   <React.Fragment key={index}>
                     <GridItem span={4}>
-                      <TextField fieldId={keyField} />
+                      <TextField fieldId={keyField} ariaLabel="Node label key" />
                     </GridItem>
                     <GridItem span={4}>
-                      <TextField fieldId={valueField} />
+                      <TextField fieldId={valueField} ariaLabel="Node label value" />
                     </GridItem>
                     <GridItem span={4}>
                       <FieldArrayRemoveButton

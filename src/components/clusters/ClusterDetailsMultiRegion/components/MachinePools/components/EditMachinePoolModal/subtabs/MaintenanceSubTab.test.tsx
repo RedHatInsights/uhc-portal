@@ -132,9 +132,9 @@ describe('MaintenanceSubTab', () => {
 
       render(content());
       expect(screen.getByRole('tabpanel')).toBeInTheDocument();
-      expect(screen.getByText('Max surge')).toBeInTheDocument();
-      expect(screen.getByText('Max unavailable')).toBeInTheDocument();
-      expect(screen.getByText('Node drain timeout')).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: 'Max surge' })).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: 'Max unavailable' })).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: 'Node drain timeout' })).toBeInTheDocument();
     });
 
     it('does not display content when cluster is not hypershift', () => {

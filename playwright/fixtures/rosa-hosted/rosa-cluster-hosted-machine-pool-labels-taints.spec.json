@@ -1,0 +1,35 @@
+{
+  "Autoscaling": {
+    "MinimumNodeCount": "0",
+    "MaximumNodeCount": "1"
+  },
+  "LabelsAndTaints": {
+    "NodeLabels": [
+      { "Key": "zone", "Value": "multi" },
+      { "Key": "ocm-key", "Value": "day2" }
+    ],
+    "EditedNodeLabel": { "Key": "zone", "Value": "single" },
+    "Taints": [
+      { "Key": "dedicated", "Value": "e2e", "Effect": "NoSchedule" },
+      { "Key": "workload", "Value": "test", "Effect": "PreferNoSchedule" }
+    ],
+    "AwsTag": { "Key": "ocm-team", "Value": "e2e" },
+    "Validation": {
+      "InvalidLabelKey": "bad key",
+      "LabelKeyError": "A valid key name must consist of alphanumeric characters, '-', '.' , '_'  or '/' and must start and end with an alphanumeric character",
+      "LabelValueWithoutKey": "orphan",
+      "LabelKeyRequiredError": "Label key has to be defined",
+      "DuplicateKeyError": "Each label must have a different key.",
+      "TaintValueWithoutKey": "e2e",
+      "TaintKeyRequiredError": "Taint key has to be defined",
+      "AwsTagKeyWithoutValue": "env",
+      "AwsTagValueRequiredError": "Required",
+      "AwsTagKeyStartsWithAws": "aws-team",
+      "AwsTagValue": "prod",
+      "AwsTagPrefixError": "AWS Tag keys cannot start with \"aws\"",
+      "DuplicateAwsTagValue": "other",
+      "DuplicateAwsTagError": "Each AWS Tag must have a different key.",
+      "UniqueAwsTagKey": "cost-center"
+    }
+  }
+}

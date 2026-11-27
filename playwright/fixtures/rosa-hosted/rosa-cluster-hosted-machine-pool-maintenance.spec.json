@@ -1,0 +1,28 @@
+{
+  "Autoscaling": {
+    "MinimumNodeCount": "0",
+    "MaximumNodeCount": "1"
+  },
+  "Maintenance": {
+    "ImdsV1AndV2Value": "optional",
+    "ImdsV2Description": "A session-oriented method with enhanced security",
+    "ImdsV1AndV2Description": "Allows use of both IMDS versions for backward compatibility",
+    "AutoRepairDescription": "If the node is unhealthy, a repair process will drain and recreate the node(s).",
+    "UpgradeDescription": "Fine-tune your deployment: Max Surge speeds up updates by adding extra new pods, while Max Unavailable ensures a minimum number of your current pods remain active",
+    "MaxSurgeHint": "Maximum number of nodes in a machine pool that can be scheduled above the desired number nodes during an upgrade.",
+    "MaxUnavailableHint": "Maximum number of nodes in a machine pool that can be unavailable during an upgrade.",
+    "NodeDrainTimeoutHint": "The amount of time the cluster will wait for pods to gracefully terminate before forcibly evicting them from a node during the node drain process.",
+    "BothZeroValue": "0",
+    "BothZeroSurgeError": "Cannot be 0 if Max Unavailable is also 0.",
+    "BothZeroUnavailableError": "Cannot be 0 if Max Surge is also 0.",
+    "NodeDrainMaxError": "Input cannot be greater than 10080",
+    "NodeDrainAboveMax": "10081",
+    "DefaultMaxSurge": "1",
+    "DefaultMaxUnavailable": "0",
+    "DefaultNodeDrainTimeout": "0",
+    "MaxSurge": "2",
+    "MaxUnavailable": "1",
+    "NodeDrainTimeout": "15",
+    "EditedMaxSurge": "3"
+  }
+}

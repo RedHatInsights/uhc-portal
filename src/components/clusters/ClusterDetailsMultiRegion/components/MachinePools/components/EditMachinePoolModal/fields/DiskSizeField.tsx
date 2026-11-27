@@ -42,6 +42,7 @@ const DiskSizeField = ({ cluster, isEdit }: DiskSizeFieldProps) => {
       isRequired
       labelHelp={
         <PopoverHint
+          buttonAriaLabel="More info for Root disk size field"
           hint={`Root disks are AWS EBS volumes attached as the primary disk for AWS EC2 instances. The root disk size for this machine pool group of nodes must be between ${minWorkerVolumeSizeGiB}GiB and ${maxWorkerVolumeSizeGiB}GiB.`}
         />
       }
@@ -52,6 +53,7 @@ const DiskSizeField = ({ cluster, isEdit }: DiskSizeFieldProps) => {
       >
         <NumberInput
           {...field}
+          inputAriaLabel="Root disk size"
           onPlus={() => onChange(field.value + 1)}
           onMinus={() => onChange(field.value - 1)}
           onChange={(e) => {

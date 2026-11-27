@@ -14,6 +14,7 @@ type TextFieldProps = {
   helpText?: string;
   placeHolderText?: string;
   isReadOnly?: boolean;
+  ariaLabel?: string;
   ariaLabelledBy?: string;
   trimOnBlur?: boolean;
   shouldShowError?: boolean;
@@ -27,6 +28,7 @@ const TextField = ({
   helpText,
   placeHolderText,
   isReadOnly,
+  ariaLabel,
   ariaLabelledBy,
   trimOnBlur,
   shouldShowError,
@@ -68,6 +70,7 @@ const TextField = ({
         isDisabled={isDisabled}
         placeholder={placeHolderText}
         readOnlyVariant={isReadOnly ? 'default' : undefined}
+        aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         aria-describedby={showHelperText ? helperTextId : undefined}
         aria-errormessage={isInvalid ? helperTextId : undefined}

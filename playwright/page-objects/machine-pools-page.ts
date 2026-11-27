@@ -2,6 +2,22 @@ import { expect, Locator, Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
+// Shape of the HCP node pool body sent by the Add machine pool modal.
+export type NodePoolCreateRequest = {
+  id?: string;
+  auto_repair?: boolean;
+  labels?: Record<string, string>;
+  taints?: { key?: string; value?: string; effect?: string }[];
+  management_upgrade?: { max_surge?: string; max_unavailable?: string };
+  node_drain_grace_period?: { value?: number | string };
+  aws_node_pool?: {
+    ec2_metadata_http_tokens?: string;
+    additional_security_group_ids?: string[];
+    root_volume?: { size?: number | string };
+    tags?: Record<string, string>;
+  };
+};
+
 export class MachinePoolsPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -206,10 +222,51 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByLabel('Security groups');
   }
 
+  securityGroupsDocsLink(): Locator {
+    return this.machinePoolModal().getByRole('link', { name: 'View more information' });
+  }
+
+  securityGroupsAwsConsoleLink(): Locator {
+    return this.machinePoolModal().getByRole('link', { name: 'AWS security groups console' });
+  }
+
+  selectedSecurityGroup(name: string): Locator {
+    return this.visibleMachinePoolTabPanel().getByText(name, { exact: true });
+  }
+
+  // Inactive machine pool tabs stay in the DOM with the hidden attribute.
+  visibleMachinePoolTabPanel(): Locator {
+    return this.machinePoolModal().getByRole('tabpanel');
+  }
+
   async selectFirstSecurityGroup(): Promise<void> {
     await this.securityGroupsToggle().click();
     await this.page.getByRole('menuitem').first().click();
     await this.securityGroupsToggle().click();
+  }
+
+  async goToSecurityGroupsTab(): Promise<void> {
+    await this.securityGroupsTab().click();
+    // VPC security groups load after the tab opens.
+    await expect(this.securityGroupsNoChangeAlert()).toBeVisible({ timeout: 30000 });
+  }
+
+  // Select options render as menuitem, menuitemcheckbox, or option depending on PatternFly Select.
+  // Names longer than 50 characters are shown with the same truncation as EditSecurityGroups.
+  async selectSecurityGroup(name: string): Promise<void> {
+    const toggle = this.securityGroupsToggle();
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
+      await toggle.click();
+    }
+    const option = this.page
+      .getByRole('menuitem')
+      .or(this.page.getByRole('menuitemcheckbox'))
+      .or(this.page.getByRole('option'))
+      .filter({ has: this.page.getByText(this.displayedMachinePoolItem(name), { exact: true }) });
+    await option.click();
+    if ((await toggle.getAttribute('aria-expanded')) === 'true') {
+      await toggle.click();
+    }
   }
 
   // Taint fields lack accessible labels in the source (TextField/TaintEffectField);
@@ -339,8 +396,12 @@ export class MachinePoolsPage extends BasePage {
     await this.windowsLicenseIncludedCheckbox().hover();
   }
 
+  // The expanded details row can repeat the pool id inside AWS tags. Match the name cell only.
   getMachinePoolRow(id: string): Locator {
-    return this.page.getByRole('row').filter({ hasText: id });
+    const idCell = this.page
+      .getByRole('gridcell', { name: id, exact: true })
+      .or(this.page.getByRole('cell', { name: id, exact: true }));
+    return this.page.getByRole('row').filter({ has: idCell });
   }
 
   async firstExistingMachinePoolId(): Promise<string> {
@@ -518,20 +579,127 @@ export class MachinePoolsPage extends BasePage {
     return this.page.getByRole('button', { name: 'Close' });
   }
 
-  // FormGroup label="Root disk size" wraps multiple sibling NumberInputs;
-  // the Formik-stable id="diskSize" on the NumberInput wrapper is the only unique identifier.
   rootDiskSizeInput(): Locator {
-    return this.page.locator('#diskSize').getByRole('spinbutton');
+    return this.machinePoolModal().getByRole('spinbutton', {
+      name: 'Root disk size',
+      exact: true,
+    });
   }
 
-  // Label fields lack accessible labels in the source (TextField);
-  // Formik-stable name attributes are the only reliable selectors available.
+  rootDiskSizeHintButton(): Locator {
+    return this.machinePoolModal().getByRole('button', {
+      name: 'More info for Root disk size field',
+    });
+  }
+
+  // `description` is the popover body. Several help dialogs share the name "help".
+  helpPopover(description?: string): Locator {
+    return this.page.getByRole(
+      'dialog',
+      description ? { name: 'help', description } : { name: 'help' },
+    );
+  }
+
+  // Clicking the hint button again does not dismiss the popover. PatternFly keeps a
+  // focus trap on click-triggered popovers, and that trap swallows the toggle click.
+  async closeHelpPopover(): Promise<void> {
+    const popover = this.helpPopover();
+    await popover.getByRole('button', { name: 'Close', exact: true }).click();
+    await expect(popover).toBeHidden();
+  }
+
+  immutableSettingTooltip(): Locator {
+    return this.page.getByRole('tooltip', {
+      name: /This option cannot be edited from its original setting selection/,
+    });
+  }
+
+  // The same warning is mounted on more than one tab. Only the selected tabpanel is visible.
+  securityGroupsImmutableAlert(): Locator {
+    return this.visibleMachinePoolTabPanel().getByText(
+      'This option cannot be edited from its original setting selection.',
+    );
+  }
+
+  awsTagsImmutableAlert(): Locator {
+    return this.visibleMachinePoolTabPanel().getByText(
+      'This option cannot be edited from its original setting selection.',
+    );
+  }
+
+  maintenanceTab(): Locator {
+    return this.machinePoolModal().getByRole('tab', { name: /Maintenance/ });
+  }
+
+  autoRepairCheckbox(): Locator {
+    return this.machinePoolModal().getByRole('checkbox', { name: /Enable AutoRepair/ });
+  }
+
+  maxSurgeInput(): Locator {
+    return this.machinePoolModal().getByRole('spinbutton', { name: 'Max surge', exact: true });
+  }
+
+  maxUnavailableInput(): Locator {
+    return this.machinePoolModal().getByRole('spinbutton', {
+      name: 'Max unavailable',
+      exact: true,
+    });
+  }
+
+  nodeDrainTimeoutInput(): Locator {
+    return this.machinePoolModal().getByRole('spinbutton', {
+      name: 'Node drain timeout',
+      exact: true,
+    });
+  }
+
+  maxSurgeHintButton(): Locator {
+    return this.machinePoolModal().getByRole('button', { name: 'More info for Max surge field' });
+  }
+
+  maxUnavailableHintButton(): Locator {
+    return this.machinePoolModal().getByRole('button', {
+      name: 'More info for Max unavailable field',
+    });
+  }
+
+  nodeDrainTimeoutHintButton(): Locator {
+    return this.machinePoolModal().getByRole('button', {
+      name: 'More info for Node drain timeout field',
+    });
+  }
+
+  imdsV2OnlyRadio(): Locator {
+    return this.machinePoolModal().getByRole('radio', { name: /IMDSv2 only/ });
+  }
+
+  imdsV1AndV2Radio(): Locator {
+    return this.machinePoolModal().getByRole('radio', { name: /IMDSv1 and IMDSv2/ });
+  }
+
+  // Each row reuses the Key and Value column labels, so the row index selects among them.
+  awsTagKeyInput(index: number): Locator {
+    return this.machinePoolModal().getByRole('textbox', { name: 'Key', exact: true }).nth(index);
+  }
+
+  awsTagValueInput(index: number): Locator {
+    return this.machinePoolModal().getByRole('textbox', { name: 'Value', exact: true }).nth(index);
+  }
+
+  addAwsTagButton(): Locator {
+    return this.page.getByRole('button', { name: 'Add AWS Tag' });
+  }
+
   labelKeyInput(index: number): Locator {
-    return this.page.locator(`input[name="labels[${index}].key"]`);
+    return this.machinePoolModal()
+      .getByRole('textbox', { name: 'Node label key', exact: true })
+      .nth(index);
   }
 
   labelValueInput(index: number): Locator {
-    return this.page.locator(`input[name="labels[${index}].value"]`);
+    return this.machinePoolModal()
+      .getByRole('textbox', { name: 'Node label value', exact: true })
+      .nth(index);
   }
 
   addLabelButton(): Locator {
@@ -564,12 +732,86 @@ export class MachinePoolsPage extends BasePage {
     await this.page.getByRole('listbox').getByRole('option', { name: count }).click();
   }
 
+  // Labels and AWS tags are maps. The edit form lists them in API key order,
+  // which is not the order they were entered.
+  async labelRowIndex(key: string): Promise<number> {
+    return this.rowIndexByKey(
+      this.machinePoolModal().getByRole('textbox', { name: 'Node label key', exact: true }),
+      key,
+    );
+  }
+
+  // AWS tag keys are the only textboxes named "Key". Node label keys use a distinct name.
+  async awsTagRowIndex(key: string): Promise<number> {
+    return this.rowIndexByKey(
+      this.machinePoolModal().getByRole('textbox', { name: 'Key', exact: true }),
+      key,
+    );
+  }
+
+  private async rowIndexByKey(keys: Locator, key: string): Promise<number> {
+    const values = await keys.evaluateAll((inputs: HTMLInputElement[]) =>
+      inputs.map((input) => input.value),
+    );
+    const index = values.indexOf(key);
+    if (index === -1) {
+      throw new Error(`No row with key "${key}" was found`);
+    }
+    return index;
+  }
+
   // Label helpers
   async setLabel(index: number, key: string, value: string): Promise<void> {
     await this.labelKeyInput(index).clear();
     await this.labelKeyInput(index).fill(key);
     await this.labelValueInput(index).clear();
     await this.labelValueInput(index).fill(value);
+  }
+
+  async setAwsTag(index: number, key: string, value: string): Promise<void> {
+    await this.awsTagKeyInput(index).clear();
+    await this.awsTagKeyInput(index).fill(key);
+    await this.awsTagValueInput(index).clear();
+    await this.awsTagValueInput(index).fill(value);
+  }
+
+  async goToMaintenanceTab(): Promise<void> {
+    await this.maintenanceTab().click();
+    await expect(this.autoRepairCheckbox()).toBeVisible();
+  }
+
+  async fillHostedMachinePoolBasics(
+    id: string,
+    privateSubnetName: string,
+    autoscaleMin: string,
+    autoscaleMax: string,
+  ): Promise<void> {
+    await this.goToMachinePoolOverviewTab();
+    await this.machinePoolIdInput().fill(id);
+    await this.selectPrivateSubnet(privateSubnetName);
+    await this.setAutoscalingRange(autoscaleMin, autoscaleMax);
+  }
+
+  async hoverRootDiskSize(): Promise<void> {
+    // Disabled number inputs do not receive hover unless the action is forced.
+    await this.rootDiskSizeInput().hover({ force: true });
+  }
+
+  async submitNewNodePool(): Promise<NodePoolCreateRequest> {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' && /\/node_pools(?:\?|$)/.test(response.url()),
+      { timeout: 60000 },
+    );
+    await this.clickAddMachinePoolSubmitButton();
+    const response = await responsePromise;
+    if (!response.ok()) {
+      throw new Error(
+        `Creating the machine pool failed (${response.status()}): ${await response.text()}`,
+      );
+    }
+    await expect(this.machinePoolModal()).toBeHidden({ timeout: 60000 });
+    return response.request().postDataJSON();
   }
 
   async expandMachinePoolRow(id: string): Promise<void> {
@@ -591,21 +833,64 @@ export class MachinePoolsPage extends BasePage {
     );
   }
 
+  // Each label group list is named so its overflow button stays with that group.
+  private labelGroupOverflow(expanded: Locator, caption: string): Locator {
+    return expanded
+      .getByRole('list', { name: caption, exact: true })
+      .getByRole('button', { name: /remaining/ });
+  }
+
+  // EditSecurityGroups and MachinePoolItemList both truncate past 50 characters
+  // with truncateTextWithEllipsis: the first 16 characters, "... ", then the last 33.
+  private displayedMachinePoolItem(text: string): string {
+    const maxLength = 50;
+    if (!text || text.length <= maxLength) {
+      return text;
+    }
+    return `${text.slice(0, maxLength / 3)}... ${text.slice((-maxLength * 2) / 3)}`;
+  }
+
+  private async expandCollapsedLabelGroup(expanded: Locator, caption: string): Promise<void> {
+    const overflow = this.labelGroupOverflow(expanded, caption);
+    if (await overflow.isVisible()) {
+      await overflow.click();
+    }
+  }
+
   async verifyLabels(id: string, key: string, value: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: /Labels/ })).toBeVisible();
-
-    const expandButton = expanded.getByRole('button', { name: /remaining/ });
-    if (await expandButton.isVisible()) {
-      await expandButton.click();
-    }
-    await expect(expanded.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
+    await this.expandCollapsedLabelGroup(expanded, 'Labels');
+    const labels = expanded.getByRole('list', { name: 'Labels', exact: true });
+    await expect(labels.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
   }
 
   async verifyTaints(id: string, key: string, value: string, effect: string): Promise<void> {
     const expanded = this.expandedRowContent(id);
     await expect(expanded.getByRole('heading', { name: 'Taints' })).toBeVisible();
     await expect(expanded.getByText(`${key} = ${value}:${effect}`, { exact: true })).toBeVisible();
+  }
+
+  async verifySecurityGroup(id: string, name: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(expanded.getByRole('heading', { name: 'Security groups' })).toBeVisible();
+    await expect(
+      expanded.getByText(this.displayedMachinePoolItem(name), { exact: true }),
+    ).toBeVisible();
+  }
+
+  async verifyAwsTag(id: string, key: string, value: string): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(expanded.getByRole('heading', { name: 'Labels and AWS tags' })).toBeVisible();
+    await this.expandCollapsedLabelGroup(expanded, 'AWS tags');
+    const awsTags = expanded.getByRole('list', { name: 'AWS tags', exact: true });
+    await expect(awsTags.getByText(`${key} = ${value}`, { exact: true })).toBeVisible();
+  }
+
+  async verifyAutoRepair(id: string, state: 'Enabled' | 'Disabled'): Promise<void> {
+    const expanded = this.expandedRowContent(id);
+    await expect(expanded.getByRole('heading', { name: 'AutoRepair' })).toBeVisible();
+    await expect(expanded.getByText(state, { exact: true })).toBeVisible();
   }
 
   async verifySpotInstancePricing(id: string, maxPrice: string): Promise<void> {

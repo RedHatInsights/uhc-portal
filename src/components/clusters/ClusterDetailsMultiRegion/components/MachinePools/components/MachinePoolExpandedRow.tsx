@@ -147,6 +147,7 @@ const MachinePoolExpandedRow = ({
                     <LabelGroup
                       numLabels={1}
                       collapsedText={`${labels.length - 1} remaining`}
+                      aria-label="Labels"
                       title="Labels"
                     >
                       {labels.map((fullLabel) => (
@@ -174,6 +175,7 @@ const MachinePoolExpandedRow = ({
                     <LabelGroup
                       numLabels={1}
                       collapsedText={`${awsTags.length - 1} remaining`}
+                      aria-label="AWS tags"
                       isCompact
                     >
                       {awsTags &&

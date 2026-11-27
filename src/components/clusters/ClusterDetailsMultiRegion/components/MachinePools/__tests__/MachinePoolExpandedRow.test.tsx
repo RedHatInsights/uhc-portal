@@ -4,7 +4,7 @@ import {
   AWS_TAGS_NEW_MP,
   CAPACITY_RESERVATION_ID_FIELD,
 } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen } from '~/testUtils';
+import { mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { MachinePool, NodePool } from '~/types/clusters_mgmt.v1';
 import { ClusterFromSubscription } from '~/types/types';
 
@@ -96,7 +96,11 @@ describe('MachinePoolExpandedRow', () => {
       render(<MachinePoolExpandedRow {...getDefaultProps({})} />);
       expect(screen.getAllByText('Labels')[0]).toBeInTheDocument();
       verifyTextIsPresent(['fooLabel = barLabel']);
-      expect(screen.getByRole('button', { name: /1 remaining/i })).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('list', { name: 'Labels' })).getByRole('button', {
+          name: /1 remaining/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it('are displayed correctly with AWS tags', () => {
@@ -104,7 +108,11 @@ describe('MachinePoolExpandedRow', () => {
       render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
       expect(screen.getByText('Labels and AWS tags')).toBeInTheDocument();
       verifyTextIsPresent(['fooLabel = barLabel']);
-      expect(screen.getByRole('button', { name: /1 remaining/i })).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('list', { name: 'Labels' })).getByRole('button', {
+          name: /1 remaining/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it('are not displayed if there are none', () => {
@@ -119,7 +127,11 @@ describe('MachinePoolExpandedRow', () => {
       render(<MachinePoolExpandedRow {...getNodePoolProps({})} />);
       expect(screen.getByText('AWS tags')).toBeInTheDocument();
       verifyTextIsPresent(['fooTag = fooTagValue']);
-      expect(screen.getByRole('button', { name: /2 remaining/i })).toBeInTheDocument();
+      expect(
+        within(screen.getByRole('list', { name: 'AWS tags' })).getByRole('button', {
+          name: /2 remaining/i,
+        }),
+      ).toBeInTheDocument();
     });
 
     it('are not displayed if there are none', () => {
